@@ -1,5 +1,5 @@
 """
-micrograd.py — SKELETON Tuần 2.
+02_micrograd.py — SKELETON Tuần 2.
 
 TỰ build một autograd engine scalar (tham chiếu repo mở karpathy/micrograd).
 Mục tiêu: hiểu backprop = chain rule lan ngược qua computation graph.
@@ -10,7 +10,7 @@ Mục tiêu: hiểu backprop = chain rule lan ngược qua computation graph.
   - _backward: hàm cục bộ cộng grad vào các "con" (toán hạng tạo ra nó)
   - _prev   : tập các Value cha trực tiếp
 
-Chỗ TODO là phần BẠN tự điền. Tự code trước, đối chiếu Karpathy / check_grad.py sau.
+Chỗ TODO là phần BẠN tự điền. Tự code trước, đối chiếu Karpathy / 03_check_grad.py sau.
 """
 
 import math

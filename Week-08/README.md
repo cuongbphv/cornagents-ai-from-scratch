@@ -12,6 +12,14 @@
 - **Unsloth docs** (unsloth.ai/docs): Fine-tuning Guide, LoRA Hyperparameters Guide, Requirements table.
 - HF **PEFT** + **TRL** (`SFTTrainer`).
 - NVIDIA — "How to Fine-Tune LLMs on RTX GPUs With Unsloth."
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — QLoRA/NF4, hyperparameters, quy trình 8GB, kỷ luật eval.
+2. [`02_qlora_finetune.py`](02_qlora_finetune.py) — smoke test → full run (deliverable).
+3. [`03_eval_notes.md`](03_eval_notes.md) — eval base vs fine-tuned trên held-out (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -47,6 +55,7 @@ Adapter 7B/8B đã fine-tune + **eval so base vs fine-tuned** trên held-out exa
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — giải thích được vì sao 8GB fine-tune được 8B
 - [ ] Cài Unsloth + dependencies (kiểm tra CUDA khớp)
 - [ ] Chọn base model (Llama 3.1 8B / Qwen2.5 7B) ở 4-bit
 - [ ] Chuẩn bị dataset 500–1,000 mẫu (gợi ý: dùng domain Finance Banking của bạn)
@@ -54,7 +63,7 @@ Adapter 7B/8B đã fine-tune + **eval so base vs fine-tuned** trên held-out exa
 - [ ] Smoke test vài step → xác nhận không OOM, loss giảm
 - [ ] Chạy full run + lưu adapter
 - [ ] Merge adapter + export GGUF (để chạy Ollama/LM Studio ở Tuần 9)
-- [ ] Eval base vs fine-tuned trên held-out → ghi `eval_notes.md`
+- [ ] Eval base vs fine-tuned trên held-out → ghi `03_eval_notes.md`
 
 ## 🚀 Bổ sung nâng cao (quantization internals + cách eval)
 
@@ -82,8 +91,12 @@ Gợi ý cho lần fine-tune đầu: trộn `Sujet-Finance-Instruct-177k` (Apach
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `qlora_finetune.py` | Starter script Unsloth QLoRA (điền dataset + tinh chỉnh) |
-| `eval_notes.md` | Template eval base vs fine-tuned |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: QLoRA/NF4, hyperparameters, kỷ luật eval |
+| 2 | `02_qlora_finetune.py` | Starter script Unsloth QLoRA (điền dataset + tinh chỉnh) |
+| 3 | `03_eval_notes.md` | Template eval base vs fine-tuned |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

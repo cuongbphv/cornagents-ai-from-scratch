@@ -56,7 +56,8 @@ Build a multi-agent software-delivery assistant, grounded in your domain.
 ## Repository layout
 
 ```
-Week-00/          Full roadmap (Vietnamese + English), advanced-topics gap analysis,
+Week-00/          Full roadmap (Vietnamese + English), prerequisites self-assessment
+                  (open-license learning sources only), advanced-topics gap analysis,
                   and a vetted dataset guide for the Finance Banking domain (VI/EN)
 Week-01..15/      One folder per week: README, code skeletons, note templates, quiz
 docs/             Source documents for Phase 3:
@@ -71,17 +72,18 @@ scripts/          quiz_bank.json (single source of truth, 93 questions)
 
 ## How to use it
 
-1. **Read the plan** in [Week-00/plan_llm_from_scratch_en.md](Week-00/plan_llm_from_scratch_en.md) (or the Vietnamese version) for the detailed week-by-week objectives, sources, and deliverables.
-2. **Work one week at a time**: each `Week-XX/README.md` lists objectives, tasks, deliverables, and a progress checklist. Code the skeletons yourself first, then compare against the canonical sources.
-3. **Self-test**: answer `Week-XX/quiz.md` before opening `quiz_solution.md`. Quizzes are generated from `scripts/quiz_bank.json`:
+1. **Check your foundations first**: [Week-00/prerequisites_vi.md](Week-00/prerequisites_vi.md) maps each background area (Python, DSA, ML basics, data science, OCR/vision, big data, DAG, design patterns, system design) to the weeks that need it, with a pre-Week-1 self-assessment checklist and open-license learning sources only (licenses verified 2026-08-12). Don't study it front-to-back — patch only the gaps the checklist reveals.
+2. **Read the plan** in [Week-00/plan_llm_from_scratch_en.md](Week-00/plan_llm_from_scratch_en.md) (or the Vietnamese version) for the detailed week-by-week objectives, sources, and deliverables.
+3. **Work one week at a time**: each `Week-XX/README.md` lists objectives, tasks, deliverables, and a progress checklist. Code the skeletons yourself first, then compare against the canonical sources.
+4. **Self-test**: answer `Week-XX/quiz.md` before opening `quiz_solution.md`. Quizzes are generated from `scripts/quiz_bank.json`:
    ```bash
    python scripts/generate_quiz.py            # regenerate everything
    python scripts/generate_quiz.py --week 3   # one week only
    ```
-4. **Go deeper when the week calls for it**: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) holds the advanced material (modern architecture, inference, training dynamics, alignment, evaluation, agentic/graph engineering). It is **not** meant to be read front-to-back — it opens with a navigation table mapping *each week → the exact sections to read*, and every week's README carries a matching "🚀 Bổ sung nâng cao" block pointing back. The anchoring is bidirectional, so you never have to guess when a topic belongs. Weeks 1–2 deliberately have none.
-5. **Source your data deliberately**: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) lists **open-license datasets only** (CC BY / CC0 / MIT / Apache 2.0 / BSD, verified at lookup date) for the Finance Banking domain in Vietnamese and English. It opens with the key architectural point: **regulatory knowledge belongs in RAG and the knowledge graph, not in fine-tuned weights** — fine-tuning is for behavior, format, and bilingual terminology. Re-verify every license at the time of use.
-6. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
-7. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
+5. **Go deeper when the week calls for it**: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) holds the advanced material (modern architecture, inference, training dynamics, alignment, evaluation, agentic/graph engineering). It is **not** meant to be read front-to-back — it opens with a navigation table mapping *each week → the exact sections to read*, and every week's README carries a matching "🚀 Bổ sung nâng cao" block pointing back. The anchoring is bidirectional, so you never have to guess when a topic belongs. Weeks 1–2 deliberately have none.
+6. **Source your data deliberately**: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) lists **open-license datasets only** (CC BY / CC0 / MIT / Apache 2.0 / BSD, verified at lookup date) for the Finance Banking domain in Vietnamese and English. It opens with the key architectural point: **regulatory knowledge belongs in RAG and the knowledge graph, not in fine-tuned weights** — fine-tuning is for behavior, format, and bilingual terminology. Re-verify every license at the time of use.
+7. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
+8. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
 
 ## Hardware assumptions
 

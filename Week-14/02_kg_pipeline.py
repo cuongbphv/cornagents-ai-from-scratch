@@ -1,5 +1,5 @@
 """
-kg_pipeline.py — SKELETON Tuần 14: Knowledge Graph pipeline bằng Claude API.
+02_kg_pipeline.py — SKELETON Tuần 14: Knowledge Graph pipeline bằng Claude API.
 
 Pipeline 4 bước (theo docs/Graph-Engineering-Athropic-Playbook.pdf):
     1. EXTRACTION  (Haiku)  — structured outputs thay trained NER + relation classifier

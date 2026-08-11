@@ -1,5 +1,5 @@
 """
-qlora_finetune.py — STARTER Tuần 8 (Unsloth QLoRA, 8GB-friendly).
+02_qlora_finetune.py — STARTER Tuần 8 (Unsloth QLoRA, 8GB-friendly).
 
 Khác với Phase 1: ở đây dùng tooling production. Đây là starter để bạn
 chạy + tinh chỉnh, KHÔNG phải skeleton TODO. Vẫn nên đọc kỹ từng dòng.

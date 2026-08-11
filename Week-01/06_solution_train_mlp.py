@@ -1,7 +1,7 @@
 """
-solution_train_mlp.py — LỜI GIẢI THAM KHẢO.
+06_solution_train_mlp.py — LỜI GIẢI THAM KHẢO.
 
-CHỈ mở file này SAU KHI bạn đã tự code xong train_mlp.py.
+CHỈ mở file này SAU KHI bạn đã tự code xong 05_train_mlp.py.
 Dùng để đối chiếu, không phải để copy.
 """
 

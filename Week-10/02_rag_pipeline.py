@@ -1,5 +1,5 @@
 """
-rag_pipeline.py — STARTER Tuần 10. RAG baseline end-to-end.
+02_rag_pipeline.py — STARTER Tuần 10. RAG baseline end-to-end.
 
 Pipeline: load PDF -> chunk -> embed -> Chroma -> retrieve top-k -> generate.
 Đây là starter có cấu trúc rõ; điền phần cấu hình + generate theo lựa chọn của bạn.

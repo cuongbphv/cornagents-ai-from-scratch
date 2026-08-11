@@ -68,4 +68,4 @@ chain.invoke(query, config={"callbacks": [handler]})
 ## 5. So sánh cần ghi lại
 
 - Baseline (Tuần 10) vs Hybrid vs Hybrid+Rerank trên cùng eval set.
-- Ghi delta từng metric RAGAS vào `ragas_report.md`.
+- Ghi delta từng metric RAGAS vào `03_ragas_report.md`.

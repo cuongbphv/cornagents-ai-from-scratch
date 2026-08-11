@@ -1,6 +1,6 @@
 """
-check_gpu.py — Kiểm tra PyTorch nhìn thấy GPU (CUDA trên RTX 3070 Ti hoặc MPS trên Mac).
-Chạy:  python check_gpu.py
+01_check_gpu.py — Kiểm tra PyTorch nhìn thấy GPU (CUDA trên RTX 3070 Ti hoặc MPS trên Mac).
+Chạy:  python 01_check_gpu.py
 """
 
 import platform

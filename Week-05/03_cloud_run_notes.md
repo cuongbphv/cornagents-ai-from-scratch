@@ -22,7 +22,7 @@
 - [ ] Chạy **smoke test 50–100 step** → xác nhận loss giảm + không OOM
 - [ ] Bật checkpointing (lưu định kỳ phòng pod bị kill)
 - [ ] Chạy full run; log loss train/val
-- [ ] Tải checkpoint + log về máy → phân tích ở `loss_analysis.md`
+- [ ] Tải checkpoint + log về máy → phân tích ở `04_loss_analysis.md`
 - [ ] **Tắt pod** ngay khi xong (tránh tính tiền thừa)
 
 ## Mục tiêu so sánh

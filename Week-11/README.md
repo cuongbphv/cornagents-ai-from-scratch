@@ -13,6 +13,14 @@
 - **LangSmith** + **Langfuse** (tracing, LLM-as-judge).
 - **BGE cross-encoder** reranker (mã nguồn mở).
 - Tùy chọn nâng cao: **GraphRAG** (Microsoft).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — hybrid/RRF, cross-encoder rerank, RAGAS, bẫy LLM-judge, BM25 tiếng Việt.
+2. [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md) — hướng dẫn + code mẫu nâng cấp pipeline.
+3. [`03_ragas_report.md`](03_ragas_report.md) — báo cáo eval before/after (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -35,6 +43,7 @@ Local; cross-encoder reranker chạy ổn trên Mac/3070 Ti.
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — giải thích được RRF bằng ví dụ số
 - [ ] Thêm BM25 retriever (rank_bm25) song song vector retriever
 - [ ] Kết hợp kết quả (EnsembleRetriever / reciprocal rank fusion)
 - [ ] Thêm reranker (BGE cross-encoder) trên top-N
@@ -42,7 +51,7 @@ Local; cross-encoder reranker chạy ổn trên Mac/3070 Ti.
 - [ ] Đo RAGAS: context precision/recall, faithfulness, answer relevancy
 - [ ] So sánh baseline (Tuần 10) vs hybrid+rerank → bảng số
 - [ ] Wire Langfuse/LangSmith tracing → xem từng bước retrieval/generate
-- [ ] Viết `ragas_report.md`
+- [ ] Viết `03_ragas_report.md`
 
 ## 🚀 Bổ sung nâng cao (đo lường cho đúng)
 
@@ -62,8 +71,12 @@ Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banki
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `advanced_rag_notes.md` | Hướng dẫn hybrid + rerank + tracing (code mẫu) |
-| `ragas_report.md` | Template báo cáo eval before/after (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: hybrid/RRF, rerank, RAGAS, LLM-judge |
+| 2 | `02_advanced_rag_notes.md` | Hướng dẫn hybrid + rerank + tracing (code mẫu) |
+| 3 | `03_ragas_report.md` | Template báo cáo eval before/after (deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

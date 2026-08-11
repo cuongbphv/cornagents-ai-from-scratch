@@ -1,5 +1,5 @@
 """
-train_mlp.py — SKELETON Tuần 1.
+05_train_mlp.py — SKELETON Tuần 1.
 
 Mục tiêu: TỰ TAY code một MLP nhỏ + training loop trên toy dataset.
 Triết lý của roadmap: TỰ code trước, nhờ Claude review sau. Đừng copy lời giải.
@@ -10,7 +10,7 @@ nên KHÔNG cần scikit-learn.
 Phần khung (data, device, vòng lặp ngoài) đã có sẵn.
 Chỗ có TODO là phần BẠN tự điền để thực sự hiểu.
 
-Chạy:  python train_mlp.py
+Chạy:  python 05_train_mlp.py
 """
 
 import numpy as np

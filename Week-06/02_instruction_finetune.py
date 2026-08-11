@@ -1,13 +1,15 @@
 """
-instruction_finetune.py — SKELETON Tuần 6 (instruction fine-tuning).
+02_instruction_finetune.py — SKELETON Tuần 6 (instruction fine-tuning).
 
 Instruction fine-tuning cho GPT bạn build (Tuần 4) hoặc một pretrained nhỏ.
 Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu ch.7 sau.
 
-Import model + loss từ các tuần trước:
-    import sys; sys.path.append("../Week-04"); sys.path.append("../Week-05")
-    from gpt_model import GPTModel, GPT_CONFIG_124M
-    from train_loop import calc_loss_batch
+Import model + loss từ các tuần trước (tên module bắt đầu bằng số → importlib):
+    import sys, importlib
+    sys.path.append("../Week-04"); sys.path.append("../Week-05")
+    _gpt = importlib.import_module("02_gpt_model")
+    GPTModel, GPT_CONFIG_124M = _gpt.GPTModel, _gpt.GPT_CONFIG_124M
+    calc_loss_batch = importlib.import_module("02_train_loop").calc_loss_batch
 """
 
 import torch

@@ -12,6 +12,15 @@
 - `karpathy/nanoGPT` — `train.py` (gradient clipping, LR warmup+decay, weight decay, mixed precision, grad accumulation đều có trong đó).
 - Karpathy — **llm.c "Reproduce GPT-2 124M"** (Discussion #481).
 - HF **Ultra-Scale Playbook** (gradient accumulation / parallelism).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — loop, LR schedule, clipping, mixed precision, accumulation, checkpoint.
+2. [`02_train_loop.py`](02_train_loop.py) — TỰ code pretraining loop, smoke test local.
+3. [`03_cloud_run_notes.md`](03_cloud_run_notes.md) — quy trình thuê GPU + chạy thật.
+4. [`04_loss_analysis.md`](04_loss_analysis.md) — write-up so sánh loss curve (deliverable).
+5. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -40,6 +49,7 @@ Checkpoint base-model nhỏ + write-up **so sánh loss curve** của bạn với
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
 - [ ] Code training loop: batch → logits → cross-entropy loss → backward → step
 - [ ] Thêm train/val split + đánh giá loss định kỳ
 - [ ] Thêm LR warmup + cosine decay
@@ -48,7 +58,7 @@ Checkpoint base-model nhỏ + write-up **so sánh loss curve** của bạn với
 - [ ] Smoke test local trên text public-domain nhỏ — xác nhận loss giảm
 - [ ] Chọn cloud provider + chuẩn bị dataset (FineWeb-Edu sample)
 - [ ] Chạy pretrain thật trên cloud → lưu checkpoint
-- [ ] Vẽ loss curve, so với GPT-2 gốc (~3.5) — viết `loss_analysis.md`
+- [ ] Vẽ loss curve, so với GPT-2 gốc (~3.5) — viết `04_loss_analysis.md`
 
 ## Mẹo bộ nhớ 8GB (nếu thử local)
 
@@ -71,9 +81,13 @@ Pretraining là nơi nhiều thủ thuật "ăn tiền". Đọc [`../Week-00/adv
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `train_loop.py` | Skeleton pretraining loop (TODO) |
-| `cloud_run_notes.md` | Quy trình thuê GPU + chạy cloud + checklist chi phí |
-| `loss_analysis.md` | Template write-up so sánh loss curve (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: loop, schedule, precision, checkpoint |
+| 2 | `02_train_loop.py` | Skeleton pretraining loop (TODO) |
+| 3 | `03_cloud_run_notes.md` | Quy trình thuê GPU + chạy cloud + checklist chi phí |
+| 4 | `04_loss_analysis.md` | Template write-up so sánh loss curve (deliverable) |
+| 5 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

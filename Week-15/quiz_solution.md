@@ -50,4 +50,4 @@ Viết retrospective 'nối về Phase 1' nghĩa là gì?
 
 **Trả lời mẫu:** Sau khi ship capstone, nhìn lại và giải thích VÌ SAO các lựa chọn kỹ thuật hoạt động, dựa trên hiểu biết internals từ Phase 1: vì sao một model nhỏ fine-tuned đủ cho sub-task, vì sao context dài tốn KV cache, vì sao quantization 4-bit chấp nhận được, vì sao RAG cần grounding... Mục tiêu là khép vòng học: từ 'biết dùng' sang 'hiểu tại sao', biến cả roadmap thành kiến thức nền vững chứ không chỉ là làm theo công thức.
 
-**Giải thích:** Đây là deliverable retrospective.md — mục tiêu thật sự của toàn lộ trình.
+**Giải thích:** Đây là deliverable 03_retrospective.md — mục tiêu thật sự của toàn lộ trình.

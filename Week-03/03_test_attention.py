@@ -1,15 +1,21 @@
 """
-test_attention.py — Kiểm tra SHAPE cho attention bạn tự code.
+03_test_attention.py — Kiểm tra SHAPE cho attention bạn tự code.
 
-Chạy SAU KHI điền xong TODO trong multihead_attention.py:
-    python test_attention.py
+Chạy SAU KHI điền xong TODO trong 02_multihead_attention.py:
+    python 03_test_attention.py
 
 Test không kiểm tra giá trị tuyệt đối, chỉ xác nhận luồng shape đúng —
 shape test là cách hiệu quả để bắt bug attention sớm.
 """
 
+import importlib
+
 import torch
-from multihead_attention import CausalSelfAttention, MultiHeadAttention
+
+# Tên module bắt đầu bằng chữ số không dùng được với "import ..." thường.
+_mha = importlib.import_module("02_multihead_attention")
+CausalSelfAttention = _mha.CausalSelfAttention
+MultiHeadAttention = _mha.MultiHeadAttention
 
 
 def test_single_head():

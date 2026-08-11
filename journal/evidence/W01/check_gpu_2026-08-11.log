@@ -1,0 +1,19 @@
+$ python Week-01/check_gpu.py
+# Máy: Windows 11 Pro, NVIDIA GeForce RTX 3070 Ti
+# Ngày chạy: 2026-08-11
+# Output dán nguyên văn từ terminal:
+
+ KIỂM TRA MÔI TRƯỜNG PYTORCH / GPU
+==================================================
+Hệ điều hành : Windows-10-10.0.26200-SP0
+PyTorch      : 2.5.1+cu121
+
+[OK] CUDA khả dụng
+  GPU         : NVIDIA GeForce RTX 3070 Ti
+  VRAM tổng   : 8.0 GB
+  CUDA version: 12.1
+
+Chạy thử phép nhân ma trận trên: cuda
+  Kết quả shape: (1000, 1000)  | mean=-0.0026
+
+=> Môi trường sẵn sàng cho Tuần 1.

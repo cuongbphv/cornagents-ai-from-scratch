@@ -12,6 +12,14 @@
 - **`mlx-lm`** docs + `mlx_lm.lora`.
 - Tùy chọn: **MLX LoRA Studio** (GUI), **mlx-tune** (SFT/DPO/GRPO trên MLX).
 - **Ollama**, **LM Studio** (chạy cả GGUF & MLX), **llama.cpp**.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — unified memory, MLX flow, GGUF/Ollama, protocol đo tốc độ + forgetting.
+2. [`02_mlx_commands.md`](02_mlx_commands.md) — lệnh MLX/Ollama/LM Studio sẵn dùng.
+3. [`03_hardware_decision.md`](03_hardware_decision.md) — bảng quyết định từ số đo thật (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -21,7 +29,7 @@ Fine-tune 7B–8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qu
 
 - Local inference stack hoạt động (Ollama + LM Studio).
 - Một model MLX đã fine-tune.
-- Ghi chú ngắn: khi nào dùng **Mac vs 3070 Ti vs cloud** → `hardware_decision.md`.
+- Ghi chú ngắn: khi nào dùng **Mac vs 3070 Ti vs cloud** → `03_hardware_decision.md`.
 
 ## Thời lượng
 
@@ -35,6 +43,7 @@ Fine-tune 7B–8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qu
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — chốt bộ 10 prompt song ngữ TRƯỚC khi fine-tune
 - [ ] Cài `mlx-lm` (`pip install mlx-lm`) trên Mac
 - [ ] Tải model MLX-format (HF `mlx-community/...`)
 - [ ] LoRA fine-tune: `mlx_lm.lora --model ... --train --data ... --iters 500`
@@ -42,7 +51,7 @@ Fine-tune 7B–8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qu
 - [ ] Cài Ollama + tạo Modelfile cho model GGUF (từ Tuần 8) / MLX
 - [ ] Cài LM Studio, load model, test chat
 - [ ] So tốc độ Mac vs 3070 Ti trên cùng prompt
-- [ ] Viết `hardware_decision.md`
+- [ ] Viết `03_hardware_decision.md`
 
 ## 🚀 Bổ sung nâng cao (serving & quantization)
 
@@ -62,8 +71,12 @@ Kiểm tra quan trọng ở tuần này: model vừa fine-tune có **giữ đư�
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `mlx_commands.md` | Các lệnh MLX/Ollama/LM Studio sẵn dùng |
-| `hardware_decision.md` | Bảng quyết định Mac vs 3070 Ti vs cloud (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: unified memory, MLX, GGUF, protocol đo |
+| 2 | `02_mlx_commands.md` | Các lệnh MLX/Ollama/LM Studio sẵn dùng |
+| 3 | `03_hardware_decision.md` | Bảng quyết định Mac vs 3070 Ti vs cloud (deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

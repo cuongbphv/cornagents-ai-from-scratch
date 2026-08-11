@@ -651,7 +651,7 @@
           "type": "open",
           "q": "Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.",
           "answer": "3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.",
-          "explain": "Đây là nội dung deliverable hardware_decision.md."
+          "explain": "Đây là nội dung deliverable 03_hardware_decision.md."
         }
       ]
     },
@@ -1085,7 +1085,7 @@
           "type": "open",
           "q": "Viết retrospective 'nối về Phase 1' nghĩa là gì?",
           "answer": "Sau khi ship capstone, nhìn lại và giải thích VÌ SAO các lựa chọn kỹ thuật hoạt động, dựa trên hiểu biết internals từ Phase 1: vì sao một model nhỏ fine-tuned đủ cho sub-task, vì sao context dài tốn KV cache, vì sao quantization 4-bit chấp nhận được, vì sao RAG cần grounding... Mục tiêu là khép vòng học: từ 'biết dùng' sang 'hiểu tại sao', biến cả roadmap thành kiến thức nền vững chứ không chỉ là làm theo công thức.",
-          "explain": "Đây là deliverable retrospective.md — mục tiêu thật sự của toàn lộ trình."
+          "explain": "Đây là deliverable 03_retrospective.md — mục tiêu thật sự của toàn lộ trình."
         }
       ]
     }

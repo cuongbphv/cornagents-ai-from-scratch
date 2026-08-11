@@ -1,6 +1,6 @@
 # Graph Engineering — Ghi chú (deliverable Tuần 14)
 
-> Điền sau khi chạy `kg_pipeline.py` trên corpus Finance Banking của bạn. Điền các chỗ ______.
+> Điền sau khi chạy `02_kg_pipeline.py` trên corpus Finance Banking của bạn. Điền các chỗ ______.
 
 ## 1. Corpus & schema
 

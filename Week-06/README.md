@@ -10,6 +10,13 @@
 ## Nguồn học
 
 - Paper LoRA (arXiv 2106.09685); paper InstructGPT (arXiv 2203.02155); HF PEFT docs (huggingface.co/docs/peft); `FareedKhan-dev/train-llm-from-scratch` phần SFT.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — classification FT, instruction FT + masking, LoRA.
+2. [`02_instruction_finetune.py`](02_instruction_finetune.py) — TỰ code format dataset + fine-tune loop (deliverable).
+3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -20,7 +27,7 @@
 ## Deliverable
 
 - Một **instruction-following mini-model** chat được.
-- Ghi chú so sánh **full FT vs LoRA** (thêm vào cuối `instruction_finetune.py` hoặc file note riêng).
+- Ghi chú so sánh **full FT vs LoRA** (thêm vào cuối `02_instruction_finetune.py` hoặc file note riêng).
 
 ## Thời lượng
 
@@ -34,6 +41,7 @@
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
 - [ ] ch.6: chuẩn bị dataset classification (spam) + sửa head phân loại
 - [ ] ch.6: fine-tune classifier, đo accuracy train/val/test
 - [ ] ch.7: format instruction dataset (Alpaca-style prompt template)
@@ -57,9 +65,13 @@ Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeli
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `instruction_finetune.py` | Skeleton format dataset + fine-tune loop (TODO) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: classification/instruction FT, LoRA |
+| 2 | `02_instruction_finetune.py` | Skeleton format dataset + fine-tune loop (TODO) |
+| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
 
 > ➡️ Tiếp theo: **Tuần 7** đi sâu pipeline alignment (SFT → RM → DPO/PPO → GRPO).

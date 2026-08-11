@@ -1,6 +1,8 @@
 # Lộ trình 15 tuần làm chủ LLM: Từ nội tại Transformer đến Agentic SDLC & Graph Engineering
 
 > **Tuyên bố:** dự án học thuật, nghiên cứu cá nhân, không thương mại hóa. Tài liệu chỉ tham chiếu nguồn mở (repo GitHub công khai, paper truy cập mở, tài liệu chính thức của công cụ, dataset license mở đã xác minh). Xem [CLAUDE.md](../CLAUDE.md).
+>
+> **Chưa chắc phần nền tảng?** Tự đánh giá trước bằng [prerequisites_vi.md](prerequisites_vi.md) — bản đồ mảng nền (Python, DSA, ML, data science, OCR/vision, big data, DAG, design pattern, system design) → tuần nào cần, kèm nguồn học license mở đã xác minh.
 
 ## Tóm tắt nhanh (TL;DR)
 
@@ -71,7 +73,7 @@ Bạn có subscription Claude đang hoạt động và muốn dùng Claude làm 
 - *Nguồn:* Paper BPE "Neural Machine Translation of Rare Words with Subword Units" (arXiv 1508.07909) + repo mở `openai/tiktoken`, `karpathy/minbpe`; *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu); "Attention Is All You Need"; code attention trong `karpathy/nanoGPT` (`model.py`).
 - *Task:* Tự code toàn bộ attention stack (self → causal → multi-head); kiểm tra shape đối chiếu với `nanoGPT/model.py`.
 - *Phần cứng:* 3070 Ti.
-- *Deliverable:* Một file `multihead_attention.py` bạn viết from scratch với shape test pass; ghi chú code-review từ Claude.
+- *Deliverable:* Một file `02_multihead_attention.py` bạn viết from scratch với shape test pass; ghi chú code-review từ Claude.
 - *Thời gian:* ~12–15 giờ (đây là điểm then chốt về khái niệm — hãy đi chậm).
 
 **Tuần 4 — Lắp ráp và chạy GPT model.**
@@ -169,7 +171,7 @@ Bạn có subscription Claude đang hoạt động và muốn dùng Claude làm 
 - *Nguồn:* `docs/Graph-Engineering-Athropic-Playbook.pdf` (pipeline extraction → resolution → assembly → querying, prompt đầy đủ, evaluation vs gold set, scaling guidance); `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (Loop → Chain → Swarm → DAG → Knowledge Graph; commit DAG vs knowledge graph); Anthropic Knowledge Graph Construction Cookbook; NetworkX docs.
 - *Task:* Build KG pipeline trên 5–10 tài liệu Finance Banking của bạn: Extraction (Haiku + structured outputs, Pydantic schema là "training data" duy nhất) → Resolution (Sonnet cluster surface forms, descriptions làm ngữ cảnh) → Assembly (NetworkX MultiDiGraph, mọi edge mang provenance) → Querying (serialize k-hop subgraph, grounded answer có cite edges). Chạy graph diagnostics; so sánh grounded vs ungrounded; lập mini gold set và chạy evaluation feedback loop (đổi prompt → chạy scorer → xem F1). Cắm graph vào workflow Tuần 13 làm shared memory + grounding layer cho evaluator.
 - *Phần cứng:* Bất kỳ; việc API (Haiku cho volume, Sonnet cho reasoning) — chi phí thấp nhờ prompt caching.
-- *Deliverable:* `kg_pipeline.py` chạy được trên corpus của bạn + ghi chú diagnostics/eval/grounded-vs-ungrounded.
+- *Deliverable:* `02_kg_pipeline.py` chạy được trên corpus của bạn + ghi chú diagnostics/eval/grounded-vs-ungrounded.
 - *Thời gian:* ~10–12 giờ.
 
 **Tuần 15 — Capstone + evaluation/observability.**

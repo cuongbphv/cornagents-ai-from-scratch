@@ -12,6 +12,14 @@
 - `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` — mục IV (5 patterns + Dynamic Workflows), VI.D (Week 2: Go Multi-Agent), VIII (Decision Framework: 6 câu hỏi chọn kiến trúc).
 - Tham chiếu agentic SDLC: CodeRabbit (agentic-SDLC guide), Sonar (AC/DC framework), GlobalLogic (VelocityAI case study) — lấy pattern & quality gates.
 - Ví dụ code-review của Claude Agent SDK (đọc PR, flag bug/security, post comment).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — 5 patterns, chi phí multi-agent, artifact contract, gates.
+2. [`02_agents.py`](02_agents.py) — code 3 agent + nối orchestration (deliverable).
+3. [`03_agent_design.md`](03_agent_design.md) — thiết kế agent + I/O contract (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -49,6 +57,7 @@ Bất kỳ; orchestration + API.
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — viết artifact contract trước khi viết agent
 - [ ] Đọc mục IV + VIII của Karpathy-Loop PDF — nắm 5 patterns + 6 câu hỏi
 - [ ] Map từng stage SDLC ↔ loại agent + pattern + input/output rõ ràng
 - [ ] Agent 1 — Requirements Analyst: request → user stories + AC (dùng RAG)
@@ -59,7 +68,7 @@ Bất kỳ; orchestration + API.
 - [ ] Thêm human approval gate giữa các stage
 - [ ] Scope tool least-privilege cho từng agent
 - [ ] Chạy thử 1 requirement Finance Banking end-to-end
-- [ ] Ghi `agent_design.md`
+- [ ] Ghi `03_agent_design.md`
 
 ## 🚀 Bổ sung nâng cao (chọn pattern & chi phí thật)
 
@@ -73,10 +82,14 @@ Bất kỳ; orchestration + API.
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `agents.py` | Stub 3 agent + chỗ nối orchestration (TODO) |
-| `agent_design.md` | Template thiết kế agent + I/O contract (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: 5 patterns, contract, gates |
+| 2 | `02_agents.py` | Stub 3 agent + chỗ nối orchestration (TODO) |
+| 3 | `03_agent_design.md` | Template thiết kế agent + I/O contract (deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
 
 > ➡️ Tiếp theo: **Tuần 14** thêm lớp knowledge graph làm shared memory — workers ghi findings vào graph thay vì dồn qua context window của orchestrator.

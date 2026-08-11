@@ -1,5 +1,5 @@
 """
-train_loop.py — SKELETON Tuần 5 (pretraining loop).
+02_train_loop.py — SKELETON Tuần 5 (pretraining loop).
 
 Pretraining loop cho GPT bạn build ở Tuần 4. Bắt đầu local với một text nhỏ
 thuộc public domain (vd. truyện ngắn từ Project Gutenberg), rồi mang lên cloud
@@ -7,9 +7,10 @@ cho dataset lớn.
 
 Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu nanoGPT/train.py sau.
 
-Import model từ Tuần 4:
-    import sys; sys.path.append("../Week-04")
-    from gpt_model import GPTModel, GPT_CONFIG_124M
+Import model từ Tuần 4 (tên module bắt đầu bằng số → dùng importlib):
+    import sys, importlib; sys.path.append("../Week-04")
+    _gpt = importlib.import_module("02_gpt_model")
+    GPTModel, GPT_CONFIG_124M = _gpt.GPTModel, _gpt.GPT_CONFIG_124M
 """
 
 import torch

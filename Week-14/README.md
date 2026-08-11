@@ -20,6 +20,14 @@
 - `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` — tiến trình Loop → Chain → Swarm → DAG → Knowledge Graph; commit DAG (work lineage) vs knowledge graph (domain knowledge); build path Day 1 → Month 2.
 - Anthropic **Knowledge Graph Construction Cookbook** (claude-cookbooks repo).
 - NetworkX docs (MultiDiGraph).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — pipeline 4 bước, diagnostics, resolution tiếng Việt (NFC, alias, regex số hiệu).
+2. [`02_kg_pipeline.py`](02_kg_pipeline.py) — build pipeline trên corpus của bạn (deliverable).
+3. [`03_graph_notes.md`](03_graph_notes.md) — diagnostics + eval + grounded-vs-ungrounded (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -31,8 +39,8 @@
 
 ## Deliverable
 
-- `kg_pipeline.py` chạy được trên corpus của bạn (extract → resolve → assemble → query có trích dẫn).
-- Bản so sánh grounded vs ungrounded + số liệu precision/recall vs gold set → `graph_notes.md`.
+- `02_kg_pipeline.py` chạy được trên corpus của bạn (extract → resolve → assemble → query có trích dẫn).
+- Bản so sánh grounded vs ungrounded + số liệu precision/recall vs gold set → `03_graph_notes.md`.
 
 ## Thời lượng
 
@@ -83,6 +91,7 @@ Mỗi tầng bọc tầng trước. **Model là commodity — hệ thống quanh
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — nhớ NFC lúc ingest + regex số hiệu văn bản
 - [ ] Đọc 2 PDF trong `docs/` + ảnh 5 layers
 - [ ] Định nghĩa Pydantic schema: `Entity(name, type, description)`, `Relation(source, predicate, target)`
 - [ ] Viết extraction prompt ("only entities central to the document" — precision-first)
@@ -94,7 +103,7 @@ Mỗi tầng bọc tầng trước. **Model là commodity — hệ thống quanh
 - [ ] So sánh grounded vs ungrounded trên 3–5 câu hỏi multi-hop
 - [ ] Lập mini gold set + đo precision/recall → tune prompt → đo lại
 - [ ] Cắm graph vào workflow Tuần 13 (agent ghi/đọc graph thay vì dồn context)
-- [ ] Viết `graph_notes.md`
+- [ ] Viết `03_graph_notes.md`
 
 ## 🚀 Bổ sung nâng cao (đưa KG lên quy mô production)
 
@@ -119,8 +128,12 @@ Dùng chính corpus thông tư NHNN đã chuẩn bị ở Tuần 10 làm input c
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `kg_pipeline.py` | Skeleton pipeline 4 bước: extract → resolve → assemble → query (TODO) |
-| `graph_notes.md` | Template ghi chú diagnostics + eval + grounded-vs-ungrounded (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: pipeline 4 bước, diagnostics, tiếng Việt |
+| 2 | `02_kg_pipeline.py` | Skeleton pipeline 4 bước: extract → resolve → assemble → query (TODO) |
+| 3 | `03_graph_notes.md` | Template ghi chú diagnostics + eval + grounded-vs-ungrounded (deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

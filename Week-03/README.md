@@ -9,9 +9,17 @@
 
 ## Nguồn học
 
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
 - Paper BPE — "Neural Machine Translation of Rare Words with Subword Units" (arXiv 1508.07909); repo mở `openai/tiktoken`, `karpathy/minbpe`.
 - Code attention trong `karpathy/nanoGPT` (`model.py`) — tham chiếu chính khi tự code self → causal → multi-head.
 - **The Annotated Transformer** (Harvard NLP, nlp.seas.harvard.edu).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — BPE, embeddings, attention 4 bậc: đọc + chạy lại snippet trước khi code.
+2. [`02_multihead_attention.py`](02_multihead_attention.py) — TỰ code self → causal → multi-head (deliverable).
+3. [`03_test_attention.py`](03_test_attention.py) — pass cả 3 test (2 shape + 1 causal).
+4. [`quiz.md`](quiz.md) — làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
@@ -19,7 +27,7 @@ Tự code đầy đủ attention stack (self → causal → multi-head); **verif
 
 ## Deliverable
 
-`multihead_attention.py` tự viết, **pass shape test** (`test_attention.py`) + ghi chú Claude review.
+`02_multihead_attention.py` tự viết, **pass shape test** (`03_test_attention.py`) + ghi chú Claude review.
 
 ## Thời lượng
 
@@ -33,13 +41,14 @@ Tự code đầy đủ attention stack (self → causal → multi-head); **verif
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
 - [ ] Đọc ch.2: BPE (dùng `tiktoken`), data loader, sliding window
 - [ ] Hiểu token embedding vs positional embedding (cộng vào nhau)
 - [ ] Code **simplified self-attention** (không trainable) — hiểu context vector
 - [ ] Code **scaled dot-product attention** với `W_Q, W_K, W_V` trainable
 - [ ] Thêm **causal mask** (tam giác trên = -inf) + dropout
 - [ ] Mở rộng lên **multi-head** (chia/d_out hoặc stack head)
-- [ ] Chạy `test_attention.py` → tất cả shape đúng
+- [ ] Chạy `03_test_attention.py` → tất cả shape đúng
 - [ ] Dán code cho Claude review so với nanoGPT
 
 ## Mốc shape cần nhớ
@@ -57,14 +66,18 @@ GPT-2 dùng **absolute positional embedding + MHA**. Các model hiện đại (L
 - **A4 GQA/MQA** + **A5 MLA** — chia sẻ/nén K,V để **giảm KV cache**.
 - **C1–C2** — vì sao attention là `O(n²)` và **FlashAttention** giải quyết bằng tiling (không vật chất hoá ma trận n×n).
 - **B1 KV cache** — bắt buộc hiểu cho inference.
-- **E** — tự **train BPE tokenizer** (nanochat `tok_train.py`) thay vì chỉ dùng tiktoken.
+- **E** — tự **train BPE tokenizer** (nanochat `tok_train.py`) thay vì chỉ dùng tiktoken — đặc biệt cần cho dữ liệu tiếng Việt: xem số liệu đo fertility VI vs EN ở [`01_theory_notes.md`](01_theory_notes.md) mục 1.3 (BPE `gpt2` tốn ~5.6× token cho câu tiếng Việt so với câu tiếng Anh tương đương, đo 2026-08-11).
 
 > Nguồn từ-đầu: paper mở — GQA (arXiv 2305.13245), MLA/DeepSeek-V2 (arXiv 2405.04434), Sliding Window/Mistral 7B (arXiv 2310.06825), FlashAttention (arXiv 2205.14135).
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `multihead_attention.py` | Skeleton self/causal/multi-head attention (TODO) |
-| `test_attention.py` | Kiểm tra shape các bước attention |
+Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: BPE, embeddings, attention 4 bậc |
+| 2 | `02_multihead_attention.py` | Skeleton self/causal/multi-head attention (TODO) |
+| 3 | `03_test_attention.py` | Kiểm tra shape + tính causal các bước attention |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

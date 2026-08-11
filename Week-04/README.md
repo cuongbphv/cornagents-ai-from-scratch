@@ -12,6 +12,14 @@
 - `karpathy/nanoGPT` — `model.py` (kiến trúc GPT-2 đầy đủ) + hàm `from_pretrained` (load weights GPT-2).
 - Paper GPT-2 "Language Models are Unsupervised Multitask Learners"; paper Layer Normalization (arXiv 1607.06450), GELU (arXiv 1606.08415).
 - Karpathy — **nanoGPT** (`github.com/karpathy/nanoGPT`) làm tham chiếu chéo.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — LayerNorm, GELU, FFN, residual, đếm tham số 124M.
+2. [`02_gpt_model.py`](02_gpt_model.py) — TỰ lắp ráp GPTModel (deliverable).
+3. [`03_load_weights_notes.md`](03_load_weights_notes.md) — load trọng số GPT-2, sinh text mạch lạc.
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -35,6 +43,7 @@ Mô hình GPT của bạn sinh **text mạch lạc** từ trọng số GPT-2 đ�
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
 - [ ] Code `LayerNorm` từ đầu (hiểu mean/var, scale γ + shift β)
 - [ ] Code `GELU` activation
 - [ ] Code `FeedForward` (Linear → GELU → Linear, mở rộng 4×)
@@ -69,8 +78,12 @@ Sau khi lắp xong GPT-2, đối chiếu với Llama 3/Qwen3 trong [`../Week-00/
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `gpt_model.py` | Skeleton LayerNorm/GELU/FFN/Block/GPTModel (TODO) |
-| `load_weights_notes.md` | Hướng dẫn + checklist load trọng số GPT-2 |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: LayerNorm, GELU, FFN, residual, param count |
+| 2 | `02_gpt_model.py` | Skeleton LayerNorm/GELU/FFN/Block/GPTModel (TODO) |
+| 3 | `03_load_weights_notes.md` | Hướng dẫn + checklist load trọng số GPT-2 |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

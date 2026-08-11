@@ -16,6 +16,14 @@
 - `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` — mục II (Karpathy's Loop: autoresearch) và VI.A–B (Day 1: build loop, Day 2: add tools).
 - `docs/5-layers-multi-agent.jpg` — bản đồ 5 tầng engineering.
 - **LangGraph** + **CrewAI** docs (bạn đang cân nhắc cả hai); AutoGen là lựa chọn thay thế.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — agent loop, MCP, 5 tầng + bảng chẩn đoán, reflective loop.
+2. [`02_minimal_agent.py`](02_minimal_agent.py) — build single agent + nối 1 MCP server (deliverable).
+3. [`03_cornagents_architecture.md`](03_cornagents_architecture.md) — sơ đồ kiến trúc + quyết định stack (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -27,7 +35,7 @@
 
 - Một single agent + kết nối MCP hoạt động.
 - Một reflective loop chạy được (generate → evaluate → revise, có stopping rule).
-- Sơ đồ kiến trúc CornAgents.AI 1 trang → `cornagents_architecture.md`.
+- Sơ đồ kiến trúc CornAgents.AI 1 trang → `03_cornagents_architecture.md`.
 
 ## Thời lượng
 
@@ -57,6 +65,7 @@ Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude.
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — vẽ lại được bảng chẩn đoán theo tầng
 - [ ] Xem `docs/5-layers-multi-agent.jpg` — tự vẽ lại 5 tầng bằng lời mình
 - [ ] Đọc Claude Agent SDK docs — hiểu agent loop + tool use
 - [ ] Đọc MCP docs — hiểu server/client, transport
@@ -66,7 +75,7 @@ Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude.
 - [ ] Hiểu 4 điều kiện làm loop của Karpathy chạy được (verifiable/reversible/short/bounded)
 - [ ] So sánh LangGraph vs CrewAI cho nhu cầu của bạn
 - [ ] Chọn stack + lý do (regulated finance → ưu tiên LangGraph: stateful, auditable)
-- [ ] Vẽ `cornagents_architecture.md` (sơ đồ + tool boundaries + HITL gates)
+- [ ] Vẽ `03_cornagents_architecture.md` (sơ đồ + tool boundaries + HITL gates)
 
 ## 🚀 Bổ sung nâng cao (5 tầng + ratchet loop)
 
@@ -80,8 +89,12 @@ Tuần này phần "nâng cao" **chính là nội dung tuần**, nên đọc [`.
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `minimal_agent.py` | Starter single agent + MCP (pseudocode/cấu trúc) |
-| `cornagents_architecture.md` | Template sơ đồ kiến trúc CornAgents.AI (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: agent loop, MCP, 5 tầng, reflective loop |
+| 2 | `02_minimal_agent.py` | Starter single agent + MCP (pseudocode/cấu trúc) |
+| 3 | `03_cornagents_architecture.md` | Template sơ đồ kiến trúc CornAgents.AI (deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

@@ -42,4 +42,4 @@ Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.
 
 **Trả lời mẫu:** 3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.
 
-**Giải thích:** Đây là nội dung deliverable hardware_decision.md.
+**Giải thích:** Đây là nội dung deliverable 03_hardware_decision.md.

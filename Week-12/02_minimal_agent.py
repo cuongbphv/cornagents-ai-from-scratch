@@ -1,5 +1,5 @@
 """
-minimal_agent.py — STARTER Tuần 12. Agent tối thiểu + 1 tool.
+02_minimal_agent.py — STARTER Tuần 12. Agent tối thiểu + 1 tool.
 
 Mục tiêu: hiểu vòng lặp agent (LLM quyết định gọi tool -> chạy tool ->
 đưa kết quả lại cho LLM -> lặp tới khi xong).

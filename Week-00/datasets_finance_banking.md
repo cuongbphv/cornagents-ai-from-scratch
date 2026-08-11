@@ -168,7 +168,7 @@ Lưu ý phân biệt: **text gốc của văn bản pháp luật** (thuộc di�
 | **ViLLM-Eval** | https://arxiv.org/abs/2404.11086 · HF `vlsp-2023-vllm/ViLLM-Eval` | Bộ eval từ shared task VLSP 2023 (paper truy cập mở). |
 | **VN-MTEB** | https://arxiv.org/abs/2507.21500 | 41 dataset, 6 loại task **embedding** (retrieval/rerank/clustering/STS) → dùng để chọn embedding model cho RAG ở **Tuần 10–11**, không phải để đo chat model. |
 
-Ngoài ra **tự làm eval set riêng** là bắt buộc: ~50–100 câu hỏi nghiệp vụ, có đáp án đúng kèm điều khoản dẫn nguồn. Không benchmark công khai nào đo được "model trả lời đúng quy định cụ thể hay không". Đây là `eval_rubric.md` ở Tuần 15.
+Ngoài ra **tự làm eval set riêng** là bắt buộc: ~50–100 câu hỏi nghiệp vụ, có đáp án đúng kèm điều khoản dẫn nguồn. Không benchmark công khai nào đo được "model trả lời đúng quy định cụ thể hay không". Đây là `02_eval_rubric.md` ở Tuần 15.
 
 ---
 

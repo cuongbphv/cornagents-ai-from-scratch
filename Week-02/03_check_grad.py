@@ -1,14 +1,18 @@
 """
-check_grad.py — Kiểm tra micrograd của bạn cho gradient ĐÚNG bằng cách
+03_check_grad.py — Kiểm tra micrograd của bạn cho gradient ĐÚNG bằng cách
 so với PyTorch autograd trên cùng một biểu thức.
 
-Chạy SAU KHI điền xong các TODO trong micrograd.py:
-    python check_grad.py
+Chạy SAU KHI điền xong các TODO trong 02_micrograd.py:
+    python 03_check_grad.py
 
 Cần PyTorch để đối chiếu (chạy được trên máy bạn).
 """
 
-from micrograd import Value
+import importlib
+
+# Tên module bắt đầu bằng chữ số không dùng được với "import ..." thường,
+# phải nạp qua importlib.
+Value = importlib.import_module("02_micrograd").Value
 
 
 def micrograd_expr():

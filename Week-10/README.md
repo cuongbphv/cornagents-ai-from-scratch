@@ -11,6 +11,13 @@ Build baseline RAG đầy đủ trên corpus tài liệu nghiệp vụ Finance B
 - Paper gốc RAG (arXiv 2005.11401) — nền lý thuyết; tutorial RAG chính thức trong docs LlamaIndex/LangChain.
 - **LlamaIndex** + **LangChain** docs.
 - GitHub: **NirDiamant/RAG_Techniques**, sosanzma/rag-techniques-handbook.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — 6 khâu RAG, embeddings/cosine, chunking, 3 bẫy tiếng Việt (NFC!).
+2. [`02_rag_pipeline.py`](02_rag_pipeline.py) — build baseline RAG trên corpus của bạn (deliverable).
+3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -32,6 +39,7 @@ Mac hoặc 3070 Ti cho embeddings/inference local; embeddings nhẹ.
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — nhớ normalize NFC ngay từ bước load
 - [ ] Thu thập corpus (PDF tài liệu nghiệp vụ nội bộ) vào `data/`
 - [ ] Load + parse PDF (PyPDF / Unstructured)
 - [ ] Chunk: RecursiveCharacterTextSplitter (size ~800, overlap ~100)
@@ -60,10 +68,14 @@ Corpus khuyến nghị: `th1nhng0/vietnamese-legal-documents` (CC BY 4.0, 171k v
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `rag_pipeline.py` | Starter RAG (load→chunk→embed→store→retrieve→generate) |
-| `data/` | (bạn tự thêm) PDF/tài liệu Finance Banking |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: 6 khâu RAG + bẫy tiếng Việt |
+| 2 | `02_rag_pipeline.py` | Starter RAG (load→chunk→embed→store→retrieve→generate) |
+| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| — | `data/` | (bạn tự thêm) PDF/tài liệu Finance Banking |
 
 > Anchor: corpus, dataset fine-tune và capstone NÊN đều là tài liệu nghiệp vụ Finance Banking (giữ tổng quát) — đây là điểm khác biệt của bạn.

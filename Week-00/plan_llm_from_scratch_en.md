@@ -1,6 +1,8 @@
 # From Transformer Internals to an Agentic SDLC & Graph Engineering: A 15-Week LLM Mastery Roadmap
 
 > **Disclaimer:** personal academic, research-only, non-commercial project. This document references open sources only (public GitHub repos, open-access papers, official tool documentation, verified open-license datasets). See [CLAUDE.md](../CLAUDE.md).
+>
+> **Unsure about your foundations?** Self-assess first with [prerequisites_vi.md](prerequisites_vi.md) (Vietnamese) — it maps each background area (Python, DSA, ML basics, data science, OCR/vision, big data, DAG, design patterns, system design) to the weeks that need it, with verified open-license learning sources.
 
 ## TL;DR
 - **Achievable in ~3.5–4 months part-time (10–15 hrs/week)**, with the material spread evenly across 15 weeks so no single week is overloaded: Weeks 1–7 build and pretrain a GPT-2-class model from scratch (open-source repos micrograd/makemore/nanoGPT/nanochat + `train-llm-from-scratch` + open papers; instruction fine-tuning and alignment are now two separate weeks); Weeks 8–11 do applied RAG and QLoRA/MLX fine-tuning; Weeks 12–15 build an agentic SDLC assistant — including a dedicated **Graph Engineering** week (knowledge graph as shared memory for multi-agent systems, per the documents in `docs/`). The hard constraint is your 8GB RTX 3070 Ti — it is excellent for learning-scale from-scratch coding and 7B–8B QLoRA fine-tuning, but full GPT-2 pretraining and any 13B+ work should go to cheap cloud GPUs.
@@ -52,7 +54,7 @@ You have an active Claude subscription and want Claude as a study partner. Concr
 - *Sources:* BPE paper "Neural Machine Translation of Rare Words with Subword Units" (arXiv 1508.07909) + open repos `openai/tiktoken`, `karpathy/minbpe`; The Annotated Transformer (Harvard NLP, nlp.seas.harvard.edu); "Attention Is All You Need"; the attention code in `karpathy/nanoGPT` (`model.py`).
 - *Task:* Code the full attention stack yourself (self → causal → multi-head); verify shapes against `nanoGPT/model.py`.
 - *Hardware:* 3070 Ti.
-- *Deliverable:* A `multihead_attention.py` you wrote from scratch with passing shape tests; Claude code-review notes.
+- *Deliverable:* A `02_multihead_attention.py` you wrote from scratch with passing shape tests; Claude code-review notes.
 - *Time:* ~12–15 hrs (this is the conceptual crux — go slow).
 
 **Week 4 — Assemble and run the GPT model.**
@@ -146,7 +148,7 @@ You have an active Claude subscription and want Claude as a study partner. Concr
 - *Sources:* `docs/Graph-Engineering-Athropic-Playbook.pdf` (extraction → resolution → assembly → querying pipeline, full prompts, gold-set evaluation, scaling guidance); `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (Loop → Chain → Swarm → DAG → Knowledge Graph; commit DAG vs. knowledge graph); Anthropic's Knowledge Graph Construction Cookbook; NetworkX docs.
 - *Task:* Build the KG pipeline over 5–10 of your Finance Banking documents: Extraction (Haiku + structured outputs; the Pydantic schema is the only "training data") → Resolution (Sonnet clusters surface forms using descriptions as context) → Assembly (NetworkX MultiDiGraph; every edge carries provenance) → Querying (serialize the k-hop subgraph; grounded answers that cite edges). Run graph diagnostics; compare grounded vs. ungrounded answers; build a mini gold set and run the evaluation feedback loop (change prompt → rerun scorer → watch F1). Wire the graph into the Week 13 workflow as shared memory + the evaluator's grounding layer.
 - *Hardware:* Any; API work (Haiku for volume, Sonnet for reasoning) — cheap with prompt caching.
-- *Deliverable:* A `kg_pipeline.py` that runs over your corpus + notes on diagnostics/eval/grounded-vs-ungrounded.
+- *Deliverable:* A `02_kg_pipeline.py` that runs over your corpus + notes on diagnostics/eval/grounded-vs-ungrounded.
 - *Time:* ~10–12 hrs.
 
 **Week 15 — Capstone + evaluation/observability.**

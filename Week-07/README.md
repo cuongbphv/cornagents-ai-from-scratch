@@ -12,6 +12,13 @@
 
 - **FareedKhan-dev/train-llm-from-scratch** `src/post_training/` — SFT/RM/PPO/DPO/GRPO bằng PyTorch thuần trên dataset thật (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
 - Paper DPO (arXiv 2305.18290), InstructGPT/RLHF (arXiv 2203.02155), DeepSeekMath/GRPO (arXiv 2402.03300).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_theory_notes.md`](01_theory_notes.md) — pipeline alignment, loss RM/DPO/GRPO với ví dụ số.
+2. [`02_alignment_notes.md`](02_alignment_notes.md) — viết so sánh SFT vs DPO vs GRPO bằng lời mình (deliverable).
+3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -22,7 +29,7 @@
 ## Deliverable
 
 - Log/checkpoint của **một stage alignment** đã chạy.
-- Ghi chú phân biệt **SFT vs DPO vs GRPO** → `alignment_notes.md`.
+- Ghi chú phân biệt **SFT vs DPO vs GRPO** → `02_alignment_notes.md`.
 
 ## Thời lượng
 
@@ -39,13 +46,14 @@
 
 ## Checklist tiến độ
 
+- [ ] Đọc `01_theory_notes.md` — tự tính lại được các ví dụ loss trong đó
 - [ ] Vẽ lại pipeline alignment: Pretrain → (Midtrain) → SFT → RM → PPO/DPO → GRPO/RLVR
 - [ ] Đọc FareedKhan `src/post_training/` — hiểu cấu trúc SFT/RM/DPO
 - [ ] Hiểu loss của Reward Model (log-sigmoid của hiệu score)
 - [ ] Hiểu vì sao DPO bỏ được RM riêng + dạng loss DPO
 - [ ] Hiểu GRPO: group-relative advantage, vì sao hợp RLVR (toán/code)
 - [ ] Chạy MỘT stage alignment (SFT hoặc DPO) scaled-down
-- [ ] Viết `alignment_notes.md`: SFT vs DPO vs GRPO
+- [ ] Viết `02_alignment_notes.md`: SFT vs DPO vs GRPO
 - [ ] So phản hồi model trước/sau stage đã chạy → ghi ví dụ
 
 ## 🚀 Bổ sung nâng cao (pipeline alignment đầy đủ)
@@ -61,7 +69,11 @@
 
 ## File trong folder
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này |
-| `alignment_notes.md` | Template so sánh SFT/DPO/GRPO (deliverable) |
+Số ở đầu tên file = thứ tự học.
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: pipeline alignment, RM/DPO/GRPO |
+| 2 | `02_alignment_notes.md` | Template so sánh SFT/DPO/GRPO (deliverable) |
+| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

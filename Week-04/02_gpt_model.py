@@ -1,12 +1,12 @@
 """
-gpt_model.py — SKELETON Tuần 4 (lắp ráp GPT-2 from scratch).
+02_gpt_model.py — SKELETON Tuần 4 (lắp ráp GPT-2 from scratch).
 
 Lắp ráp kiến trúc GPT-2. Tái sử dụng MultiHeadAttention bạn viết ở Tuần 3.
 Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu nanoGPT sau.
 
-Gợi ý import attention từ Tuần 3:
-    import sys; sys.path.append("../Week-03")
-    from multihead_attention import MultiHeadAttention
+Gợi ý import attention từ Tuần 3 (tên module bắt đầu bằng số → dùng importlib):
+    import sys, importlib; sys.path.append("../Week-03")
+    MultiHeadAttention = importlib.import_module("02_multihead_attention").MultiHeadAttention
 """
 
 import torch

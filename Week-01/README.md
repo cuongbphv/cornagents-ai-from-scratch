@@ -12,8 +12,19 @@
 
 ## Nguồn học
 
-- PyTorch official tutorials — **"Learn the Basics"** và **"Deep Learning with PyTorch: A 60 Minute Blitz"** (pytorch.org/tutorials).
+- Lý thuyết tự chứa của tuần: [`02_theory_notes.md`](02_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
+- PyTorch official tutorials — **"Learn the Basics"** và **"Deep Learning with PyTorch: A 60 Minute Blitz"** (docs.pytorch.org/tutorials — địa chỉ pytorch.org/tutorials redirect về đây, kiểm tra 2026-08-11).
 - PyTorch docs — `torch.Tensor`, autograd (`torch.autograd`), `nn.Module`, optimizer.
+
+## Thứ tự học trong tuần (mở file theo số)
+
+1. [`01_check_gpu.py`](01_check_gpu.py) — xác nhận môi trường trước tiên (5 phút).
+2. [`02_theory_notes.md`](02_theory_notes.md) — đọc lý thuyết, chạy lại từng snippet, song song với PyTorch tutorial.
+3. [`03_math_cheat_sheet.md`](03_math_cheat_sheet.md) — TỰ viết lại cheat sheet bằng lời mình (deliverable).
+4. [`04_math_practice.py`](04_math_practice.py) — luyện tương tác: đoán trước, chạy sau.
+5. [`05_train_mlp.py`](05_train_mlp.py) — TỰ code MLP + training loop (deliverable chính).
+6. [`06_solution_train_mlp.py`](06_solution_train_mlp.py) — CHỈ mở sau khi tự code xong, để đối chiếu.
+7. [`quiz.md`](quiz.md) — làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
@@ -21,8 +32,8 @@ Tự tay code lại một **MLP nhỏ** + training loop trong PyTorch từ đầ
 
 ## Deliverables
 
-1. Một notebook/script train được MLP trên toy dataset → `train_mlp.py` (hoặc `.ipynb`).
-2. Một **math cheat sheet 1 trang** tự viết (có thể nhờ Claude hỗ trợ) → `math_cheat_sheet.md`.
+1. Một notebook/script train được MLP trên toy dataset → `05_train_mlp.py` (hoặc `.ipynb`).
+2. Một **math cheat sheet 1 trang** tự viết (có thể nhờ Claude hỗ trợ) → `03_math_cheat_sheet.md`.
 
 ## Thời lượng
 
@@ -39,10 +50,13 @@ RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
 - [ ] Ôn linear algebra (matrix multiply, dot product) + calculus (chain rule) — tự viết lại bằng ví dụ nhỏ
 - [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
 - [ ] Đọc docs autograd + `nn.Module` của PyTorch
-- [x] Chạy `check_gpu.py` → xác nhận CUDA/MPS hoạt động (✅ MPS khả dụng — macOS arm64, torch 2.12.1)
-- [ ] Tự code lại `train_mlp.py` (KHÔNG copy — tự viết để hiểu)
+- [x] Chạy `01_check_gpu.py` → xác nhận CUDA/MPS hoạt động
+  - ✅ 2026-08-11 — CUDA khả dụng: RTX 3070 Ti, VRAM 8.0 GB, torch 2.5.1+cu121, Windows. Log: [`../journal/evidence/W01/check_gpu_2026-08-11.log`](../journal/evidence/W01/check_gpu_2026-08-11.log)
+  - Ghi chú cũ trong file này: "MPS khả dụng — macOS arm64, torch 2.12.1". `[Chưa xác minh]` — không có log kèm theo trong repo.
+- [ ] Đọc `02_theory_notes.md` — chạy lại được mọi snippet trong đó
+- [ ] Tự code lại `05_train_mlp.py` (KHÔNG copy — tự viết để hiểu)
 - [ ] MLP train được, loss giảm, accuracy hợp lý trên toy dataset
-- [ ] Hoàn thành `math_cheat_sheet.md` bằng lời của mình
+- [ ] Hoàn thành `03_math_cheat_sheet.md` bằng lời của mình
 - [ ] Tự kiểm tra: giải thích được cho Claude (bằng lời mình) softmax + cross-entropy + chain rule
 
 ## Cách dùng Claude làm bạn học (Tuần 1)
@@ -61,9 +75,15 @@ Việc của tuần này là nền: tensor, autograd, softmax/cross-entropy, cha
 
 ## File trong folder này
 
-| File | Mô tả |
-|------|-------|
-| `README.md` | File này — mục tiêu, nguồn, checklist |
-| `check_gpu.py` | Kiểm tra CUDA/MPS, in thông tin device + VRAM |
-| `train_mlp.py` | Skeleton để TỰ code MLP + training loop trên toy dataset |
-| `math_cheat_sheet.md` | Cheat sheet toán cho LLM (tự bổ sung bằng lời mình) |
+Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
+
+| # | File | Mô tả |
+|---|------|-------|
+| — | `README.md` | File này — mục tiêu, nguồn, checklist |
+| 1 | `01_check_gpu.py` | Kiểm tra CUDA/MPS, in thông tin device + VRAM |
+| 2 | `02_theory_notes.md` | Lý thuyết tự chứa của tuần: linear algebra, calculus, softmax/CE, PyTorch core |
+| 3 | `03_math_cheat_sheet.md` | Cheat sheet toán cho LLM (tự bổ sung bằng lời mình) |
+| 4 | `04_math_practice.py` | Luyện tập tương tác theo cheat sheet (đoán trước → chạy → so đáp án) |
+| 5 | `05_train_mlp.py` | Skeleton để TỰ code MLP + training loop trên toy dataset |
+| 6 | `06_solution_train_mlp.py` | Lời giải tham khảo — CHỈ mở sau khi tự code xong |
+| 7 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

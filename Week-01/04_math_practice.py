@@ -1,8 +1,8 @@
 """
-math_practice.py — Luyện tập tương tác theo math_cheat_sheet.md (mục 1-4).
+04_math_practice.py — Luyện tập tương tác theo 03_math_cheat_sheet.md (mục 1-4).
 
 Cách dùng (LƯU Ý: shell có alias python -> python3.14, phải gọi venv trực tiếp):
-    .venv/bin/python Week-01/math_practice.py
+    .venv/bin/python Week-01/04_math_practice.py
 
 Cách học: với MỖI câu, đọc câu hỏi -> TỰ ĐOÁN đáp án ra giấy/miệng ->
 nhấn Enter để chạy code và so sánh -> đọc 1 dòng giải thích.
