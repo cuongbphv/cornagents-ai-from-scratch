@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Môi trường
+.venv/
+venv/
+.env
+
+# Dữ liệu & checkpoint (nặng)
+**/data/
+*.gguf
+*.safetensors
+*.ckpt
+*.pt
+chroma_db/
+outputs/
+lora_adapter/
+adapters/
+fused_model/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
