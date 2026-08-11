@@ -6,7 +6,7 @@ NGUỒN: scripts/quiz_bank.json
 ĐẦU RA:
   - Week-XX/quiz.md            (chỉ câu hỏi — để tự kiểm tra)
   - Week-XX/quiz_solution.md   (đáp án + giải thích)
-  - Report/assets/js/quiz-data.js  (window.QUIZ_DATA cho web portal — render Q&A flip-card)
+  - report/assets/js/quiz-data.js  (window.QUIZ_DATA cho web portal — render Q&A flip-card)
 
 CÁCH DÙNG
   # Sinh lại tất cả file từ quiz_bank.json (mặc định, không cần mạng/API):
@@ -34,7 +34,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BANK_PATH = ROOT / "scripts" / "quiz_bank.json"
-QUIZ_DATA_JS = ROOT / "Report" / "assets" / "js" / "quiz-data.js"
+QUIZ_DATA_JS = ROOT / "report" / "assets" / "js" / "quiz-data.js"
 
 LETTERS = ["A", "B", "C", "D", "E", "F"]
 
@@ -253,7 +253,7 @@ def main():
 
     ok = sum(write_week_files(w) for w in targets)
     write_quiz_data_js(bank)
-    print(f"\n[XONG] Sinh xong {ok}/{len(targets)} tuần. Mở Report/index.html để xem flip-card Q&A.")
+    print(f"\n[XONG] Sinh xong {ok}/{len(targets)} tuần. Mở report/index.html để xem flip-card Q&A.")
 
 
 if __name__ == "__main__":

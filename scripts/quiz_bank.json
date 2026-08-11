@@ -3,7 +3,7 @@
     "title": "Quiz Bank — LLM From Scratch",
     "language": "vi",
     "version": "2.0",
-    "note": "Nguồn chân lý cho quiz từng tuần. Chạy scripts/generate_quiz.py để sinh Week-XX/quiz.md, Week-XX/quiz_solution.md và Report/assets/js/quiz-data.js. type=mcq dùng choices+answer(index từ 0); type=open dùng answer(văn bản mẫu). Toán viết dạng plain-text cho dễ bảo trì."
+    "note": "Nguồn chân lý cho quiz từng tuần. Chạy scripts/generate_quiz.py để sinh Week-XX/quiz.md, Week-XX/quiz_solution.md và report/assets/js/quiz-data.js. type=mcq dùng choices+answer(index từ 0); type=open dùng answer(văn bản mẫu). Toán viết dạng plain-text cho dễ bảo trì."
   },
   "weeks": [
     {

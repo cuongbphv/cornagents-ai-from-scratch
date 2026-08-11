@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="260" viewBox="0 0 1000 260" role="img">
+  <title>Pipeline journey</title>
+  <desc>End-to-end pipeline from Data to Graph</desc>
+  <defs>
+    <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#0f172a" opacity="0.05"/>
+    </pattern>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="20%" stop-color="#2563eb"/>
+      <stop offset="40%" stop-color="#d97706"/>
+      <stop offset="55%" stop-color="#e11d48"/>
+      <stop offset="70%" stop-color="#0891b2"/>
+      <stop offset="85%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <marker id="arrowHead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="260" rx="18" fill="#eef3f9"/>
+  <rect width="1000" height="260" rx="18" fill="url(#dots)"/>
+
+<text x="36" y="38" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Pipeline · hành trình end-to-end</text>
+<text x="36" y="60" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="500" fill="#64748b">Data → Model → Align → Serve → RAG → Agent → Graph</text>
+<rect x="36" y="195" width="928" height="6" rx="3" fill="url(#rail)" opacity="0.35"/>
+<circle r="5" fill="#0d9488" opacity="0.95"><animateMotion dur="5.5s" begin="0s" repeatCount="indefinite" path="M 77.9 198 H 922.1"/></circle>
+<circle r="4" fill="#9333ea" opacity="0.95"><animateMotion dur="5.5s" begin="1.6s" repeatCount="indefinite" path="M 77.9 198 H 922.1"/></circle>
+<circle r="4" fill="#4f46e5" opacity="0.95"><animateMotion dur="5.5s" begin="3.2s" repeatCount="indefinite" path="M 77.9 198 H 922.1"/></circle>
+<g transform="translate(36.0,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#0d9488" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#0d9488"/>
+<circle cx="41.9" cy="32" r="12" fill="#0d9488"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">1</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Data</text>
+</g>
+<g transform="translate(129.8,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#0d9488" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#0d9488"/>
+<circle cx="41.9" cy="32" r="12" fill="#0d9488"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">2</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Token</text>
+</g>
+<g transform="translate(223.6,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#2563eb" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#2563eb"/>
+<circle cx="41.9" cy="32" r="12" fill="#2563eb"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">3</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Model</text>
+</g>
+<g transform="translate(317.4,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#d97706" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#d97706"/>
+<circle cx="41.9" cy="32" r="12" fill="#d97706"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">4</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Pretrain</text>
+</g>
+<g transform="translate(411.2,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#e11d48" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#e11d48"/>
+<circle cx="41.9" cy="32" r="12" fill="#e11d48"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">5</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Align</text>
+</g>
+<g transform="translate(505.0,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#16a34a" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#16a34a"/>
+<circle cx="41.9" cy="32" r="12" fill="#16a34a"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">6</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Eval</text>
+</g>
+<g transform="translate(598.8,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#16a34a" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#16a34a"/>
+<circle cx="41.9" cy="32" r="12" fill="#16a34a"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">7</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Serve</text>
+</g>
+<g transform="translate(692.6,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#0891b2" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#0891b2"/>
+<circle cx="41.9" cy="32" r="12" fill="#0891b2"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">8</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">RAG</text>
+</g>
+<g transform="translate(786.4,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#9333ea" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#9333ea"/>
+<circle cx="41.9" cy="32" r="12" fill="#9333ea"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">9</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Agent</text>
+</g>
+<g transform="translate(880.2,108)">
+<rect width="83.8" height="72" rx="14" fill="#ffffff" stroke="#4f46e5" stroke-width="2" filter="url(#soft)"/>
+<rect width="83.8" height="7" rx="3.5" fill="#4f46e5"/>
+<circle cx="41.9" cy="32" r="12" fill="#4f46e5"/>
+<text x="41.9" y="36" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#fff">10</text>
+<text x="41.9" y="58" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">Graph</text>
+</g>
+<rect x="36" y="232" width="10" height="10" rx="3" fill="#0d9488"/>
+<text x="51" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Data/Token</text>
+<rect x="148" y="232" width="10" height="10" rx="3" fill="#2563eb"/>
+<text x="163" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Model</text>
+<rect x="260" y="232" width="10" height="10" rx="3" fill="#d97706"/>
+<text x="275" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Train</text>
+<rect x="372" y="232" width="10" height="10" rx="3" fill="#e11d48"/>
+<text x="387" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Align</text>
+<rect x="484" y="232" width="10" height="10" rx="3" fill="#16a34a"/>
+<text x="499" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Eval/Serve</text>
+<rect x="596" y="232" width="10" height="10" rx="3" fill="#0891b2"/>
+<text x="611" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">RAG</text>
+<rect x="708" y="232" width="10" height="10" rx="3" fill="#9333ea"/>
+<text x="723" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Agent</text>
+<rect x="820" y="232" width="10" height="10" rx="3" fill="#4f46e5"/>
+<text x="835" y="241" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">Graph</text></svg>

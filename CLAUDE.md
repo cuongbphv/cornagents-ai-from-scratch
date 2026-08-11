@@ -49,5 +49,5 @@
 
 - **Không overthinking**: trả lời thẳng vào việc, không vòng vo, không liệt kê phương án không dùng đến. Ưu tiên ví dụ code và best practice; không giải thích dài khi người dùng chưa yêu cầu.
 - Sửa nhỏ nhất đủ đúng; không refactor ngoài phạm vi được yêu cầu.
-- Quiz sinh từ `scripts/quiz_bank.json` — sửa quiz thì sửa ở đó rồi chạy `python scripts/generate_quiz.py`, không sửa tay các file `Week-XX/quiz*.md` hay `Report/assets/js/quiz-data.js`.
+- Quiz sinh từ `scripts/quiz_bank.json` — sửa quiz thì sửa ở đó rồi chạy `python scripts/generate_quiz.py`, không sửa tay các file `Week-XX/quiz*.md` hay `report/assets/js/quiz-data.js`.
 - Khi kết luận "đã xong / test pass" phải kèm bằng chứng lệnh đã chạy và output thật.

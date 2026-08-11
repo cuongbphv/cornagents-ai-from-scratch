@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="230" viewBox="0 0 880 230" role="img">
+  <title>Alignment flow</title>
+  <desc>SFT to GRPO</desc>
+  <defs>
+    <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#0f172a" opacity="0.05"/>
+    </pattern>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="20%" stop-color="#2563eb"/>
+      <stop offset="40%" stop-color="#d97706"/>
+      <stop offset="55%" stop-color="#e11d48"/>
+      <stop offset="70%" stop-color="#0891b2"/>
+      <stop offset="85%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <marker id="arrowHead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="880" height="230" rx="18" fill="#eef3f9"/>
+  <rect width="880" height="230" rx="18" fill="url(#dots)"/>
+
+<text x="32" y="40" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Alignment · Tuần 7</text>
+<text x="32" y="62" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="500" fill="#64748b">Neo FareedKhan-style pipeline, scaled-down để học</text>
+<g transform="translate(40,100)">
+<rect width="175" height="64" rx="14" fill="#d97706" filter="url(#soft)"/>
+<circle cx="28" cy="32.0" r="13" fill="#fff" opacity="0.92"/>
+<text x="28" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d97706">1</text>
+<text x="111.5" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">SFT</text>
+</g>
+<path d="M221 132.0 H244" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+<g transform="translate(250,100)">
+<rect width="175" height="64" rx="14" fill="#e11d48" filter="url(#soft)"/>
+<circle cx="28" cy="32.0" r="13" fill="#fff" opacity="0.92"/>
+<text x="28" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#e11d48">2</text>
+<text x="111.5" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Reward Model</text>
+</g>
+<path d="M431 132.0 H454" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+<g transform="translate(460,100)">
+<rect width="175" height="64" rx="14" fill="#e11d48" filter="url(#soft)"/>
+<circle cx="28" cy="32.0" r="13" fill="#fff" opacity="0.92"/>
+<text x="28" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#e11d48">3</text>
+<text x="111.5" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">DPO / PPO</text>
+</g>
+<path d="M641 132.0 H664" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+<g transform="translate(670,100)">
+<rect width="175" height="64" rx="14" fill="#9333ea" filter="url(#soft)"/>
+<circle cx="28" cy="32.0" r="13" fill="#fff" opacity="0.92"/>
+<text x="28" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#9333ea">4</text>
+<text x="111.5" y="37.0" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">GRPO</text>
+</g>
+<circle r="5" fill="#fff" stroke="#e11d48" stroke-width="2"><animateMotion dur="4.5s" repeatCount="indefinite" path="M 127.5 132.0 H 757.5"/></circle>
+<text x="440" y="202" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#64748b">SFT → RM → preference / RL → GRPO</text></svg>
