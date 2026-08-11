@@ -41,6 +41,20 @@
 - [ ] Áp dụng LoRA (Appendix E) — so sánh full FT vs LoRA
 - [ ] Chat thử với mini-model → ghi vài ví dụ
 
+## 🚀 Bổ sung nâng cao (định vị trong pipeline lớn)
+
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G — chỉ phần sơ đồ pipeline** (đừng đọc hết, phần còn lại là của Tuần 7):
+
+```
+Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR
+                       ↑
+              instruction fine-tuning bạn làm tuần này ≈ bước SFT
+```
+
+Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeline lớn, và **Midtrain** (khái niệm nanochat, không có trong sách Raschka) chen vào trước SFT để dạy format hội thoại + special tokens + tool use.
+
+> ➡️ Tuần 7 sẽ đọc mục **G** đầy đủ (RM, PPO, DPO, GRPO/RLVR).
+
 ## File trong folder
 
 | File | Mô tả |

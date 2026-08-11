@@ -68,6 +68,16 @@ Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude.
 - [ ] Chọn stack + lý do (regulated finance → ưu tiên LangGraph: stateful, auditable)
 - [ ] Vẽ `cornagents_architecture.md` (sơ đồ + tool boundaries + HITL gates)
 
+## 🚀 Bổ sung nâng cao (5 tầng + ratchet loop)
+
+Tuần này phần "nâng cao" **chính là nội dung tuần**, nên đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I1–I2** song song:
+
+- **I1 · Năm tầng engineering** — Prompt → Context → Harness → Loop → Graph, kèm cách **chẩn đoán theo tầng**: output sai format = tầng 1; model không biết thứ cần biết = tầng 2; không ai kiểm kết quả = tầng 3; chạy mãi không dừng = tầng 4; agent lặp việc nhau = tầng 5.
+- **I2 · Ratchet loop + `program.md`** — 4 điều kiện làm loop chạy được (verifiable / reversible / horizon ngắn / environment bounded) và ý tưởng "programming the program" bằng ngôn ngữ tự nhiên.
+- Cũng ở I2: **commit DAG ≠ knowledge graph** — đừng gộp hai thứ này (work lineage vs domain knowledge).
+
+> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục II & VI, [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg).
+
 ## File trong folder
 
 | File | Mô tả |

@@ -44,6 +44,16 @@ Fine-tune 7B–8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qu
 - [ ] So tốc độ Mac vs 3070 Ti trên cùng prompt
 - [ ] Viết `hardware_decision.md`
 
+## 🚀 Bổ sung nâng cao (serving & quantization)
+
+Tuần này bạn serve model thật, nên các mục sau trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) rất sát:
+
+- **B1 KV cache** — bộ nhớ KV cache ≈ `2 · n_layers · n_kv_heads · d_head · seq · dtype`, chính là nút thắt VRAM khi context dài. Đây là lý do GQA/MQA/MLA tồn tại.
+- **B3 Speculative decoding** — model "nháp" nhỏ đề xuất, model lớn verify song song → nhanh hơn mà không đổi phân phối.
+- **B4 GGUF** — nhắc lại cho rõ: GGUF là **định dạng file** của llama.cpp (Q4_K_M, Q5_K_M…), *không phải* thuật toán lượng tử hoá. Đây chính là thứ Ollama/LM Studio load.
+
+> Nguồn: rasbt *Bonus* `KV Cache`, `Memory-efficient Model Weight Loading`; nanochat `engine.py`.
+
 ## File trong folder
 
 | File | Mô tả |

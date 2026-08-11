@@ -49,6 +49,12 @@
 - [ ] Viết `attention_writeup.md` bằng lời mình → nhờ Claude review
 - [ ] Tự kiểm tra: vẽ được computation graph + giải thích backward bằng chain rule
 
+## 🚀 Bổ sung nâng cao
+
+**Tuần này cũng KHÔNG có mục nâng cao** (xem bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md)). Tự tay viết micrograd và dựng mental model transformer đã đủ nặng — chia trí lúc này là phản tác dụng.
+
+Ngay tuần sau (Tuần 3) bạn sẽ mở một loạt mục **A1–A6, C, E** để so sánh attention GPT-2 với Llama 3/Qwen3.
+
 ## File trong folder này
 
 | File | Mô tả |

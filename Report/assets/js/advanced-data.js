@@ -22,7 +22,7 @@ window.ADVANCED_TOPICS = [
       <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: rasbt <i>Bonus Material</i> (Llama 3 & Qwen3 from scratch, gpt-oss); nanochat <code>gpt.py</code>.</p>`
   },
   {
-    id: "infer", ix: "B", title: "Tối ưu inference", week: "Tuần 4 & 8",
+    id: "infer", ix: "B", title: "Tối ưu inference", week: "Tuần 4, 8–9, 10",
     desc: "Sinh text nhanh & rẻ.",
     body: `
       <h5>B1 · KV Cache (bắt buộc hiểu)</h5>
@@ -128,5 +128,23 @@ window.ADVANCED_TOPICS = [
         <li><b>LLM-as-judge</b> (Giles 30): tiện nhưng bẫy (thiên vị độ dài/vị trí); <b>loss thấp ≠ hữu ích hơn</b>.</li>
       </ul>
       <div class="tagrow"><span class="kt">perplexity</span><span class="kt">bits-per-byte</span><span class="kt">CORE/DCLM</span><span class="kt">MMLU/GSM8K</span><span class="kt">LLM-as-judge</span></div>`
+  },
+  {
+    id: "agentic", ix: "I", title: "Agentic & Graph Engineering nâng cao", week: "Tuần 12–15",
+    desc: "Phase 3: đặt bộ nhớ và đánh giá ở đâu — bottleneck thật, không phải model call.",
+    body: `
+      <h5>I1 · Năm tầng engineering</h5>
+      <p><b>Prompt</b> (message) → <b>Context</b> (memory) → <b>Harness</b> (gather-act-verify) → <b>Loop</b> (run-check-decide) → <b>Graph</b> (organization). Chẩn đoán <i>theo tầng</i>: sai format = tầng 1; thiếu thông tin = tầng 2; không ai kiểm kết quả = tầng 3; chạy mãi không dừng = tầng 4; agent lặp việc nhau = tầng 5.</p>
+      <h5>I2 · Ratchet loop &amp; externalize bottleneck</h5>
+      <p><code>inspect → propose → apply → evaluate → keep/revert</code>. Bốn điều kiện bắt buộc: output <b>verifiable</b>, action <b>reversible</b>, horizon <b>ngắn</b>, environment <b>bounded</b>. Mỗi kiến trúc externalize một thứ: loop→iteration, chain→thứ tự, swarm→parallel search, DAG→lineage, graph→shared facts. <b>Commit DAG ≠ knowledge graph.</b></p>
+      <h5>I3 · Năm patterns + chi phí thật</h5>
+      <p>Prompt Chaining · Routing · Parallelization · Orchestrator–Workers · Evaluator–Optimizer. Multi-agent thắng ~<b>90%</b> ở task đa hướng nhưng tốn <b>10–15× token</b> → chỉ tách vai khi chuyên môn hoá thêm tín hiệu; luôn định nghĩa <b>reducer</b> trước fan-out. Đừng fan-out task cần một mạch tư duy liền.</p>
+      <h5>I4 · KG ở quy mô production</h5>
+      <p><b>Blocking</b> bằng tín hiệu rẻ trước khi để model phân xử trong block 50–100. <b>Incremental update</b> (graph tích luỹ, không rebuild). Storage: NetworkX → Neo4j / 3 bảng Postgres. Chunk theo <b>ranh giới semantic</b>. Hai failure mode: <b>silent entity loss</b> &amp; <b>false merge</b>.</p>
+      <h5>I5 · Complexity budget &amp; thước đo cuối</h5>
+      <p>Khai báo trước: max calls/sub-agents/tokens/cost/retries + bằng chứng tối thiểu để finalize. Hết budget → trả artifact tốt nhất + <b>lý do dừng</b>, không giấu partial failure. Metric <b>bị game</b>: ratchet chỉ cải thiện thứ nó thấy được.</p>
+      <p style="margin-top:8px"><i>"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."</i> — đúng thì kiến trúc compose được; sai thì thêm agent chỉ tăng độ mờ đục.</p>
+      <div class="tagrow"><span class="kt">5 layers</span><span class="kt">ratchet loop</span><span class="kt">program.md</span><span class="kt">5 patterns</span><span class="kt">blocking</span><span class="kt">provenance</span><span class="kt">complexity budget</span></div>
+      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: <code>docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf</code>, <code>docs/Graph-Engineering-Athropic-Playbook.pdf</code>, <code>docs/5-layers-multi-agent.jpg</code>.</p>`
   }
 ];

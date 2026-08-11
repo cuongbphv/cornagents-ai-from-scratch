@@ -56,7 +56,7 @@ Adapter 7B/8B đã fine-tune + **eval so base vs fine-tuned** trên held-out exa
 - [ ] Merge adapter + export GGUF (để chạy Ollama/LM Studio ở Tuần 9)
 - [ ] Eval base vs fine-tuned trên held-out → ghi `eval_notes.md`
 
-## 🚀 Bổ sung nâng cao (quantization internals)
+## 🚀 Bổ sung nâng cao (quantization internals + cách eval)
 
 Tuần này dùng QLoRA/NF4 ở mức "bật cờ". Hiểu sâu hơn trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B4**:
 
@@ -65,6 +65,12 @@ Tuần này dùng QLoRA/NF4 ở mức "bật cờ". Hiểu sâu hơn trong [`../
 - **GGUF** là *định dạng file* của llama.cpp (Q4_K_M, Q5_K_M, Q8_0…) — thứ Ollama/LM Studio load, không phải thuật toán.
 
 > Quy tắc: 8-bit gần như không mất chất lượng; 4-bit là điểm ngọt local; perplexity tăng dần khi bit giảm.
+
+Deliverable tuần này là "eval base vs fine-tuned", nên đọc thêm mục **H**:
+
+- **Đừng tin một chỉ số duy nhất** — loss/perplexity giảm không đảm bảo model hữu ích hơn trên việc bạn cần (Giles part 30).
+- Nếu so hai model **khác tokenizer/backend**, dùng **bits-per-byte** thay perplexity thô.
+- Giữ một held-out set cố định để mọi lần fine-tune sau đều so được với lần này.
 
 ## File trong folder
 

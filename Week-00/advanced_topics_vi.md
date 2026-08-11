@@ -2,7 +2,7 @@
 
 > **Vì sao có file này.** Lộ trình gốc (Tuần 1–15) dựng một model **cỡ GPT-2 (kiến trúc 2019)** rồi chuyển sang ứng dụng. Khi rà soát lại 4 nguồn — Raschka `rasbt/LLMs-from-scratch` (kèm thư mục *Bonus Material*), `FareedKhan-dev/train-llm-from-scratch`, blog `gilesthomas.com/llm-from-scratch` (đã tới part 33), và `karpathy/nanochat` — có một loạt chủ đề **các model hiện đại (Llama 3, Qwen3, DeepSeek, gpt-oss) dùng nhưng GPT-2 không có**, cộng với các kỹ thuật train/inference/eval mà 3 nguồn kia đã ghi lại. File này gom chúng lại thành một "appendix" để học sau khi đã nắm GPT-2, và được neo vào đúng tuần liên quan.
 >
-> Cách dùng: đọc song song với tuần tương ứng (cột *Học ở tuần*). Mỗi mục có công thức/ý chính + nguồn để đào sâu. Đây là tài liệu tham khảo, không phải checklist bắt buộc — ưu tiên A và B nếu thời gian hẹp.
+> Cách dùng: **đừng đọc file này một lượt từ đầu tới cuối.** Mỗi tuần, mở đúng những mục được neo cho tuần đó (xem bảng điều hướng ngay dưới). README của từng tuần cũng có block "🚀 Bổ sung nâng cao" trỏ ngược lại đây — neo hai chiều, để bạn không bao giờ phải tự đoán "phần này học lúc nào". Đây là tài liệu tham khảo, không phải checklist bắt buộc — ưu tiên A và B nếu thời gian hẹp.
 
 **Mục lục**
 
@@ -14,6 +14,33 @@
 - [F. Scale & Parallelism](#f-scale--parallelism)
 - [G. Alignment & Reasoning đầy đủ](#g-alignment--reasoning-đầy-đủ)
 - [H. Evaluation đúng cách](#h-evaluation-đúng-cách)
+- [I. Agentic & Graph Engineering nâng cao (Phase 3)](#i-agentic--graph-engineering-nâng-cao)
+
+---
+
+## 🧭 Bảng điều hướng: tuần nào đọc mục nào
+
+Đây là **bảng neo chính thức** — mỗi dòng là một tuần, cột giữa là các mục cần mở của tuần đó. Hai tuần đầu cố ý **không có** mục nào: đó là phần nền, thêm chủ đề nâng cao vào lúc đó chỉ gây tải nhận thức vô ích.
+
+| Tuần | Mục cần đọc | Vì sao đọc lúc này |
+|---|---|---|
+| **1** — Toán + PyTorch | *(không)* | Xây nền; mọi thứ nâng cao đều cần attention trước đã. |
+| **2** — Backprop + mental model | *(không)* | Tập trung tự viết autograd; đừng chia trí. |
+| **3** — Attention từ đầu | **A1–A6**, **C1–C2**, **E** | Vừa code MHA xong là lúc duy nhất so sánh RoPE/GQA/MLA thấy "thấm". |
+| **4** — Lắp ráp GPT | **A7**, **B1**, **B2** | Vừa sinh text xong → hiểu KV cache & sampling ngay trên code của mình. |
+| **5** — Pretraining | **D**, **D1–D2**, **F**, **H** (bpb/CORE) | Bạn đang chạy train thật: đây là lúc các "intervention" có nghĩa. |
+| **6** — Instruction fine-tuning | **G** (chỉ sơ đồ pipeline) | Để định vị: instruction FT của bạn ≈ bước SFT trong pipeline lớn. |
+| **7** — Alignment | **G** (đầy đủ) | Đây *là* tuần alignment. |
+| **8** — QLoRA | **B4**, **H** | Bạn bật cờ 4-bit → hiểu NF4/GPTQ/AWQ bên dưới; và cách eval base vs fine-tuned. |
+| **9** — Mac/MLX + local inference | **B1**, **B3**, **B4** (GGUF) | Serving thật: KV cache là nút thắt VRAM, GGUF là định dạng bạn load. |
+| **10** — RAG pipeline | **B2** | Temperature/top-p quyết định câu trả lời RAG có bịa hay không. |
+| **11** — Advanced RAG + RAGAS | **H** (đầy đủ) | Bạn đang đo chất lượng → cần biết cạm bẫy LLM-as-judge trước khi tin số. |
+| **12** — Nền tảng agentic | **I1**, **I2** | 5 tầng engineering + ratchet loop là chính nội dung tuần này. |
+| **13** — Agent graph SDLC | **I2**, **I3** | Chọn pattern nào, khi nào tách vai, chi phí bao nhiêu. |
+| **14** — Graph Engineering | **I3**, **I4** | Scale/storage/monitoring của KG pipeline bạn vừa build. |
+| **15** — Capstone | **H**, **I4**, **I5** | Eval + complexity budget + production checklist trước khi "ship". |
+
+> **Quy ước:** mục **A–H** là chiều sâu cho Phase 1–2 (model internals). Mục **I** là chiều sâu cho Phase 3 (agentic/graph), lấy từ hai PDF trong [`../docs/`](../docs/).
 
 ---
 
@@ -77,7 +104,7 @@ Thay một FFN dày bằng **nhiều FFN "expert"**; một **router** chọn top
 
 ## B. Tối ưu inference
 
-> **Học ở tuần:** 4 (sau khi sinh text) và 8 (local inference). Nguồn: rasbt *Bonus* `KV Cache`, `Memory-efficient Model Weight Loading`; nanochat `engine.py` (KV cache), `scripts/chat_*`.
+> **Học ở tuần:** 4 (sau khi sinh text: B1–B2), 8 (quantization: B4), 9 (local inference stack: B3–B4/GGUF), 10 (sampling ảnh hưởng câu trả lời RAG: B2). Nguồn: rasbt *Bonus* `KV Cache`, `Memory-efficient Model Weight Loading`; nanochat `engine.py` (KV cache), `scripts/chat_*`.
 
 ### B1. KV Cache — bắt buộc phải hiểu
 
@@ -181,7 +208,7 @@ Với bạn (1 GPU 8GB local): chủ yếu dùng **gradient accumulation** (D) �
 
 ## G. Alignment & Reasoning đầy đủ
 
-> **Học ở tuần:** 6 (mở rộng). Nguồn: **FareedKhan-dev `src/post_training/`** (SFT → Reward Model → PPO → DPO → GRPO, pure PyTorch trên Alpaca/Dolly/HH-RLHF/UltraFeedback/GSM8K); Raschka `reasoning-from-scratch`; nanochat `chat_sft.py`, `chat_rl.py`.
+> **Học ở tuần:** 6 (chỉ đọc sơ đồ pipeline để định vị instruction FT ≈ SFT) và **7** (đọc đầy đủ — đây là tuần alignment). Nguồn: **FareedKhan-dev `src/post_training/`** (SFT → Reward Model → PPO → DPO → GRPO, pure PyTorch trên Alpaca/Dolly/HH-RLHF/UltraFeedback/GSM8K); Raschka `reasoning-from-scratch`; nanochat `chat_sft.py`, `chat_rl.py`.
 
 Pipeline đầy đủ "base → aligned reasoning model":
 
@@ -196,7 +223,7 @@ Pretrain  →  Midtrain  →  SFT  →  Reward Model  →  PPO / DPO  →  GRPO 
 - **Midtrain** (nanochat): bước *giữa* pretrain và SFT — dạy model định dạng hội thoại, special tokens, dùng tool, một ít kiến thức. Khái niệm này **không có** trong sách Raschka gốc.
 - **Reward Model (RM)**: train một model chấm điểm; FareedKhan implement from scratch.
 - **PPO**: RL kinh điển của RLHF, cần RM + critic + KL với policy gốc.
-- **DPO**: bỏ RM/PPO, tối ưu trực tiếp từ cặp (chosen, rejected) — đơn giản & ổn định hơn (đã có công thức ở Tuần 6).
+- **DPO**: bỏ RM/PPO, tối ưu trực tiếp từ cặp (chosen, rejected) — đơn giản & ổn định hơn (đã có công thức ở Tuần 7).
 - **GRPO/RLVR**: *Group Relative Policy Optimization* — bỏ critic, chuẩn hoá reward theo **nhóm sample**; **RLVR** = reward *kiểm chứng được* (đáp án toán đúng/sai, test code pass) → nền của reasoning models (o1/R1-style).
 - **Tool-use RL** (nanochat): model học gọi Python để đếm/tính (vd. "đếm r trong strawberry"), reward khi ra kết quả đúng.
 
@@ -204,7 +231,7 @@ Pretrain  →  Midtrain  →  SFT  →  Reward Model  →  PPO / DPO  →  GRPO 
 
 ## H. Evaluation đúng cách
 
-> **Học ở tuần:** 5, 7, 10, 13. Nguồn: Giles part 21 (perplexity), part 30 (LLM-as-judge); nanochat `core_eval.py` (CORE/DCLM), `loss_eval.py` (bits-per-byte); tasks `mmlu/arc/gsm8k/humaneval`.
+> **Học ở tuần:** 5 (bpb/CORE khi so với GPT-2), 8 (eval base vs fine-tuned), 11 (RAGAS + cạm bẫy LLM-as-judge), 15 (eval capstone). Nguồn: Giles part 21 (perplexity), part 30 (LLM-as-judge); nanochat `core_eval.py` (CORE/DCLM), `loss_eval.py` (bits-per-byte); tasks `mmlu/arc/gsm8k/humaneval`.
 
 - **Cross-entropy loss / Perplexity** \(\text{PPL}=e^{L}\): đo trên ngôn ngữ; nhưng **phụ thuộc vocab/tokenizer** nên khó so chéo model.
 - **Bits-per-byte (bpb)**: chuẩn hoá loss về *byte* → **so sánh được** giữa các tokenizer/model khác nhau. nanochat dùng bpb thay loss thô. *Nên biết khi so model của bạn với GPT-2.*
@@ -214,10 +241,96 @@ Pretrain  →  Midtrain  →  SFT  →  Reward Model  →  PPO / DPO  →  GRPO 
 
 ---
 
+## I. Agentic & Graph Engineering nâng cao
+
+> **Học ở tuần:** 12 (I1–I2), 13 (I2–I3), 14 (I3–I4), 15 (I4–I5). Nguồn: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf), [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf), [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg); Anthropic *Building Effective AI Agents* + Knowledge Graph Construction Cookbook.
+
+Phase 1–2 hỏi "model hoạt động thế nào". Phase 3 hỏi **"đặt bộ nhớ và đánh giá ở đâu"** — và đó mới là bottleneck thật. Câu chốt của cả mục này: *model là commodity, hệ thống quanh nó mới là chỗ engineering.*
+
+### I1. Năm tầng engineering — mỗi tầng bọc tầng trước
+
+| Tầng | Là gì | Unit of work |
+|---|---|---|
+| 1. Prompt | the message (role, instructions, examples, format) | một input |
+| 2. Context | the memory (curate cái gì ở trong window) | cái ở trong window |
+| 3. Harness | the machine (gather → act → verify, có retry) | một pass |
+| 4. Loop | the system (run → check budget/max-iter/no-progress → decide) | một run |
+| 5. Graph | the organization (nhiều agent + shared memory) | cả tổ chức |
+
+Chẩn đoán khi hệ thống hỏng: hỏi *tầng nào đang thiếu?* Output sai định dạng → tầng 1. Model không biết thứ nó cần biết → tầng 2. Không ai kiểm tra kết quả → tầng 3. Chạy mãi không dừng → tầng 4. Các agent lặp lại việc của nhau → tầng 5.
+
+### I2. Từ Loop đến Swarm: mỗi kiến trúc externalize một bottleneck khác
+
+| Kiến trúc | Externalize cái gì |
+|---|---|
+| **Loop** | iteration + evaluation |
+| **Chain** | thứ tự task |
+| **Swarm** | parallel search + chuyên môn hoá vai |
+| **DAG** | lineage thí nghiệm (đã thử gì, nhánh từ đâu) |
+| **Knowledge graph** | shared facts, provenance, memory xuyên session |
+
+**Ratchet loop** (Karpathy *autoresearch*): `inspect → propose → apply → evaluate → keep hoặc revert`. Chỉ giữ thay đổi khi metric tốt lên; crash thì revert. 630 dòng code chạy ~700 thí nghiệm trong 2 ngày, giữ lại ~20 tối ưu.
+
+Bốn điều kiện làm loop đó chạy được — **thiếu một là loop vô nghĩa**:
+
+1. **Output verifiable** — có metric đo được (không thì agent tối ưu thứ sai).
+2. **Action reversible** — revert được (không thì một lỗi phá cả state).
+3. **Horizon ngắn** — run ~5 phút → feedback dày.
+4. **Environment bounded** — repo/không gian hành động hữu hạn.
+
+**`program.md` = "programming the program"**: Software 1.0 viết lệnh tường minh, 2.0 nắn hành vi bằng data, **3.0 dùng ngôn ngữ tự nhiên làm interface lập trình được**. `program.md` khai báo: file nào được sửa / file nào bảo vệ, metric + hướng, budget, quy tắc commit-revert, chính sách escalate cho người.
+
+**Commit DAG ≠ Knowledge graph** — đừng gộp: DAG trả lời *"cái gì đã thay đổi, thí nghiệm nào là cha"* (work lineage); KG trả lời *"entity nào tồn tại, liên quan thế nào, nguồn nào chống lưng"* (domain knowledge).
+
+### I3. Năm workflow patterns + chi phí thật của multi-agent
+
+- **Prompt Chaining** — các bước cố định nối tiếp, có gate giữa các bước.
+- **Routing** — phân loại input → prompt/model chuyên biệt.
+- **Parallelization** — call độc lập chạy song song (sectioning hoặc voting).
+- **Orchestrator–Workers** — model trung tâm phân rã động, giao việc, tổng hợp.
+- **Evaluator–Optimizer** — một bên sinh, một bên chấm theo tiêu chí, lặp.
+
+Lời khuyên gốc của Anthropic: **"simple, composable patterns rather than complex frameworks"** — chọn pattern theo bài toán, đừng bê nguyên framework nặng.
+
+Con số cần nhớ trước khi tách vai: multi-agent thắng single agent ~**90%** ở task cần nhiều hướng độc lập, nhưng tốn **10–15× token**. Nên: chỉ tách vai khi chuyên môn hoá **thêm tín hiệu**, và luôn định nghĩa **reducer** trước khi fan-out.
+
+**Dynamic Workflows** (2026): thay vì bạn viết script fan-out tĩnh, model **sinh chương trình orchestration** rồi spawn tới ~1.000 sub-agent với context tươi. Ranh giới abstraction dịch lên, nhưng **trách nhiệm không mất**: bạn vẫn phải định nghĩa objective, file trong scope, output contract, permissions, verification policy, concurrency + token budget, rollback rule.
+
+**Khi nào *đừng* fan-out:** task cần một mạch tư duy liền (thiết kế kiến trúc, viết narrative, refactor gắn kết chặt) sẽ **tệ hơn** khi chia thành đơn vị cô lập. Fan-out song song cũng tạo **lỗi tương quan** — verification chỉ giúp nếu reviewer có prompt/bằng chứng/vai *khác*.
+
+### I4. Knowledge graph ở quy mô production
+
+Phần Tuần 14 build là notebook-scale (6–10 tài liệu, in-memory). Lên hàng nghìn tài liệu cần thêm:
+
+- **Blocking trước khi resolve**: nhét 10.000 entity vào một prompt thì thất bại. Gom candidate bằng tín hiệu **rẻ** (trùng token tên, overlap, embedding) thành block 50–100, chỉ để model phân xử *trong* block. Đây là pattern chung: **model cho phần cần phán xét, logic tất định cho mọi thứ còn lại.**
+- **Incremental update**: tài liệu mới → resolve **với canonical set đã có** (không phải với nhau), chỉ thêm edge mới; re-summarize một entity **chỉ khi** tập tài liệu nguồn của nó đổi thật. Graph **tích luỹ**, không rebuild.
+- **Storage**: NetworkX ổn tới vài trăm nghìn edge. Quá đó → property graph (Neo4j/Neptune) hoặc **3 bảng Postgres** (`entities`, `relations`, `aliases`) + recursive CTE. Code extraction/resolution **không đổi** — chỉ đổi lớp persistence.
+- **Chunking tài liệu dài**: cắt theo **ranh giới mục/đoạn** (semantic), không theo số token, để entity và quan hệ của nó nằm cùng chunk; overlap một đoạn; dedupe entity giữa các chunk trước khi resolve.
+- **Bốn tín hiệu monitoring**: *extraction rate* (đột ngột giảm = corpus lệch domain), *resolution compression ratio* (~1.0 = tên nhất quán; >2.0 = resolution đang có giá trị), *graph connectivity* (số component tăng = mất link cross-document), *query latency*.
+- **Ba kỷ luật vận hành**: (1) **đọc tay 1 node mỗi ngày** — kiểm profile với tài liệu nguồn, verify provenance; khi bạn không giải thích được vì sao một edge tồn tại, hiểu biết của bạn đã tụt sau graph; (2) **cap volume mỗi run** (chống một batch trùng lặp nổ chi phí); (3) **version hoá schema** cùng graph.
+
+**Hai failure mode chết người**: *silent entity loss* (tên không khớp cluster nào thì biến mất → phải fallback cluster 1 phần tử) và *false merge* (gộp sai hai người → mọi traversal downstream nhiễm bẩn → resolution phải giữ alias, evidence, confidence, và **đảo được**).
+
+### I5. Kỷ luật production: budget, gaming, và thước đo cuối
+
+**Complexity budget** — khai báo *trước* mỗi run: max model calls, max sub-agents, max concurrent workers, max tool calls, max wall-clock, max tokens, max chi phí, max retries, và **bằng chứng tối thiểu để được finalize**. Hết budget → trả artifact tốt nhất hiện có + issue chưa xử lý + **lý do dừng**. Tuyệt đối không giấu partial failure sau một câu trả lời trôi chảy.
+
+**Metric bị game**: ratchet chỉ cải thiện thứ nó **thấy được**. Có thể giảm val loss mà tăng chi phí inference, giảm robustness, hoặc overfit chính eval set. Luôn giữ ràng buộc phụ (memory, throughput, stability, generalization).
+
+**Sáu câu hỏi chọn kiến trúc**: (1) success có verify được? — không thì đừng bắt đầu bằng autonomy; (2) các bước có ổn định? — có thì chain; (3) subtask độc lập? — có thì parallelize; (4) cần giữ nhánh thay thế? — có thì DAG; (5) facts phải sống qua run? — có thì persist graph, đừng dựa vào transcript; (6) chịu được chi phí/latency? — đặt budget trước khi thêm worker.
+
+**Thước đo cuối cùng của một hệ thống đáng tin:**
+
+> *Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record.*
+
+Khi câu đó **đúng** — loop, swarm, DAG, KG là các cơ chế engineering compose được. Khi nó **sai** — thêm agent chỉ làm tăng độ mờ đục. Đây là câu bạn tự kiểm ở Tuần 15.
+
+---
+
 ## Tóm tắt ưu tiên (nếu thời gian hẹp)
 
-1. **Bắt buộc**: KV cache (B1), RoPE (A1), RMSNorm/SwiGLU (A2–A3), GQA (A4), gradient accumulation (D), bits-per-byte (H) — đây là khoảng cách lớn nhất giữa "GPT-2 2019" và "LLM bạn dùng hằng ngày".
-2. **Nên có**: MoE (A7), quantization internals (B4), Muon (D1), full alignment pipeline (G), BPE training (E).
-3. **Để dành**: MLA (A5), sliding window (A6), speculative decoding (B3), TP/PP/FSDP (F) — đào khi cần.
+1. **Bắt buộc**: KV cache (B1), RoPE (A1), RMSNorm/SwiGLU (A2–A3), GQA (A4), gradient accumulation (D), bits-per-byte (H) — đây là khoảng cách lớn nhất giữa "GPT-2 2019" và "LLM bạn dùng hằng ngày". Với Phase 3: 5 tầng engineering (I1) + 4 điều kiện của ratchet loop (I2) + complexity budget (I5).
+2. **Nên có**: MoE (A7), quantization internals (B4), Muon (D1), full alignment pipeline (G), BPE training (E), 5 workflow patterns (I3), blocking + incremental update cho KG (I4).
+3. **Để dành**: MLA (A5), sliding window (A6), speculative decoding (B3), TP/PP/FSDP (F), Dynamic Workflows ở quy mô 1.000 sub-agent (I3) — đào khi cần.
 
-> **Neo nguồn nhanh:** rasbt *Bonus Material* (kiến trúc hiện đại from scratch) · Giles 32a–32m (training dynamics) + 29 (DDP) + 21/30 (eval) · FareedKhan `src/post_training` (alignment) · nanochat `gpt.py`/`engine.py`/`optim.py`/`tok_train.py` (full-stack hiện đại).
+> **Neo nguồn nhanh:** rasbt *Bonus Material* (kiến trúc hiện đại from scratch) · Giles 32a–32m (training dynamics) + 29 (DDP) + 21/30 (eval) · FareedKhan `src/post_training` (alignment) · nanochat `gpt.py`/`engine.py`/`optim.py`/`tok_train.py` (full-stack hiện đại) · [`../docs/`](../docs/) 2 PDF Graph-Engineering + sơ đồ 5 tầng (agentic/graph).

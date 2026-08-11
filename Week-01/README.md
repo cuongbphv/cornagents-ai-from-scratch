@@ -54,6 +54,12 @@ RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
 
 > Tiêu chí tự đánh giá: **nếu chưa giải thích được một thành phần cho Claude bằng lời của mình, nghĩa là chưa học xong** — đó là tín hiệu để đi chậm lại.
 
+## 🚀 Bổ sung nâng cao
+
+**Tuần này cố ý KHÔNG có mục nâng cao nào.** Bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) để trống cho Tuần 1–2: mọi chủ đề nâng cao (RoPE, GQA, KV cache…) đều cần bạn nắm attention trước, nên đọc sớm chỉ gây tải vô ích.
+
+Việc của tuần này là nền: tensor, autograd, softmax/cross-entropy, chain rule. Phần nâng cao **bắt đầu từ Tuần 3**.
+
 ## File trong folder này
 
 | File | Mô tả |

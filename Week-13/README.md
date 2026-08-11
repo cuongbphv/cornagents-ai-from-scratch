@@ -61,6 +61,16 @@ Bất kỳ; orchestration + API.
 - [ ] Chạy thử 1 requirement Finance Banking end-to-end
 - [ ] Ghi `agent_design.md`
 
+## 🚀 Bổ sung nâng cao (chọn pattern & chi phí thật)
+
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I2–I3**:
+
+- **I3 · Năm workflow patterns** chi tiết + con số cần nhớ trước khi tách vai: multi-agent thắng single agent ~**90%** ở task đa hướng nhưng tốn **10–15× token** → chỉ tách vai khi chuyên môn hoá *thêm tín hiệu*, và luôn định nghĩa **reducer** trước khi fan-out.
+- **I3 · Khi nào ĐỪNG fan-out**: task cần một mạch tư duy liền (thiết kế kiến trúc, viết narrative, refactor gắn kết chặt) sẽ *tệ hơn* khi chia nhỏ; fan-out song song còn tạo **lỗi tương quan** — verification chỉ cứu được nếu reviewer có prompt/bằng chứng/vai khác.
+- **I2 · Externalize bottleneck**: loop→iteration, chain→thứ tự, swarm→parallel search, DAG→lineage, graph→shared facts. Bạn đang ở bước swarm/chain; tuần sau mới lên graph.
+
+> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục IV & VIII.
+
 ## File trong folder
 
 | File | Mô tả |

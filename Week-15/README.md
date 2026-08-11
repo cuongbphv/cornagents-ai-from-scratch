@@ -54,6 +54,17 @@ Khi câu này đúng với capstone của bạn, loops/swarms/graphs là cơ ch�
 - [ ] Demo end-to-end (script hoặc video ngắn)
 - [ ] Viết `retrospective.md` (nối về Phase 1: vì sao nó hoạt động)
 
+## 🚀 Bổ sung nâng cao (kỷ luật trước khi "ship")
+
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I5** (và ôn lại **H**, **I4**):
+
+- **I5 · Complexity budget** — khai báo *trước* khi chạy: max calls, max sub-agents, max concurrent workers, max wall-clock, max tokens/chi phí, max retries, và bằng chứng tối thiểu để được finalize. Hết budget → trả artifact tốt nhất + issue chưa xử lý + **lý do dừng**; không giấu partial failure sau một câu trả lời trôi chảy.
+- **I5 · Metric bị game** — ratchet chỉ cải thiện thứ nó *thấy được*: có thể giảm loss mà tăng chi phí inference hoặc overfit chính eval set. Giữ ràng buộc phụ.
+- **H · Cạm bẫy LLM-as-judge** — áp trực tiếp vào `eval_rubric.md` của bạn.
+- **I5 · Thước đo cuối**: *"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."* Tự kiểm câu này với capstone — đúng thì kiến trúc của bạn compose được; sai thì thêm agent chỉ tăng độ mờ đục.
+
+> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục VII–IX + Table VI (Production Checklist).
+
 ## File trong folder
 
 | File | Mô tả |

@@ -42,6 +42,14 @@ Mac hoặc 3070 Ti cho embeddings/inference local; embeddings nhẹ.
 - [ ] Test 10 câu hỏi domain → kiểm tra câu trả lời có grounding
 - [ ] (Chuẩn bị Tuần 11) lưu lại baseline để so sánh sau khi thêm rerank
 
+## 🚀 Bổ sung nâng cao (sampling quyết định độ "bịa")
+
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B2 Sampling**:
+
+Cùng một context retrieve được, `temperature` và `top-p` vẫn quyết định câu trả lời bám nguồn hay bắt đầu suy diễn. Với RAG trên tài liệu nghiệp vụ, mặc định nên **hạ temperature** (≤0.3) và giữ top-p vừa phải — ưu tiên groundedness hơn sự "mượt".
+
+> ➡️ Tuần 11 sẽ đọc mục **H** đầy đủ để biết cách *đo* điều này thay vì cảm nhận.
+
 ## File trong folder
 
 | File | Mô tả |

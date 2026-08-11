@@ -69,8 +69,9 @@ scripts/          quiz_bank.json (single source of truth, 93 questions)
    python scripts/generate_quiz.py            # regenerate everything
    python scripts/generate_quiz.py --week 3   # one week only
    ```
-4. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
-5. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
+4. **Go deeper when the week calls for it**: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) holds the advanced material (modern architecture, inference, training dynamics, alignment, evaluation, agentic/graph engineering). It is **not** meant to be read front-to-back — it opens with a navigation table mapping *each week → the exact sections to read*, and every week's README carries a matching "🚀 Bổ sung nâng cao" block pointing back. The anchoring is bidirectional, so you never have to guess when a topic belongs. Weeks 1–2 deliberately have none.
+5. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
+6. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
 
 ## Hardware assumptions
 

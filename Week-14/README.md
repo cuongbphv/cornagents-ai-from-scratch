@@ -96,6 +96,19 @@ Mỗi tầng bọc tầng trước. **Model là commodity — hệ thống quanh
 - [ ] Cắm graph vào workflow Tuần 13 (agent ghi/đọc graph thay vì dồn context)
 - [ ] Viết `graph_notes.md`
 
+## 🚀 Bổ sung nâng cao (đưa KG lên quy mô production)
+
+Pipeline bạn build tuần này là notebook-scale (5–10 tài liệu, in-memory). Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I4** để biết cần gì khi lên hàng nghìn tài liệu:
+
+- **Blocking trước khi resolve** — nhét 10.000 entity vào một prompt là thất bại; gom candidate bằng tín hiệu rẻ (trùng token, embedding) thành block 50–100 rồi mới để model phân xử *trong* block. Pattern chung: **model cho phần cần phán xét, logic tất định cho mọi thứ còn lại.**
+- **Incremental update** — resolve tài liệu mới *với canonical set đã có*; re-summarize một entity chỉ khi tập nguồn của nó đổi thật. Graph **tích luỹ**, không rebuild.
+- **Storage** — NetworkX ổn tới vài trăm nghìn edge; quá đó dùng Neo4j hoặc 3 bảng Postgres (`entities`/`relations`/`aliases`) + recursive CTE. Code extraction/resolution **không đổi**, chỉ đổi lớp persistence.
+- **Chunking tài liệu dài** — cắt theo ranh giới mục/đoạn (semantic), không theo số token, để entity và quan hệ của nó nằm cùng chunk.
+- **4 tín hiệu monitoring** + **3 kỷ luật vận hành** (đáng chú ý: *đọc tay 1 node mỗi ngày* — khi bạn không giải thích được vì sao một edge tồn tại, hiểu biết của bạn đã tụt sau graph).
+- **Hai failure mode chết người**: *silent entity loss* và *false merge*.
+
+> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf) mục IX & XI + Appendix D.
+
 ## File trong folder
 
 | File | Mô tả |

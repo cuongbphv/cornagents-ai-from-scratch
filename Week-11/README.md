@@ -44,6 +44,16 @@ Local; cross-encoder reranker chạy ổn trên Mac/3070 Ti.
 - [ ] Wire Langfuse/LangSmith tracing → xem từng bước retrieval/generate
 - [ ] Viết `ragas_report.md`
 
+## 🚀 Bổ sung nâng cao (đo lường cho đúng)
+
+Tuần này bạn bắt đầu tin vào số, nên đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **H — đầy đủ**:
+
+- **LLM-as-judge có nhiều bẫy** (Giles part 30): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. RAGAS dùng LLM để chấm faithfulness/relevancy → những bẫy này áp trực tiếp vào báo cáo của bạn.
+- **Giles cho thấy loss thấp hơn KHÔNG đảm bảo hữu ích hơn** trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công một mẫu nhỏ.
+- **Perplexity phụ thuộc tokenizer**, `bits-per-byte` mới so chéo được — cần khi bạn so nhiều model backend khác nhau.
+
+> Nguyên tắc mang sang Phase 3: một pipeline có scorer tốt thì tự cải thiện; pipeline không có thì âm thầm trôi.
+
 ## File trong folder
 
 | File | Mô tả |
