@@ -54,6 +54,12 @@ Tuần này bạn bắt đầu tin vào số, nên đọc [`../Week-00/advanced_
 
 > Nguyên tắc mang sang Phase 3: một pipeline có scorer tốt thì tự cải thiện; pipeline không có thì âm thầm trôi.
 
+## 📦 Dữ liệu cho tuần này
+
+Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **1** (`YuITC/Vietnamese-Legal-Documents`, MIT — benchmark retrieval để đo retriever của bạn), mục **4** (các bộ chỉ-dùng-để-eval), mục **9** (benchmark tiếng Việt).
+
+> Không benchmark công khai nào đo được "model trả lời đúng quy định của bạn hay chưa" — tự xây eval set ~50–100 câu nghiệp vụ thật, mỗi câu kèm điều khoản dẫn nguồn.
+
 ## File trong folder
 
 | File | Mô tả |

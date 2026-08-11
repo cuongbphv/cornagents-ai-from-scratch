@@ -48,7 +48,8 @@ Build a multi-agent software-delivery assistant, grounded in your domain.
 ## Repository layout
 
 ```
-Week-00/          Full roadmap (Vietnamese + English) + advanced-topics gap analysis
+Week-00/          Full roadmap (Vietnamese + English), advanced-topics gap analysis,
+                  and a vetted dataset guide for the Finance Banking domain (VI/EN)
 Week-01..15/      One folder per week: README, code skeletons, note templates, quiz
 docs/             Source documents for Phase 3:
                     - Graph-Engineering-Athropic-Playbook.pdf   (knowledge-graph pipeline)
@@ -70,8 +71,9 @@ scripts/          quiz_bank.json (single source of truth, 93 questions)
    python scripts/generate_quiz.py --week 3   # one week only
    ```
 4. **Go deeper when the week calls for it**: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) holds the advanced material (modern architecture, inference, training dynamics, alignment, evaluation, agentic/graph engineering). It is **not** meant to be read front-to-back — it opens with a navigation table mapping *each week → the exact sections to read*, and every week's README carries a matching "🚀 Bổ sung nâng cao" block pointing back. The anchoring is bidirectional, so you never have to guess when a topic belongs. Weeks 1–2 deliberately have none.
-5. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
-6. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
+5. **Source your data deliberately**: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) lists datasets and corpora for the Finance Banking domain in both Vietnamese and English, each with a verified URL and license, plus which ones are evaluation-only. It opens with the key architectural point: **regulatory knowledge belongs in RAG and the knowledge graph, not in fine-tuned weights** — fine-tuning is for behavior, format, and bilingual terminology. Licensing and legal caveats are called out explicitly, since this material is aimed at someone working inside a bank.
+6. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
+7. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
 
 ## Hardware assumptions
 

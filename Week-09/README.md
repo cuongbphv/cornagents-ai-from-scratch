@@ -54,6 +54,12 @@ Tuần này bạn serve model thật, nên các mục sau trong [`../Week-00/adv
 
 > Nguồn: rasbt *Bonus* `KV Cache`, `Memory-efficient Model Weight Loading`; nanochat `engine.py`.
 
+## 📦 Dữ liệu cho tuần này
+
+Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **7** (VRAM/base model) và mục **8** (song ngữ).
+
+Kiểm tra quan trọng ở tuần này: model vừa fine-tune có **giữ được tiếng Anh** không. Hiện tượng "catastrophic forgetting khả năng sinh ngôn ngữ khác" khi fine-tune lệch một thứ tiếng là có thật và đã được công bố — chạy vài prompt tiếng Anh trước/sau để so.
+
 ## File trong folder
 
 | File | Mô tả |

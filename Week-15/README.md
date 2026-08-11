@@ -65,6 +65,12 @@ Khi câu này đúng với capstone của bạn, loops/swarms/graphs là cơ ch�
 
 > Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục VII–IX + Table VI (Production Checklist).
 
+## 📦 Dữ liệu cho tuần này
+
+Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **4** (bộ eval, chú ý license non-commercial), mục **9** (benchmark), mục **10** (dòng Tuần 15).
+
+Metric bắt buộc có: **groundedness** — mọi câu trả lời có dẫn được về điều khoản/tài liệu nguồn hay không. Trong domain có quy định, đây là chỉ số quan trọng hơn cả success rate.
+
 ## File trong folder
 
 | File | Mô tả |

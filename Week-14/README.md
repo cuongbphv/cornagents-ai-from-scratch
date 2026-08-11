@@ -109,6 +109,14 @@ Pipeline bạn build tuần này là notebook-scale (5–10 tài liệu, in-memo
 
 > Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf) mục IX & XI + Appendix D.
 
+## 📦 Dữ liệu cho tuần này
+
+Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **1** (nguồn văn bản) và mục **10** (lộ trình theo tuần).
+
+Dùng chính corpus thông tư NHNN đã chuẩn bị ở Tuần 10 làm input cho KG pipeline. Entity types gợi ý cho domain này: `VAN_BAN`, `DIEU_KHOAN`, `TO_CHUC`, `NGHIA_VU`, `KHAI_NIEM`. Predicate: `sửa đổi`, `thay thế`, `căn cứ`, `áp dụng cho`, `bãi bỏ`.
+
+> 💡 Vì sao KG đáng công ở đúng domain này: chuỗi **"văn bản A sửa đổi B, mà B căn cứ C"** là câu hỏi multi-hop mà RAG thuần *không* trả lời được — hai văn bản có thể không hề giống nhau về mặt ngữ nghĩa. Đây là ví dụ sạch nhất của "KG bridges the gap" trong Playbook.
+
 ## File trong folder
 
 | File | Mô tả |
