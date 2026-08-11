@@ -264,7 +264,7 @@
           "type": "open",
           "q": "Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp train mạng sâu?",
           "answer": "Residual tạo một 'đường cao tốc' để gradient chảy thẳng về các lớp đầu mà không bị nhân nhỏ dần qua nhiều lớp (chống vanishing gradient). Đặt LayerNorm TRƯỚC sublayer (pre-LN) giữ đầu vào mỗi sublayer ở thang đo ổn định, làm việc xếp chồng hàng chục block ổn định hơn so với post-LN. Nhờ vậy có thể train transformer rất sâu.",
-          "explain": "Giles part 18 lập luận residual còn 'nhiều hơn' chỉ là shortcut gradient — nó cho phép mỗi block tinh chỉnh dần biểu diễn."
+          "explain": "Ngoài vai trò shortcut gradient, residual còn cho phép mỗi block tinh chỉnh dần biểu diễn (residual stream)."
         },
         {
           "id": "w4q3",
@@ -349,7 +349,7 @@
           "type": "open",
           "q": "Gradient accumulation là gì và vì sao quan trọng với GPU 8GB?",
           "answer": "Thay vì cập nhật trọng số sau mỗi micro-batch nhỏ, ta cộng dồn gradient qua N micro-batch rồi mới step một lần → mô phỏng một 'effective batch' lớn (micro_batch × N) mà không cần chứa toàn bộ batch lớn trong VRAM. Với 3070 Ti 8GB chỉ vừa batch 1-2, gradient accumulation là cách đạt effective batch ~0.5M token/update kiểu Karpathy mà vẫn không OOM.",
-          "explain": "Giles part 32k đi sâu vào việc này khi train tốt hơn ở local."
+          "explain": "Xem cách nanoGPT/train.py implement gradient_accumulation_steps."
         },
         {
           "id": "w5q3",
@@ -367,8 +367,8 @@
         {
           "id": "w5q4",
           "type": "open",
-          "q": "[Nâng cao] Giles thấy gì khi BỎ dropout trong pretraining, và vì sao?",
-          "answer": "Bỏ dropout cho test loss TỐT HƠN (part 32c), thậm chí hơn cả gradient clipping. Lý do: dropout là regularizer chống overfit, hữu ích khi fine-tune trên data nhỏ; nhưng pretraining chạy ~1 epoch trên lượng data khổng lồ thì gần như không overfit, nên dropout chỉ làm 'nhiễu' quá trình học. Vì vậy nhiều model hiện đại bỏ dropout ở pretraining.",
+          "q": "[Nâng cao] Vì sao các repo pretraining hiện đại (vd. nanoGPT config mặc định) đặt dropout = 0?",
+          "answer": "Dropout là regularizer chống overfit, hữu ích khi fine-tune trên data nhỏ; nhưng pretraining chạy ~1 epoch trên lượng data khổng lồ thì gần như không overfit, nên dropout chỉ làm 'nhiễu' quá trình học. Vì vậy pretraining hiện đại thường bỏ dropout (nanoGPT để dropout=0.0 cho pretrain, gợi ý 0.1+ khi fine-tune).",
           "explain": "Bài học: kỹ thuật 'tốt' phụ thuộc bối cảnh (data lớn 1-epoch vs data nhỏ nhiều epoch)."
         },
         {
@@ -413,15 +413,15 @@
         {
           "id": "w5q8",
           "type": "open",
-          "q": "[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào (Giles part 29)?",
-          "answer": "DDP nhân bản toàn bộ model lên mỗi GPU; mỗi GPU xử lý một phần khác nhau của batch (data parallel), tính gradient cục bộ, rồi all-reduce (cộng và chia trung bình) gradient qua tất cả GPU trước khi mỗi bản sao cùng step. Kết quả tương đương train với batch lớn hơn N lần. Giles dùng DDP train base model trên 8×A100 trong cloud, nhanh hơn nhiều so với ~48h trên 1 card 3090.",
+          "q": "[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào?",
+          "answer": "DDP nhân bản toàn bộ model lên mỗi GPU; mỗi GPU xử lý một phần khác nhau của batch (data parallel), tính gradient cục bộ, rồi all-reduce (cộng và chia trung bình) gradient qua tất cả GPU trước khi mỗi bản sao cùng step. Kết quả tương đương train với batch lớn hơn N lần. Đây là cách nanoGPT/llm.c train trên node 8×A100 qua torchrun.",
           "explain": "DDP là mức song song đầu tiên cần biết; TP/PP/FSDP cho model không vừa 1 GPU."
         }
       ]
     },
     {
       "week": 6,
-      "title": "Instruction fine-tuning (Raschka ch.6–7 + LoRA)",
+      "title": "Instruction fine-tuning (classification + instruction-following + LoRA)",
       "questions": [
         {
           "id": "w6q1",
@@ -439,7 +439,7 @@
         {
           "id": "w6q2",
           "type": "mcq",
-          "q": "Để fine-tune GPT cho classification (Raschka ch.6), thay đổi kiến trúc nào là cốt lõi?",
+          "q": "Để fine-tune GPT cho classification, thay đổi kiến trúc nào là cốt lõi?",
           "choices": [
             "Thêm một transformer block mới",
             "Thay output head (vocab_size) bằng một head nhỏ số lớp = số nhãn, thường chỉ train head + vài layer cuối",
@@ -452,7 +452,7 @@
         {
           "id": "w6q3",
           "type": "open",
-          "q": "Trong instruction fine-tuning (ch.7), vì sao thường mask phần prompt/instruction khỏi loss (chỉ tính loss trên phần response)?",
+          "q": "Trong instruction fine-tuning, vì sao thường mask phần prompt/instruction khỏi loss (chỉ tính loss trên phần response)?",
           "answer": "Mục tiêu là dạy model SINH phản hồi tốt, không phải học thuộc lại đề bài. Nếu tính loss trên cả instruction, gradient bị pha loãng bởi việc dự đoán lại phần text đã cho sẵn — model tối ưu cho việc lặp lại prompt thay vì chất lượng response. Mask (đặt label = -100 trong PyTorch) các token thuộc prompt để cross-entropy chỉ chấm phần model phải tự sinh.",
           "explain": "Đây là chi tiết dễ bỏ sót khi tự viết collate function cho instruction dataset."
         },
@@ -513,7 +513,7 @@
           "type": "open",
           "q": "[Nâng cao] RLVR (Reinforcement Learning from Verifiable Rewards) là gì, vì sao hợp với reasoning?",
           "answer": "RLVR dùng reward KIỂM CHỨNG ĐƯỢC một cách khách quan: đáp án toán đúng/sai, unit test code pass/fail, thay vì điểm chủ quan từ reward model. Vì tín hiệu thưởng chính xác và không bị 'hack', model có thể tự khám phá chuỗi suy luận (chain-of-thought) dẫn tới đáp án đúng. Đây là cơ chế đứng sau các reasoning model kiểu o1/R1; thường kết hợp với GRPO.",
-          "explain": "Xem Raschka reasoning-from-scratch và nanochat chat_rl.py (tasks gsm8k, spellingbee)."
+          "explain": "Xem nanochat chat_rl.py (tasks gsm8k, spellingbee) và paper DeepSeekMath/GRPO (arXiv 2402.03300)."
         },
         {
           "id": "w7q5",
@@ -526,7 +526,7 @@
             "Thay thế SFT"
           ],
           "answer": 1,
-          "explain": "Midtrain là khái niệm KHÔNG có trong sách Raschka gốc; nó chuẩn bị base model cho giai đoạn chat/SFT."
+          "explain": "Midtrain là khái niệm KHÔNG có trong pipeline GPT-2 kinh điển; nó chuẩn bị base model cho giai đoạn chat/SFT."
         },
         {
           "id": "w7q6",
@@ -749,7 +749,7 @@
           "type": "open",
           "q": "Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?",
           "answer": "Bi-encoder mã hoá query và document RIÊNG thành vector rồi so cosine — nhanh, scale tốt, dùng để retrieve top-N từ kho lớn. Cross-encoder đưa CẢ cặp (query, document) qua model cùng lúc → chấm điểm liên quan chính xác hơn nhưng chậm, không scale cho toàn kho. Quy trình: bi-encoder lấy top-N (vd. 50), rồi cross-encoder rerank lại để chọn top-k tinh (vd. 5).",
-          "explain": "BGE cross-encoder hoặc Cohere Rerank là lựa chọn phổ biến."
+          "explain": "BGE cross-encoder (mã nguồn mở) là lựa chọn phổ biến."
         },
         {
           "id": "w11q3",
@@ -780,8 +780,8 @@
         {
           "id": "w11q5",
           "type": "open",
-          "q": "Vì sao cần eval set + cẩn trọng với LLM-as-judge (Giles part 30)?",
-          "answer": "Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy: thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Giles còn cho thấy loss thấp hơn KHÔNG đảm bảo hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.",
+          "q": "Vì sao cần eval set + cẩn trọng với LLM-as-judge?",
+          "answer": "Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.",
           "explain": "Đo lường tốt là điều phân biệt 'nghịch' với 'kỹ thuật'."
         },
         {

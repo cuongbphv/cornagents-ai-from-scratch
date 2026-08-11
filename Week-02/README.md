@@ -10,16 +10,14 @@
 
 ## Nguồn học
 
-- Karpathy — **"Neural Networks: Zero to Hero"**:
-  - Lecture 1: **micrograd** (tự build autograd + backprop).
-  - Lecture 2–4: **makemore** (bigram → MLP).
-- 3Blue1Brown — **"Attention in transformers, step-by-step"** (Ch.6) + chương MLP.
-- Jay Alammar — **"The Illustrated Transformer"** (jalammar.github.io/illustrated-transformer/).
-- Paper gốc — **"Attention Is All You Need"**.
+- Repo mở `karpathy/micrograd` — đọc code + README rồi **tự build lại** autograd + backprop.
+- Repo mở `karpathy/makemore` — bigram → MLP (theo paper Bengio 2003, "A Neural Probabilistic Language Model").
+- *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu) — mental model về transformer.
+- Paper gốc — **"Attention Is All You Need"** (arXiv 1706.03762).
 
 ## Nhiệm vụ (Task)
 
-- Theo Karpathy, **tự build micrograd** (giá trị scalar + autograd + backward).
+- Đọc code repo micrograd rồi **tự build lại** (giá trị scalar + autograd + backward).
 - Bắt đầu **makemore**: bigram model → MLP.
 
 ## Deliverables
@@ -39,13 +37,13 @@
 
 ## Checklist tiến độ
 
-- [ ] Xem + code theo Karpathy Lecture 1 (micrograd)
+- [ ] Đọc code repo `karpathy/micrograd` + tự code lại
 - [ ] Tự viết `micrograd.py`: class `Value` với `+`, `*`, `tanh/relu`, `backward()`
 - [ ] Kiểm tra gradient khớp PyTorch (chạy `check_grad.py`)
-- [ ] Xem Lecture 2–4 (makemore): bigram → MLP
+- [ ] Đọc repo `karpathy/makemore`: bigram → MLP
 - [ ] Tự code bigram model (đếm + neural net 1 layer)
 - [ ] Mở rộng makemore lên MLP (theo Bengio 2003)
-- [ ] Xem 3B1B "Attention step-by-step" + đọc Illustrated Transformer
+- [ ] Đọc The Annotated Transformer (phần encoder/attention) để dựng mental model
 - [ ] Viết `attention_writeup.md` bằng lời mình → nhờ Claude review
 - [ ] Tự kiểm tra: vẽ được computation graph + giải thích backward bằng chain rule
 

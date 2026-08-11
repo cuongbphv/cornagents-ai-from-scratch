@@ -68,7 +68,7 @@ Tuần này dùng QLoRA/NF4 ở mức "bật cờ". Hiểu sâu hơn trong [`../
 
 Deliverable tuần này là "eval base vs fine-tuned", nên đọc thêm mục **H**:
 
-- **Đừng tin một chỉ số duy nhất** — loss/perplexity giảm không đảm bảo model hữu ích hơn trên việc bạn cần (Giles part 30).
+- **Đừng tin một chỉ số duy nhất** — loss/perplexity giảm không tự động nghĩa là model hữu ích hơn trên việc bạn cần.
 - Nếu so hai model **khác tokenizer/backend**, dùng **bits-per-byte** thay perplexity thô.
 - Giữ một held-out set cố định để mọi lần fine-tune sau đều so được với lần này.
 
@@ -78,7 +78,7 @@ Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banki
 
 Gợi ý cho lần fine-tune đầu: trộn `Sujet-Finance-Instruct-177k` (Apache 2.0) + `duyet/vietnamese-legal-instruct` (CC BY 4.0), thêm `UTS2017_Bank` (Apache 2.0) nếu làm task phân loại. Base an toàn về pháp lý: **Qwen2.5-7B-Instruct** (Apache 2.0).
 
-> ⚠️ **Fine-tune ở tuần này là để dạy HÀNH VI/ĐỊNH DẠNG, không phải nhồi kiến thức quy định.** Kiến thức quy định đi qua RAG (Tuần 10–11) + KG (Tuần 14) — đọc mục **0** của tài liệu dataset để hiểu vì sao. Và ⛔ đừng đưa các bộ non-commercial (FiQA, Financial PhraseBank, FinanceBench) vào tập train — chúng chỉ dùng để eval.
+> ⚠️ **Fine-tune ở tuần này là để dạy HÀNH VI/ĐỊNH DẠNG, không phải nhồi kiến thức quy định.** Kiến thức quy định đi qua RAG (Tuần 10–11) + KG (Tuần 14) — đọc mục **0** của tài liệu dataset để hiểu vì sao. Và ⛔ chỉ dùng dataset license mở đã xác minh trong tài liệu dataset; tự cắt held-out split để eval trước khi train.
 
 ## File trong folder
 

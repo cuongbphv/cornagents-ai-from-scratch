@@ -21,7 +21,7 @@ Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?
 
 **Trả lời mẫu:** Bi-encoder mã hoá query và document RIÊNG thành vector rồi so cosine — nhanh, scale tốt, dùng để retrieve top-N từ kho lớn. Cross-encoder đưa CẢ cặp (query, document) qua model cùng lúc → chấm điểm liên quan chính xác hơn nhưng chậm, không scale cho toàn kho. Quy trình: bi-encoder lấy top-N (vd. 50), rồi cross-encoder rerank lại để chọn top-k tinh (vd. 5).
 
-**Giải thích:** BGE cross-encoder hoặc Cohere Rerank là lựa chọn phổ biến.
+**Giải thích:** BGE cross-encoder (mã nguồn mở) là lựa chọn phổ biến.
 
 ## Câu 3 (Trắc nghiệm)
 
@@ -51,9 +51,9 @@ Trong RAGAS, 'faithfulness' đo điều gì?
 
 ## Câu 5 (Tự luận)
 
-Vì sao cần eval set + cẩn trọng với LLM-as-judge (Giles part 30)?
+Vì sao cần eval set + cẩn trọng với LLM-as-judge?
 
-**Trả lời mẫu:** Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy: thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Giles còn cho thấy loss thấp hơn KHÔNG đảm bảo hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.
+**Trả lời mẫu:** Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.
 
 **Giải thích:** Đo lường tốt là điều phân biệt 'nghịch' với 'kỹ thuật'.
 

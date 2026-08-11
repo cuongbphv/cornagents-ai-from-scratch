@@ -27,7 +27,7 @@
 
 ## 5. Bước tiếp theo (sau roadmap)
 
-- Đào sâu: ______ (vd. reasoning model — sách Raschka full 28/07/2026; repo `reasoning-from-scratch`)
+- Đào sâu: ______ (vd. reasoning model — paper DeepSeekMath/GRPO, nanochat `chat_rl.py`)
 - Mở rộng CornAgents.AI: ______
 
 ---

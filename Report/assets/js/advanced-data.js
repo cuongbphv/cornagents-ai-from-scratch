@@ -19,7 +19,7 @@ window.ADVANCED_TOPICS = [
       <h5>A6 · Sliding Window · A7 · MoE</h5>
       <p>Sliding window: chỉ attend \\(w\\) token gần nhất → chi phí tuyến tính. MoE: nhiều FFN "expert" + router chọn top-k → tổng tham số lớn nhưng <b>active</b> mỗi token nhỏ (Qwen3-MoE, gpt-oss, DeepSeek).</p>
       <div class="tagrow"><span class="kt">RoPE</span><span class="kt">RMSNorm</span><span class="kt">SwiGLU</span><span class="kt">GQA/MQA</span><span class="kt">MLA</span><span class="kt">MoE</span></div>
-      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: rasbt <i>Bonus Material</i> (Llama 3 & Qwen3 from scratch, gpt-oss); nanochat <code>gpt.py</code>.</p>`
+      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: paper mở RoPE/GQA/MLA/MoE (arXiv); nanochat <code>gpt.py</code>; implementation Llama/Qwen trong HF transformers.</p>`
   },
   {
     id: "infer", ix: "B", title: "Tối ưu inference", week: "Tuần 4, 8–9, 10",
@@ -52,20 +52,20 @@ window.ADVANCED_TOPICS = [
       <h5>C2 · FlashAttention (khái niệm)</h5>
       <p>Không vật chất hoá ma trận \\(n\\times n\\) trong HBM: <b>tiling</b> Q,K,V, tính softmax kiểu streaming trong SRAM, cộng dồn → <b>cùng kết quả toán học, giảm I/O bộ nhớ</b>. PyTorch gói qua <code>F.scaled_dot_product_attention</code>.</p>
       <div class="tagrow"><span class="kt">O(n²)</span><span class="kt">tiling</span><span class="kt">FlashAttention</span><span class="kt">SDPA</span></div>
-      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: Giles part 14 (complexity at scale).</p>`
+      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: paper FlashAttention (arXiv 2205.14135); PyTorch docs SDPA.</p>`
   },
   {
-    id: "dynamics", ix: "D", title: "Training dynamics — 'Interventions' của Giles", week: "Tuần 5",
-    desc: "Giles train 7+ model 3090, đo từng can thiệp (32a–32m).",
+    id: "dynamics", ix: "D", title: "Training dynamics — các can thiệp vào training loop", week: "Tuần 5",
+    desc: "Các can thiệp phổ biến, đối chiếu trực tiếp trong nanoGPT/train.py.",
     body: `
       <ul>
-        <li><b>Gradient clipping</b> (32b): giảm loss-spike, cải thiện nhẹ.</li>
-        <li><b>Bỏ dropout</b> (32c): pretrain 1-epoch data lớn → <b>bỏ dropout tốt hơn</b> (dropout hợp fine-tune data nhỏ).</li>
-        <li><b>Attention bias</b> (32d): thêm bias Q/K/V <b>không giúp</b> → modern bỏ bias.</li>
-        <li><b>LR</b> (32e): warmup → cosine; siêu tham số nhạy nhất.</li>
-        <li><b>Weight decay</b> (32f ~0.1) · <b>Weight tying</b> (32g): modern lớn thường không tie.</li>
-        <li><b>Noise/variance</b> (32i): nhiều "cải thiện" nằm trong <b>nhiễu</b> — phải chạy nhiều seed. <i>Bài học phương pháp luận quan trọng nhất.</i></li>
-        <li><b>Gradient accumulation</b> (32k): chìa khoá đạt effective batch lớn trên 8GB.</li>
+        <li><b>Gradient clipping</b>: giảm loss-spike.</li>
+        <li><b>Dropout=0 khi pretrain</b>: pretrain 1-epoch data lớn gần như không overfit (dropout hợp fine-tune data nhỏ).</li>
+        <li><b>Attention bias</b>: nhiều kiến trúc hiện đại bỏ bias Q/K/V (nanoGPT config bias=False).</li>
+        <li><b>LR</b>: warmup → cosine; siêu tham số nhạy nhất.</li>
+        <li><b>Weight decay</b> (~0.1, không áp lên bias/norm) · <b>Weight tying</b> (embedding ↔ head).</li>
+        <li><b>Noise/variance</b>: nhiều "cải thiện" nằm trong <b>nhiễu</b> — phải chạy nhiều seed. <i>Bài học phương pháp luận quan trọng nhất.</i></li>
+        <li><b>Gradient accumulation</b>: chìa khoá đạt effective batch lớn trên 8GB.</li>
       </ul>
       <h5>D1 · Optimizer: AdamW vs Muon</h5>
       <p><b>Muon</b> (nanochat) orthogonalize update cho ma trận 2D (Newton-Schulz) → pretrain nhanh hơn; embedding/head vẫn AdamW.</p>
@@ -85,14 +85,14 @@ window.ADVANCED_TOPICS = [
       </ol>
       <p>Hiểu tokenizer giải thích "đếm r trong strawberry", toán nhiều chữ số, lỗi khoảng trắng.</p>
       <div class="tagrow"><span class="kt">byte-level BPE</span><span class="kt">merge</span><span class="kt">compression rate</span></div>
-      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: nanochat <code>tok_train.py</code>/<code>tok_eval.py</code>; rasbt "BPE from scratch".</p>`
+      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: nanochat <code>tok_train.py</code>/<code>tok_eval.py</code>; repo mở <code>karpathy/minbpe</code>.</p>`
   },
   {
     id: "scale", ix: "F", title: "Scale & Parallelism", week: "Tuần 5",
     desc: "Khi 1 GPU không đủ.",
     body: `
       <ul>
-        <li><b>DDP</b> (Data Parallel): nhân bản model, mỗi GPU một phần batch, <b>all-reduce</b> gradient. Giles part 29 dùng 8×A100.</li>
+        <li><b>DDP</b> (Data Parallel): nhân bản model, mỗi GPU một phần batch, <b>all-reduce</b> gradient (torchrun trong nanoGPT/llm.c).</li>
         <li><b>TP</b> (Tensor Parallel): chia <i>trong</i> một lớp qua nhiều GPU.</li>
         <li><b>PP</b> (Pipeline Parallel): chia <i>theo lớp</i> thành stage.</li>
         <li><b>ZeRO / FSDP</b>: shard optimizer/gradient/param để giảm bộ nhớ.</li>
@@ -107,14 +107,14 @@ window.ADVANCED_TOPICS = [
     body: `
       <div class="formula" style="font-family:'JetBrains Mono';font-size:12.5px;border-left-color:var(--p3)">Pretrain → <b>Midtrain</b> → SFT → Reward Model → PPO/DPO → <b>GRPO/RLVR</b></div>
       <ul>
-        <li><b>Midtrain</b> (nanochat): bước <i>không có</i> trong sách Raschka — dạy format hội thoại, special tokens, tool use.</li>
+        <li><b>Midtrain</b> (nanochat): bước <i>không có</i> trong pipeline GPT-2 kinh điển — dạy format hội thoại, special tokens, tool use.</li>
         <li><b>Reward Model</b>: chấm điểm ưu tiên cặp output (FareedKhan implement from scratch).</li>
         <li><b>DPO</b>: tối ưu trực tiếp từ cặp (chosen, rejected), bỏ RM/PPO.</li>
         <li><b>GRPO/RLVR</b>: bỏ critic, chuẩn hoá reward theo nhóm sample; RLVR = reward <b>kiểm chứng được</b> (toán đúng/sai, test pass) → nền reasoning (o1/R1-style).</li>
         <li><b>Tool-use RL</b> (nanochat): model học gọi Python để tính/đếm, reward khi đúng.</li>
       </ul>
       <div class="tagrow"><span class="kt">midtrain</span><span class="kt">RM</span><span class="kt">DPO</span><span class="kt">GRPO</span><span class="kt">RLVR</span><span class="kt">tool-use RL</span></div>
-      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: FareedKhan <code>src/post_training</code>; Raschka <code>reasoning-from-scratch</code>; nanochat <code>chat_rl.py</code>.</p>`
+      <p style="margin-top:8px;font-size:12.5px;color:var(--txt-faint)">Nguồn: FareedKhan <code>src/post_training</code>; paper DPO/GRPO (arXiv); nanochat <code>chat_rl.py</code>.</p>`
   },
   {
     id: "eval", ix: "H", title: "Evaluation đúng cách", week: "Tuần 5, 8, 11, 15",
@@ -125,7 +125,7 @@ window.ADVANCED_TOPICS = [
         <li><b>Bits-per-byte (bpb)</b>: chuẩn hoá về byte → <b>so sánh được</b> giữa tokenizer. nanochat dùng val_bpb.</li>
         <li><b>CORE (DCLM)</b>: tổ hợp benchmark; nanochat đo "time-to-GPT-2" (GPT-2 = 0.2565).</li>
         <li><b>Benchmark</b>: MMLU (kiến thức), ARC (khoa học), GSM8K (toán), HumanEval (code).</li>
-        <li><b>LLM-as-judge</b> (Giles 30): tiện nhưng bẫy (thiên vị độ dài/vị trí); <b>loss thấp ≠ hữu ích hơn</b>.</li>
+        <li><b>LLM-as-judge</b> (arXiv 2306.05685): tiện nhưng bẫy (thiên vị độ dài/vị trí); <b>loss thấp ≠ hữu ích hơn</b>.</li>
       </ul>
       <div class="tagrow"><span class="kt">perplexity</span><span class="kt">bits-per-byte</span><span class="kt">CORE/DCLM</span><span class="kt">MMLU/GSM8K</span><span class="kt">LLM-as-judge</span></div>`
   },

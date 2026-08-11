@@ -11,7 +11,7 @@
 
 - **RAGAS** docs (context precision/recall, faithfulness, answer relevancy).
 - **LangSmith** + **Langfuse** (tracing, LLM-as-judge).
-- **Cohere Rerank** hoặc **BGE cross-encoder** reranker.
+- **BGE cross-encoder** reranker (mã nguồn mở).
 - Tùy chọn nâng cao: **GraphRAG** (Microsoft).
 
 ## Nhiệm vụ (Task)
@@ -37,7 +37,7 @@ Local; cross-encoder reranker chạy ổn trên Mac/3070 Ti.
 
 - [ ] Thêm BM25 retriever (rank_bm25) song song vector retriever
 - [ ] Kết hợp kết quả (EnsembleRetriever / reciprocal rank fusion)
-- [ ] Thêm reranker (BGE cross-encoder hoặc Cohere Rerank) trên top-N
+- [ ] Thêm reranker (BGE cross-encoder) trên top-N
 - [ ] Tạo eval set: ~20–30 cặp (câu hỏi, câu trả lời/ground-truth)
 - [ ] Đo RAGAS: context precision/recall, faithfulness, answer relevancy
 - [ ] So sánh baseline (Tuần 10) vs hybrid+rerank → bảng số
@@ -48,8 +48,8 @@ Local; cross-encoder reranker chạy ổn trên Mac/3070 Ti.
 
 Tuần này bạn bắt đầu tin vào số, nên đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **H — đầy đủ**:
 
-- **LLM-as-judge có nhiều bẫy** (Giles part 30): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. RAGAS dùng LLM để chấm faithfulness/relevancy → những bẫy này áp trực tiếp vào báo cáo của bạn.
-- **Giles cho thấy loss thấp hơn KHÔNG đảm bảo hữu ích hơn** trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công một mẫu nhỏ.
+- **LLM-as-judge có nhiều bẫy** đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. RAGAS dùng LLM để chấm faithfulness/relevancy → những bẫy này áp trực tiếp vào báo cáo của bạn.
+- **Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn** trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công một mẫu nhỏ.
 - **Perplexity phụ thuộc tokenizer**, `bits-per-byte` mới so chéo được — cần khi bạn so nhiều model backend khác nhau.
 
 > Nguyên tắc mang sang Phase 3: một pipeline có scorer tốt thì tự cải thiện; pipeline không có thì âm thầm trôi.

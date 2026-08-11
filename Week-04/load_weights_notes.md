@@ -9,7 +9,7 @@
    from transformers import GPT2Model
    gpt2_hf = GPT2Model.from_pretrained("gpt2")  # 124M
    ```
-2. **Script `gpt_download.py` của Raschka** (tải checkpoint TF gốc của OpenAI) — có sẵn trong repo `rasbt/LLMs-from-scratch` ch.5.
+2. **Cách `nanoGPT` làm trong `from_pretrained`** (map weights từ HF `transformers` sang model tự build) — xem `nanoGPT/model.py`.
 
 ## Điểm DỄ SAI khi map (kiểm tra kỹ)
 

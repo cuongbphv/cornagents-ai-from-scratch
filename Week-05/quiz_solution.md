@@ -21,7 +21,7 @@ Gradient accumulation là gì và vì sao quan trọng với GPU 8GB?
 
 **Trả lời mẫu:** Thay vì cập nhật trọng số sau mỗi micro-batch nhỏ, ta cộng dồn gradient qua N micro-batch rồi mới step một lần → mô phỏng một 'effective batch' lớn (micro_batch × N) mà không cần chứa toàn bộ batch lớn trong VRAM. Với 3070 Ti 8GB chỉ vừa batch 1-2, gradient accumulation là cách đạt effective batch ~0.5M token/update kiểu Karpathy mà vẫn không OOM.
 
-**Giải thích:** Giles part 32k đi sâu vào việc này khi train tốt hơn ở local.
+**Giải thích:** Xem cách nanoGPT/train.py implement gradient_accumulation_steps.
 
 ## Câu 3 (Trắc nghiệm)
 
@@ -38,9 +38,9 @@ Lịch learning rate điển hình khi pretrain LLM là gì?
 
 ## Câu 4 (Tự luận)
 
-[Nâng cao] Giles thấy gì khi BỎ dropout trong pretraining, và vì sao?
+[Nâng cao] Vì sao các repo pretraining hiện đại (vd. nanoGPT config mặc định) đặt dropout = 0?
 
-**Trả lời mẫu:** Bỏ dropout cho test loss TỐT HƠN (part 32c), thậm chí hơn cả gradient clipping. Lý do: dropout là regularizer chống overfit, hữu ích khi fine-tune trên data nhỏ; nhưng pretraining chạy ~1 epoch trên lượng data khổng lồ thì gần như không overfit, nên dropout chỉ làm 'nhiễu' quá trình học. Vì vậy nhiều model hiện đại bỏ dropout ở pretraining.
+**Trả lời mẫu:** Dropout là regularizer chống overfit, hữu ích khi fine-tune trên data nhỏ; nhưng pretraining chạy ~1 epoch trên lượng data khổng lồ thì gần như không overfit, nên dropout chỉ làm 'nhiễu' quá trình học. Vì vậy pretraining hiện đại thường bỏ dropout (nanoGPT để dropout=0.0 cho pretrain, gợi ý 0.1+ khi fine-tune).
 
 **Giải thích:** Bài học: kỹ thuật 'tốt' phụ thuộc bối cảnh (data lớn 1-epoch vs data nhỏ nhiều epoch).
 
@@ -85,8 +85,8 @@ Mixed precision (bf16) lợi gì khi train?
 
 ## Câu 8 (Tự luận)
 
-[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào (Giles part 29)?
+[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào?
 
-**Trả lời mẫu:** DDP nhân bản toàn bộ model lên mỗi GPU; mỗi GPU xử lý một phần khác nhau của batch (data parallel), tính gradient cục bộ, rồi all-reduce (cộng và chia trung bình) gradient qua tất cả GPU trước khi mỗi bản sao cùng step. Kết quả tương đương train với batch lớn hơn N lần. Giles dùng DDP train base model trên 8×A100 trong cloud, nhanh hơn nhiều so với ~48h trên 1 card 3090.
+**Trả lời mẫu:** DDP nhân bản toàn bộ model lên mỗi GPU; mỗi GPU xử lý một phần khác nhau của batch (data parallel), tính gradient cục bộ, rồi all-reduce (cộng và chia trung bình) gradient qua tất cả GPU trước khi mỗi bản sao cùng step. Kết quả tương đương train với batch lớn hơn N lần. Đây là cách nanoGPT/llm.c train trên node 8×A100 qua torchrun.
 
 **Giải thích:** DDP là mức song song đầu tiên cần biết; TP/PP/FSDP cho model không vừa 1 GPU.

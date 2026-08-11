@@ -27,7 +27,7 @@ Lịch learning rate điển hình khi pretrain LLM là gì?
 
 ## Câu 4 (Tự luận)
 
-[Nâng cao] Giles thấy gì khi BỎ dropout trong pretraining, và vì sao?
+[Nâng cao] Vì sao các repo pretraining hiện đại (vd. nanoGPT config mặc định) đặt dropout = 0?
 
 ## Câu 5 (Trắc nghiệm)
 
@@ -58,7 +58,7 @@ Mixed precision (bf16) lợi gì khi train?
 
 ## Câu 8 (Tự luận)
 
-[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào (Giles part 29)?
+[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào?
 
 ---
 > 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

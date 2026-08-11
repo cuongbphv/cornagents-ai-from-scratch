@@ -54,4 +54,4 @@ Aligned model
 3. ______
 
 ---
-*Lưu ý:* sách *Build a Reasoning Model (From Scratch)* của Raschka ra full 28/07/2026; hiện dùng repo `reasoning-from-scratch` cho GRPO/RLVR.
+*Lưu ý:* cho GRPO/RLVR, dùng paper DeepSeekMath (arXiv 2402.03300) + nanochat `chat_rl.py` làm nguồn tham chiếu.

@@ -28,8 +28,7 @@
 ## Mục tiêu so sánh
 
 - GPT-2 gốc: val loss ~**3.5**.
-- Giles Thomas (163M, 3090, ~48h local): loss **3.944**.
-- Karpathy llm.c (124M, 10B token FineWeb): reproduce ~90 phút trên 8×A100.
+- Karpathy llm.c (124M, 10B token FineWeb): reproduce ~90 phút trên 8×A100 (Discussion #481).
 
 ## Checklist chi phí
 

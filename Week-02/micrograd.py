@@ -1,7 +1,7 @@
 """
 micrograd.py — SKELETON Tuần 2.
 
-TỰ build một autograd engine scalar (theo Karpathy, Lecture 1).
+TỰ build một autograd engine scalar (tham chiếu repo mở karpathy/micrograd).
 Mục tiêu: hiểu backprop = chain rule lan ngược qua computation graph.
 
 Ý tưởng: mỗi `Value` lưu:

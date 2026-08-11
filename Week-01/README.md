@@ -12,9 +12,8 @@
 
 ## Nguồn học
 
-- 3Blue1Brown — series **"Neural Networks"** và **"Linear Algebra"** (3blue1brown.com) — trực quan hóa.
-- Sebastian Raschka — **"PyTorch in One Hour: From Tensors to Training Neural Networks on Multiple GPUs"** (sebastianraschka.com/teaching/pytorch-1h/).
-- Raschka — sách *Build a LLM (From Scratch)*, **Appendix A** (PyTorch).
+- PyTorch official tutorials — **"Learn the Basics"** và **"Deep Learning with PyTorch: A 60 Minute Blitz"** (pytorch.org/tutorials).
+- PyTorch docs — `torch.Tensor`, autograd (`torch.autograd`), `nn.Module`, optimizer.
 
 ## Nhiệm vụ (Task)
 
@@ -37,9 +36,9 @@ RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
 
 ## Checklist tiến độ
 
-- [ ] Xem 3B1B: Neural Networks (ch.1–4) + Linear Algebra (matrix, dot product)
-- [ ] Đọc/làm theo Raschka "PyTorch in One Hour"
-- [ ] Đọc Appendix A sách Raschka
+- [ ] Ôn linear algebra (matrix multiply, dot product) + calculus (chain rule) — tự viết lại bằng ví dụ nhỏ
+- [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
+- [ ] Đọc docs autograd + `nn.Module` của PyTorch
 - [x] Chạy `check_gpu.py` → xác nhận CUDA/MPS hoạt động (✅ MPS khả dụng — macOS arm64, torch 2.12.1)
 - [ ] Tự code lại `train_mlp.py` (KHÔNG copy — tự viết để hiểu)
 - [ ] MLP train được, loss giảm, accuracy hợp lý trên toy dataset
@@ -50,7 +49,7 @@ RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
 
 - **Giải thích toán:** dán một công thức (vd. cross-entropy) và nhờ Claude dẫn dắt từng bước, rồi nhờ Claude ra 3 câu hỏi kiểm tra.
 - **Review code:** sau khi TỰ code MLP, dán code nhờ Claude so sánh với cách chuẩn, bắt bug. Đừng để Claude viết bản nháp đầu tiên — tự code trước, review sau.
-- **Tạo flashcard/bài tập** ôn tập theo phong cách "Test Yourself" của Raschka.
+- **Tạo flashcard/bài tập** tự kiểm tra theo từng chủ đề của tuần.
 
 > Tiêu chí tự đánh giá: **nếu chưa giải thích được một thành phần cho Claude bằng lời của mình, nghĩa là chưa học xong** — đó là tín hiệu để đi chậm lại.
 

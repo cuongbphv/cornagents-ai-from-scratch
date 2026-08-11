@@ -11,7 +11,7 @@
 ## Nguồn học
 
 - **FareedKhan-dev/train-llm-from-scratch** `src/post_training/` — SFT/RM/PPO/DPO/GRPO bằng PyTorch thuần trên dataset thật (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
-- Raschka — repo **`reasoning-from-scratch`** (GRPO/RLVR + evaluation).
+- Paper DPO (arXiv 2305.18290), InstructGPT/RLHF (arXiv 2203.02155), DeepSeekMath/GRPO (arXiv 2402.03300).
 
 ## Nhiệm vụ (Task)
 
@@ -33,7 +33,7 @@
 - 3070 Ti cho stage scaled-down (model nhỏ).
 - Cloud nếu đẩy lên base lớn hơn hoặc full PPO/GRPO (box dev FareedKhan dùng 2×H100 DDP + bf16 — chạy scaled-down hoặc thuê).
 
-> **Nếu thiếu thời gian (Phase 1):** nén Tuần 7 còn *hiểu khái niệm* + một lần chạy DPO; hoãn chiều sâu reasoning/GRPO sang sau roadmap (sách reasoning ra full 28/07/2026).
+> **Nếu thiếu thời gian (Phase 1):** nén Tuần 7 còn *hiểu khái niệm* + một lần chạy DPO; hoãn chiều sâu reasoning/GRPO sang sau roadmap.
 
 ---
 
@@ -53,11 +53,11 @@
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G**:
 
 - Pipeline đầy đủ: `Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR`.
-- **Midtrain** (nanochat) — bước *không có* trong sách Raschka: dạy format hội thoại, special tokens, tool use.
+- **Midtrain** (nanochat) — bước *không có* trong pipeline GPT-2 kinh điển: dạy format hội thoại, special tokens, tool use.
 - **GRPO/RLVR** — bỏ critic, chuẩn hoá reward theo nhóm sample; **RLVR** = reward kiểm chứng được (toán đúng/sai, test pass) → nền reasoning model.
 - **Tool-use RL** (nanochat) — model học gọi Python để tính/đếm, reward khi kết quả đúng.
 
-> Nguồn: FareedKhan `src/post_training/` (SFT→RM→PPO→DPO→GRPO pure PyTorch); Raschka `reasoning-from-scratch`; nanochat `chat_sft.py`, `chat_rl.py`.
+> Nguồn: FareedKhan `src/post_training/` (SFT→RM→PPO→DPO→GRPO pure PyTorch); paper DPO/GRPO; nanochat `chat_sft.py`, `chat_rl.py`.
 
 ## File trong folder
 

@@ -8,7 +8,7 @@ Build baseline RAG đầy đủ trên corpus tài liệu nghiệp vụ Finance B
 
 ## Nguồn học
 
-- DeepLearning.AI — **"Retrieval Augmented Generation"** (audit free) và/hoặc freeCodeCamp **"RAG from Scratch"**.
+- Paper gốc RAG (arXiv 2005.11401) — nền lý thuyết; tutorial RAG chính thức trong docs LlamaIndex/LangChain.
 - **LlamaIndex** + **LangChain** docs.
 - GitHub: **NirDiamant/RAG_Techniques**, sosanzma/rag-techniques-handbook.
 

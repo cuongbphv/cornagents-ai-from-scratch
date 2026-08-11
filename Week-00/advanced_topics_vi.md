@@ -1,6 +1,6 @@
 # Appendix — Kiến thức nâng cao cần bổ sung (Gap Analysis)
 
-> **Vì sao có file này.** Lộ trình gốc (Tuần 1–15) dựng một model **cỡ GPT-2 (kiến trúc 2019)** rồi chuyển sang ứng dụng. Khi rà soát lại 4 nguồn — Raschka `rasbt/LLMs-from-scratch` (kèm thư mục *Bonus Material*), `FareedKhan-dev/train-llm-from-scratch`, blog `gilesthomas.com/llm-from-scratch` (đã tới part 33), và `karpathy/nanochat` — có một loạt chủ đề **các model hiện đại (Llama 3, Qwen3, DeepSeek, gpt-oss) dùng nhưng GPT-2 không có**, cộng với các kỹ thuật train/inference/eval mà 3 nguồn kia đã ghi lại. File này gom chúng lại thành một "appendix" để học sau khi đã nắm GPT-2, và được neo vào đúng tuần liên quan.
+> **Vì sao có file này.** Lộ trình gốc (Tuần 1–15) dựng một model **cỡ GPT-2 (kiến trúc 2019)** rồi chuyển sang ứng dụng. Khi rà soát các nguồn mở của lộ trình — `karpathy/nanoGPT`, `karpathy/nanochat`, `FareedKhan-dev/train-llm-from-scratch` và các paper mở liên quan — có một loạt chủ đề **các model hiện đại (Llama 3, Qwen3, DeepSeek, gpt-oss) dùng nhưng GPT-2 không có**, cộng với các kỹ thuật train/inference/eval mà các nguồn đó đã ghi lại. File này gom chúng lại thành một "appendix" để học sau khi đã nắm GPT-2, và được neo vào đúng tuần liên quan.
 >
 > Cách dùng: **đừng đọc file này một lượt từ đầu tới cuối.** Mỗi tuần, mở đúng những mục được neo cho tuần đó (xem bảng điều hướng ngay dưới). README của từng tuần cũng có block "🚀 Bổ sung nâng cao" trỏ ngược lại đây — neo hai chiều, để bạn không bao giờ phải tự đoán "phần này học lúc nào". Đây là tài liệu tham khảo, không phải checklist bắt buộc — ưu tiên A và B nếu thời gian hẹp.
 
@@ -9,7 +9,7 @@
 - [A. Kiến trúc hiện đại: từ GPT-2 (2019) đến Llama/Qwen (2024–2025)](#a-kiến-trúc-hiện-đại)
 - [B. Tối ưu inference (sinh text nhanh & rẻ)](#b-tối-ưu-inference)
 - [C. Attention ở quy mô lớn](#c-attention-ở-quy-mô-lớn)
-- [D. Training dynamics — loạt "Interventions" của Giles](#d-training-dynamics)
+- [D. Training dynamics — các can thiệp vào training loop](#d-training-dynamics)
 - [E. Tokenizer: train BPE from scratch](#e-tokenizer-train-bpe-from-scratch)
 - [F. Scale & Parallelism](#f-scale--parallelism)
 - [G. Alignment & Reasoning đầy đủ](#g-alignment--reasoning-đầy-đủ)
@@ -46,7 +46,7 @@
 
 ## A. Kiến trúc hiện đại
 
-> **Học ở tuần:** 3–4 (sau khi đã code attention + GPT-2). Nguồn lõi: rasbt *Bonus Material* (`KV Cache`, `Grouped-Query Attention`, `Multi-Head Latent Attention`, `Sliding Window Attention`, `Mixture-of-Experts`, walkthrough **Llama 3** & **Qwen3 dense/MoE**, **gpt-oss**); nanochat `nanochat/gpt.py`.
+> **Học ở tuần:** 3–4 (sau khi đã code attention + GPT-2). Nguồn lõi: paper mở — RoPE (arXiv 2104.09864), GQA (arXiv 2305.13245), MLA trong DeepSeek-V2 (arXiv 2405.04434), Sliding Window trong Mistral 7B (arXiv 2310.06825), MoE/Switch Transformer (arXiv 2101.03961); code kiến trúc hiện đại trong nanochat `nanochat/gpt.py` và HF `transformers` (implementation Llama/Qwen).
 
 GPT-2 dùng: **absolute learned positional embeddings**, **LayerNorm**, **GELU FFN**, **Multi-Head Attention (MHA)**, có bias ở các Linear. Các model hiện đại đổi gần như tất cả những thứ này. Bảng so sánh nhanh:
 
@@ -90,7 +90,7 @@ Vì có 3 ma trận (gate, up, down), chiều ẩn thường lấy \(\approx \tf
 
 ### A5. MLA — Multi-Head Latent Attention (DeepSeek)
 
-Nén K,V xuống một **vector tiềm ẩn (latent) chiều thấp** rồi mới chiếu ngược ra khi cần. Mục tiêu giống GQA (giảm KV cache) nhưng giữ chất lượng gần MHA. Đây là điểm sáng kiến trúc của DeepSeek-V2/V3; rasbt có chương từ-đầu cho cả MLA.
+Nén K,V xuống một **vector tiềm ẩn (latent) chiều thấp** rồi mới chiếu ngược ra khi cần. Mục tiêu giống GQA (giảm KV cache) nhưng giữ chất lượng gần MHA. Đây là điểm sáng kiến trúc của DeepSeek-V2/V3 (paper DeepSeek-V2, arXiv 2405.04434).
 
 ### A6. Sliding Window Attention
 
@@ -98,13 +98,13 @@ Mỗi token chỉ attend tới \(w\) token gần nhất (cửa sổ trượt) th
 
 ### A7. MoE — Mixture of Experts
 
-Thay một FFN dày bằng **nhiều FFN "expert"**; một **router** chọn top-\(k\) expert cho mỗi token (ví dụ 8 trên 256). Tổng tham số rất lớn nhưng **tham số *active* mỗi token nhỏ** → "dung lượng" lớn với chi phí tính toán thấp. Cần lo **load balancing** (tránh dồn token vào ít expert). Qwen3-MoE, DeepSeek, gpt-oss đều theo hướng này. rasbt có chương MoE from scratch.
+Thay một FFN dày bằng **nhiều FFN "expert"**; một **router** chọn top-\(k\) expert cho mỗi token (ví dụ 8 trên 256). Tổng tham số rất lớn nhưng **tham số *active* mỗi token nhỏ** → "dung lượng" lớn với chi phí tính toán thấp. Cần lo **load balancing** (tránh dồn token vào ít expert). Qwen3-MoE, DeepSeek, gpt-oss đều theo hướng này (nền lý thuyết: Switch Transformer, arXiv 2101.03961; Mixtral, arXiv 2401.04088).
 
 ---
 
 ## B. Tối ưu inference
 
-> **Học ở tuần:** 4 (sau khi sinh text: B1–B2), 8 (quantization: B4), 9 (local inference stack: B3–B4/GGUF), 10 (sampling ảnh hưởng câu trả lời RAG: B2). Nguồn: rasbt *Bonus* `KV Cache`, `Memory-efficient Model Weight Loading`; nanochat `engine.py` (KV cache), `scripts/chat_*`.
+> **Học ở tuần:** 4 (sau khi sinh text: B1–B2), 8 (quantization: B4), 9 (local inference stack: B3–B4/GGUF), 10 (sampling ảnh hưởng câu trả lời RAG: B2). Nguồn: nanochat `engine.py` (KV cache), `scripts/chat_*`; docs llama.cpp/GGUF cho quantization.
 
 ### B1. KV Cache — bắt buộc phải hiểu
 
@@ -118,7 +118,7 @@ Từ logits → phân phối, các chiến lược:
 - **Temperature** \(T\): chia logits cho \(T\) trước softmax. \(T<1\) sắc nét hơn (an toàn), \(T>1\) đa dạng hơn (sáng tạo/rủi ro).
 - **Top-k**: chỉ lấy mẫu trong \(k\) token cao nhất.
 - **Top-p (nucleus)**: lấy tập token nhỏ nhất có tổng xác suất \(\ge p\).
-- Thực tế thường kết hợp temperature + top-p. (Raschka ch.5 giới thiệu temperature & top-k; phần này mở rộng thêm top-p.)
+- Thực tế thường kết hợp temperature + top-p. (Tuần 5 đã dùng temperature & top-k; phần này mở rộng thêm top-p.)
 
 ### B3. Speculative decoding (khái niệm)
 
@@ -139,7 +139,7 @@ Quy tắc ngón tay: 4-bit ≈ ½ chất lượng/ bộ nhớ điểm ngọt cho
 
 ## C. Attention ở quy mô lớn
 
-> **Học ở tuần:** 3 (mở rộng từ "attention heads are dumb" của Giles part 13–14). Nguồn: Giles part 14 (complexity at scale).
+> **Học ở tuần:** 3 (ngay sau khi tự code multi-head attention). Nguồn: paper FlashAttention (arXiv 2205.14135); PyTorch docs `F.scaled_dot_product_attention`.
 
 ### C1. Vì sao self-attention là \(O(n^2)\)
 
@@ -153,19 +153,19 @@ Không *vật chất hoá* ma trận \(n\times n\) trong HBM. Nó **tiling** (ch
 
 ## D. Training dynamics
 
-> **Học ở tuần:** 5 (pretraining). Nguồn: **Giles parts 32a–32m** ("Interventions") — chuỗi thực nghiệm đo từng can thiệp; nanochat `optim.py` (Muon), `common.py` (COMPUTE_DTYPE).
+> **Học ở tuần:** 5 (pretraining). Nguồn: `nanoGPT/train.py` (mọi can thiệp dưới đây đều có trong code); nanochat `optim.py` (Muon), `common.py` (COMPUTE_DTYPE).
 
-Giles train **7+ model** GPT-2-small trên RTX 3090 và đo ảnh hưởng từng can thiệp. Bài học cô đọng:
+Các can thiệp phổ biến vào training loop và vai trò của chúng (đối chiếu trực tiếp trong `nanoGPT/train.py`):
 
-- **Gradient clipping** (32b): cắt norm gradient (vd. max_norm=1.0) → giảm loss-spike; cải thiện nhẹ nhưng "rabbit hole" hơn tưởng.
-- **Bỏ dropout** (32c): với pretraining 1-epoch trên data lớn, **bỏ dropout lại tốt hơn** (dropout hợp cho fine-tune data nhỏ, dễ overfit).
-- **Attention bias** (32d): thêm bias cho Q/K/V **không giúp** → modern models bỏ bias.
-- **Learning rate** (32e): warmup tuyến tính → cosine decay; LR là siêu tham số nhạy nhất.
-- **Weight decay** (32f): regularize, thường ~0.1; không áp lên bias/norm.
-- **Weight tying** (32g): chia sẻ trọng số embedding ↔ output head; tiết kiệm tham số nhưng modern models lớn thường **không** tie.
-- **float32 vs AMP** (32h): mixed precision (bf16) nhanh + đỡ VRAM, gần như không hại loss cuối.
-- **Noise/variance** (32i): nhiều "cải thiện" nằm trong **nhiễu** giữa các lần chạy — phải chạy nhiều seed mới biết tín hiệu thật. *Bài học phương pháp luận quan trọng nhất.*
-- **Gradient accumulation** (32k): cộng dồn gradient qua nhiều micro-batch để đạt **effective batch** lớn trên VRAM nhỏ — chìa khoá cho 8GB.
+- **Gradient clipping**: cắt norm gradient (vd. max_norm=1.0) → giảm loss-spike.
+- **Dropout trong pretraining**: `[Suy luận từ cấu hình các repo mở]` với pretraining 1-epoch trên data lớn, các repo hiện đại đặt dropout = 0 (dropout hợp cho fine-tune data nhỏ, dễ overfit).
+- **Attention bias**: nhiều kiến trúc hiện đại bỏ bias ở Q/K/V (xem config `bias=False` trong nanoGPT).
+- **Learning rate**: warmup tuyến tính → cosine decay; LR là siêu tham số nhạy nhất.
+- **Weight decay**: regularize, thường ~0.1; không áp lên bias/norm.
+- **Weight tying**: chia sẻ trọng số embedding ↔ output head; tiết kiệm tham số.
+- **float32 vs AMP**: mixed precision (bf16) nhanh + đỡ VRAM, gần như không hại loss cuối.
+- **Noise/variance**: nhiều "cải thiện" nằm trong **nhiễu** giữa các lần chạy — phải chạy nhiều seed mới biết tín hiệu thật. *Bài học phương pháp luận quan trọng nhất.*
+- **Gradient accumulation**: cộng dồn gradient qua nhiều micro-batch để đạt **effective batch** lớn trên VRAM nhỏ — chìa khoá cho 8GB.
 
 ### D1. Optimizers: AdamW vs Muon
 
@@ -179,7 +179,7 @@ bf16 (Ampere+), fp16 (cần `GradScaler` chống underflow), fp8 (Hopper, nanoch
 
 ## E. Tokenizer: train BPE from scratch
 
-> **Học ở tuần:** 3 (mở rộng ch.2). Nguồn: nanochat `tok_train.py` + `tok_eval.py`; rasbt *Bonus* "BPE from scratch".
+> **Học ở tuần:** 3 (mở rộng phần tokenization). Nguồn: nanochat `tok_train.py` + `tok_eval.py`; repo mở `karpathy/minbpe` (BPE from scratch).
 
 Lộ trình gốc *dùng* tiktoken (đã train sẵn). Bước sâu hơn là **tự train** một BPE tokenizer kiểu GPT-4:
 
@@ -194,9 +194,9 @@ Hiểu tokenizer giải thích nhiều "bug" nổi tiếng: đếm chữ "r" tro
 
 ## F. Scale & Parallelism
 
-> **Học ở tuần:** 5 (cloud run). Nguồn: Giles part 29 (DDP cloud); HF *Ultra-Scale Playbook*; nanochat `torchrun`.
+> **Học ở tuần:** 5 (cloud run). Nguồn: HF *Ultra-Scale Playbook*; PyTorch DDP docs; nanochat `torchrun`.
 
-- **DDP (Data Parallel)**: nhân bản model trên N GPU, mỗi GPU một phần batch, **all-reduce** gradient. Giles part 29 train base model trên 8×A100 bằng DDP. Đây là mức song song đầu tiên cần biết.
+- **DDP (Data Parallel)**: nhân bản model trên N GPU, mỗi GPU một phần batch, **all-reduce** gradient. Đây là mức song song đầu tiên cần biết (nanoGPT/llm.c đều train multi-GPU bằng DDP/torchrun).
 - **Tensor Parallel (TP)**: chia *trong* một lớp (ma trận) qua nhiều GPU — cho model không vừa 1 GPU.
 - **Pipeline Parallel (PP)**: chia *theo lớp* thành các stage.
 - **ZeRO / FSDP**: shard optimizer state / gradient / param qua GPU để giảm bộ nhớ (DeepSpeed ZeRO-1/2/3, PyTorch FSDP).
@@ -208,7 +208,7 @@ Với bạn (1 GPU 8GB local): chủ yếu dùng **gradient accumulation** (D) �
 
 ## G. Alignment & Reasoning đầy đủ
 
-> **Học ở tuần:** 6 (chỉ đọc sơ đồ pipeline để định vị instruction FT ≈ SFT) và **7** (đọc đầy đủ — đây là tuần alignment). Nguồn: **FareedKhan-dev `src/post_training/`** (SFT → Reward Model → PPO → DPO → GRPO, pure PyTorch trên Alpaca/Dolly/HH-RLHF/UltraFeedback/GSM8K); Raschka `reasoning-from-scratch`; nanochat `chat_sft.py`, `chat_rl.py`.
+> **Học ở tuần:** 6 (chỉ đọc sơ đồ pipeline để định vị instruction FT ≈ SFT) và **7** (đọc đầy đủ — đây là tuần alignment). Nguồn: **FareedKhan-dev `src/post_training/`** (SFT → Reward Model → PPO → DPO → GRPO, pure PyTorch trên Alpaca/Dolly/HH-RLHF/UltraFeedback/GSM8K); paper DPO (arXiv 2305.18290) và DeepSeekMath/GRPO (arXiv 2402.03300); nanochat `chat_sft.py`, `chat_rl.py`.
 
 Pipeline đầy đủ "base → aligned reasoning model":
 
@@ -220,7 +220,7 @@ Pretrain  →  Midtrain  →  SFT  →  Reward Model  →  PPO / DPO  →  GRPO 
             tokens)        hồi tốt)
 ```
 
-- **Midtrain** (nanochat): bước *giữa* pretrain và SFT — dạy model định dạng hội thoại, special tokens, dùng tool, một ít kiến thức. Khái niệm này **không có** trong sách Raschka gốc.
+- **Midtrain** (nanochat): bước *giữa* pretrain và SFT — dạy model định dạng hội thoại, special tokens, dùng tool, một ít kiến thức. Khái niệm này **không có** trong pipeline GPT-2 kinh điển.
 - **Reward Model (RM)**: train một model chấm điểm; FareedKhan implement from scratch.
 - **PPO**: RL kinh điển của RLHF, cần RM + critic + KL với policy gốc.
 - **DPO**: bỏ RM/PPO, tối ưu trực tiếp từ cặp (chosen, rejected) — đơn giản & ổn định hơn (đã có công thức ở Tuần 7).
@@ -231,13 +231,13 @@ Pretrain  →  Midtrain  →  SFT  →  Reward Model  →  PPO / DPO  →  GRPO 
 
 ## H. Evaluation đúng cách
 
-> **Học ở tuần:** 5 (bpb/CORE khi so với GPT-2), 8 (eval base vs fine-tuned), 11 (RAGAS + cạm bẫy LLM-as-judge), 15 (eval capstone). Nguồn: Giles part 21 (perplexity), part 30 (LLM-as-judge); nanochat `core_eval.py` (CORE/DCLM), `loss_eval.py` (bits-per-byte); tasks `mmlu/arc/gsm8k/humaneval`.
+> **Học ở tuần:** 5 (bpb/CORE khi so với GPT-2), 8 (eval base vs fine-tuned), 11 (RAGAS + cạm bẫy LLM-as-judge), 15 (eval capstone). Nguồn: nanochat `core_eval.py` (CORE/DCLM), `loss_eval.py` (bits-per-byte); tasks `mmlu/arc/gsm8k/humaneval`; khảo sát LLM-as-judge (arXiv 2306.05685, "Judging LLM-as-a-Judge").
 
 - **Cross-entropy loss / Perplexity** \(\text{PPL}=e^{L}\): đo trên ngôn ngữ; nhưng **phụ thuộc vocab/tokenizer** nên khó so chéo model.
 - **Bits-per-byte (bpb)**: chuẩn hoá loss về *byte* → **so sánh được** giữa các tokenizer/model khác nhau. nanochat dùng bpb thay loss thô. *Nên biết khi so model của bạn với GPT-2.*
 - **CORE score (DCLM)**: tổ hợp nhiều benchmark; nanochat đo "time-to-GPT-2" theo CORE (GPT-2 = 0.2565).
 - **Benchmark chuẩn**: MMLU (kiến thức rộng, trắc nghiệm), ARC (khoa học), GSM8K (toán tiểu học), HumanEval (code). nanochat có sẵn các task này.
-- **LLM-as-judge** (Giles part 30): dùng một LLM mạnh chấm output — tiện nhưng **nhiều bẫy** (thiên vị độ dài, vị trí, tự khen). Giles cho thấy *loss thấp hơn không đảm bảo hữu ích hơn* trong thực tế → đừng tin một chỉ số duy nhất.
+- **LLM-as-judge**: dùng một LLM mạnh chấm output — tiện nhưng **nhiều bẫy** đã được ghi nhận trong nghiên cứu (thiên vị độ dài, vị trí, tự khen — arXiv 2306.05685). *Loss thấp hơn không tự động nghĩa là hữu ích hơn* → đừng tin một chỉ số duy nhất.
 
 ---
 
@@ -333,4 +333,4 @@ Khi câu đó **đúng** — loop, swarm, DAG, KG là các cơ chế engineering
 2. **Nên có**: MoE (A7), quantization internals (B4), Muon (D1), full alignment pipeline (G), BPE training (E), 5 workflow patterns (I3), blocking + incremental update cho KG (I4).
 3. **Để dành**: MLA (A5), sliding window (A6), speculative decoding (B3), TP/PP/FSDP (F), Dynamic Workflows ở quy mô 1.000 sub-agent (I3) — đào khi cần.
 
-> **Neo nguồn nhanh:** rasbt *Bonus Material* (kiến trúc hiện đại from scratch) · Giles 32a–32m (training dynamics) + 29 (DDP) + 21/30 (eval) · FareedKhan `src/post_training` (alignment) · nanochat `gpt.py`/`engine.py`/`optim.py`/`tok_train.py` (full-stack hiện đại) · [`../docs/`](../docs/) 2 PDF Graph-Engineering + sơ đồ 5 tầng (agentic/graph).
+> **Neo nguồn nhanh:** paper mở (RoPE/GQA/MLA/MoE/FlashAttention — kiến trúc hiện đại) · `nanoGPT/train.py` (training dynamics) + HF Ultra-Scale Playbook (parallelism) · FareedKhan `src/post_training` (alignment) · nanochat `gpt.py`/`engine.py`/`optim.py`/`tok_train.py` (full-stack hiện đại) · [`../docs/`](../docs/) 2 PDF Graph-Engineering + sơ đồ 5 tầng (agentic/graph).

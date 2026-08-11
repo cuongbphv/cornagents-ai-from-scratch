@@ -36,7 +36,7 @@ Trong RAGAS, 'faithfulness' đo điều gì?
 
 ## Câu 5 (Tự luận)
 
-Vì sao cần eval set + cẩn trọng với LLM-as-judge (Giles part 30)?
+Vì sao cần eval set + cẩn trọng với LLM-as-judge?
 
 ## Câu 6 (Trắc nghiệm)
 

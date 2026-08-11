@@ -1,8 +1,8 @@
 """
-gpt_model.py — SKELETON Tuần 4 (Raschka ch.4).
+gpt_model.py — SKELETON Tuần 4 (lắp ráp GPT-2 from scratch).
 
 Lắp ráp kiến trúc GPT-2. Tái sử dụng MultiHeadAttention bạn viết ở Tuần 3.
-Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu sách/nanoGPT sau.
+Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu nanoGPT sau.
 
 Gợi ý import attention từ Tuần 3:
     import sys; sys.path.append("../Week-03")

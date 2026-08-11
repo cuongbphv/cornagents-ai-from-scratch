@@ -1,10 +1,11 @@
 """
-train_loop.py — SKELETON Tuần 5 (Raschka ch.5).
+train_loop.py — SKELETON Tuần 5 (pretraining loop).
 
-Pretraining loop cho GPT bạn build ở Tuần 4. Bắt đầu local với "The Verdict",
-rồi mang lên cloud cho dataset lớn.
+Pretraining loop cho GPT bạn build ở Tuần 4. Bắt đầu local với một text nhỏ
+thuộc public domain (vd. truyện ngắn từ Project Gutenberg), rồi mang lên cloud
+cho dataset lớn.
 
-Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu ch.5 / nanoGPT sau.
+Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu nanoGPT/train.py sau.
 
 Import model từ Tuần 4:
     import sys; sys.path.append("../Week-04")
@@ -98,4 +99,4 @@ def save_checkpoint(path, model, optimizer, step):
 
 
 if __name__ == "__main__":
-    print("Skeleton Tuần 5. Điền TODO rồi nối với DataLoader 'The Verdict' (ch.5).")
+    print("Skeleton Tuần 5. Điền TODO rồi nối với DataLoader trên một text public-domain nhỏ.")

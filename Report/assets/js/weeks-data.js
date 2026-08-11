@@ -12,7 +12,7 @@ window.WEEKS_DATA = [
  {
   n:1, phase:1, title:"Toán nền tảng + PyTorch", dur:"~10–12 giờ", hw:"RTX 3070 Ti / Mac MPS",
   obj:["Ôn linear algebra: nhân ma trận, dot product, shape/broadcasting","Ôn calculus: gradient, chain rule (nền của backprop)","Ôn probability: softmax, cross-entropy","Thành thạo PyTorch: tensor, autograd, nn.Module, optimizer","Xác nhận GPU (torch.cuda.is_available()) / Mac MPS"],
-  src:["<b>3Blue1Brown</b> — Neural Networks & Linear Algebra","<b>Raschka</b> — PyTorch in One Hour","<b>Raschka</b> sách — Appendix A"],
+  src:["<b>PyTorch tutorials</b> — Learn the Basics / 60 Minute Blitz","<b>PyTorch docs</b> — Tensor, autograd, nn.Module"],
   deliver:"Notebook/script train MLP trên toy dataset (<code>train_mlp.py</code>) + <b>math cheat sheet 1 trang</b> tự viết (<code>math_cheat_sheet.md</code>).",
   know:`<h5>Nền toán cho LLM</h5>
    <p><b>Dot product</b> đo độ "giống hướng" giữa hai vector — chính là nền của attention score (query · key):</p>
@@ -24,12 +24,12 @@ window.WEEKS_DATA = [
    <h5>Softmax & cross-entropy</h5>
    <div class="formula">\\( \\text{softmax}(z)_i=\\dfrac{e^{z_i}}{\\sum_j e^{z_j}}, \\quad L_{CE}=-\\sum_i y_i\\log\\hat{y}_i \\)</div>
    <div class="tagrow"><span class="kt">tensor</span><span class="kt">autograd</span><span class="kt">broadcasting</span><span class="kt">softmax</span><span class="kt">cross-entropy</span></div>`,
-  check:["Xem 3B1B: Neural Networks (ch.1–4) + Linear Algebra","Đọc/làm theo Raschka \"PyTorch in One Hour\"","Đọc Appendix A sách Raschka","Chạy check_gpu.py → xác nhận CUDA/MPS","Tự code lại train_mlp.py (KHÔNG copy)","MLP train được, loss giảm, accuracy hợp lý","Hoàn thành math_cheat_sheet.md bằng lời mình","Tự kiểm tra: giải thích softmax + cross-entropy + chain rule cho Claude"]
+  check:["Ôn linear algebra (matrix multiply, dot product) + chain rule","Làm PyTorch tutorial Learn the Basics","Đọc docs autograd + nn.Module","Chạy check_gpu.py → xác nhận CUDA/MPS","Tự code lại train_mlp.py (KHÔNG copy)","MLP train được, loss giảm, accuracy hợp lý","Hoàn thành math_cheat_sheet.md bằng lời mình","Tự kiểm tra: giải thích softmax + cross-entropy + chain rule cho Claude"]
  },
  {
   n:2, phase:1, title:"Backprop từ đầu + mental model Transformer", dur:"~12–15 giờ", hw:"3070 Ti / Mac (workload nhẹ)",
   obj:["Hiểu backprop bản chất: tự build autograd engine (micrograd)","Dựng mental model transformer & attention trước khi code","Hiểu vì sao attention permutation-equivariant & cần positional info"],
-  src:["<b>Karpathy</b> Zero to Hero — Lec.1 micrograd, Lec.2–4 makemore","<b>3B1B</b> — Attention step-by-step (Ch.6)","<b>Jay Alammar</b> — The Illustrated Transformer","Paper gốc — <b>Attention Is All You Need</b>"],
+  src:["Repo mở <b>karpathy/micrograd</b> + <b>karpathy/makemore</b>","<b>The Annotated Transformer</b> (Harvard NLP)","Paper gốc — <b>Attention Is All You Need</b>"],
   deliver:"Repo <b>micrograd</b> của riêng bạn (<code>micrograd.py</code>) + gradient khớp PyTorch; bài viết giải thích permutation-equivariance (<code>attention_writeup.md</code>).",
   know:`<h5>Autograd engine — micrograd</h5>
    <p>Mỗi <code>Value</code> lưu <code>data</code>, <code>grad</code>, và một hàm <code>_backward</code>. Forward dựng computation graph; <code>backward()</code> duyệt ngược theo thứ tự topo, áp chain rule. Ví dụ local gradient:</p>
@@ -37,12 +37,12 @@ window.WEEKS_DATA = [
    <h5>Vì sao attention "mù" thứ tự</h5>
    <p>Score giữa token i và j chỉ là <code>qᵢ·kⱼ</code>, không chứa thông tin vị trí. <b>Permutation-equivariant</b>: hoán vị input → output hoán vị theo đúng cách đó. Vì <code>W_Q,W_K,W_V</code> dùng chung cho mọi vị trí, model không phân biệt "chó cắn người" vs "người cắn chó" nếu không thêm <b>positional encoding</b>.</p>
    <div class="tagrow"><span class="kt">computation graph</span><span class="kt">topological order</span><span class="kt">chain rule</span><span class="kt">permutation-equivariant</span><span class="kt">positional encoding</span></div>`,
-  check:["Xem + code theo Karpathy Lec.1 (micrograd)","Tự viết micrograd.py: Value với +, *, tanh/relu, backward()","Kiểm tra gradient khớp PyTorch (check_grad.py)","Xem Lec.2–4 (makemore): bigram → MLP","Tự code bigram model (đếm + neural net 1 layer)","Mở rộng makemore lên MLP (Bengio 2003)","Xem 3B1B Attention + đọc Illustrated Transformer","Viết attention_writeup.md → Claude review","Tự kiểm tra: vẽ computation graph + giải thích backward"]
+  check:["Đọc code repo karpathy/micrograd + tự code lại","Tự viết micrograd.py: Value với +, *, tanh/relu, backward()","Kiểm tra gradient khớp PyTorch (check_grad.py)","Đọc repo karpathy/makemore: bigram → MLP","Tự code bigram model (đếm + neural net 1 layer)","Mở rộng makemore lên MLP (Bengio 2003)","Đọc The Annotated Transformer (mental model)","Viết attention_writeup.md → Claude review","Tự kiểm tra: vẽ computation graph + giải thích backward"]
  },
  {
   n:3, phase:1, title:"Tokenization, embeddings, attention từ đầu", dur:"~12–15 giờ (crux khái niệm)", hw:"RTX 3070 Ti",
   obj:["Hiểu & code BPE / data loading, token + positional embeddings","Tự code self-attention → causal → multi-head từng bước"],
-  src:["<b>Raschka</b> ch.2 (text data) + ch.3 (attention)","<b>Giles Thomas</b> parts 1–14 (self-attn, causal, multi-head)","<b>The Annotated Transformer</b> (Harvard NLP)"],
+  src:["Paper BPE (arXiv 1508.07909) + repo <b>tiktoken</b>/<b>minbpe</b>","<b>nanoGPT</b> model.py — tham chiếu attention","<b>The Annotated Transformer</b> (Harvard NLP)"],
   deliver:"<code>multihead_attention.py</code> tự viết, <b>pass shape test</b> (<code>test_attention.py</code>) + ghi chú Claude review.",
   know:`<h5>Scaled dot-product attention</h5>
    <div class="formula">\\( \\text{Attention}(Q,K,V)=\\text{softmax}\\!\\left(\\dfrac{QK^{\\top}}{\\sqrt{d_k}}\\right)V \\)</div>
@@ -52,12 +52,12 @@ window.WEEKS_DATA = [
    <h5>Mốc shape cần nhớ</h5>
    <ul><li>Input embeddings: <code>(batch, seq, d_in)</code></li><li>Q/K/V: <code>(batch, seq, d_out)</code></li><li>Attention scores: <code>(batch, seq, seq)</code></li><li>Multi-head: <code>(batch, heads, seq, head_dim)</code> → gộp <code>(batch, seq, d_out)</code></li></ul>
    <div class="tagrow"><span class="kt">BPE</span><span class="kt">token+pos emb</span><span class="kt">QKV</span><span class="kt">causal mask</span><span class="kt">multi-head</span></div>`,
-  check:["Đọc ch.2: BPE (tiktoken), data loader, sliding window","Hiểu token vs positional embedding (cộng vào nhau)","Code simplified self-attention (không trainable)","Code scaled dot-product với W_Q,W_K,W_V trainable","Thêm causal mask (tam giác trên = -inf) + dropout","Mở rộng lên multi-head (chia d_out hoặc stack)","Chạy test_attention.py → shape đúng","Dán code cho Claude review so với Raschka"]
+  check:["Học BPE (tiktoken), data loader, sliding window","Hiểu token vs positional embedding (cộng vào nhau)","Code simplified self-attention (không trainable)","Code scaled dot-product với W_Q,W_K,W_V trainable","Thêm causal mask (tam giác trên = -inf) + dropout","Mở rộng lên multi-head (chia d_out hoặc stack)","Chạy test_attention.py → shape đúng","Dán code cho Claude review so với nanoGPT"]
  },
  {
   n:4, phase:1, title:"Lắp ráp & chạy mô hình GPT", dur:"~10–12 giờ", hw:"3070 Ti (inference 124M gọn trong 8GB)",
   obj:["Build đầy đủ kiến trúc GPT-2: LayerNorm, GELU FFN, residual, transformer block","Sinh text (ban đầu từ model chưa train)"],
-  src:["<b>Raschka</b> ch.4 (Implementing a GPT model)","<b>Giles Thomas</b> parts 15–19","<b>Karpathy</b> nanoGPT (tham chiếu chéo)"],
+  src:["<b>nanoGPT</b> — model.py + from_pretrained (tham chiếu chính)","Paper <b>GPT-2</b>; LayerNorm (1607.06450), GELU (1606.08415)"],
   deliver:"Mô hình GPT sinh <b>text mạch lạc</b> từ trọng số GPT-2 OpenAI đã load → xác nhận kiến trúc đúng.",
   know:`<h5>Config GPT-2 small (124M)</h5>
    <ul><li><code>vocab_size=50257</code>, <code>context_length=1024</code></li><li><code>emb_dim=768</code>, <code>n_heads=12</code>, <code>n_layers=12</code></li><li><code>drop_rate=0.1</code>, <code>qkv_bias=True</code></li></ul>
@@ -71,23 +71,23 @@ window.WEEKS_DATA = [
  {
   n:5, phase:1, title:"Pretraining: training loop + 1 lần chạy GPT-2 thật", dur:"~12–15 giờ + thời gian train", hw:"Local 3070 Ti (validate) · Cloud (run thật ~$15–35)",
   obj:["Hiểu pretraining loop, cross-entropy/perplexity, LR scheduling, checkpointing","Thực sự pretrain một model nhỏ"],
-  src:["<b>Raschka</b> ch.5 + Appendix D","<b>Giles Thomas</b> parts 20–29 + Interventions 32a–32m","<b>Karpathy</b> nanoGPT / llm.c reproduce GPT-2","<b>HF</b> Ultra-Scale Playbook"],
+  src:["<b>nanoGPT</b> train.py (clipping, LR decay, mixed precision, grad accum)","<b>Karpathy</b> llm.c reproduce GPT-2 (Discussion #481)","<b>HF</b> Ultra-Scale Playbook"],
   deliver:"Checkpoint base-model nhỏ + write-up <b>so sánh loss curve</b> với GPT-2 gốc (<code>loss_analysis.md</code>).",
   know:`<h5>Loss & perplexity</h5>
    <div class="formula">\\( L=-\\dfrac{1}{N}\\sum_t \\log p_\\theta(x_t\\mid x_{<t}), \\quad \\text{PPL}=e^{L} \\)</div>
-   <p>GPT-2 gốc đạt val loss ≈ <b>3.5</b>; Giles Thomas đạt <b>3.944</b> sau ~48h trên RTX 3090.</p>
+   <p>GPT-2 gốc đạt val loss ≈ <b>3.5</b> — dùng làm mốc so sánh cho lần chạy của bạn.</p>
    <h5>LR schedule & tricks</h5>
    <p>Warmup tuyến tính → cosine decay. Cộng thêm: gradient clipping, mixed precision (autocast), grad accumulation để đạt effective batch lớn (~524,288 tokens/update kiểu Karpathy), weight tying, weight decay.</p>
    <h5>Bộ nhớ 8GB</h5>
    <p><code>PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True</code> + gradient checkpointing + micro-batch 1–2 + seq ≤1024.</p>
    <p><b>Trigger lên cloud:</b> khi run local dự kiến &gt; ~24h.</p>
    <div class="tagrow"><span class="kt">cross-entropy</span><span class="kt">perplexity</span><span class="kt">warmup+cosine</span><span class="kt">grad accumulation</span><span class="kt">mixed precision</span><span class="kt">checkpointing</span></div>`,
-  check:["Code training loop: batch→logits→CE loss→backward→step","Thêm train/val split + đánh giá loss định kỳ","Thêm LR warmup + cosine decay","Thêm gradient clipping + mixed precision + grad accumulation","Thêm checkpointing (model + optimizer + step)","Smoke test local trên \"The Verdict\" — loss giảm","Chọn cloud provider + chuẩn bị FineWeb-Edu sample","Chạy pretrain thật trên cloud → lưu checkpoint","Vẽ loss curve, so GPT-2 gốc (~3.5) → loss_analysis.md"]
+  check:["Code training loop: batch→logits→CE loss→backward→step","Thêm train/val split + đánh giá loss định kỳ","Thêm LR warmup + cosine decay","Thêm gradient clipping + mixed precision + grad accumulation","Thêm checkpointing (model + optimizer + step)","Smoke test local trên text public-domain nhỏ — loss giảm","Chọn cloud provider + chuẩn bị FineWeb-Edu sample","Chạy pretrain thật trên cloud → lưu checkpoint","Vẽ loss curve, so GPT-2 gốc (~3.5) → loss_analysis.md"]
  },
  {
-  n:6, phase:1, title:"Instruction fine-tuning (ch.6–7 + LoRA)", dur:"~10–12 giờ", hw:"3070 Ti (model nhỏ, LoRA)",
+  n:6, phase:1, title:"Instruction fine-tuning (classification + LoRA)", dur:"~10–12 giờ", hw:"3070 Ti (model nhỏ, LoRA)",
   obj:["Fine-tune classification (ch.6) & instruction-following (ch.7)","Áp dụng LoRA (Appendix E) — so sánh với full fine-tuning"],
-  src:["<b>Raschka</b> ch.6–7 + Appendix E (LoRA)"],
+  src:["Paper <b>LoRA</b> (2106.09685) + <b>InstructGPT</b> (2203.02155)","<b>HF PEFT</b> docs; FareedKhan phần SFT"],
   deliver:"Mini-model instruction-following chat được + ghi chú so sánh <b>full FT vs LoRA</b>.",
   know:`<h5>Classification head (ch.6)</h5>
    <p>Thay output head (vocab_size) bằng một head nhỏ số lớp = số nhãn; thường chỉ train head + vài layer cuối, dùng hidden state của token cuối.</p>
@@ -101,7 +101,7 @@ window.WEEKS_DATA = [
  {
   n:7, phase:1, title:"Nhập môn alignment: SFT → RM → DPO/PPO → GRPO", dur:"~10–12 giờ", hw:"3070 Ti (scaled-down) · Cloud (full PPO/GRPO)",
   obj:["Hiểu pipeline alignment SFT→RM→PPO/DPO→GRPO (khái niệm)","Chạy ≥1 stage alignment from scratch (SFT hoặc DPO)"],
-  src:["<b>FareedKhan-dev</b> src/post_training (SFT/RM/PPO/DPO/GRPO pure PyTorch)","<b>Raschka</b> repo reasoning-from-scratch (GRPO/RLVR)"],
+  src:["<b>FareedKhan-dev</b> src/post_training (SFT/RM/PPO/DPO/GRPO pure PyTorch)","Paper <b>DPO</b> (2305.18290) + <b>DeepSeekMath/GRPO</b> (2402.03300)"],
   deliver:"Log/checkpoint 1 stage alignment đã chạy + ghi chú phân biệt <b>SFT vs DPO vs GRPO</b> (<code>alignment_notes.md</code>).",
   know:`<h5>So sánh các stage alignment</h5>
    <ul><li><b>SFT</b>: học bắt chước phản hồi tốt (supervised).</li><li><b>Reward Model</b>: học chấm điểm ưu tiên giữa các cặp output.</li><li><b>DPO</b>: tối ưu trực tiếp từ cặp (chosen, rejected), bỏ qua RM/PPO:</li></ul>
@@ -144,7 +144,7 @@ window.WEEKS_DATA = [
  {
   n:10, phase:2, title:"Xây dựng RAG pipeline end-to-end", dur:"~12 giờ", hw:"Mac / 3070 Ti (embeddings nhẹ)",
   obj:["Build baseline RAG đầy đủ trên corpus tài liệu nghiệp vụ Finance Banking của bạn"],
-  src:["<b>DeepLearning.AI</b> RAG (audit free) / freeCodeCamp RAG from Scratch","<b>LlamaIndex</b> + <b>LangChain</b> docs","GitHub: <b>NirDiamant/RAG_Techniques</b>"],
+  src:["Paper gốc <b>RAG</b> (2005.11401)","<b>LlamaIndex</b> + <b>LangChain</b> docs (tutorial RAG chính thức)","GitHub: <b>NirDiamant/RAG_Techniques</b>"],
   deliver:"App RAG trả lời được câu hỏi trên tài liệu Finance Banking của bạn.",
   know:`<h5>Pipeline RAG cơ bản</h5>
    <p><code>Load PDF → chunk → embed → vector store → retrieve top-k → generate</code></p>
@@ -158,7 +158,7 @@ window.WEEKS_DATA = [
  {
   n:11, phase:2, title:"Advanced RAG + đánh giá (RAGAS)", dur:"~10–12 giờ", hw:"Local (cross-encoder chạy ổn)",
   obj:["Thêm hybrid search (BM25 + vector) và reranker","Đánh giá định lượng với RAGAS; wire tracing (Langfuse/LangSmith)"],
-  src:["<b>RAGAS</b> docs (precision/recall, faithfulness, relevancy)","<b>LangSmith</b> + <b>Langfuse</b> (tracing, LLM-as-judge)","<b>Cohere Rerank</b> / BGE cross-encoder","Tùy chọn: GraphRAG (Microsoft)"],
+  src:["<b>RAGAS</b> docs (precision/recall, faithfulness, relevancy)","<b>Langfuse</b> (open source — tracing, LLM-as-judge)","<b>BGE cross-encoder</b> reranker (mã nguồn mở)","Tùy chọn: GraphRAG (Microsoft, repo mở)"],
   deliver:"Báo cáo eval RAGAS cho thấy <b>cải thiện relevancy đo được</b> nhờ reranking + pipeline đã trace (<code>ragas_report.md</code>).",
   know:`<h5>Hybrid retrieval + rerank</h5>
    <p><b>BM25</b> (lexical) + <b>vector</b> (semantic) kết hợp bằng reciprocal rank fusion → bù điểm yếu của nhau. Sau đó <b>cross-encoder reranker</b> chấm lại top-N để xếp hạng tinh.</p>
@@ -167,7 +167,7 @@ window.WEEKS_DATA = [
    <h5>Observability</h5>
    <p>Langfuse/LangSmith trace từng bước retrieval → generate, dùng LLM-as-judge để chấm tự động; đo before/after khi thêm rerank.</p>
    <div class="tagrow"><span class="kt">BM25</span><span class="kt">RRF</span><span class="kt">cross-encoder</span><span class="kt">faithfulness</span><span class="kt">tracing</span></div>`,
-  check:["Thêm BM25 retriever (rank_bm25) song song vector","Kết hợp (EnsembleRetriever / reciprocal rank fusion)","Thêm reranker (BGE cross-encoder / Cohere) trên top-N","Tạo eval set ~20–30 cặp (câu hỏi, ground-truth)","Đo RAGAS: precision/recall, faithfulness, relevancy","So baseline (Tuần 10) vs hybrid+rerank → bảng số","Wire Langfuse/LangSmith tracing","Viết ragas_report.md"]
+  check:["Thêm BM25 retriever (rank_bm25) song song vector","Kết hợp (EnsembleRetriever / reciprocal rank fusion)","Thêm reranker (BGE cross-encoder) trên top-N","Tạo eval set ~20–30 cặp (câu hỏi, ground-truth)","Đo RAGAS: precision/recall, faithfulness, relevancy","So baseline (Tuần 10) vs hybrid+rerank → bảng số","Wire Langfuse/LangSmith tracing","Viết ragas_report.md"]
  },
  {
   n:12, phase:3, title:"Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP", dur:"~12 giờ", hw:"Bất kỳ (API/orchestration)",

@@ -1,6 +1,6 @@
 # Phân tích Loss Curve — Write-up (deliverable Tuần 5)
 
-> Viết SAU KHI chạy xong. Mục tiêu: so sánh loss curve của bạn với GPT-2 gốc, theo phong cách phân tích của Giles Thomas. Điền vào các chỗ ______.
+> Viết SAU KHI chạy xong. Mục tiêu: so sánh loss curve của bạn với GPT-2 gốc. Điền vào các chỗ ______.
 
 ## 1. Setup
 
@@ -24,7 +24,7 @@
 | Nguồn | Loss | Ghi chú |
 |-------|------|---------|
 | GPT-2 gốc | ~3.5 | mục tiêu |
-| Giles Thomas (163M) | 3.944 | 3090, ~48h |
+| llm.c reproduce 124M | (xem Discussion #481) | 8×A100, ~90 phút |
 | **Của bạn** | ______ | ______ |
 
 ## 4. Quan sát & câu hỏi (trả lời bằng lời mình)

@@ -52,7 +52,7 @@ Tuần này bạn serve model thật, nên các mục sau trong [`../Week-00/adv
 - **B3 Speculative decoding** — model "nháp" nhỏ đề xuất, model lớn verify song song → nhanh hơn mà không đổi phân phối.
 - **B4 GGUF** — nhắc lại cho rõ: GGUF là **định dạng file** của llama.cpp (Q4_K_M, Q5_K_M…), *không phải* thuật toán lượng tử hoá. Đây chính là thứ Ollama/LM Studio load.
 
-> Nguồn: rasbt *Bonus* `KV Cache`, `Memory-efficient Model Weight Loading`; nanochat `engine.py`.
+> Nguồn: nanochat `engine.py` (KV cache); docs llama.cpp/GGUF (quantization).
 
 ## 📦 Dữ liệu cho tuần này
 

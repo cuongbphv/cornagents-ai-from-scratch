@@ -1,4 +1,4 @@
-# Tuần 6 — Instruction fine-tuning (Raschka ch.6–7 + LoRA)
+# Tuần 6 — Instruction fine-tuning (classification + instruction-following + LoRA)
 
 > Phase 1 — Deep Internals. Fine-tune cho classification & instruction-following. (Alignment được tách riêng sang Tuần 7 để giảm tải.)
 
@@ -9,7 +9,7 @@
 
 ## Nguồn học
 
-- Raschka — **ch.6–7** + **Appendix E** (LoRA).
+- Paper LoRA (arXiv 2106.09685); paper InstructGPT (arXiv 2203.02155); HF PEFT docs (huggingface.co/docs/peft); `FareedKhan-dev/train-llm-from-scratch` phần SFT.
 
 ## Nhiệm vụ (Task)
 
@@ -51,7 +51,7 @@ Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR
               instruction fine-tuning bạn làm tuần này ≈ bước SFT
 ```
 
-Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeline lớn, và **Midtrain** (khái niệm nanochat, không có trong sách Raschka) chen vào trước SFT để dạy format hội thoại + special tokens + tool use.
+Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeline lớn, và **Midtrain** (khái niệm nanochat, không có trong pipeline GPT-2 kinh điển) chen vào trước SFT để dạy format hội thoại + special tokens + tool use.
 
 > ➡️ Tuần 7 sẽ đọc mục **G** đầy đủ (RM, PPO, DPO, GRPO/RLVR).
 

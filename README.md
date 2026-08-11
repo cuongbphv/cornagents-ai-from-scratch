@@ -2,6 +2,14 @@
 
 **From Transformer internals to an Agentic SDLC & Graph Engineering.**
 
+> **Tuyên bố / Disclaimer**
+>
+> Đây là **dự án học thuật, nghiên cứu cá nhân, không thương mại hóa**. Toàn bộ nội dung (lộ trình, ghi chú, code skeleton, quiz) chỉ phục vụ mục đích học tập và nghiên cứu; không phải sản phẩm, không phải tư vấn pháp lý hay tài chính.
+>
+> This is a **personal academic, research-only, non-commercial project**. All content (roadmap, notes, code skeletons, quizzes) exists solely for study and research; it is not a product and not legal or financial advice.
+>
+> Repo chỉ tham chiếu **nguồn mở**: repo GitHub công khai, paper truy cập mở (arXiv/ACL), tài liệu chính thức của công cụ, nguồn chính phủ, và dataset có license mở đã xác minh (CC BY / CC0 / MIT / Apache 2.0 / BSD). Các nguồn thương mại, sau paywall, license hạn chế (non-commercial, research-only, cấm train/distill/redistribute) đã được loại bỏ. Xem [CLAUDE.md](CLAUDE.md) cho quy tắc đầy đủ.
+
 This repository is a structured, self-paced curriculum for going from "I can call an LLM API" to genuinely understanding how large language models work — and then applying that understanding to build **CornAgents.AI**, a personal agentic-SDLC framework anchored to the Finance Banking domain.
 
 The material is spread evenly across **15 weeks (~10–15 hrs/week, ~3.5–4 months part-time)** so no single week is overloaded. Every week has its own folder with a README, starter code skeletons, note templates, and a self-check quiz.
@@ -71,7 +79,7 @@ scripts/          quiz_bank.json (single source of truth, 93 questions)
    python scripts/generate_quiz.py --week 3   # one week only
    ```
 4. **Go deeper when the week calls for it**: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) holds the advanced material (modern architecture, inference, training dynamics, alignment, evaluation, agentic/graph engineering). It is **not** meant to be read front-to-back — it opens with a navigation table mapping *each week → the exact sections to read*, and every week's README carries a matching "🚀 Bổ sung nâng cao" block pointing back. The anchoring is bidirectional, so you never have to guess when a topic belongs. Weeks 1–2 deliberately have none.
-5. **Source your data deliberately**: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) lists datasets and corpora for the Finance Banking domain in both Vietnamese and English, each with a verified URL and license, plus which ones are evaluation-only. It opens with the key architectural point: **regulatory knowledge belongs in RAG and the knowledge graph, not in fine-tuned weights** — fine-tuning is for behavior, format, and bilingual terminology. Licensing and legal caveats are called out explicitly, since this material is aimed at someone working inside a bank.
+5. **Source your data deliberately**: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) lists **open-license datasets only** (CC BY / CC0 / MIT / Apache 2.0 / BSD, verified at lookup date) for the Finance Banking domain in Vietnamese and English. It opens with the key architectural point: **regulatory knowledge belongs in RAG and the knowledge graph, not in fine-tuned weights** — fine-tuning is for behavior, format, and bilingual terminology. Re-verify every license at the time of use.
 6. **Track progress** in the web portal: open `Report/index.html` — interactive checklists, phase progress, and flip-card quizzes (state is stored in your browser).
 7. **Use Claude as a co-learner**: implement first, then have Claude review; paste loss curves and stack traces for debugging; rubber-duck architecture decisions in Phase 3.
 
@@ -89,14 +97,13 @@ Rule of thumb: the moment a local run projects beyond ~24h (or OOMs at batch siz
 
 CornAgents.AI is **your own concept, not a product** — the name of the personal agentic-SDLC framework you build in Phase 3 on top of **Claude Agent SDK + MCP + LangGraph/CrewAI**, with a knowledge-graph layer (Week 14) for shared memory and grounded fact-checking. All applied artifacts (RAG corpus, fine-tuning dataset, capstone) anchor to the **Finance Banking domain**, kept generic — pick the business area you know best.
 
-## Core sources
+## Core sources (open-access only)
 
-- **Sebastian Raschka** — *Build a Large Language Model (From Scratch)* + `reasoning-from-scratch`
-- **Andrej Karpathy** — *Neural Networks: Zero to Hero*, nanoGPT, nanochat, autoresearch
-- **Giles Thomas** — *LLM from scratch* blog series (parts 1–33)
-- **FareedKhan-dev** — `train-llm-from-scratch` (full alignment suite in pure PyTorch)
-- **Anthropic** — Building Effective AI Agents, Claude Agent SDK, MCP, Knowledge Graph Construction Cookbook
-- The two Graph-Engineering study notes and the 5-layers diagram in [docs/](docs/)
+- **Open-source from-scratch repos** — `karpathy/micrograd`, `karpathy/makemore`, `karpathy/nanoGPT`, `karpathy/nanochat`, `karpathy/llm.c`; `FareedKhan-dev/train-llm-from-scratch` (full alignment suite in pure PyTorch). Check each repo's LICENSE before reusing code.
+- **Open-access papers** — *Attention Is All You Need*, GPT-2, LoRA, QLoRA, DPO, InstructGPT and related preprints on arXiv / ACL Anthology; *The Annotated Transformer* (Harvard NLP).
+- **Official tool documentation** — PyTorch, Hugging Face (PEFT/TRL, Ultra-Scale Playbook), LangChain, LlamaIndex, MLX, Ollama, NetworkX.
+- **Anthropic** — Building Effective AI Agents, Claude Agent SDK, MCP, Knowledge Graph Construction Cookbook (claude-cookbooks).
+- The two Graph-Engineering study notes (independently compiled syntheses, see their cover pages) and the 5-layers diagram in [docs/](docs/)
 
 ---
 

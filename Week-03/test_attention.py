@@ -5,7 +5,7 @@ Chạy SAU KHI điền xong TODO trong multihead_attention.py:
     python test_attention.py
 
 Test không kiểm tra giá trị tuyệt đối, chỉ xác nhận luồng shape đúng —
-đây là cách Raschka khuyến nghị để bắt bug attention.
+shape test là cách hiệu quả để bắt bug attention sớm.
 """
 
 import torch

@@ -21,7 +21,7 @@ Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp trai
 
 **Trả lời mẫu:** Residual tạo một 'đường cao tốc' để gradient chảy thẳng về các lớp đầu mà không bị nhân nhỏ dần qua nhiều lớp (chống vanishing gradient). Đặt LayerNorm TRƯỚC sublayer (pre-LN) giữ đầu vào mỗi sublayer ở thang đo ổn định, làm việc xếp chồng hàng chục block ổn định hơn so với post-LN. Nhờ vậy có thể train transformer rất sâu.
 
-**Giải thích:** Giles part 18 lập luận residual còn 'nhiều hơn' chỉ là shortcut gradient — nó cho phép mỗi block tinh chỉnh dần biểu diễn.
+**Giải thích:** Ngoài vai trò shortcut gradient, residual còn cho phép mỗi block tinh chỉnh dần biểu diễn (residual stream).
 
 ## Câu 3 (Trắc nghiệm)
 

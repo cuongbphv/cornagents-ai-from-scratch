@@ -1,4 +1,4 @@
-# Tuần 4 — Lắp ráp & chạy mô hình GPT (Raschka ch.4)
+# Tuần 4 — Lắp ráp & chạy mô hình GPT
 
 > Phase 1 — Deep Internals. Ghép mọi mảnh thành kiến trúc GPT-2 hoàn chỉnh và sinh text.
 
@@ -9,14 +9,14 @@
 
 ## Nguồn học
 
-- Raschka — **ch.4** (Implementing a GPT model from scratch).
-- Giles Thomas — parts **15–19** (layer norm, feed-forward, residuals, kết thúc ch.4).
+- `karpathy/nanoGPT` — `model.py` (kiến trúc GPT-2 đầy đủ) + hàm `from_pretrained` (load weights GPT-2).
+- Paper GPT-2 "Language Models are Unsupervised Multitask Learners"; paper Layer Normalization (arXiv 1607.06450), GELU (arXiv 1606.08415).
 - Karpathy — **nanoGPT** (`github.com/karpathy/nanoGPT`) làm tham chiếu chéo.
 
 ## Nhiệm vụ (Task)
 
 - Khởi tạo config **124M**.
-- **Load trọng số GPT-2 pretrained của OpenAI** (như sách hướng dẫn) để xác nhận kiến trúc đúng.
+- **Load trọng số GPT-2 pretrained của OpenAI** (tham chiếu cách `nanoGPT` làm trong `from_pretrained`) để xác nhận kiến trúc đúng.
 - Sinh text.
 
 ## Deliverable
@@ -65,7 +65,7 @@ Sau khi lắp xong GPT-2, đối chiếu với Llama 3/Qwen3 trong [`../Week-00/
 - **A7 MoE** — thay 1 FFN dày bằng nhiều expert + router top-k (Qwen3-MoE, gpt-oss).
 - **B1 KV cache** + **B2 Sampling** (temperature/top-k/**top-p**) — cho phần sinh text.
 
-> Bài tập hay: fork model GPT-2 của bạn, thay LayerNorm→RMSNorm và GELU-FFN→SwiGLU, so số tham số. Nguồn: rasbt walkthrough **Llama 3** & **Qwen3 dense/MoE**, **gpt-oss**; nanochat `gpt.py`.
+> Bài tập hay: fork model GPT-2 của bạn, thay LayerNorm→RMSNorm và GELU-FFN→SwiGLU, so số tham số. Nguồn: paper RMSNorm (arXiv 1910.07467) + GLU Variants/SwiGLU (arXiv 2002.05202); implementation Llama/Qwen trong HF `transformers`; nanochat `gpt.py`.
 
 ## File trong folder
 

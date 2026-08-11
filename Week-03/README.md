@@ -1,4 +1,4 @@
-# Tuần 3 — Tokenization, embeddings, attention từ đầu (Raschka ch.2–3)
+# Tuần 3 — Tokenization, embeddings, attention từ đầu
 
 > Phase 1 — Deep Internals. **Đây là điểm cốt lõi về khái niệm — đi chậm.** Tự tay code toàn bộ stack attention.
 
@@ -9,13 +9,13 @@
 
 ## Nguồn học
 
-- Raschka — **ch.2** (Working with text data) + **ch.3** (Coding attention mechanisms).
-- Giles Thomas — parts **1–14** (đặc biệt: part 8 trainable self-attention, part 9 causal, part 12 multi-head, part 13 "attention heads are dumb").
+- Paper BPE — "Neural Machine Translation of Rare Words with Subword Units" (arXiv 1508.07909); repo mở `openai/tiktoken`, `karpathy/minbpe`.
+- Code attention trong `karpathy/nanoGPT` (`model.py`) — tham chiếu chính khi tự code self → causal → multi-head.
 - **The Annotated Transformer** (Harvard NLP, nlp.seas.harvard.edu).
 
 ## Nhiệm vụ (Task)
 
-Tự code đầy đủ attention stack ch.3; **verify shape** với repo của sách.
+Tự code đầy đủ attention stack (self → causal → multi-head); **verify shape** đối chiếu `nanoGPT/model.py`.
 
 ## Deliverable
 
@@ -40,7 +40,7 @@ Tự code đầy đủ attention stack ch.3; **verify shape** với repo của s
 - [ ] Thêm **causal mask** (tam giác trên = -inf) + dropout
 - [ ] Mở rộng lên **multi-head** (chia/d_out hoặc stack head)
 - [ ] Chạy `test_attention.py` → tất cả shape đúng
-- [ ] Dán code cho Claude review so với Raschka
+- [ ] Dán code cho Claude review so với nanoGPT
 
 ## Mốc shape cần nhớ
 
@@ -59,7 +59,7 @@ GPT-2 dùng **absolute positional embedding + MHA**. Các model hiện đại (L
 - **B1 KV cache** — bắt buộc hiểu cho inference.
 - **E** — tự **train BPE tokenizer** (nanochat `tok_train.py`) thay vì chỉ dùng tiktoken.
 
-> Nguồn từ-đầu: rasbt *Bonus Material* (`Grouped-Query Attention`, `Multi-Head Latent Attention`, `Sliding Window Attention`); Giles part 14 (complexity at scale).
+> Nguồn từ-đầu: paper mở — GQA (arXiv 2305.13245), MLA/DeepSeek-V2 (arXiv 2405.04434), Sliding Window/Mistral 7B (arXiv 2310.06825), FlashAttention (arXiv 2205.14135).
 
 ## File trong folder
 

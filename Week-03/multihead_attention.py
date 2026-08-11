@@ -1,8 +1,8 @@
 """
-multihead_attention.py — SKELETON Tuần 3 (Raschka ch.3).
+multihead_attention.py — SKELETON Tuần 3 (attention from scratch).
 
 TỰ code attention stack: self-attention -> causal -> multi-head.
-Chỗ TODO là phần bạn điền. Tự làm trước, đối chiếu sách + chạy test_attention.py sau.
+Chỗ TODO là phần bạn điền. Tự làm trước, đối chiếu nanoGPT/model.py + chạy test_attention.py sau.
 """
 
 import torch

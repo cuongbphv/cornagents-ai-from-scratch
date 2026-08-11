@@ -42,7 +42,7 @@ So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 
 **Trả lời mẫu:** RLVR dùng reward KIỂM CHỨNG ĐƯỢC một cách khách quan: đáp án toán đúng/sai, unit test code pass/fail, thay vì điểm chủ quan từ reward model. Vì tín hiệu thưởng chính xác và không bị 'hack', model có thể tự khám phá chuỗi suy luận (chain-of-thought) dẫn tới đáp án đúng. Đây là cơ chế đứng sau các reasoning model kiểu o1/R1; thường kết hợp với GRPO.
 
-**Giải thích:** Xem Raschka reasoning-from-scratch và nanochat chat_rl.py (tasks gsm8k, spellingbee).
+**Giải thích:** Xem nanochat chat_rl.py (tasks gsm8k, spellingbee) và paper DeepSeekMath/GRPO (arXiv 2402.03300).
 
 ## Câu 5 (Trắc nghiệm)
 
@@ -55,7 +55,7 @@ So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 
 **Đáp án: B**
 
-**Giải thích:** Midtrain là khái niệm KHÔNG có trong sách Raschka gốc; nó chuẩn bị base model cho giai đoạn chat/SFT.
+**Giải thích:** Midtrain là khái niệm KHÔNG có trong pipeline GPT-2 kinh điển; nó chuẩn bị base model cho giai đoạn chat/SFT.
 
 ## Câu 6 (Tự luận)
 

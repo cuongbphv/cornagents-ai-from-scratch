@@ -1,7 +1,7 @@
-# makemore — Khung ghi chú (Karpathy Lecture 2–4)
+# makemore — Khung ghi chú (theo repo mở karpathy/makemore)
 
 > makemore: model sinh tên ký tự-the-ký tự. Đi từ bigram (đếm) → neural net → MLP.
-> Tự code theo video, ghi lại bằng lời mình. Chỗ TODO là phần điền sau khi làm.
+> Đọc code repo rồi tự code lại, ghi lại bằng lời mình. Chỗ TODO là phần điền sau khi làm.
 
 ## 0. Dữ liệu
 

@@ -1,4 +1,4 @@
-# Tuần 6 — Đáp án & Giải thích: Instruction fine-tuning (Raschka ch.6–7 + LoRA)
+# Tuần 6 — Đáp án & Giải thích: Instruction fine-tuning (classification + instruction-following + LoRA)
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
@@ -17,7 +17,7 @@
 
 ## Câu 2 (Trắc nghiệm)
 
-Để fine-tune GPT cho classification (Raschka ch.6), thay đổi kiến trúc nào là cốt lõi?
+Để fine-tune GPT cho classification, thay đổi kiến trúc nào là cốt lõi?
 
 - **A.** Thêm một transformer block mới
 - **B.** Thay output head (vocab_size) bằng một head nhỏ số lớp = số nhãn, thường chỉ train head + vài layer cuối ✅
@@ -30,7 +30,7 @@
 
 ## Câu 3 (Tự luận)
 
-Trong instruction fine-tuning (ch.7), vì sao thường mask phần prompt/instruction khỏi loss (chỉ tính loss trên phần response)?
+Trong instruction fine-tuning, vì sao thường mask phần prompt/instruction khỏi loss (chỉ tính loss trên phần response)?
 
 **Trả lời mẫu:** Mục tiêu là dạy model SINH phản hồi tốt, không phải học thuộc lại đề bài. Nếu tính loss trên cả instruction, gradient bị pha loãng bởi việc dự đoán lại phần text đã cho sẵn — model tối ưu cho việc lặp lại prompt thay vì chất lượng response. Mask (đặt label = -100 trong PyTorch) các token thuộc prompt để cross-entropy chỉ chấm phần model phải tự sinh.
 
