@@ -53,13 +53,14 @@ Config 8GB trong README (`r=16, α=16, target = toàn bộ attention + MLP proje
 - **Đo tokenizer của base model trên tiếng Việt TRƯỚC khi chọn base** — dùng đúng phương pháp Tuần 3 mục 1.3 (đếm token/từ trên 5–10 câu nghiệp vụ thật). Fertility cao → cùng seq_len 1024 chứa ít nội dung Việt hơn, cùng dataset tốn nhiều compute hơn. Vài dòng code tránh được quyết định sai đắt nhất tuần.
 - Dataset tiếng Việt license sạch đã vet sẵn trong [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) (mục 2, 3, 8) — README tuần này gợi ý trộn cụ thể. ⛔ Không thêm nguồn ngoài danh sách đã vet.
 - **Fine-tune dạy hành vi/định dạng, không nhồi kiến thức quy định** (nguyên tắc đã chốt trong README) — với văn bản pháp luật VN thay đổi liên tục, kiến thức đi qua RAG (Tuần 10–11); đừng đánh giá model fine-tuned bằng câu hỏi tra cứu điều khoản.
-- Eval held-out nên có **cả câu tiếng Việt lẫn tiếng Anh** — làm nền cho bài kiểm tra catastrophic forgetting ở Tuần 9.
+- Eval held-out nên có **cả câu tiếng Việt lẫn tiếng Anh** — làm nền cho bài kiểm tra catastrophic forgetting ở Tuần 9. Chọn LoRA/QLoRA vốn đã nghiêng về phía giữ song ngữ: Biderman et al. 2024 (PDF trong repo: [`../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf`](../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf)) đo được LoRA "substantially underperforms full finetuning" trong domain đích nhưng "better maintains the base model's performance on tasks outside the target domain" — học ít hơn, quên cũng ít hơn. Trade-off này đúng là thứ bạn muốn khi base model gánh cả hai thứ tiếng.
 
 ## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
-| Dettmers et al. 2023 — QLoRA | https://arxiv.org/abs/2305.14314 | 1, 2 |
+| Dettmers et al. 2023 — QLoRA (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2305.14314 — PDF local: [`../docs/papers/2305.14314_qlora-efficient-finetuning.pdf`](../docs/papers/2305.14314_qlora-efficient-finetuning.pdf) | 1, 2 |
+| Biderman et al. 2024 — LoRA Learns Less and Forgets Less (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.09673 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 6 |
 | Unsloth docs | https://unsloth.ai/docs | 3, 4 |
 | HF PEFT docs | https://huggingface.co/docs/peft | 3 |
 | Hu et al. 2021 — LoRA | https://arxiv.org/abs/2106.09685 | 3 |

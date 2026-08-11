@@ -50,6 +50,7 @@ class UserStory(BaseModel):
 
 - **Gate đặt ở chỗ chi phí sai cao nhất**: sau requirements (hiểu sai đề → mọi thứ sau sai) và trước merge/commit (hành động khó đảo). Gate = artifact trình cho người + trạng thái chờ duyệt, không phải "in ra console rồi chạy tiếp".
 - **Least privilege cho tool**: Requirements Analyst chỉ cần đọc RAG — không cần quyền ghi file; Test-Gen cần ghi file test — không cần network. Scope hẹp làm sai sót của một agent không lan thành sự cố hệ thống.
+- **Tool output là input KHÔNG đáng tin** — cùng họ vấn đề với prompt injection. Wallace et al. 2024, *The Instruction Hierarchy* (arXiv [2404.13208](https://arxiv.org/abs/2404.13208), abstract tra 2026-08-12) chỉ ra gốc rễ: LLM hiện "treat system prompts and user inputs with equal priority", và đề xuất huấn luyện model "selectively ignore lower-privileged instructions". Bạn không train lại model được, nhưng rút được nguyên tắc thiết kế: đừng đưa nguyên văn tài liệu RAG/tool output vào vị trí có quyền ra lệnh — bọc nó, đánh dấu nó là dữ liệu.
 
 ## 6. Ba agent của tuần — điểm thiết kế chính
 
@@ -58,6 +59,8 @@ class UserStory(BaseModel):
 3. **Test-Generation agent**: từ story/AC → test case; mỗi AC ít nhất một test — ánh xạ 1-1 kiểm được bằng code, khỏi cần LLM chấm.
 
 Nối bằng: orchestrator–workers (phân việc) + evaluator–optimizer (vòng chất lượng quanh review), đúng gợi ý README.
+
+Khi viết `03_agent_design.md`, có thể mượn khung mô tả của survey Tran et al. 2025 (arXiv [2501.06322](https://arxiv.org/abs/2501.06322), abstract tra 2026-08-12): mô tả hệ multi-agent theo 5 chiều — "actors (agents involved), types (e.g., cooperation, competition...), structures (e.g., peer-to-peer, centralized...), strategies (e.g., role-based...), and coordination protocols". Điền đủ 5 ô cho thiết kế của mình là một bài kiểm tra "mình đã nghĩ hết chưa" rẻ tiền.
 
 ## 7. Tiếng Việt trong tuần này
 
@@ -71,6 +74,8 @@ Nối bằng: orchestrator–workers (phân việc) + evaluator–optimizer (vò
 |-------|--------|--------------|
 | Karpathy-Loop PDF (mục IV, VI.D, VIII) | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 1, 2, 3 |
 | Claude Agent SDK docs (xác minh 2026-08-11) | https://code.claude.com/docs/en/agent-sdk | 5, 6 |
+| Wallace et al. 2024 — The Instruction Hierarchy (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2404.13208 | 5 |
+| Tran et al. 2025 — Multi-Agent Collaboration Mechanisms: A Survey (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2501.06322 | 6 |
 
 (CodeRabbit/Sonar/GlobalLogic: tham chiếu pattern trong README — đọc lấy ý quality gate, không phải nguồn trích số liệu.)
 

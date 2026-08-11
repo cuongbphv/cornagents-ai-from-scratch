@@ -16,6 +16,8 @@ while chưa xong:
 - **Tool** = hàm có schema (tên, mô tả, tham số) — model không "chạy" gì cả, nó chỉ **sinh yêu cầu gọi tool**; harness của bạn chạy thật rồi trả kết quả vào context. Hiểu điểm này là hiểu một nửa agent engineering: chất lượng agent = chất lượng tool + mô tả tool.
 - **Subagent** = agent con được giao task hẹp, có context riêng — cách chống phình context window của agent chính.
 
+Loop này không phải phát minh của SDK nào — nó là hậu duệ trực tiếp của hai paper (cả hai có PDF trong repo): CoT (Wei et al. 2022, [`../docs/papers/2201.11903_chain-of-thought-prompting.pdf`](../docs/papers/2201.11903_chain-of-thought-prompting.pdf)) cho model "nghĩ thành lời" trước khi trả lời, rồi ReAct (Yao et al. 2022, [`../docs/papers/2210.03629_react-reasoning-acting.pdf`](../docs/papers/2210.03629_react-reasoning-acting.pdf)) đan xen reasoning với **hành động gọi tool** và quan sát kết quả. Đọc ReAct xong sẽ thấy agent loop ở trên chỉ là ReAct được đóng gói tử tế.
+
 ## 2. Năm tầng engineering — bản đồ định vị mọi vấn đề
 
 Từ `docs/5-layers-multi-agent.jpg` (bảng đầy đủ trong [README.md](README.md)): Prompt → Context → Harness → Loop → Graph. Giá trị thực dụng nhất là **chẩn đoán theo tầng** (mục nâng cao I1):
@@ -64,6 +66,8 @@ Khung so sánh cho lựa chọn LangGraph vs CrewAI (tiêu chí từ README): do
 |-------|-----|--------------|
 | Claude Agent SDK docs | https://code.claude.com/docs/en/agent-sdk | 1 |
 | Model Context Protocol docs | https://modelcontextprotocol.io/ | 3 |
+| Wei et al. 2022 — Chain-of-Thought (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2201.11903 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
+| Yao et al. 2022 — ReAct (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2210.03629 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
 | Tài liệu trong repo | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf), [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg) | 2, 4 |
 
 (LangGraph/CrewAI docs: link trong README — đọc đúng version lúc cài.)

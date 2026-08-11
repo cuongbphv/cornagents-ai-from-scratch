@@ -64,6 +64,8 @@ docs/             Source documents for Phase 3:
                     - Graph-Engineering-Athropic-Playbook.pdf   (knowledge-graph pipeline)
                     - Graph-Engineering-Athropic-Karpathy-Loop.pdf (loop → swarm → graph)
                     - 5-layers-multi-agent.jpg                  (the 5 engineering layers)
+                  papers/ — week-mapped paper shelf: 12 CC-BY/CC0 PDFs stored locally,
+                    the rest link-only (see papers/README.md; licenses checked 2026-08-12)
 Report/           Interactive web portal: roadmap, per-week checklists, flip-card quizzes
                   (open Report/index.html in a browser; progress saved locally)
 scripts/          quiz_bank.json (single source of truth, 93 questions)

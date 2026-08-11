@@ -55,6 +55,8 @@ enc = tiktoken.get_encoding("gpt2")
 2. Khi tự train tokenizer (mục nâng cao E): muốn dùng cho dữ liệu VN banking thì **corpus train BPE phải có tiếng Việt** — đây là lý do trực tiếp để làm mục E chứ không chỉ dùng tiktoken.
 3. Khi chọn base model để fine-tune (Tuần 9+): đo fertility (token/từ) của tokenizer model đó trên chính văn bản tiếng Việt của bạn bằng đúng phương pháp ở bảng trên trước khi chọn — vài dòng code, tránh được quyết định đắt.
 
+📄 **Đọc thêm (paper):** BPE gốc là Sennrich et al. 2015 (PDF trong repo: [`../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf`](../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf)) — ý tưởng nguyên bản: "encoding rare and unknown words as sequences of subword units" cho bài toán open-vocabulary. Về mặt trái của tokenization, *Tokenization Falling Short* (arXiv [2406.11687](https://arxiv.org/abs/2406.11687), EMNLP 2024 Findings — abstract tra 2026-08-12) chỉ ra tokenizer "inherently sensitive to typographical errors, length variations, and largely oblivious to the internal structure of tokens" — đúng lớp vấn đề mà văn bản tiếng Việt nhiều dấu gặp đậm hơn, và scale model chỉ giảm được một phần.
+
 ### 1.4 Data loading — sliding window
 
 LM học bài toán "đoán token kế": input là cửa sổ `T` token, target là **cùng cửa sổ dịch phải 1**:
@@ -153,7 +155,8 @@ Ma trận scores là `(T, T)`: gấp đôi độ dài chuỗi thì compute và b
 
 | Nguồn | URL | License / loại | Dùng cho mục |
 |-------|-----|----------------|--------------|
-| Sennrich et al. 2015 — BPE cho NMT | https://arxiv.org/abs/1508.07909 | arXiv mở | 1 |
+| Sennrich et al. 2015 — BPE cho NMT | https://arxiv.org/abs/1508.07909 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | CC BY 4.0 (kiểm 2026-08-12) | 1 |
+| Tokenization Falling Short (2024) | https://arxiv.org/abs/2406.11687 — chỉ link (arXiv non-exclusive) | arXiv mở (kiểm 2026-08-12) | 1.3 |
 | openai/tiktoken | https://github.com/openai/tiktoken | MIT | 1.2 |
 | karpathy/minbpe | https://github.com/karpathy/minbpe | MIT | 1.2, nâng cao E |
 | karpathy/nanoGPT (`model.py`) | https://github.com/karpathy/nanoGPT | MIT | 3 |

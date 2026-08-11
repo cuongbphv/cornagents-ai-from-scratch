@@ -65,7 +65,7 @@ Lưu đủ 3 thứ mới resume đúng: `model.state_dict()`, `optimizer.state_d
 
 ## 8. Tiếng Việt trong tuần này
 
-- **Model chỉ biết ngôn ngữ có trong corpus pretrain.** FineWeb/FineWeb-Edu trong task tuần này thiên tiếng Anh — model bạn pretrain ra sẽ không đọc được tiếng Việt, và đó là kỳ vọng đúng. Muốn có khả năng tiếng Việt phải có corpus Việt trong pretrain (hoặc dùng base đa ngôn ngữ rồi fine-tune — hướng của Tuần 8–9; nguồn corpus VN license sạch: xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
+- **Model chỉ biết ngôn ngữ có trong corpus pretrain.** FineWeb/FineWeb-Edu trong task tuần này thiên tiếng Anh — model bạn pretrain ra sẽ không đọc được tiếng Việt, và đó là kỳ vọng đúng. Nhân tiện, paper FineWeb (PDF trong repo, xem bảng Nguồn) đáng một buổi đọc: FineWeb là "a 15-trillion token dataset derived from 96 Common Crawl snapshots", FineWeb-Edu là subset giáo dục 1.3T token, và các tác giả tài liệu hóa từng quyết định lọc/dedup của mình — muốn biết một corpus web-scale được "nấu" ra sao thì hiếm chỗ nào kể kỹ hơn. Muốn có khả năng tiếng Việt phải có corpus Việt trong pretrain (hoặc dùng base đa ngôn ngữ rồi fine-tune — hướng của Tuần 8–9; nguồn corpus VN license sạch: xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
 - **Ngân sách token lệch theo ngôn ngữ:** cùng 1 GB văn bản, tiếng Việt sinh ra nhiều token hơn tiếng Anh với tokenizer thiên Anh (fertility đo ở Tuần 3) → "1B token" tiếng Việt chứa **ít nội dung hơn** 1B token tiếng Anh. Khi đọc bất kỳ báo cáo pretrain đa ngôn ngữ nào, hỏi ngay: token đếm bằng tokenizer nào?
 - **So sánh chéo ngôn ngữ/tokenizer thì bỏ perplexity, dùng bits-per-byte** (mục nâng cao H): PPL phụ thuộc tokenizer — cùng một văn bản, tokenizer khác nhau cho PPL khác nhau dù model "giỏi" như nhau; bits-per-byte chuẩn hóa theo byte nên so được.
 
@@ -74,6 +74,7 @@ Lưu đủ 3 thứ mới resume đúng: `model.state_dict()`, `optimizer.state_d
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
 | karpathy/nanoGPT (`train.py`, MIT) | https://github.com/karpathy/nanoGPT | 3, 4, 5, 6 |
+| Penedo et al. 2024 — The FineWeb Datasets (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2406.17557 — PDF local: [`../docs/papers/2406.17557_fineweb-datasets.pdf`](../docs/papers/2406.17557_fineweb-datasets.pdf) | 8 |
 
 (llm.c Discussion #481 và HF Ultra-Scale Playbook: link trong README nguồn học — nội dung chi phí/thời gian trong đó là **ảnh chụp thời điểm viết**, kiểm tra lại giá trước khi thuê máy.)
 

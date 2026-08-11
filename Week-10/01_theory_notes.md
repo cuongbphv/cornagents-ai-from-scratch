@@ -26,6 +26,8 @@ Kiểm chứng 2026-08-11: `cos(a, 2a) = 1.0` (cùng hướng tuyệt đối —
 
 **Embedding model là quyết định chất lượng số 1 của RAG** — nó quyết định "gần nghĩa" nghĩa là gì. Chọn theo benchmark phù hợp ngôn ngữ của corpus (mục 6).
 
+Đừng coi cosine là chân lý mặc định. Steck et al. 2024 (arXiv [2403.05440](https://arxiv.org/abs/2403.05440), abstract tra 2026-08-12) chỉ ra với embedding học từ model có regularization, "cosine-similarity can yield arbitrary and therefore meaningless 'similarities'", có trường hợp thua cả dot product không chuẩn hóa. Bài học thực dụng: chất lượng retrieval đo bằng eval set của bạn (Tuần 11), không suy ra từ việc "đã dùng đúng công thức".
+
 ## 3. Chunking — cắt tài liệu không làm đứt nghĩa
 
 - Baseline README: `RecursiveCharacterTextSplitter`, size ~800, overlap ~100. Splitter này đếm theo **ký tự** và ưu tiên cắt tại ranh giới tự nhiên (đoạn → câu → từ) theo thứ tự separator.
@@ -57,6 +59,8 @@ Corpus khuyến nghị + lưu ý pháp lý: xem mục 📦 trong [README.md](REA
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
 | Lewis et al. 2020 — RAG | https://arxiv.org/abs/2005.11401 | 1 |
+| Steck et al. 2024 — Is Cosine-Similarity Really About Similarity? (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2403.05440 | 2 |
+| Gekhman et al. 2024 — FT trên kiến thức mới & hallucination (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.05904 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
 
 (LlamaIndex/LangChain docs, NirDiamant/RAG_Techniques: link trong README nguồn học — API đổi theo version, đọc docs đúng version bạn cài.)
 

@@ -40,6 +40,8 @@ L_DPO = −log σ( β·[ log πθ(y_w|x)/πref(y_w|x) − log πθ(y_l|x)/πref(
 
 Kiểm chứng toy: log-ratio chosen 0.5, rejected −0.3, β=0.1 → loss 0.6539. Đọc loss này bằng lời: **tăng xác suất câu được chọn, giảm câu bị loại, so tương đối với reference model, β điều phanh**. Chỉ cần 2 model (policy + reference đóng băng), train như supervised — vì thế DPO là stage được khuyến nghị chạy thử tuần này.
 
+Một lời cảnh tỉnh đáng biết trước khi kết luận "DPO ăn đứt PPO": Xu et al. 2024 (arXiv [2404.10719](https://arxiv.org/abs/2404.10719), abstract tra 2026-08-12) chạy so sánh có kiểm soát và báo cáo "PPO is able to surpass other alignment methods in all cases and achieve state-of-the-art results in challenging code competitions", kèm nhận định DPO "may have fundamental limitations". Với tuần này DPO vẫn là lựa chọn đúng — rẻ, dễ chạy, đủ để hiểu cơ chế — nhưng đừng mang "DPO tốt hơn PPO" đi như chân lý.
+
 ## 5. GRPO — advantage tính theo nhóm, khỏi cần critic
 
 DeepSeekMath (arXiv 2402.03300): với mỗi prompt, sample **một nhóm** G câu trả lời, advantage của từng câu = chuẩn hóa reward **trong nhóm đó**:
@@ -72,8 +74,9 @@ Viết lại bảng này **bằng lời mình** + trải nghiệm sau khi chạy
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
 | Ouyang et al. 2022 — InstructGPT (RLHF/PPO) | https://arxiv.org/abs/2203.02155 | 2, 3 |
-| Rafailov et al. 2023 — DPO | https://arxiv.org/abs/2305.18290 | 4 |
+| Rafailov et al. 2023 — DPO (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2305.18290 — PDF local: [`../docs/papers/2305.18290_dpo-direct-preference-optimization.pdf`](../docs/papers/2305.18290_dpo-direct-preference-optimization.pdf) | 4 |
 | Shao et al. 2024 — DeepSeekMath (GRPO) | https://arxiv.org/abs/2402.03300 | 5 |
+| Xu et al. 2024 — Is DPO Superior to PPO? (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2404.10719 | 4 |
 
 (FareedKhan-dev/train-llm-from-scratch: link trong README — đọc `src/post_training/` để thấy cả 5 stage bằng PyTorch thuần.)
 

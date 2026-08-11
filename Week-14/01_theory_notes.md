@@ -66,6 +66,7 @@ Gold set mini (~10 entities, ~10 relations từ 2 tài liệu, gán tay): `preci
 | Graph Engineering Playbook | [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf) | 2, 3, 4, 5 |
 | Karpathy-Loop PDF | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 1 |
 | NetworkX (cài local, nx 3.6.1 — demo kiểm chứng 2026-08-11) | https://networkx.org/documentation/stable/ | 2, 4 |
+| Edge et al. 2024 — GraphRAG: Local to Global (Microsoft; CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2404.16130 — PDF local: [`../docs/papers/2404.16130_graphrag-local-to-global.pdf`](../docs/papers/2404.16130_graphrag-local-to-global.pdf) | đọc thêm sau mục 2 — mở rộng querying từ subgraph k-hop sang câu hỏi tổng hợp toàn corpus (community summarization) |
 
 (Anthropic Knowledge Graph Construction Cookbook: link trong README nguồn học.)
 

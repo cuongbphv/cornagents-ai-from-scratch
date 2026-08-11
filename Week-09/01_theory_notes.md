@@ -47,6 +47,8 @@ Fine-tune lệch về một thứ tiếng có thể làm suy giảm khả năng 
 
 Bộ 10 prompt này giữ cố định vĩnh viễn — nó là "bài kiểm tra sức khỏe song ngữ" cho mọi model sau này của dự án.
 
+Bài kiểm tra này có chỗ dựa từ paper chứ không phải lo xa: Biderman et al. 2024 (PDF trong repo: [`../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf`](../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf)) đo được full fine-tuning quên kiến thức ngoài domain đích nhiều hơn hẳn LoRA — tức là mức quên **phụ thuộc cách bạn fine-tune**, và chỉ có đo mới biết mình đang ở đâu trên trade-off đó. LoRA của MLX ở mục 2 nằm ở phía "quên ít" của phổ này, nhưng số của máy bạn vẫn phải tự đo.
+
 ## 6. Tiếng Việt trong tuần này
 
 - Mục 5 chính là nội dung tiếng Việt trọng tâm của tuần: **giữ được song ngữ sau fine-tune là một deliverable đo được**, không phải cảm nhận.
@@ -58,6 +60,7 @@ Bộ 10 prompt này giữ cố định vĩnh viễn — nó là "bài kiểm tra
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
 | ml-explore/mlx-lm (MIT, có LORA.md) | https://github.com/ml-explore/mlx-lm | 2 |
+| Biderman et al. 2024 — LoRA Learns Less and Forgets Less (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.09673 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 5 |
 
 (Ollama, LM Studio, llama.cpp/GGUF: link trong README nguồn học — công cụ cài trên máy, tự xác minh version lúc cài. Các con số tốc độ trong tuần này do BẠN đo, không có số tham khảo nào đáng tin hơn máy của chính bạn.)
 
