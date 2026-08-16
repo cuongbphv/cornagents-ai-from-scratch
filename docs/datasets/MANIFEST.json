@@ -1,0 +1,172 @@
+[
+  {
+    "id": "HuggingFaceFW/fineweb-edu",
+    "license": "odc-by",
+    "week": "5",
+    "purpose": "pretrain_cloud",
+    "status": "on_D",
+    "path": "D:\\AI\\datasets\\w05_pretrain\\fineweb-edu",
+    "bytes": 28519244996,
+    "note": "ODC-By chấp nhận 2026-08-16. sample-10BT 28.52 GB ở D:\\AI\\datasets\\w05_pretrain\\fineweb-edu. Không kéo default ~6 TB.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "gbharti/finance-alpaca",
+    "license": "mit",
+    "week": "8",
+    "purpose": "finetune_en_instruction",
+    "status": "skipped",
+    "note": "Card HF ghi kết hợp Stanford Alpaca + cặp sinh GPT-3.5. CLAUDE.md cấm data sinh từ model đóng.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "Josephgflowers/Finance-Instruct-500k",
+    "license": "apache-2.0",
+    "week": "8",
+    "purpose": "finetune_en_instruction",
+    "status": "skipped",
+    "note": "Card tự nhận nhiễu/PII tổng hợp; usedStorage ~2 GB. Không kéo thô.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "TeraflopAI/SEC-EDGAR",
+    "license": "apache-2.0",
+    "week": "10",
+    "purpose": "rag_pretrain_corpus",
+    "status": "skipped",
+    "note": "590 GB — ngoài phạm vi máy học. Pointer trong datasets_finance_banking.md.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "eloukas/edgar-corpus",
+    "license": "apache-2.0",
+    "week": "10",
+    "purpose": "rag_pretrain_corpus",
+    "status": "skipped",
+    "note": "40.7 GB — không kéo. Dùng corpus NHNN đã lọc cho RAG.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "undertheseanlp/UTS2017_Bank",
+    "license": "apache-2.0",
+    "week": "8",
+    "purpose": "finetune_vi_classification",
+    "status": "ok",
+    "rows": 7413,
+    "path": "docs\\datasets\\finetune_vi\\UTS2017_Bank",
+    "note": "7413 dòng, 3 config × train/test",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "duyet/vietnamese-legal-instruct",
+    "license": "cc-by-4.0",
+    "week": "8",
+    "purpose": "finetune_vi_instruction",
+    "status": "ok_sample",
+    "rows": 4500,
+    "path": "docs\\datasets\\finetune_vi",
+    "note": "sample 4000 train + 500 test (full repo ~5.9 GB, không kéo hết)",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "Sujet-AI/Sujet-Finance-Instruct-177k",
+    "license": "apache-2.0",
+    "week": "8",
+    "purpose": "finetune_en_instruction",
+    "status": "ok",
+    "rows": 177597,
+    "path": "docs\\datasets\\finetune_en\\sujet-finance-instruct-177k",
+    "note": "177597 dòng — lựa chọn mặc định Tuần 8",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "flwrlabs/fingpt-sentiment-train",
+    "license": "mit",
+    "week": "8",
+    "purpose": "finetune_en_sentiment",
+    "status": "ok",
+    "rows": 76772,
+    "path": "docs\\datasets\\finetune_en\\fingpt-sentiment-train.jsonl",
+    "note": "76772 dòng instruction/input/output",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "kiethuynhanh/vnpdf-financial-reports-dataset",
+    "license": "mit",
+    "week": "10",
+    "purpose": "ocr_pipeline_test",
+    "status": "ok",
+    "rows": 401,
+    "path": "docs\\datasets\\ocr_test\\vnpdf-financial-reports.text.jsonl",
+    "note": "401 trang, chỉ text (bỏ image để tiết kiệm đĩa)",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "kensho/bizbench",
+    "license": "apache-2.0",
+    "week": "8,15",
+    "purpose": "held_out_eval",
+    "status": "ok",
+    "rows": 19050,
+    "path": "docs\\datasets\\eval\\bizbench",
+    "note": "19050 dòng — giữ nguyên, không đưa vào train",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "th1nhng0/vietnamese-legal-documents",
+    "license": "cc-by-4.0",
+    "week": "10,14",
+    "purpose": "rag_kg_nhnn",
+    "status": "ok_sample",
+    "rows": 400,
+    "path": "docs\\datasets\\rag_kg\\vietnamese-legal-documents",
+    "note": "filter NHNN: 2561 metadata; kéo content 400/400; relationships 3665. Full content.parquet ~785 MB download — không kéo hết.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "YuITC/Vietnamese-Legal-Documents",
+    "license": "mit",
+    "week": "11",
+    "purpose": "retrieval_eval",
+    "status": "ok",
+    "rows": 119007,
+    "path": "docs\\datasets\\eval\\YuITC-Vietnamese-Legal-Documents",
+    "note": "queries 119007 (train+test) kèm context_list. Bỏ corpus.parquet để tiết kiệm đĩa.",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "gutenberg:11",
+    "license": "public-domain",
+    "week": "5",
+    "purpose": "pretrain_local_smoke",
+    "status": "ok",
+    "rows": 1,
+    "path": "docs\\datasets\\w05_pretrain\\gutenberg_11_alice_in_wonderland.txt",
+    "note": "Alice in Wonderland — text public domain, validate loop Tuần 5",
+    "source_url": "https://www.gutenberg.org/files/11/11-0.txt",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "PolyAI/banking77",
+    "license": "cc-by-4.0",
+    "week": "8,13",
+    "purpose": "intent_routing",
+    "status": "ok",
+    "rows": 13083,
+    "path": "docs\\datasets\\finetune_en\\banking77",
+    "note": "13083 câu từ GitHub PolyAI (HF script dataset không còn chạy)",
+    "checked_on": "2026-08-16"
+  },
+  {
+    "id": "cfpb-vi-en-glossary",
+    "license": "us-federal-work-unverified-terms",
+    "week": "8,9",
+    "purpose": "bilingual_terminology",
+    "status": "pointer_only",
+    "rows": 1,
+    "path": "docs\\datasets\\glossary\\SOURCE.txt",
+    "note": "HTTP 403 từ files.consumerfinance.gov — để URL trong SOURCE.txt",
+    "source_url": "https://files.consumerfinance.gov/f/documents/cfpb_adult-fin-ed_vietnamese-style-guide-glossary.pdf",
+    "checked_on": "2026-08-16"
+  }
+]

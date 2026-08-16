@@ -31,3 +31,12 @@ fused_model/
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Tài liệu bảo mật
+docs/exercises/
+
+# Dataset nặng (kéo local bằng scripts/download_datasets.py)
+docs/datasets/*
+!docs/datasets/README.md
+!docs/datasets/MANIFEST.json
+!docs/datasets/LARGE_ROOT.txt

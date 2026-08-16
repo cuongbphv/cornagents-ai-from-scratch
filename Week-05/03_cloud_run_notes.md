@@ -17,7 +17,7 @@
 
 - [ ] Tạo pod, chọn template PyTorch CUDA
 - [ ] `git clone` repo của bạn + push code Tuần 4–5 lên (hoặc scp)
-- [ ] Tải dataset: FineWeb-Edu sample (HF `datasets`) hoặc shard nhỏ
+- [ ] Tải dataset: FineWeb-Edu `sample-10BT` đã có local tại `D:\AI\datasets\w05_pretrain\fineweb-edu` (ODC-By, kéo 2026-08-16). Copy lên pod hoặc `load_dataset(..., cache_dir=...)`.
 - [ ] Cấu hình: seq 1024, micro-batch theo VRAM, grad accum để đạt ~524,288 token/update
 - [ ] Chạy **smoke test 50–100 step** → xác nhận loss giảm + không OOM
 - [ ] Bật checkpointing (lưu định kỳ phòng pod bị kill)

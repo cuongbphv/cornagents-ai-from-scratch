@@ -10,7 +10,7 @@ window.PHASES = [
 
 window.WEEKS_DATA = [
  {
-  n:1, phase:1, title:"Toán nền tảng + PyTorch", dur:"~10–12 giờ", hw:"RTX 3070 Ti / Mac MPS",
+  n:1, phase:1, title:"Toán nền tảng + PyTorch", dur:"~10–12 giờ (+3–6 giờ cầu nối nếu quên toán)", hw:"RTX 3070 Ti / Mac MPS",
   obj:["Ôn linear algebra: nhân ma trận, dot product, shape/broadcasting","Ôn calculus: gradient, chain rule (nền của backprop)","Ôn probability: softmax, cross-entropy","Thành thạo PyTorch: tensor, autograd, nn.Module, optimizer","Xác nhận GPU (torch.cuda.is_available()) / Mac MPS"],
   src:["<b>PyTorch tutorials</b> — Learn the Basics / 60 Minute Blitz","<b>PyTorch docs</b> — Tensor, autograd, nn.Module"],
   deliver:"Notebook/script train MLP trên toy dataset (<code>05_train_mlp.py</code>) + <b>math cheat sheet 1 trang</b> tự viết (<code>03_math_cheat_sheet.md</code>).",
@@ -24,7 +24,7 @@ window.WEEKS_DATA = [
    <h5>Softmax & cross-entropy</h5>
    <div class="formula">\\( \\text{softmax}(z)_i=\\dfrac{e^{z_i}}{\\sum_j e^{z_j}}, \\quad L_{CE}=-\\sum_i y_i\\log\\hat{y}_i \\)</div>
    <div class="tagrow"><span class="kt">tensor</span><span class="kt">autograd</span><span class="kt">broadcasting</span><span class="kt">softmax</span><span class="kt">cross-entropy</span></div>`,
-  check:["Ôn linear algebra (matrix multiply, dot product) + chain rule","Làm PyTorch tutorial Learn the Basics","Đọc docs autograd + nn.Module","Chạy 01_check_gpu.py → xác nhận CUDA/MPS","Đọc 02_theory_notes.md — chạy lại được mọi snippet","Tự code lại 05_train_mlp.py (KHÔNG copy)","MLP train được, loss giảm, accuracy hợp lý","Hoàn thành 03_math_cheat_sheet.md bằng lời mình","Tự kiểm tra: giải thích softmax + cross-entropy + chain rule cho Claude"]
+  check:["(Nếu quên toán) Làm 00_math_bridge.md + 00_math_bridge_practice.py — qua cổng trước khi đọc lý thuyết","Ôn linear algebra (matrix multiply, dot product) + chain rule","Làm PyTorch tutorial Learn the Basics","Đọc docs autograd + nn.Module","Chạy 01_check_gpu.py → xác nhận CUDA/MPS","Đọc 02_theory_notes.md — chạy lại được mọi snippet","Tự code lại 05_train_mlp.py (KHÔNG copy)","MLP train được, loss giảm, accuracy hợp lý","Hoàn thành 03_math_cheat_sheet.md bằng lời mình","Tự kiểm tra: giải thích softmax + cross-entropy + chain rule cho Claude"]
  },
  {
   n:2, phase:1, title:"Backprop từ đầu + mental model Transformer", dur:"~12–15 giờ", hw:"3070 Ti / Mac (workload nhẹ)",

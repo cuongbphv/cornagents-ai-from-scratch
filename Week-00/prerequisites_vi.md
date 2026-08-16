@@ -16,7 +16,7 @@
 | Mảng nền | Cần cho | Mức |
 |---|---|---|
 | Python (hàm, class, list/dict comprehension, virtualenv/pip) | Mọi tuần | **Bắt buộc** |
-| Đại số tuyến tính + đạo hàm cơ bản (ma trận, dot product, chain rule) | Tuần 1–3 | **Bắt buộc** (Tuần 1 có ôn lại) |
+| Đại số tuyến tính + đạo hàm cơ bản (ma trận, dot product, chain rule) | Tuần 1–3 | **Bắt buộc** (Tuần 1 ôn lại; quên toán → [`Week-01/00_math_bridge.md`](../Week-01/00_math_bridge.md)) |
 | Cấu trúc dữ liệu & giải thuật (big-O, hash map, heap, graph traversal, DP) | Xuyên suốt (attention O(n²), BPE merge, beam search, KV cache) | **Bắt buộc** ở mức big-O + hash map; phần còn lại Cần trước Tuần 3 |
 | Machine learning cơ bản (train/val/test, overfitting, loss, metrics) | Tuần 5–8 (pretrain, fine-tune, eval) | Cần trước Tuần 5 |
 | Data science (NumPy, pandas: load/clean/transform dữ liệu) | Tuần 6, 8, 10 (chuẩn bị dataset, corpus RAG) | Cần trước Tuần 6 |
@@ -108,7 +108,7 @@ Mức đủ dùng: nhận ra và gọi tên pattern khi gặp trong code agent f
 - [ ] Dùng dict/set Python đúng chỗ (tra cứu O(1) thay vì quét list)
 - [ ] git: clone, tạo branch, commit, push; shell: chạy script, kích hoạt virtualenv
 
-Hụt ô nào → mở đúng nguồn của mảng đó ở §3, học bù phần đó thôi rồi bắt đầu Tuần 1. Các mảng "Cần trước Tuần X" học bù sát tuần đó; các mảng "Awareness" đọc lướt khi tới tuần liên quan.
+Hụt ô toán (matmul tay, chain rule) hoặc nhìn Σ / `eˣ` / `ln` không quen → làm [`../Week-01/00_math_bridge.md`](../Week-01/00_math_bridge.md) **trước** `02_theory_notes.md`, đừng nhảy sang d2l ngay. Hụt ô Python/git/DSA → mở đúng nguồn của mảng đó ở §3, học bù phần đó thôi rồi bắt đầu Tuần 1. Các mảng "Cần trước Tuần X" học bù sát tuần đó; các mảng "Awareness" đọc lướt khi tới tuần liên quan.
 
 ## 5. Bảng nguồn tổng hợp (license xác minh ngày 2026-08-12)
 

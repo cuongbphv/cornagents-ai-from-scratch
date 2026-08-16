@@ -18,7 +18,8 @@
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_check_gpu.py`](01_check_gpu.py) — xác nhận môi trường trước tiên (5 phút).
+0. [`00_math_bridge.md`](00_math_bridge.md) + [`00_math_bridge_practice.py`](00_math_bridge_practice.py) — cầu nối cho người quên toán / web dev (3–6 giờ). **Nhảy** nếu checklist toán ở [`../Week-00/prerequisites_vi.md`](../Week-00/prerequisites_vi.md) §4 làm được không cần tra. Chưa qua cổng cuối file 00 thì **chưa** mở `02_theory_notes.md`.
+1. [`01_check_gpu.py`](01_check_gpu.py) — xác nhận môi trường (5 phút).
 2. [`02_theory_notes.md`](02_theory_notes.md) — đọc lý thuyết, chạy lại từng snippet, song song với PyTorch tutorial.
 3. [`03_math_cheat_sheet.md`](03_math_cheat_sheet.md) — TỰ viết lại cheat sheet bằng lời mình (deliverable).
 4. [`04_math_practice.py`](04_math_practice.py) — luyện tương tác: đoán trước, chạy sau.
@@ -37,7 +38,7 @@ Tự tay code lại một **MLP nhỏ** + training loop trong PyTorch từ đầ
 
 ## Thời lượng
 
-~10–12 giờ.
+~10–12 giờ. Thêm **3–6 giờ** nếu làm cầu nối `00_math_bridge.md` (người quên toán / web dev: dự trù khoảng 15–20 giờ cả tuần).
 
 ## Phần cứng
 
@@ -47,6 +48,7 @@ RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
 
 ## Checklist tiến độ
 
+- [ ] (Nếu quên toán / web dev) Làm `00_math_bridge.md` + `00_math_bridge_practice.py` — qua cổng cuối file trước khi đọc lý thuyết
 - [ ] Ôn linear algebra (matrix multiply, dot product) + calculus (chain rule) — tự viết lại bằng ví dụ nhỏ
 - [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
 - [ ] Đọc docs autograd + `nn.Module` của PyTorch
@@ -80,6 +82,8 @@ Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong 
 | # | File | Mô tả |
 |---|------|-------|
 | — | `README.md` | File này — mục tiêu, nguồn, checklist |
+| 0 | `00_math_bridge.md` | Cầu nối: ký hiệu, log/exp, tính tay (không thêm chủ đề) |
+| 0 | `00_math_bridge_practice.py` | Luyện 11 câu, stdlib — không cần PyTorch |
 | 1 | `01_check_gpu.py` | Kiểm tra CUDA/MPS, in thông tin device + VRAM |
 | 2 | `02_theory_notes.md` | Lý thuyết tự chứa của tuần: linear algebra, calculus, softmax/CE, PyTorch core |
 | 3 | `03_math_cheat_sheet.md` | Cheat sheet toán cho LLM (tự bổ sung bằng lời mình) |

@@ -1,10 +1,12 @@
 # Nguồn dữ liệu cho CornAgents.AI — Finance Banking, song ngữ VI/EN
 
-> **Tuyên bố:** đây là tài liệu của một **dự án học thuật, nghiên cứu, không thương mại hóa**. Danh sách dưới đây **chỉ gồm dataset/model có license mở đã xác minh** (CC BY / CC0 / MIT / Apache 2.0 / BSD) hoặc nguồn chính phủ. Mọi nguồn thương mại, sau paywall, license non-commercial / research-only / cấm train / cấm distill / cấm redistribute / không xác minh được **đã bị loại khỏi tài liệu này** theo chính sách trong [CLAUDE.md](../CLAUDE.md).
+> **Tuyên bố:** đây là tài liệu của một **dự án học thuật, nghiên cứu, không thương mại hóa**. Danh sách dưới đây **chỉ gồm dataset/model có license mở đã xác minh** (CC BY / CC0 / MIT / Apache 2.0 / BSD / ODC-By) hoặc nguồn chính phủ. Mọi nguồn thương mại, sau paywall, license non-commercial / research-only / cấm train / cấm distill / cấm redistribute / không xác minh được **đã bị loại khỏi tài liệu này** theo chính sách trong [CLAUDE.md](../CLAUDE.md).
 >
 > **Tài liệu này neo vào:** Tuần 8 (QLoRA — dataset fine-tune), Tuần 10–11 (RAG — corpus quy định), Tuần 14 (Knowledge Graph — nguồn tài liệu để extract). Xem [`advanced_topics_vi.md`](advanced_topics_vi.md) mục 🧭 để biết cơ chế neo.
 >
 > **Ngày tra cứu: 2026-08-11.** Mọi dòng có URL đã được fetch và xác nhận truy cập được tại thời điểm đó. Dataset card trên HuggingFace thay đổi liên tục: **kiểm tra lại license trước khi đưa vào pipeline.**
+>
+> **Bản local:** bộ vừa sức ở [`docs/datasets/`](../docs/datasets/) (`python scripts/download_datasets.py`). Bản đầy đủ các bộ lớn ở `D:\AI\datasets` (`python scripts/download_large_datasets.py`). FineWeb-Edu **sample-10BT** (ODC-By, chủ repo chấp nhận 2026-08-16) ở `D:\AI\datasets\w05_pretrain\fineweb-edu`. Bản default FineWeb-Edu (~6 TB) và SEC-EDGAR (~590 GB) không kéo.
 
 ---
 
@@ -91,6 +93,7 @@ Nguyên tắc: giữ một phần dữ liệu license mở làm **held-out eval*
 
 | Nguồn | URL | Quy mô | License | Ghi chú |
 |---|---|---|---|---|
+| **FineWeb-Edu** (HuggingFaceFW) | https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu | sample-10BT ~28.5 GB parquet (HF tree, kiểm 2026-08-16); default ~6 TB | **ODC-By** (chấp nhận 2026-08-16) | Corpus pretrain cloud Tuần 5. Chỉ kéo `sample-10BT` — khớp token budget GPT-2-small 10B token (llm.c #481). Ghi nguồn theo ODC-By. |
 | SEC-EDGAR (TeraflopAI) | https://huggingface.co/datasets/TeraflopAI/SEC-EDGAR | 590 GB, ~8,05M filing, 43,7B token | **Apache 2.0** | Corpus tài chính mở lớn nhất đã xác minh. Là **nguồn RAG / pretrain**, không phải instruction data. |
 | edgar-corpus (eloukas) | https://huggingface.co/datasets/eloukas/edgar-corpus | 40,7 GB, 1993–2020, chỉ 10-K, đã tách mục | **Apache 2.0** | Sạch hơn, có cấu trúc mục — dễ chunk cho RAG. |
 
@@ -125,6 +128,7 @@ Lưu ý phân biệt: **text gốc của văn bản pháp luật** (thuộc di�
 | finance-alpaca, FinGPT, PIXIU, ConvFinQA | MIT |
 | BANKING77, TAT-QA, MTet | CC BY 4.0 |
 | SEC-EDGAR, edgar-corpus, BizBench | Apache 2.0 |
+| HuggingFaceFW/fineweb-edu (sample-10BT) | ODC-By (xác minh card HF + chấp nhận 2026-08-16) |
 
 ---
 

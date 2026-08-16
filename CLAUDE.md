@@ -34,7 +34,7 @@
 - Paper truy cập mở: arXiv, ACL Anthology, trang xuất bản học thuật mở.
 - Tài liệu chính thức, truy cập tự do của công cụ đang dùng (PyTorch, Hugging Face, LangChain, LlamaIndex, Anthropic/Claude, NetworkX, MLX, Ollama...).
 - Nguồn chính phủ / cơ quan công quyền (ví dụ vbpl.vn — CSDL quốc gia về văn bản pháp luật).
-- Dataset/model có license mở **đã xác minh tại thời điểm dùng**: CC BY, CC0, MIT, Apache 2.0, BSD.
+- Dataset/model có license mở **đã xác minh tại thời điểm dùng**: CC BY, CC0, MIT, Apache 2.0, BSD, ODC-By.
 
 **CẤM đưa vào repo (đã gỡ bỏ, không thêm lại):**
 - Sách, khóa học, nền tảng thương mại; nội dung sau paywall; aggregator trả phí.
@@ -43,7 +43,9 @@
 - Nguồn cấm train / cấm chưng cất (distillation) / cấm khai thác văn bản-dữ liệu.
 - Blog, video, tài liệu cá nhân không có license rõ ràng — không dùng làm nguồn trích dẫn trong tài liệu của repo.
 
-**Ngoại lệ duy nhất (quyết định 2026-08-16):** được phép liệt kê **khóa học thương mại dưới dạng recommendation cá nhân** (tên khóa, giảng viên, link, metadata công khai) trong `Week-00/courses_linkedin_learning_vi.md` — vì chủ repo tự học bằng tài khoản của mình. **Vẫn cấm tuyệt đối**: dẫn lại nội dung bài giảng, transcript, slide, bài tập của khóa học vào repo, hoặc dùng khóa học làm nguồn trích dẫn (citation) trong theory notes/quiz.
+**Ngoại lệ duy nhất cho khóa học thương mại (quyết định 2026-08-16):** được phép liệt kê **khóa học thương mại dưới dạng recommendation cá nhân** (tên khóa, giảng viên, link, metadata công khai) trong `Week-00/courses_linkedin_learning_vi.md` — vì chủ repo tự học bằng tài khoản của mình. **Vẫn cấm tuyệt đối**: dẫn lại nội dung bài giảng, transcript, slide, bài tập của khóa học vào repo, hoặc dùng khóa học làm nguồn trích dẫn (citation) trong theory notes/quiz.
+
+**ODC-By (quyết định 2026-08-16):** chủ repo chấp nhận **Open Data Commons Attribution License (ODC-By) v1.0** — license mở cho database, yêu cầu ghi nguồn, văn bản cho phép commercial use (https://opendatacommons.org/licenses/by/1-0/). Lần dùng đầu: `HuggingFaceFW/fineweb-edu` config `sample-10BT` trên `D:\AI\datasets`. Không kéo bản default (~6 TB). Khi phân phối dataset hoặc produced work, giữ notice ghi nguồn theo mục 4 của ODC-By.
 
 **Dữ liệu nội bộ ngân hàng / dữ liệu cá nhân:** không bao giờ đưa vào repo, vào dataset, hay vào prompt. Dự án chỉ dùng dữ liệu công khai license mở.
 
