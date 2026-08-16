@@ -21,7 +21,7 @@ Aligned model
 - **Dữ liệu**: cặp (prompt → phản hồi tốt). Vd: Alpaca, Dolly.
 - **Mục tiêu học**: ______ (gợi ý: cross-entropy next-token trên phần response).
 - **Ưu/nhược**: ______
-- TODO: SFT khác instruction fine-tuning ở Tuần 6 (ch.7) thế nào? ______
+- TODO: SFT khác instruction fine-tuning ở Tuần 6 thế nào? ______
 
 ## 2. Reward Model (RM)
 

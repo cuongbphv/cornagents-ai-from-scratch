@@ -15,6 +15,9 @@
 - [G. Alignment & Reasoning đầy đủ](#g-alignment--reasoning-đầy-đủ)
 - [H. Evaluation đúng cách](#h-evaluation-đúng-cách)
 - [I. Agentic & Graph Engineering nâng cao (Phase 3)](#i-agentic--graph-engineering-nâng-cao)
+- [J. Inference serving production: vLLM & PagedAttention](#j-inference-serving-production-vllm--pagedattention)
+- [K. Test-time compute & reasoning models](#k-test-time-compute--reasoning-models)
+- [L. Multimodal / VLM tổng quan (đọc thêm)](#l-multimodal--vlm-tổng-quan)
 
 ---
 
@@ -30,17 +33,18 @@
 | **4** — Lắp ráp GPT | **A7**, **B1**, **B2** | Vừa sinh text xong → hiểu KV cache & sampling ngay trên code của mình. |
 | **5** — Pretraining | **D**, **D1–D2**, **F**, **H** (bpb/CORE) | Bạn đang chạy train thật: đây là lúc các "intervention" có nghĩa. |
 | **6** — Instruction fine-tuning | **G** (chỉ sơ đồ pipeline) | Để định vị: instruction FT của bạn ≈ bước SFT trong pipeline lớn. |
-| **7** — Alignment | **G** (đầy đủ) | Đây *là* tuần alignment. |
+| **7** — Alignment | **G** (đầy đủ), **K** | Đây *là* tuần alignment; K là mặt inference-side của cùng bài toán reasoning (GRPO/RLVR là mặt training-side). |
 | **8** — QLoRA | **B4**, **H** | Bạn bật cờ 4-bit → hiểu NF4/GPTQ/AWQ bên dưới; và cách eval base vs fine-tuned. |
-| **9** — Mac/MLX + local inference | **B1**, **B3**, **B4** (GGUF) | Serving thật: KV cache là nút thắt VRAM, GGUF là định dạng bạn load. |
+| **9** — Mac/MLX + local inference | **B1**, **B3**, **B4** (GGUF), **J** | Serving thật: KV cache là nút thắt VRAM, GGUF là định dạng bạn load; J cho thấy serving nhiều user khác single-user thế nào. |
 | **10** — RAG pipeline | **B2** | Temperature/top-p quyết định câu trả lời RAG có bịa hay không. |
 | **11** — Advanced RAG + RAGAS | **H** (đầy đủ) | Bạn đang đo chất lượng → cần biết cạm bẫy LLM-as-judge trước khi tin số. |
 | **12** — Nền tảng agentic | **I1**, **I2** | 5 tầng engineering + ratchet loop là chính nội dung tuần này. |
 | **13** — Agent graph SDLC | **I2**, **I3** | Chọn pattern nào, khi nào tách vai, chi phí bao nhiêu. |
 | **14** — Graph Engineering | **I3**, **I4** | Scale/storage/monitoring của KG pipeline bạn vừa build. |
 | **15** — Capstone | **H**, **I4**, **I5** | Eval + complexity budget + production checklist trước khi "ship". |
+| **Đọc thêm** (không neo tuần) | **L** | Multimodal/VLM nằm ngoài phạm vi hands-on của lộ trình — đọc khi tò mò, chỉ ở mức khái niệm. |
 
-> **Quy ước:** mục **A–H** là chiều sâu cho Phase 1–2 (model internals). Mục **I** là chiều sâu cho Phase 3 (agentic/graph), lấy từ hai PDF trong [`../docs/`](../docs/).
+> **Quy ước:** mục **A–H** là chiều sâu cho Phase 1–2 (model internals). Mục **I** là chiều sâu cho Phase 3 (agentic/graph), lấy từ hai PDF trong [`../docs/`](../docs/). Mục **J–L** là phần mở rộng thêm sau: serving production (J), test-time compute (K), multimodal (L).
 
 ---
 
@@ -327,10 +331,76 @@ Khi câu đó **đúng** — loop, swarm, DAG, KG là các cơ chế engineering
 
 ---
 
+## J. Inference serving production: vLLM & PagedAttention
+
+> **Học ở tuần:** 9 (sau khi đã chạy local inference với Ollama/MLX). Nguồn: paper vLLM — Kwon et al. 2023, *Efficient Memory Management for Large Language Model Serving with PagedAttention* (arXiv [2309.06180](https://arxiv.org/abs/2309.06180), abstract tra 2026-08-16); README chính thức của [vllm-project/vllm](https://github.com/vllm-project/vllm) (Apache 2.0, tra 2026-08-16).
+
+**Vì sao cần:** Tuần 9 bạn serve model cho *một* người dùng (chính bạn). Serving production là bài toán khác hẳn: nhiều request đồng thời, GPU đắt phải chạy đầy tải. Hai kỹ thuật của vLLM dưới đây là câu trả lời chuẩn ngành cho bài đó — và cả hai đều xoay quanh đúng cái KV cache bạn đã hiểu ở B1.
+
+### J1. PagedAttention — KV cache phân trang như virtual memory
+
+Vấn đề: cách cấp phát KV cache "ngây thơ" là dành sẵn **một khối bộ nhớ liền mạch** cho độ dài tối đa của mỗi request → lãng phí lớn vì (a) request thường ngắn hơn nhiều mức tối đa, (b) phân mảnh giữa các request. Paper vLLM lấy cảm hứng từ **bộ nhớ ảo của hệ điều hành**: cắt KV cache thành các **block cố định**, cấp phát block khi cần, và một bảng ánh xạ logical→physical cho phép các block của một chuỗi nằm rải rác. Theo abstract (tra 2026-08-16), cách này giảm lãng phí KV cache và tăng throughput **2–4×** so với các hệ serving cùng thời ở cùng mức latency.
+
+⚠️ **Đừng nhầm với "paged optimizers" của QLoRA (Tuần 8)** — trùng chữ "paged" nhưng khác hoàn toàn: paged optimizers (Dettmers et al., arXiv [2305.14314](https://arxiv.org/abs/2305.14314), abstract tra 2026-08-16) chuyển **optimizer state** qua lại giữa GPU và CPU RAM để "manage memory spikes" khi *training*; PagedAttention phân trang **KV cache** ngay trong VRAM khi *inference/serving*. Một cái là training-side, một cái là serving-side.
+
+### J2. Continuous batching — throughput vs latency
+
+Batching tĩnh: gom N request thành một batch, chạy đến khi **cả batch** xong mới nhận request mới → request ngắn phải chờ request dài, GPU rảnh rỗi vô ích. **Continuous batching** (README vLLM: "continuous batching of incoming requests", tra 2026-08-16): ở *mỗi bước decode*, request nào xong thì rời batch, request mới vào ngay chỗ trống → GPU luôn đầy. Trade-off cần nắm: continuous batching tối ưu **throughput** (token/giây toàn hệ thống); latency của *từng* request có thể tăng nhẹ vì chia sẻ GPU với nhiều request khác — chọn cấu hình theo việc bạn ưu tiên cái nào.
+
+### J3. So với Ollama / LM Studio
+
+Ollama/LM Studio (backend llama.cpp) tối ưu cho **single-user local**: load GGUF, một request một lúc, chạy được trên CPU/GPU consumer — đúng cái bạn cần ở Tuần 9. vLLM tối ưu cho **multi-user trên GPU server**: PagedAttention + continuous batching chỉ phát huy khi có nhiều request đồng thời. [Suy luận] Với lộ trình này bạn không cần dựng vLLM thật; cái cần mang theo là *mental model*: khi ai đó nói "serve model cho cả team", bạn biết bài toán đổi từ "VRAM có đủ không" (B1) sang "GPU có chạy đầy tải không" (J2) và "KV cache có lãng phí không" (J1).
+
+---
+
+## K. Test-time compute & reasoning models
+
+> **Học ở tuần:** 7 (ngay sau G — GRPO/RLVR). Nguồn: self-consistency — Wang et al. 2022 (arXiv [2203.11171](https://arxiv.org/abs/2203.11171)); s1 — Muennighoff et al. 2025 (arXiv [2501.19393](https://arxiv.org/abs/2501.19393)); DeepSeek-R1 (arXiv [2501.12948](https://arxiv.org/abs/2501.12948) — đã có trong [`../docs/papers/README.md`](../docs/papers/README.md), neo Tuần 7). Tất cả abstract tra 2026-08-16.
+
+**Vì sao cần:** Tuần 7 dạy trục *training-side* — đổ compute vào lúc huấn luyện (RM/DPO/GRPO) để model tốt hơn. Trục thứ hai, bùng nổ từ 2024–2025, là *inference-side*: **chi thêm compute lúc suy luận** cho cùng một model để ra đáp án tốt hơn. Hai trục bổ sung nhau, và reasoning models là chỗ chúng gặp nhau.
+
+### K1. CoT sampling + self-consistency
+
+Thay vì decode greedy một chuỗi suy luận (chain-of-thought), **sample nhiều chuỗi suy luận** (temperature > 0) rồi **vote đáp án cuối** — abstract của Wang et al.: "samples a diverse set of reasoning paths instead of only taking the greedy one, and then selects the most consistent answer". Điều kiện áp dụng: đáp án cuối phải **so sánh được bằng máy** (con số, đáp án trắc nghiệm) — cùng họ điều kiện với RLVR.
+
+### K2. Best-of-N + verifier
+
+Sinh N câu trả lời, cho một **verifier** chấm, giữ câu điểm cao nhất. Verifier có thể là Reward Model (đúng RM bạn học ở G/Tuần 7 — dùng ở inference thay vì training) hoặc verifier tất định (chạy test, so đáp số). So với K1: self-consistency vote theo *đa số*, best-of-N tin *một giám khảo*.
+
+### K3. Budget forcing (s1)
+
+Kiểm soát trực tiếp lượng "thinking" của reasoning model: abstract s1 mô tả "budget forcing to control test-time compute by forcefully terminating the model's thinking process or lengthening it" — tức là cắt sớm hoặc ép nghĩ thêm, và abstract báo cáo cách này giúp model 32B của họ vượt o1-preview trên benchmark toán thi đấu (tra 2026-08-16). Ý nghĩa: test-time compute là một **trục scale điều khiển được**, không phải hộp đen.
+
+### K4. DeepSeek-R1 — nơi hai trục gặp nhau
+
+Abstract R1: khả năng reasoning "can be incentivized through pure reinforcement learning (RL), obviating the need for human-labeled reasoning trajectories" — chính là GRPO/RLVR của G chạy ở quy mô thật. Cách nhìn gọn: **RLVR (training-side) huấn luyện model tự sinh chuỗi suy luận dài — tức là "nội hoá" test-time compute vào model**, thay vì scaffold bên ngoài như K1–K2. Sau R1, hai trục không còn tách rời: train để model *biết* nghĩ dài, rồi điều tiết *nghĩ bao lâu* bằng budget (K3).
+
+---
+
+## L. Multimodal / VLM tổng quan
+
+> **Học ở tuần:** không neo tuần — **đọc thêm, ngoài phạm vi hands-on của lộ trình** (lộ trình này thuần text). Nguồn: CLIP — Radford et al. 2021 (arXiv [2103.00020](https://arxiv.org/abs/2103.00020)); LLaVA — Liu et al. 2023 (arXiv [2304.08485](https://arxiv.org/abs/2304.08485)). Abstract tra 2026-08-16.
+
+**Vì sao cần (ở mức khái niệm):** tài liệu ngân hàng thật có bảng scan, con dấu, chữ ký — sớm muộn sẽ có người hỏi "sao không dùng model nhìn được ảnh?". Mục này cho đủ vốn từ để trả lời câu đó, không hơn.
+
+### L1. CLIP — contrastive pretraining
+
+Train **hai encoder** (ảnh và text) sao cho embedding của một ảnh và caption *đúng* của nó gần nhau, còn các cặp *sai* xa nhau (contrastive). Abstract: train trên **400 triệu cặp (ảnh, text)** thu từ internet, và model transfer zero-shot sang nhiều task qua prompt ngôn ngữ tự nhiên (tra 2026-08-16). Điểm cần nhớ: CLIP cho một **không gian embedding chung ảnh–text** — đó là viên gạch nền của hầu hết VLM sau này.
+
+### L2. Kiến trúc VLM phổ biến: vision encoder + projector + LLM
+
+Công thức LLaVA (abstract: "connects a vision encoder and LLM"): lấy **vision encoder** đã train sẵn (thường là phía ảnh của CLIP) → một **projector** (phép chiếu học được) map đặc trưng ảnh thành chuỗi "token thị giác" nằm trong không gian embedding của LLM → LLM đọc chuỗi trộn [token ảnh + token text] như thường. [Suy luận] Cái hay của công thức này là *tái dùng* hai model đã train riêng, chỉ học lớp nối ở giữa — rẻ hơn nhiều so với train multimodal from scratch; đó là lý do nó phổ biến.
+
+### L3. Vì sao OCR pipeline ở prerequisites KHÔNG phải multimodal modeling
+
+OCR pipeline: ảnh → *text* (bước OCR tất định) → model **chỉ thấy text**. VLM: biểu diễn ảnh đi **thẳng vào model**, không qua bước chuyển chữ. Khác biệt hệ quả: OCR làm mất layout/hình/con dấu nhưng đơn giản, debug được từng bước, và mọi thứ downstream (RAG, KG) vẫn là bài text bạn đã học; VLM giữ được thông tin thị giác nhưng kéo theo cả một stack train/eval khác. [Suy luận] Với dự án học thuật 1-GPU-8GB này, OCR-rồi-text là lựa chọn đúng; VLM chỉ đáng cân nhắc khi thông tin *thị giác* (vị trí chữ ký, cấu trúc bảng phức tạp) thật sự quyết định đáp án.
+
+---
+
 ## Tóm tắt ưu tiên (nếu thời gian hẹp)
 
 1. **Bắt buộc**: KV cache (B1), RoPE (A1), RMSNorm/SwiGLU (A2–A3), GQA (A4), gradient accumulation (D), bits-per-byte (H) — đây là khoảng cách lớn nhất giữa "GPT-2 2019" và "LLM bạn dùng hằng ngày". Với Phase 3: 5 tầng engineering (I1) + 4 điều kiện của ratchet loop (I2) + complexity budget (I5).
-2. **Nên có**: MoE (A7), quantization internals (B4), Muon (D1), full alignment pipeline (G), BPE training (E), 5 workflow patterns (I3), blocking + incremental update cho KG (I4).
-3. **Để dành**: MLA (A5), sliding window (A6), speculative decoding (B3), TP/PP/FSDP (F), Dynamic Workflows ở quy mô 1.000 sub-agent (I3) — đào khi cần.
+2. **Nên có**: MoE (A7), quantization internals (B4), Muon (D1), full alignment pipeline (G), BPE training (E), 5 workflow patterns (I3), blocking + incremental update cho KG (I4), PagedAttention + continuous batching (J), test-time compute & reasoning models (K). *(K xếp tier 2 chứ không phải tier 1 vì nó là phần mở rộng của G — hiểu GRPO/RLVR ở tier trên trước đã, K chỉ "thấm" khi đã có G.)*
+3. **Để dành**: MLA (A5), sliding window (A6), speculative decoding (B3), TP/PP/FSDP (F), Dynamic Workflows ở quy mô 1.000 sub-agent (I3), multimodal/VLM (L — ngoài phạm vi hands-on) — đào khi cần.
 
 > **Neo nguồn nhanh:** paper mở (RoPE/GQA/MLA/MoE/FlashAttention — kiến trúc hiện đại) · `nanoGPT/train.py` (training dynamics) + HF Ultra-Scale Playbook (parallelism) · FareedKhan `src/post_training` (alignment) · nanochat `gpt.py`/`engine.py`/`optim.py`/`tok_train.py` (full-stack hiện đại) · [`../docs/`](../docs/) 2 PDF Graph-Engineering + sơ đồ 5 tầng (agentic/graph).

@@ -468,6 +468,32 @@
           ],
           "answer": 1,
           "explain": "Cơ chế học giống nhau (next-token prediction); thứ thay đổi là dữ liệu (template Alpaca-style) và hành vi mà ta muốn model hội tụ về (làm theo instruction thay vì tiếp tục văn bản)."
+        },
+        {
+          "id": "w6q5",
+          "type": "mcq",
+          "q": "Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưng theo paper Instruction Modelling (arXiv 2405.14394, dẫn ở mục 3 theory notes), tính loss CẢ trên phần instruction lại có lợi trong điều kiện nào?",
+          "choices": [
+            "Luôn luôn có lợi, nên bỏ hẳn masking",
+            "Khi dataset có instruction dài kèm output ngắn, hoặc khi có ít mẫu train — nhóm tác giả quy lợi ích cho việc giảm overfitting",
+            "Khi model có trên 7B tham số",
+            "Khi dùng optimizer khác AdamW"
+          ],
+          "answer": 1,
+          "explain": "Theo mục 3 của 01_theory_notes.md: mask chuẩn vẫn là mặc định của bài tuần này; ngoại lệ 'lengthy instructions + brief outputs' và ít mẫu train là nuance từ arXiv 2405.14394 (F.cross_entropy có ignore_index=-100 mặc định nên chỉ cần gán nhãn -100 là mask)."
+        },
+        {
+          "id": "w6q6",
+          "type": "mcq",
+          "q": "LoRA r=16 trên ma trận 4096×4096 chỉ train ~0.78% tham số, nhưng vì sao VRAM khi train giảm còn MẠNH hơn cả tỷ lệ đó?",
+          "choices": [
+            "Vì LoRA tự động quantize base model xuống 4-bit",
+            "Vì AdamW giữ 2 giá trị moment cho MỖI tham số được train — LoRA cắt số tham số train ~50–100× nên cắt luôn optimizer state tương ứng, thường là phần ăn VRAM lớn nhất khi full FT",
+            "Vì LoRA bỏ không lưu activation",
+            "Vì ma trận A, B được lưu ở CPU"
+          ],
+          "answer": 1,
+          "explain": "Mục 4 của 01_theory_notes.md: optimizer state của AdamW đi theo tham số TRAIN ĐƯỢC, không theo tổng tham số — W đóng băng thì không tốn moment. Đây là lý do bảng so sánh full FT vs LoRA của deliverable phải đo cả VRAM đỉnh (torch.cuda.max_memory_allocated())."
         }
       ]
     },
@@ -534,6 +560,26 @@
           "q": "Trong RLHF/DPO, thành phần KL divergence (hoặc reference policy) đóng vai trò gì?",
           "answer": "Nó giữ policy mới không trôi quá xa khỏi model tham chiếu (thường là bản SFT). Không có ràng buộc này, RL có thể 'hack' reward: sinh văn bản kỳ dị đạt điểm cao từ reward model nhưng mất khả năng ngôn ngữ chung (reward hacking / catastrophic drift). Trong PPO nó là phạt KL trong reward; trong DPO nó nằm ngay trong loss qua tỉ số log-prob với pi_ref và hệ số beta.",
           "explain": "Đây là lý do mọi công thức DPO đều chứa pi_theta/pi_ref — không phải chi tiết trang trí."
+        },
+        {
+          "id": "w7q7",
+          "type": "mcq",
+          "q": "Dataset HH-RLHF (Bai et al. 2022) bạn dùng tuần này viết tắt của gì, và điều đó nói gì về nội dung các cặp chosen/rejected?",
+          "choices": [
+            "'Human-Human RLHF' — data do hai người chat với nhau",
+            "'Helpful and Harmless' — một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn'",
+            "'High-quality Human RLHF' — data đã lọc chất lượng cao",
+            "'Helpful Hints for RLHF' — bộ hướng dẫn gán nhãn"
+          ],
+          "answer": 1,
+          "explain": "Mục 7 của 01_theory_notes.md: cái tên đúng nghĩa đen 'Helpful and Harmless' (Bai et al. 2022, arXiv 2204.05862) — harmlessness nằm ngay trong preference data. Bài tập cuối tuần: tự mở vài mẫu HH-RLHF và tìm một cặp khác nhau về AN TOÀN chứ không phải chất lượng."
+        },
+        {
+          "id": "w7q8",
+          "type": "open",
+          "q": "Vì sao nói 'refusal là hành vi được HUẤN LUYỆN, không phải bản năng', và vì sao RM/DPO/GRPO không tự đem lại harmlessness?",
+          "answer": "Base model chỉ dự đoán token — nó không 'biết từ chối'. Model từ chối yêu cầu độc hại vì trong preference data, câu từ chối được gán chosen còn câu tuân theo bị gán rejected, và RM/DPO/PPO đẩy policy về phía đó. RM/DPO/GRPO chỉ là máy tối ưu 'cái gì được ưa thích trong data': Bradley–Terry không biết 'an toàn' là gì, nó chỉ biết chosen và rejected — nếu preference data chỉ encode 'trả lời dài, lễ phép, đúng format' thì model học đúng và CHỈ những thứ đó. Harmlessness phải nằm sẵn trong data (như HH-RLHF) hoặc trong verifier; thuật toán không thêm được giá trị mà data không chứa. Hệ quả thực dụng: fine-tune tiếp trên data không có tín hiệu harmlessness thì hành vi từ chối có thể xói mòn — nó chỉ là trọng số như mọi hành vi khác.",
+          "explain": "Mục 7 của 01_theory_notes.md. Cùng bài học với 'metric bị game' (nâng cao I5): hệ tối ưu chỉ tối ưu cái nó thấy. Red-teaming (Ganguli et al. 2022, arXiv 2209.07858) là dạng eval cho trục an toàn — không đo thì không biết."
         }
       ]
     },
@@ -652,6 +698,26 @@
           "q": "Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.",
           "answer": "3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.",
           "explain": "Đây là nội dung deliverable 03_hardware_decision.md."
+        },
+        {
+          "id": "w9q5",
+          "type": "mcq",
+          "q": "Theo Ilharco et al. 2022 (task arithmetic, mục 7 theory notes), 'task vector' là gì và cộng/trừ nó dùng để làm gì?",
+          "choices": [
+            "Vector embedding của mô tả task, dùng để retrieve adapter phù hợp",
+            "τ = W_finetuned − W_base — 'hướng' fine-tune đã đẩy model tới trong không gian trọng số; CỘNG nhiều τ để ghép nhiều kỹ năng vào một model, PHỦ ĐỊNH (−τ) để giảm một hành vi mà ít ảnh hưởng task khác",
+            "Gradient trung bình của batch cuối cùng khi train",
+            "Một hàng của ma trận LoRA A"
+          ],
+          "answer": 1,
+          "explain": "Mục 7 của 01_theory_notes.md (arXiv 2212.04089): LoRA adapter merge về được dạng ΔW nên cũng quy về khung task vector. Caveat của repo: merging là kỹ thuật THỰC NGHIỆM — merge xong bắt buộc chạy lại bộ 10 prompt song ngữ + eval nghiệp vụ, chỉ giữ bản merge khi số đo không tụt."
+        },
+        {
+          "id": "w9q6",
+          "type": "open",
+          "q": "Mô tả quy trình kiểm tra catastrophic forgetting song ngữ bắt buộc của repo (mục 5 theory notes) và làm gì khi phát hiện suy giảm.",
+          "answer": "1) TRƯỚC khi fine-tune: chốt bộ 10 prompt cố định (5 tiếng Việt + 5 tiếng Anh, có cả nghiệp vụ lẫn thường thức), sinh và lưu output của base. 2) SAU fine-tune: chạy đúng 10 prompt đó ở temperature 0, so từng cặp output. 3) Nếu suy giảm rõ ở tiếng Anh: giảm tỷ lệ data một chiều, trộn thêm data tiếng Anh rồi train lại. Bộ 10 prompt giữ cố định vĩnh viễn — là 'bài kiểm tra sức khỏe song ngữ' cho mọi model sau này của dự án (kể cả mọi bản merge ở mục 7).",
+          "explain": "Mục 5 của 01_theory_notes.md. Chỗ dựa từ paper: Biderman et al. 2024 (arXiv 2405.09673) đo được full fine-tuning quên kiến thức ngoài domain đích nhiều hơn hẳn LoRA — mức quên PHỤ THUỘC cách fine-tune, nên chỉ có đo mới biết mình ở đâu trên trade-off."
         }
       ]
     },

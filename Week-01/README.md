@@ -52,7 +52,7 @@ RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
 - [ ] Đọc docs autograd + `nn.Module` của PyTorch
 - [x] Chạy `01_check_gpu.py` → xác nhận CUDA/MPS hoạt động
   - ✅ 2026-08-11 — CUDA khả dụng: RTX 3070 Ti, VRAM 8.0 GB, torch 2.5.1+cu121, Windows. Log: [`../journal/evidence/W01/check_gpu_2026-08-11.log`](../journal/evidence/W01/check_gpu_2026-08-11.log)
-  - Ghi chú cũ trong file này: "MPS khả dụng — macOS arm64, torch 2.12.1". `[Chưa xác minh]` — không có log kèm theo trong repo.
+  - [Chưa xác minh] MPS chưa được kiểm chứng trên máy Mac của dự án — chạy `python 01_check_gpu.py` trên MacBook, lưu log vào `journal/evidence/W01/` rồi cập nhật dòng này.
 - [ ] Đọc `02_theory_notes.md` — chạy lại được mọi snippet trong đó
 - [ ] Tự code lại `05_train_mlp.py` (KHÔNG copy — tự viết để hiểu)
 - [ ] MLP train được, loss giảm, accuracy hợp lý trên toy dataset

@@ -102,7 +102,7 @@ window.WEEKS_DATA = [
   n:7, phase:1, title:"Nhập môn alignment: SFT → RM → DPO/PPO → GRPO", dur:"~10–12 giờ", hw:"3070 Ti (scaled-down) · Cloud (full PPO/GRPO)",
   obj:["Hiểu pipeline alignment SFT→RM→PPO/DPO→GRPO (khái niệm)","Chạy ≥1 stage alignment from scratch (SFT hoặc DPO)"],
   src:["<b>FareedKhan-dev</b> src/post_training (SFT/RM/PPO/DPO/GRPO pure PyTorch)","Paper <b>DPO</b> (2305.18290) + <b>DeepSeekMath/GRPO</b> (2402.03300)"],
-  deliver:"Log/checkpoint 1 stage alignment đã chạy + ghi chú phân biệt <b>SFT vs DPO vs GRPO</b> (<code>02_alignment_notes.md</code>).",
+  deliver:"Log/checkpoint 1 stage alignment đã chạy + ghi chú phân biệt <b>SFT vs DPO vs GRPO</b> (<code>02_alignment_notes.md</code>) + loss DPO tự code pass check toy (<code>03_dpo_skeleton.py</code>).",
   know:`<h5>So sánh các stage alignment</h5>
    <ul><li><b>SFT</b>: học bắt chước phản hồi tốt (supervised).</li><li><b>Reward Model</b>: học chấm điểm ưu tiên giữa các cặp output.</li><li><b>DPO</b>: tối ưu trực tiếp từ cặp (chosen, rejected), bỏ qua RM/PPO:</li></ul>
    <div class="formula">\\( L_{DPO}=-\\log\\sigma\\!\\Big(\\beta\\log\\tfrac{\\pi_\\theta(y_w|x)}{\\pi_{ref}(y_w|x)}-\\beta\\log\\tfrac{\\pi_\\theta(y_l|x)}{\\pi_{ref}(y_l|x)}\\Big) \\)</div>

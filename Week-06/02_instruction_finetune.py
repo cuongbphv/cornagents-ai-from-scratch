@@ -2,7 +2,7 @@
 02_instruction_finetune.py — SKELETON Tuần 6 (instruction fine-tuning).
 
 Instruction fine-tuning cho GPT bạn build (Tuần 4) hoặc một pretrained nhỏ.
-Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu ch.7 sau.
+Chỗ TODO là phần bạn điền. Tự code trước, đối chiếu 01_theory_notes.md mục 3 sau.
 
 Import model + loss từ các tuần trước (tên module bắt đầu bằng số → importlib):
     import sys, importlib

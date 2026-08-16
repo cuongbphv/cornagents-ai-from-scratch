@@ -69,12 +69,35 @@ Lưu đủ 3 thứ mới resume đúng: `model.state_dict()`, `optimizer.state_d
 - **Ngân sách token lệch theo ngôn ngữ:** cùng 1 GB văn bản, tiếng Việt sinh ra nhiều token hơn tiếng Anh với tokenizer thiên Anh (fertility đo ở Tuần 3) → "1B token" tiếng Việt chứa **ít nội dung hơn** 1B token tiếng Anh. Khi đọc bất kỳ báo cáo pretrain đa ngôn ngữ nào, hỏi ngay: token đếm bằng tokenizer nào?
 - **So sánh chéo ngôn ngữ/tokenizer thì bỏ perplexity, dùng bits-per-byte** (mục nâng cao H): PPL phụ thuộc tokenizer — cùng một văn bản, tokenizer khác nhau cho PPL khác nhau dù model "giỏi" như nhau; bits-per-byte chuẩn hóa theo byte nên so được.
 
-## 9. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 9. Scaling laws — compute/data/params trade-off
+
+Hai paper trả lời câu hỏi "model bao nhiêu tham số, train bao nhiêu token thì đáng đồng compute": cả hai đã xác minh abstract trên arXiv ngày 2026-08-16 (link-only trong [`../docs/papers/README.md`](../docs/papers/README.md), gắn Tuần 5).
+
+**Kaplan et al. 2020 (arXiv 2001.08361):** loss của language model giảm theo **power law** với cả 3 đại lượng — số tham số, kích thước dataset, lượng compute — "with some trends spanning more than seven orders of magnitude" (nguyên văn abstract). Kết luận thời đó: model lớn sample-efficient hơn, nên ưu tiên tăng tham số, dừng train trước khi hội tụ.
+
+**Hoffmann et al. 2022 — "Chinchilla" (arXiv 2203.15556):** đo lại kỹ hơn và sửa kết luận trên: "for compute-optimal training, the model size and the number of training tokens should be scaled equally" (nguyên văn abstract) — tức đa số model đời trước bị **thiếu token** so với kích thước. Bằng chứng trong paper (Table 1, kiểm bản HTML ar5iv 2026-08-16): Chinchilla 70B tham số / 1.4T token — chia ra đúng **20 token/tham số** (số học, tự kiểm); Table 3 chiếu 67B → 1.5T token ≈ 22 token/tham số. Lưu ý paper **không phát biểu** con số "20 token/param" thành quy tắc — đó là tỷ lệ cộng đồng rút ra từ các bảng trên, và nó chỉ đúng quanh vùng compute paper đã fit.
+
+**Áp vào chính tuần này** (số học, tự kiểm):
+
+```
+GPT-2-small:  124M tham số × ~20 token/tham số ≈ 2.5B token  (mốc Chinchilla-optimal)
+llm.c #481:   train 124M trên 10B token FineWeb (nguyên văn discussion, kiểm 2026-08-16)
+              → 10B / 124M ≈ 81 token/tham số — gấp ~4× mốc Chinchilla
+```
+
+Nghĩa là run tham chiếu của tuần này là **"over-token"** theo chuẩn Chinchilla. [Suy luận] Vì sao vẫn hợp lý: Chinchilla-optimal chỉ tối ưu loss **cho một budget compute train cố định**; nếu thứ bạn quan tâm là chất lượng của model nhỏ khi **inference** (chạy được trên máy yếu), train quá mốc vẫn tiếp tục hạ loss — trả thêm compute lúc train để đổi lấy model nhỏ mà tốt hơn. Đây là diễn giải từ chính power law của Kaplan (loss vẫn giảm theo data khi chưa hội tụ), không phải khẳng định của riêng paper nào về run 10B token này.
+
+Bài học thực dụng khi đọc README các model đời nay: thấy "8B params, 15T tokens" đừng thắc mắc "sao train lố thế" — họ cố ý over-train vì tối ưu chi phí inference, không phải tối ưu compute train theo Chinchilla.
+
+## 10. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
 | karpathy/nanoGPT (`train.py`, MIT) | https://github.com/karpathy/nanoGPT | 3, 4, 5, 6 |
 | Penedo et al. 2024 — The FineWeb Datasets (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2406.17557 — PDF local: [`../docs/papers/2406.17557_fineweb-datasets.pdf`](../docs/papers/2406.17557_fineweb-datasets.pdf) | 8 |
+| Kaplan et al. 2020 — Scaling Laws for Neural Language Models (abstract kiểm 2026-08-16) | https://arxiv.org/abs/2001.08361 | 9 |
+| Hoffmann et al. 2022 — Training Compute-Optimal Large Language Models (abstract + ar5iv kiểm 2026-08-16) | https://arxiv.org/abs/2203.15556 | 9 |
+| karpathy/llm.c Discussion #481 — "Reproduce GPT-2 124M" (kiểm 2026-08-16) | https://github.com/karpathy/llm.c/discussions/481 | 9 |
 
 (llm.c Discussion #481 và HF Ultra-Scale Playbook: link trong README nguồn học — nội dung chi phí/thời gian trong đó là **ảnh chụp thời điểm viết**, kiểm tra lại giá trước khi thuê máy.)
 
@@ -83,4 +106,5 @@ Lưu đủ 3 thứ mới resume đúng: `model.state_dict()`, `optimizer.state_d
 1. Điền TODO trong [`02_train_loop.py`](02_train_loop.py): loss → split/eval → schedule → clip → autocast → accumulation → checkpoint (đúng thứ tự đó, chạy được từng tầng rồi mới thêm tầng sau).
 2. Smoke test local trên text public-domain nhỏ — bằng chứng: loss giảm qua các step, ghi số vào nhật ký.
 3. Chuẩn bị cloud run theo [`03_cloud_run_notes.md`](03_cloud_run_notes.md); train thật; viết [`04_loss_analysis.md`](04_loss_analysis.md) so với GPT-2.
-4. Làm [`quiz.md`](quiz.md); mục nâng cao D/F/H đọc sau khi loop chạy được.
+4. Tự tính lại hai phép chia của mục 9 (2.5B và ~81 token/tham số) và đối chiếu với số token bạn thật sự train — biết mình đang ở đâu trên trục Chinchilla.
+5. Làm [`quiz.md`](quiz.md); mục nâng cao D/F/H đọc sau khi loop chạy được.

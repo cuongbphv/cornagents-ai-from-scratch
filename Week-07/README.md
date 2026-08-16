@@ -18,7 +18,8 @@
 
 1. [`01_theory_notes.md`](01_theory_notes.md) — pipeline alignment, loss RM/DPO/GRPO với ví dụ số.
 2. [`02_alignment_notes.md`](02_alignment_notes.md) — viết so sánh SFT vs DPO vs GRPO bằng lời mình (deliverable).
-3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+3. [`03_dpo_skeleton.py`](03_dpo_skeleton.py) — TỰ code loss DPO trên toy logprob, check khớp ví dụ 0.6539 đã kiểm chứng ở `01_theory_notes.md` mục 4 (deliverable).
+4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
@@ -30,6 +31,7 @@
 
 - Log/checkpoint của **một stage alignment** đã chạy.
 - Ghi chú phân biệt **SFT vs DPO vs GRPO** → `02_alignment_notes.md`.
+- Loss DPO tự code chạy pass check toy → `03_dpo_skeleton.py`.
 
 ## Thời lượng
 
@@ -76,4 +78,5 @@ Số ở đầu tên file = thứ tự học.
 | — | `README.md` | File này |
 | 1 | `01_theory_notes.md` | Lý thuyết tự chứa: pipeline alignment, RM/DPO/GRPO |
 | 2 | `02_alignment_notes.md` | Template so sánh SFT/DPO/GRPO (deliverable) |
-| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| 3 | `03_dpo_skeleton.py` | Skeleton loss DPO from scratch trên toy logprob (TODO, deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

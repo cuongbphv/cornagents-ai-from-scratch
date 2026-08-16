@@ -99,7 +99,7 @@ class GPTModel(nn.Module):
 
 
 def generate_text_simple(model, idx, max_new_tokens, context_size):
-    """Greedy generation đơn giản (ch.4)."""
+    """Greedy generation đơn giản (xem 01_theory_notes.md)."""
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:]
         with torch.no_grad():
@@ -108,6 +108,40 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
         next_id = torch.argmax(logits, dim=-1, keepdim=True)
         idx = torch.cat([idx, next_id], dim=1)
     return idx
+
+
+# ----------------------------------------------------------------------
+# 🚀 EXTENSION (tùy chọn): KV cache cho generation
+# Lý thuyết: ../Week-00/advanced_topics_vi.md §B1.
+# Làm SAU khi xong toàn bộ skeleton phía trên. Không bắt buộc cho deliverable.
+# Ý tưởng: generate_text_simple chạy lại FULL forward trên cả chuỗi mỗi bước.
+# Với KV cache, mỗi bước chỉ feed TOKEN MỚI; K,V của các token cũ được lưu
+# lại per-layer và append thêm — attention vẫn nhìn đủ quá khứ.
+# ----------------------------------------------------------------------
+def generate_with_kv_cache(model, idx, max_new_tokens, context_size):
+    """Greedy generation dùng KV cache (kết quả phải TRÙNG generate_text_simple)."""
+    # EXT-TODO 1: thêm tham số `use_cache`/`kv_cache` xuyên suốt forward:
+    #   - MultiHeadAttention.forward nhận cache (K_cũ, V_cũ) per-layer,
+    #     tính K,V của token mới rồi torch.cat vào cache theo chiều thời gian;
+    #   - GPTModel.forward trả thêm cache mới để bước sau dùng lại.
+    #   Lưu ý pos_emb: token mới ở vị trí t = số token đã cache (không phải 0).
+    # EXT-TODO 2: viết vòng generate: bước đầu feed cả prompt (prefill),
+    #   các bước sau CHỈ feed next_id (shape (b, 1)) + cache;
+    #   greedy argmax như generate_text_simple; dừng khi đủ max_new_tokens
+    #   hoặc chạm context_size.
+    raise NotImplementedError("EXT-TODO: generation với KV cache")
+
+
+def check_kv_cache_matches(model, idx, max_new_tokens=8, context_size=64):
+    """Sanity check: cached vs uncached phải cho CÙNG dãy token id (greedy)."""
+    # EXT-TODO 3: chạy cả hai đường rồi assert khớp từng token:
+    #   model.eval()
+    #   with torch.no_grad():
+    #       out_plain  = generate_text_simple(model, idx, max_new_tokens, context_size)
+    #       out_cached = generate_with_kv_cache(model, idx, max_new_tokens, context_size)
+    #   assert torch.equal(out_plain, out_cached), "KV cache làm lệch output!"
+    #   (Greedy + eval() nên hai đường phải ra đúng một dãy id.)
+    raise NotImplementedError("EXT-TODO: assert cached == uncached")
 
 
 if __name__ == "__main__":

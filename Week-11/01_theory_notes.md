@@ -45,7 +45,7 @@ Bốn metric, chia đúng hai nửa pipeline:
 | Faithfulness | câu trả lời có bám context không | generation (bịa) |
 | Answer relevancy | có trả lời đúng câu hỏi không | generation |
 
-Đọc kết quả theo cặp: faithfulness thấp + context tốt = model bịa → hạ temperature, siết prompt; context recall thấp = lỗi tìm → sửa retriever, đừng đổi model. Eval set ~20–30 cặp (câu hỏi, ground truth) như README — **so before/after cùng eval set** mới thành bảng số có nghĩa.
+Đọc kết quả theo cặp: faithfulness thấp + context tốt = model bịa → hạ temperature, siết prompt; context recall thấp = lỗi tìm → sửa retriever, đừng đổi model. Eval set tối thiểu 20–30 cặp (câu hỏi, ground truth) để bắt đầu, mục tiêu 50–100 khi có thời gian (như README) — **so before/after cùng eval set** mới thành bảng số có nghĩa.
 
 Định nghĩa gốc của 4 metric nằm trong paper RAGAS (PDF trong repo: [`../docs/papers/2309.15217_ragas-rag-evaluation.pdf`](../docs/papers/2309.15217_ragas-rag-evaluation.pdf)) — 8 trang, đọc được trong một buổi. Còn nếu muốn xem người khác đã ablate các tổ hợp module (chunking, rerank, hybrid...) ra sao trước khi tự thí nghiệm: Wang et al. 2024, *Searching for Best Practices in RAG* ([`../docs/papers/2407.01219_rag-best-practices.pdf`](../docs/papers/2407.01219_rag-best-practices.pdf)) — họ "investigate existing RAG approaches and their potential combinations" và đề xuất các chiến lược cân bằng chất lượng/chi phí.
 
@@ -67,7 +67,7 @@ Langfuse/LangSmith ghi lại mỗi request: query → chunks lấy về (điểm
 
 - **BM25 với tiếng Việt cần nghĩ về tách từ.** Tiếng Việt viết rời từng âm tiết: tokenize theo khoảng trắng biến "ngân hàng" thành 2 term `ngân` + `hàng` — match nhầm với "hàng hóa", "hàng không". Hai hướng xử lý: (a) word segmentation trước khi index BM25 (thư viện tách từ tiếng Việt — kiểm tra license trước khi thêm vào repo theo chính sách CLAUDE.md); (b) chấp nhận âm tiết + dựa vào **cụm từ trong query** và vế vector của hybrid bù lại. [Suy luận] Với corpus văn bản pháp luật nhiều thuật ngữ cố định, (a) thường cải thiện precision — nhưng đây là giả thuyết để BẠN kiểm bằng eval set, không phải kết luận.
 - **Nhớ NFC trước khi index BM25** (Tuần 10 mục 6): `"tín"` NFC và NFD là hai term khác nhau — corpus trộn hai dạng làm BM25 "mất" document một cách âm thầm.
-- **Eval set phải là câu hỏi tiếng Việt nghiệp vụ thật** (README: tự xây 50–100 câu kèm điều khoản nguồn — không benchmark công khai nào thay được). Ground truth dẫn về số Điều/Khoản cụ thể.
+- **Eval set phải là câu hỏi tiếng Việt nghiệp vụ thật** (README: tối thiểu 20–30 câu để bắt đầu, mục tiêu 50–100 khi có thời gian, kèm điều khoản nguồn — không benchmark công khai nào thay được). Ground truth dẫn về số Điều/Khoản cụ thể.
 - **Judge chấm văn bản tiếng Việt**: chọn judge model đọc tiếng Việt tốt và giữ cố định; [Suy luận] các thiên vị ở mục 5 được nghiên cứu chủ yếu trên tiếng Anh — mức độ trên tiếng Việt chưa rõ, càng thêm lý do kiểm tay một mẫu nhỏ.
 
 ## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
@@ -85,6 +85,6 @@ Langfuse/LangSmith ghi lại mỗi request: query → chunks lấy về (điểm
 ## Sau khi đọc xong
 
 1. Thêm BM25 (nhớ NFC) → trộn RRF → thêm BGE reranker, theo [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md).
-2. Xây eval set tiếng Việt ~20–30 câu kèm điều khoản nguồn.
+2. Xây eval set tiếng Việt kèm điều khoản nguồn — tối thiểu 20–30 câu để bắt đầu, mục tiêu 50–100 khi có thời gian.
 3. Đo RAGAS before/after, kiểm tay 5–10 mẫu, wire tracing.
 4. Viết [`03_ragas_report.md`](03_ragas_report.md) — bảng số + nhận xét đọc tay; làm [`quiz.md`](quiz.md).

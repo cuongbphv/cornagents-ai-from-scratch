@@ -66,12 +66,25 @@ Vế nào không chỉ ra được bằng trace/artifact thật → đó là vi�
 - **Eval set = câu hỏi nghiệp vụ tiếng Việt thật** (50–100 câu đã xây từ Tuần 11) + bộ 10 prompt song ngữ (Tuần 9) nếu có model fine-tuned trong luồng — kiểm cả chất lượng lẫn "sức khỏe song ngữ" trong một lần đo.
 - [Suy luận] Judge chấm groundedness trên văn bản pháp lý tiếng Việt nên được kiểm tay tỷ lệ cao hơn bình thường (ví dụ 20% mẫu thay vì 10%) — thiên vị judge trên tiếng Việt chưa được đo riêng trong nguồn đã dẫn, thận trọng là rẻ.
 
-## 8. Nguồn
+## 8. Benchmark & trajectory-level eval cho agent — định vị, không thay thế
+
+Ba metric mục 3 đo hệ thống của bạn trên bài toán của bạn. Hai benchmark công khai dưới đây (abstract kiểm trên arXiv 2026-08-16) hữu ích để **định vị** cách cộng đồng đo agent, không phải để thay eval của repo:
+
+- **SWE-bench (Jimenez et al., arXiv 2310.06770):** 2,294 bài từ GitHub issue + pull request thật của 12 repo Python — cho codebase + issue, agent phải sửa code cho pass test. Đáng nhớ vì cách chấm: **outcome-level thuần túy** (test pass hay không), và vì con số khiêm tốn thời điểm công bố — abstract ghi model tốt nhất lúc đó (Claude 2) giải được "1.96% of the issues". Số này là ảnh chụp 2023; bảng xếp hạng hiện tại phải tra lại, đừng trích số cũ làm số mới.
+- **τ-bench (Yao et al., arXiv 2406.12045):** agent + tool + **user mô phỏng** hội thoại nhiều lượt, phải tuân thủ policy nghiệp vụ; chấm bằng cách so **trạng thái database cuối hội thoại** với goal state đã gán nhãn. Điểm đáng học nhất là metric **pass^k**: chạy cùng task k lần, tính xác suất *tất cả* k lần đều thành công — đo **độ ổn định**, thứ mà success rate một lần chạy che mất. Abstract: agent tốt nhất lúc đó thành công <50% task, và pass^8 ở domain retail rơi xuống <25% — cùng một agent, "thi một lần đậu" khác hẳn "thi tám lần đậu cả tám".
+
+**Outcome-level vs trajectory-level:** cả 3 metric mục 3 đều là outcome-level — chấm artifact cuối, không nhìn đường đi. Trajectory/step-wise eval chấm từng bước trong trace: gọi đúng tool không, đúng thứ tự phụ thuộc không, có lặp vô ích đốt budget không, fail ở bước nào. Hai tầng bắt lỗi khác nhau: outcome tốt vẫn có thể che một trajectory lãng phí (ăn vào complexity budget mục 2), outcome hỏng mà không có trajectory thì không biết sửa đâu. Nguyên liệu đã có sẵn — trace Langfuse/LangSmith của mục 5 chính là trajectory; τ-bench cho thấy thêm một lớp nữa: chạy lặp để đo độ ổn định kiểu pass^k.
+
+**Khuyến nghị cho capstone:** giữ 3 metric mục 3 làm chính — chúng đo đúng bài toán Finance Banking tiếng Việt của bạn, điều không benchmark ngoài nào làm được. Benchmark ngoài chỉ dùng để đối chiếu *phương pháp* đo (outcome theo rubric như SWE-bench, so goal-state và pass^k như τ-bench), không nhập task của họ vào eval set của bạn. [Suy luận] Nếu thêm được một phép đo từ mục này thì đáng nhất là chạy lặp 3–5 lần vài task chủ chốt theo tinh thần pass^k — chi phí thấp mà lộ ngay độ ổn định; mức lợi ích cụ thể với hệ của bạn chỉ biết sau khi đo.
+
+## 9. Nguồn
 
 | Nguồn | Vị trí | Dùng cho mục |
 |-------|--------|--------------|
 | Karpathy-Loop PDF (mục VII–IX, Table VI) | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 2, 5 |
 | Zheng et al. 2023 — LLM-as-a-Judge (xác minh 2026-08-11) | https://arxiv.org/abs/2306.05685 | 4 |
+| Jimenez et al. 2023 — SWE-bench (abstract kiểm 2026-08-16) | https://arxiv.org/abs/2310.06770 | 8 |
+| Yao et al. 2024 — τ-bench (abstract kiểm 2026-08-16) | https://arxiv.org/abs/2406.12045 | 8 |
 
 (Langfuse/LangSmith/promptfoo: link trong README nguồn học.)
 
@@ -80,4 +93,4 @@ Vế nào không chỉ ra được bằng trace/artifact thật → đó là vi�
 1. Chốt use case + vẽ bản đồ lắp ghép của riêng bạn (mục 1) trên giấy.
 2. Khai báo complexity budget bằng số, viết vào config.
 3. Viết [`02_eval_rubric.md`](02_eval_rubric.md) (tiếng Việt, tiêu chí đúng/sai) trước khi chạy demo.
-4. Chạy end-to-end, đo 3 metric, tự kiểm câu "traced to..." từng vế; viết [`03_retrospective.md`](03_retrospective.md); làm [`quiz.md`](quiz.md).
+4. Chạy end-to-end, đo 3 metric, tự kiểm câu "traced to..." từng vế; chạy lặp vài task chủ chốt theo tinh thần pass^k (mục 8) nếu còn budget; viết [`03_retrospective.md`](03_retrospective.md); làm [`quiz.md`](quiz.md).

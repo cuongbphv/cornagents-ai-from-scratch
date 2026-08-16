@@ -1,6 +1,6 @@
 # Tuần 7 — Quiz: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
 
-> Tự kiểm tra **trước** khi xem solution. Tổng **6** câu. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
+> Tự kiểm tra **trước** khi xem solution. Tổng **8** câu. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
 > _Sinh tự động từ `scripts/quiz_bank.json` — đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
 
 ## Câu 1 (Tự luận)
@@ -41,6 +41,19 @@ So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 ## Câu 6 (Tự luận)
 
 Trong RLHF/DPO, thành phần KL divergence (hoặc reference policy) đóng vai trò gì?
+
+## Câu 7 (Trắc nghiệm)
+
+Dataset HH-RLHF (Bai et al. 2022) bạn dùng tuần này viết tắt của gì, và điều đó nói gì về nội dung các cặp chosen/rejected?
+
+- **A.** 'Human-Human RLHF' — data do hai người chat với nhau
+- **B.** 'Helpful and Harmless' — một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn'
+- **C.** 'High-quality Human RLHF' — data đã lọc chất lượng cao
+- **D.** 'Helpful Hints for RLHF' — bộ hướng dẫn gán nhãn
+
+## Câu 8 (Tự luận)
+
+Vì sao nói 'refusal là hành vi được HUẤN LUYỆN, không phải bản năng', và vì sao RM/DPO/GRPO không tự đem lại harmlessness?
 
 ---
 > 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

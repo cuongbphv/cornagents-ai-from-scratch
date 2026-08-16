@@ -52,6 +52,31 @@ class UserStory(BaseModel):
 - **Least privilege cho tool**: Requirements Analyst chỉ cần đọc RAG — không cần quyền ghi file; Test-Gen cần ghi file test — không cần network. Scope hẹp làm sai sót của một agent không lan thành sự cố hệ thống.
 - **Tool output là input KHÔNG đáng tin** — cùng họ vấn đề với prompt injection. Wallace et al. 2024, *The Instruction Hierarchy* (arXiv [2404.13208](https://arxiv.org/abs/2404.13208), abstract tra 2026-08-12) chỉ ra gốc rễ: LLM hiện "treat system prompts and user inputs with equal priority", và đề xuất huấn luyện model "selectively ignore lower-privileged instructions". Bạn không train lại model được, nhưng rút được nguyên tắc thiết kế: đừng đưa nguyên văn tài liệu RAG/tool output vào vị trí có quyền ra lệnh — bọc nó, đánh dấu nó là dữ liệu.
 
+### 5.1. Direct vs INDIRECT prompt injection — phân biệt bắt buộc
+
+- **Direct**: người dùng gõ thẳng payload vào prompt ("bỏ qua chỉ dẫn trước đó..."). Dễ hình dung, nhưng KHÔNG phải mối nguy chính của agent graph.
+- **Indirect**: payload nằm trong **dữ liệu mà agent tự đi lấy** — trang web, file, tài liệu retrieve về — kẻ tấn công không cần chạm vào giao diện. Greshake et al. 2023 (arXiv [2302.12173](https://arxiv.org/abs/2302.12173), abstract tra 2026-08-16) đặt tên và chứng minh vector này trên các ứng dụng LLM thật: chèn prompt độc "into data likely to be retrieved" là đủ để điều khiển ứng dụng từ xa. Với agent graph, indirect nguy hiểm hơn direct vì mọi cạnh nhận dữ liệu ngoài đều là cửa vào.
+
+OWASP xếp Prompt Injection là **LLM01** — rủi ro số 1 trong *OWASP Top 10 for LLM Applications* (trang dự án owasp.org + tài liệu nguồn LLM01 trên GitHub chính thức của OWASP, tra 2026-08-16); tài liệu LLM01 định nghĩa tách bạch hai biến thể đúng như trên.
+
+### 5.2. Hai attack surface của CHÍNH kiến trúc repo này
+
+1. **RAG corpus Tuần 10 (text scrape từ vbpl.vn)**: vbpl.vn là nguồn chính thống, nhưng pipeline của bạn tin **văn bản đã scrape** — mọi thứ lọt vào corpus (lỗi scrape, trang bị chỉnh sửa, file trộn thêm vào thư mục data) sẽ được retriever đưa **nguyên văn vào context** của Requirements Analyst. Một đoạn "hướng dẫn" nhúng trong tài liệu retrieve về chính là indirect injection kiểu Greshake. Corpus là input không đáng tin *theo thiết kế*, kể cả khi nguồn gốc đáng tin.
+2. **MCP server / tool descriptions Tuần 12**: khi agent kết nối một MCP server, **phần mô tả tool** (name, description, schema) do server cung cấp được đưa vào context của model — tức là một bên thứ ba đang viết thẳng vào prompt của bạn. Server độc hại (hoặc bị chiếm) có thể nhét chỉ dẫn vào description. Tool description phải được đối xử như untrusted input y hệt tool *output*, và chỉ nối tới MCP server mình kiểm soát/đã rà.
+
+### 5.3. Mitigations lớp-theo-lớp — không lớp nào đủ một mình
+
+[Suy luận] Chưa có cơ chế nào loại bỏ được prompt injection ở gốc (Instruction Hierarchy là hướng train-side, chưa phải thứ bạn kiểm soát), nên phòng thủ đúng là **xếp lớp** — khớp với các mitigation trong tài liệu LLM01 của OWASP (tra 2026-08-16):
+
+| Lớp | Cơ chế | Đã có ở đâu trong tuần này |
+|-----|--------|---------------------------|
+| Tách data/instruction | bọc tài liệu RAG/tool output trong delimiter + đánh dấu "đây là dữ liệu, không phải lệnh" (OWASP: "segregate external content") | mục 5, nguyên tắc Instruction Hierarchy |
+| Least-privilege tool scope | agent chỉ có đúng tool cần cho vai của nó → payload có "kích hoạt" cũng không với tới hành động nguy hiểm | mục 5, đã thiết kế |
+| Output filtering | validate output theo artifact contract (mục 4): sai schema là chặn tại biên, kể cả khi model đã bị lừa | mục 4 — contract chính là filter |
+| HITL gate | hành động khó đảo (merge/commit/gửi đi) phải qua người duyệt — lớp chặn cuối khi mọi lớp trên thủng | mục 5, gate đã đặt |
+
+Cách đọc bảng: mỗi lớp giả định lớp trước **đã thủng**. Payload lọt qua delimiter → nó chỉ gọi được tool trong scope hẹp → output lệch contract bị chặn → hành động lớn còn người duyệt. Đó là lý do §4 và §5 của file này thực chất là một hệ phòng thủ, không phải hai mục rời.
+
 ## 6. Ba agent của tuần — điểm thiết kế chính
 
 1. **Requirements Analyst** (thế mạnh BA): feature request → user stories + AC theo contract mục 4, grounded qua RAG. Đây là agent "ăn tiền" nhất vì domain knowledge của bạn nằm ở đây.
@@ -75,6 +100,8 @@ Khi viết `03_agent_design.md`, có thể mượn khung mô tả của survey T
 | Karpathy-Loop PDF (mục IV, VI.D, VIII) | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 1, 2, 3 |
 | Claude Agent SDK docs (xác minh 2026-08-11) | https://code.claude.com/docs/en/agent-sdk | 5, 6 |
 | Wallace et al. 2024 — The Instruction Hierarchy (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2404.13208 | 5 |
+| Greshake et al. 2023 — Not what you've signed up for: ... Indirect Prompt Injection (chỉ link, abstract tra 2026-08-16) | https://arxiv.org/abs/2302.12173 | 5.1, 5.2 |
+| OWASP Top 10 for LLM Applications — LLM01 Prompt Injection (trang dự án + repo nguồn chính thức, tra 2026-08-16) | https://owasp.org/www-project-top-10-for-large-language-model-applications/ · https://github.com/OWASP/www-project-top-10-for-large-language-model-applications | 5.1, 5.3 |
 | Tran et al. 2025 — Multi-Agent Collaboration Mechanisms: A Survey (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2501.06322 | 6 |
 
 (CodeRabbit/Sonar/GlobalLogic: tham chiếu pattern trong README — đọc lấy ý quality gate, không phải nguồn trích số liệu.)
@@ -84,4 +111,5 @@ Khi viết `03_agent_design.md`, có thể mượn khung mô tả của survey T
 1. Map từng stage SDLC ↔ pattern + I/O (giấy trước, code sau).
 2. Viết artifact contract (mục 4) cho cả 3 handoff TRƯỚC khi viết agent nào.
 3. Code 3 agent trong [`02_agents.py`](02_agents.py), nối graph, thêm gate + least privilege.
+3b. Rà lại graph theo bảng 5.3: chỉ ra được từng lớp phòng thủ nằm ở dòng code/cạnh nào; nêu miệng được vì sao corpus vbpl.vn và MCP tool description là untrusted input (mục 5.2).
 4. Chạy 1 requirement Finance Banking end-to-end; ghi [`03_agent_design.md`](03_agent_design.md); làm [`quiz.md`](quiz.md).

@@ -21,7 +21,7 @@
 ## Thứ tự học trong tuần (mở file theo số)
 
 1. [`01_theory_notes.md`](01_theory_notes.md) — agent loop, MCP, 5 tầng + bảng chẩn đoán, reflective loop.
-2. [`02_minimal_agent.py`](02_minimal_agent.py) — build single agent + nối 1 MCP server (deliverable).
+2. [`02_minimal_agent.py`](02_minimal_agent.py) — skeleton agent loop (TODO 1–7): tự điền tool schema, dispatch, vòng lặp; sau đó nối 1 MCP server (deliverable).
 3. [`03_cornagents_architecture.md`](03_cornagents_architecture.md) — sơ đồ kiến trúc + quyết định stack (deliverable).
 4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
@@ -95,6 +95,6 @@ Số ở đầu tên file = thứ tự học.
 |---|------|-------|
 | — | `README.md` | File này |
 | 1 | `01_theory_notes.md` | Lý thuyết tự chứa: agent loop, MCP, 5 tầng, reflective loop |
-| 2 | `02_minimal_agent.py` | Starter single agent + MCP (pseudocode/cấu trúc) |
+| 2 | `02_minimal_agent.py` | Skeleton agent loop: tool schema, dispatch, stop condition, budget (TODO) |
 | 3 | `03_cornagents_architecture.md` | Template sơ đồ kiến trúc CornAgents.AI (deliverable) |
 | 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

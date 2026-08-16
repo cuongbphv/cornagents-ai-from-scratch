@@ -43,6 +43,8 @@
 - Nguồn cấm train / cấm chưng cất (distillation) / cấm khai thác văn bản-dữ liệu.
 - Blog, video, tài liệu cá nhân không có license rõ ràng — không dùng làm nguồn trích dẫn trong tài liệu của repo.
 
+**Ngoại lệ duy nhất (quyết định 2026-08-16):** được phép liệt kê **khóa học thương mại dưới dạng recommendation cá nhân** (tên khóa, giảng viên, link, metadata công khai) trong `Week-00/courses_linkedin_learning_vi.md` — vì chủ repo tự học bằng tài khoản của mình. **Vẫn cấm tuyệt đối**: dẫn lại nội dung bài giảng, transcript, slide, bài tập của khóa học vào repo, hoặc dùng khóa học làm nguồn trích dẫn (citation) trong theory notes/quiz.
+
 **Dữ liệu nội bộ ngân hàng / dữ liệu cá nhân:** không bao giờ đưa vào repo, vào dataset, hay vào prompt. Dự án chỉ dùng dữ liệu công khai license mở.
 
 ## 4. Kỷ luật khi trả lời & sửa code

@@ -42,7 +42,7 @@ Tự code đầy đủ attention stack (self → causal → multi-head); **verif
 ## Checklist tiến độ
 
 - [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] Đọc ch.2: BPE (dùng `tiktoken`), data loader, sliding window
+- [ ] Học BPE (dùng `tiktoken`), data loader, sliding window — `01_theory_notes.md` mục 1 + repo `karpathy/minbpe`
 - [ ] Hiểu token embedding vs positional embedding (cộng vào nhau)
 - [ ] Code **simplified self-attention** (không trainable) — hiểu context vector
 - [ ] Code **scaled dot-product attention** với `W_Q, W_K, W_V` trainable

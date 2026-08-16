@@ -1,8 +1,9 @@
 """
-02_minimal_agent.py — STARTER Tuần 12. Agent tối thiểu + 1 tool.
+02_minimal_agent.py — SKELETON Tuần 12. Agent tối thiểu + 1 tool.
 
-Mục tiêu: hiểu vòng lặp agent (LLM quyết định gọi tool -> chạy tool ->
+Mục tiêu: TỰ TAY code vòng lặp agent (LLM quyết định gọi tool -> chạy tool ->
 đưa kết quả lại cho LLM -> lặp tới khi xong).
+Chỗ TODO là phần bạn điền. Tự làm trước, đối chiếu docs Claude Agent SDK sau.
 
 Đây là minh họa với Anthropic SDK (tool use cơ bản). Khi nắm rồi, chuyển
 sang Claude Agent SDK / LangGraph cho CornAgents.AI.
@@ -12,30 +13,26 @@ Cài:
     export ANTHROPIC_API_KEY=...   # hoặc dùng subscription qua Claude Agent SDK
 """
 
-import json
 from pathlib import Path
 
 # ---- 1) Định nghĩa tool: đọc file trong repo ----
-TOOLS = [
-    {
-        "name": "read_file",
-        "description": "Đọc nội dung một file văn bản trong thư mục làm việc.",
-        "input_schema": {
-            "type": "object",
-            "properties": {"path": {"type": "string", "description": "đường dẫn tương đối"}},
-            "required": ["path"],
-        },
-    }
-]
+# TODO 1: khai báo schema tool `read_file` theo format tool use của Anthropic.
+#   Mỗi tool là 1 dict gồm: "name", "description" (model đọc cái này để quyết
+#   định khi nào gọi), và "input_schema" (JSON Schema: type object, properties
+#   có "path" kiểu string, required ["path"]).
+TOOLS = []  # TODO: điền schema
 
 
 def run_tool(name, args):
-    if name == "read_file":
-        p = Path(args["path"])
-        if not p.exists():
-            return f"LỖI: không thấy {p}"
-        return p.read_text(encoding="utf-8")[:4000]
-    return f"LỖI: tool không xác định {name}"
+    """Dispatch: nhận (tên tool, args) từ model -> chạy -> trả string."""
+    # TODO 2: dispatch theo `name`:
+    #   - name == "read_file": đọc Path(args["path"]), trả tối đa ~4000 ký tự
+    #   - tên lạ: KHÔNG raise — trả string "LỖI: tool không xác định ..."
+    # TODO 3: xử lý lỗi tool: file không tồn tại / đọc fail -> cũng trả STRING
+    #   mô tả lỗi (vd. f"LỖI: không thấy {p}") thay vì để exception nổ vòng lặp.
+    #   Bọc lỗi thành DATA đưa lại cho model — Tuần 13 sẽ học vì sao (model
+    #   có thể tự sửa: đổi path, hỏi lại người dùng...).
+    raise NotImplementedError("TODO: dispatch + error handling cho tool")
 
 
 # ---- 2) Agent loop ----
@@ -45,6 +42,9 @@ def agent(user_msg, max_turns=5):
     client = Anthropic()
     messages = [{"role": "user", "content": user_msg}]
 
+    # TODO 4: ngân sách vòng lặp — vì sao cần max_turns? (tầng 4 — Loop
+    #   engineering: run → check → decide; không có budget = agent chạy mãi).
+    #   Giữ for-loop hữu hạn, KHÔNG dùng while True.
     for turn in range(max_turns):
         resp = client.messages.create(
             model="claude-sonnet-4-6",   # đổi theo model bạn có quyền
@@ -52,23 +52,19 @@ def agent(user_msg, max_turns=5):
             tools=TOOLS,
             messages=messages,
         )
-        messages.append({"role": "assistant", "content": resp.content})
+        # TODO 5: append NGUYÊN VĂN assistant turn vào messages
+        #   ({"role": "assistant", "content": resp.content}) — thiếu bước này
+        #   API sẽ báo lỗi vì tool_result không có tool_use tương ứng.
 
-        # Nếu model không gọi tool -> xong, trả text
-        tool_uses = [b for b in resp.content if b.type == "tool_use"]
-        if not tool_uses:
-            return "".join(b.text for b in resp.content if b.type == "text")
+        # TODO 6: điều kiện dừng — lọc các block b.type == "tool_use" trong
+        #   resp.content. Nếu KHÔNG có tool_use nào -> model đã xong: return
+        #   phần text ("".join các block b.type == "text").
 
-        # Chạy mọi tool model yêu cầu, trả kết quả
-        results = []
-        for tu in tool_uses:
-            out = run_tool(tu.name, tu.input)
-            results.append({
-                "type": "tool_result",
-                "tool_use_id": tu.id,
-                "content": out,
-            })
-        messages.append({"role": "user", "content": results})
+        # TODO 7: với MỖI tool_use tu: gọi run_tool(tu.name, tu.input), gói
+        #   kết quả thành {"type": "tool_result", "tool_use_id": tu.id,
+        #   "content": out}, gom thành list rồi append vào messages với
+        #   role="user" — vòng lặp quay lại đưa kết quả cho model.
+        raise NotImplementedError("TODO: thân vòng lặp agent (TODO 5–7)")
 
     return "Hết số lượt cho phép."
 

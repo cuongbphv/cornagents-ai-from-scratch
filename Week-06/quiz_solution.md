@@ -48,3 +48,29 @@ Instruction fine-tuning khác pretraining ở điểm nào về DỮ LIỆU và 
 **Đáp án: B**
 
 **Giải thích:** Cơ chế học giống nhau (next-token prediction); thứ thay đổi là dữ liệu (template Alpaca-style) và hành vi mà ta muốn model hội tụ về (làm theo instruction thay vì tiếp tục văn bản).
+
+## Câu 5 (Trắc nghiệm)
+
+Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưng theo paper Instruction Modelling (arXiv 2405.14394, dẫn ở mục 3 theory notes), tính loss CẢ trên phần instruction lại có lợi trong điều kiện nào?
+
+- **A.** Luôn luôn có lợi, nên bỏ hẳn masking
+- **B.** Khi dataset có instruction dài kèm output ngắn, hoặc khi có ít mẫu train — nhóm tác giả quy lợi ích cho việc giảm overfitting ✅
+- **C.** Khi model có trên 7B tham số
+- **D.** Khi dùng optimizer khác AdamW
+
+**Đáp án: B**
+
+**Giải thích:** Theo mục 3 của 01_theory_notes.md: mask chuẩn vẫn là mặc định của bài tuần này; ngoại lệ 'lengthy instructions + brief outputs' và ít mẫu train là nuance từ arXiv 2405.14394 (F.cross_entropy có ignore_index=-100 mặc định nên chỉ cần gán nhãn -100 là mask).
+
+## Câu 6 (Trắc nghiệm)
+
+LoRA r=16 trên ma trận 4096×4096 chỉ train ~0.78% tham số, nhưng vì sao VRAM khi train giảm còn MẠNH hơn cả tỷ lệ đó?
+
+- **A.** Vì LoRA tự động quantize base model xuống 4-bit
+- **B.** Vì AdamW giữ 2 giá trị moment cho MỖI tham số được train — LoRA cắt số tham số train ~50–100× nên cắt luôn optimizer state tương ứng, thường là phần ăn VRAM lớn nhất khi full FT ✅
+- **C.** Vì LoRA bỏ không lưu activation
+- **D.** Vì ma trận A, B được lưu ở CPU
+
+**Đáp án: B**
+
+**Giải thích:** Mục 4 của 01_theory_notes.md: optimizer state của AdamW đi theo tham số TRAIN ĐƯỢC, không theo tổng tham số — W đóng băng thì không tốn moment. Đây là lý do bảng so sánh full FT vs LoRA của deliverable phải đo cả VRAM đỉnh (torch.cuda.max_memory_allocated()).

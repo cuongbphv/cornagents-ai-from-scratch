@@ -73,6 +73,7 @@ Sau khi lắp xong GPT-2, đối chiếu với Llama 3/Qwen3 trong [`../Week-00/
 - **A2 RMSNorm** (thay LayerNorm — bỏ mean & bias), **A3 SwiGLU FFN** (gated, thay GELU-4×), **bỏ bias** ở Linear.
 - **A7 MoE** — thay 1 FFN dày bằng nhiều expert + router top-k (Qwen3-MoE, gpt-oss).
 - **B1 KV cache** + **B2 Sampling** (temperature/top-k/**top-p**) — cho phần sinh text.
+- **Bài tập KV cache có sẵn trong repo**: cuối [`02_gpt_model.py`](02_gpt_model.py) có section 🚀 EXT-TODO 1–3 — thêm `generate_with_kv_cache` (mỗi bước chỉ feed token mới, append K,V per-layer) + assert cached vs uncached ra cùng dãy token (greedy). Lý thuyết ở [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) §B1.
 
 > Bài tập hay: fork model GPT-2 của bạn, thay LayerNorm→RMSNorm và GELU-FFN→SwiGLU, so số tham số. Nguồn: paper RMSNorm (arXiv 1910.07467) + GLU Variants/SwiGLU (arXiv 2002.05202); implementation Llama/Qwen trong HF `transformers`; nanochat `gpt.py`.
 

@@ -55,12 +55,26 @@ Bài kiểm tra này có chỗ dựa từ paper chứ không phải lo xa: Bider
 - Khi viết `Modelfile` cho Ollama: **template chat phải khớp đúng template lúc fine-tune** (bài học Tuần 6 mục 3) — sai template, model tiếng Việt trả lời lẫn tiếng Anh hoặc lặp vô hạn là triệu chứng kinh điển. [Suy luận] — dựa trên cơ chế model học phân phối template; gặp triệu chứng thì kiểm template đầu tiên.
 - Kiểm tra sanity encoding: prompt có dấu tiếng Việt qua API Ollama phải ra text có dấu chuẩn NFC (Tuần 10 sẽ dùng nghiêm túc — thấy mojibake thì soi encoding client trước khi nghi model).
 
-## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 7. Model merging — khi bạn có nhiều LoRA adapter
+
+Sau vài tuần fine-tune, bạn sẽ có nhiều adapter cho các sub-task khác nhau (phân loại nghiệp vụ, tóm tắt, song ngữ...). Ba mức xử lý, từ đã-học tới đọc-thêm:
+
+1. **Merge 1 adapter về base** — chính là `mlx_lm.fuse` mục 2, tức phép `W' = W + (α/r)BA` của Tuần 6: adapter tan vào trọng số, hết chi phí runtime. Không có gì mới.
+2. **Task arithmetic (Ilharco et al. 2022, arXiv 2212.04089 — abstract kiểm 2026-08-16):** định nghĩa **task vector** `τ = W_finetuned − W_base` — "hướng" trong không gian trọng số mà fine-tune đã đẩy model tới. Paper chỉ ra các vector này cộng/trừ được: **cộng** nhiều τ để ghép nhiều kỹ năng vào một model, **phủ định** (−τ) để giảm một hành vi mà ít ảnh hưởng task khác. LoRA adapter merge về được dạng ΔW nên cũng quy về khung này.
+3. **SLERP (spherical linear interpolation):** thay vì trung bình tuyến tính hai bộ trọng số, nội suy **theo cung tròn** giữa hai vector trọng số (giữ góc/độ lớn thay vì đi đường thẳng xuyên "vùng giữa"). [Suy luận] Lập luận thường gặp là đường thẳng giữa hai điểm tốt có thể đi qua vùng trọng số xấu, còn cung tròn giữ được cấu trúc hơn — tôi không kiểm chứng được lập luận này bằng nguồn mở đã dẫn; với repo này SLERP chỉ cần hiểu ở mức "một cách nội suy khác lerp".
+
+**Tool phổ biến:** `arcee-ai/mergekit` (GitHub public, license **LGPL-3.0** — kiểm file LICENSE 2026-08-16, là license mã nguồn mở chuẩn FSF nên nằm trong phạm vi nguồn cho phép của repo) cài đặt sẵn task arithmetic, SLERP và nhiều method khác qua file YAML.
+
+**Caveat trung thực — đọc trước khi merge:** [Chưa xác minh] Không có nguồn nào trong bảng dưới cho phép nói trước "merge A + B sẽ giữ được chất lượng của cả A lẫn B" cho cặp adapter cụ thể của bạn — merging là kỹ thuật **thực nghiệm**, kết quả phụ thuộc cặp model/task và chỉ biết sau khi đo. Quy trình đúng của repo này: merge xong bắt buộc chạy lại bộ 10 prompt song ngữ (mục 5) + eval set nghiệp vụ, so từng cặp output với từng adapter gốc; giữ bản merge chỉ khi số đo không tụt.
+
+## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
 | ml-explore/mlx-lm (MIT, có LORA.md) | https://github.com/ml-explore/mlx-lm | 2 |
 | Biderman et al. 2024 — LoRA Learns Less and Forgets Less (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.09673 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 5 |
+| Ilharco et al. 2022 — Editing Models with Task Arithmetic (abstract kiểm 2026-08-16) | https://arxiv.org/abs/2212.04089 | 7 |
+| arcee-ai/mergekit (LGPL-3.0 — LICENSE kiểm 2026-08-16) | https://github.com/arcee-ai/mergekit | 7 |
 
 (Ollama, LM Studio, llama.cpp/GGUF: link trong README nguồn học — công cụ cài trên máy, tự xác minh version lúc cài. Các con số tốc độ trong tuần này do BẠN đo, không có số tham khảo nào đáng tin hơn máy của chính bạn.)
 
@@ -70,3 +84,4 @@ Bài kiểm tra này có chỗ dựa từ paper chứ không phải lo xa: Bider
 2. Chốt bộ 10 prompt song ngữ TRƯỚC khi fine-tune (mục 5).
 3. Dựng Ollama + LM Studio, đo tốc độ hai máy theo protocol mục 4.
 4. Viết [`03_hardware_decision.md`](03_hardware_decision.md) từ số đo thật; làm [`quiz.md`](quiz.md).
+5. (Khi đã có ≥2 adapter) đọc mục 7 trước khi merge; mọi bản merge phải qua lại bộ 10 prompt song ngữ mới được giữ.

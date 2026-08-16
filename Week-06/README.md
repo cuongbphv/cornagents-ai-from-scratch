@@ -4,8 +4,8 @@
 
 ## Mục tiêu
 
-- Fine-tune cho **classification** (ch.6) và **instruction-following** (ch.7).
-- Hiểu và áp dụng **LoRA** (Appendix E) — so sánh với full fine-tuning.
+- Fine-tune cho **classification** và **instruction-following**.
+- Hiểu và áp dụng **LoRA** (paper arXiv 2106.09685 + HF PEFT docs) — so sánh với full fine-tuning.
 
 ## Nguồn học
 
@@ -20,8 +20,8 @@
 
 ## Nhiệm vụ (Task)
 
-1. Fine-tune classifier (ch.6): dataset spam, sửa head phân loại, đo accuracy.
-2. Instruction-fine-tune model của bạn (hoặc một pretrained nhỏ) theo ch.7 với Alpaca-style template.
+1. Fine-tune classifier (`01_theory_notes.md` mục 2): dataset spam, sửa head phân loại, đo accuracy.
+2. Instruction-fine-tune model của bạn (hoặc một pretrained nhỏ) theo `01_theory_notes.md` mục 3 với Alpaca-style template.
 3. Áp dụng LoRA và so sánh full FT vs LoRA (tham số train được, VRAM, chất lượng).
 
 ## Deliverable
@@ -35,18 +35,18 @@
 
 ## Phần cứng
 
-- 3070 Ti là đủ cho ch.6–7 (model nhỏ, LoRA).
+- 3070 Ti là đủ cho các bài fine-tune tuần này (model nhỏ, LoRA).
 
 ---
 
 ## Checklist tiến độ
 
 - [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] ch.6: chuẩn bị dataset classification (spam) + sửa head phân loại
-- [ ] ch.6: fine-tune classifier, đo accuracy train/val/test
-- [ ] ch.7: format instruction dataset (Alpaca-style prompt template)
-- [ ] ch.7: instruction fine-tune + sinh phản hồi
-- [ ] Áp dụng LoRA (Appendix E) — so sánh full FT vs LoRA
+- [ ] Classification FT (`01_theory_notes.md` mục 2): chuẩn bị dataset spam + sửa head phân loại
+- [ ] Fine-tune classifier, đo accuracy train/val/test
+- [ ] Instruction FT (`01_theory_notes.md` mục 3): format instruction dataset (Alpaca-style prompt template)
+- [ ] Instruction fine-tune + sinh phản hồi
+- [ ] Áp dụng LoRA (`01_theory_notes.md` mục 4 + HF PEFT docs) — so sánh full FT vs LoRA
 - [ ] Chat thử với mini-model → ghi vài ví dụ
 
 ## 🚀 Bổ sung nâng cao (định vị trong pipeline lớn)
