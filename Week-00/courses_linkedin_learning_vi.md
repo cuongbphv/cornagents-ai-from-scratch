@@ -27,7 +27,7 @@
 | 10 | [Hands-On AI: Introduction to Retrieval-Augmented Generation (RAG)](https://www.linkedin.com/learning/hands-on-ai-introduction-to-retrieval-augmented-generation-rag) | Yujian Tang | 2025-06-04 | 39m | ✅ Đã xác minh |
 | 10–11 | [Advanced RAG Applications with Vector Databases](https://www.linkedin.com/learning/advanced-rag-applications-with-vector-databases) | Yujian Tang | 2024-10-17 | 1h18 | ✅ Đã xác minh |
 | 10–11 | [LLM Foundations: Vector Databases for Caching and RAG](https://www.linkedin.com/learning/llm-foundations-vector-databases-for-caching-and-retrieval-augmented-generation-rag) | Kumaran Ponnambalam | 2024-02-23 | 1h33 | ✅ Đã xác minh |
-| 12–13 | [Building with the Claude API by Anthropic](https://www.linkedin.com/learning/building-with-the-claude-api-by-anthropic) — **khớp lộ trình nhất**: API, tool use, RAG, agentic patterns | Anthropic | 2026-04-02 | 8h11 | ✅ Đã xác minh |
+| 12–13 | [Building with the Claude API by Anthropic](https://www.linkedin.com/learning/building-with-the-claude-api-by-anthropic) — **khớp lộ trình nhất**: API, tool use, RAG, agentic patterns | Anthropic | 2026-04-02 | 8h11 | ✅ Đã xác minh (fetch trang + chủ repo mở được khóa học từ tài khoản, 2026-08-16) |
 | 12 | [Model Context Protocol (MCP): Hands-On with Agentic AI](https://www.linkedin.com/learning/model-context-protocol-mcp-hands-on-with-agentic-ai) | Morten Rand-Hendriksen | 2025-03-24 | 55m | ✅ Đã xác minh |
 | 12–13 | [Hands-On AI: Building AI Agents with MCP and Agent2Agent (A2A)](https://www.linkedin.com/learning/hands-on-ai-building-ai-agents-with-model-context-protocol-mcp-and-agent2agent-a2a) | Kumaran Ponnambalam | 2025-08-06 | 1h40 | ✅ Đã xác minh |
 | 13 | [Build AI Agents and Chatbots with LangGraph](https://www.linkedin.com/learning/build-ai-agents-and-chatbots-with-langgraph) | Kumaran Ponnambalam | 2025-02-12 | 1h14 | ✅ Đã xác minh |
@@ -48,5 +48,4 @@ Tìm kiếm `site:linkedin.com/learning` không trả về khóa nào cho: **bui
 
 ## Ghi chú
 
-- [Suy luận] Fetch `https://www.linkedin.com/learning/claude-with-the-anthropic-api-by-anthropic` trả về nội dung trang "Building with the Claude API" — có thể là cùng một khóa đã merge/đổi tên.
 - Metadata (ngày phát hành, thời lượng) là ảnh chụp tại 2026-08-16; tái sử dụng phải kiểm tra lại theo CLAUDE.md §2.
