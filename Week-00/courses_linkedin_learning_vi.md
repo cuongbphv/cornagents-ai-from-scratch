@@ -2,7 +2,7 @@
 
 > **Tính chất file này:** danh sách **gợi ý tự học** trên LinkedIn Learning, map vào từng tuần của lộ trình. Đây KHÔNG phải nguồn trích dẫn (citation) — theo CLAUDE.md §3, chỉ liệt kê tên khóa/giảng viên/link/metadata công khai; **không** dẫn lại nội dung bài giảng, transcript, slide hay bài tập của khóa học vào repo.
 >
-> **Ngày tra cứu toàn bộ metadata: 2026-08-16.** "✅ Đã xác minh" = trang khóa học được fetch trực tiếp và đọc metadata từ trang; `[Chưa xác minh]` = chỉ xuất hiện trong kết quả tìm kiếm, chưa fetch được trang. LinkedIn Learning có thể gỡ/đổi tên khóa (2 URL đã redirect ngay trong lúc tra cứu) — kiểm tra lại link trước khi học.
+> **Ngày tra cứu toàn bộ metadata: 2026-08-16.** "✅ Đã xác minh" = trang khóa học được fetch trực tiếp và đọc metadata từ trang, HOẶC chủ repo mở được khóa học từ tài khoản LinkedIn Learning của mình (ghi rõ cách xác minh trong cột trạng thái); `[Chưa xác minh]` = chỉ xuất hiện trong kết quả tìm kiếm, chưa fetch được trang. LinkedIn Learning có thể gỡ/đổi tên khóa (2 URL đã redirect ngay trong lúc tra cứu) — kiểm tra lại link trước khi học.
 
 ## Cách dùng
 
@@ -33,13 +33,13 @@
 | 13 | [Build AI Agents and Chatbots with LangGraph](https://www.linkedin.com/learning/build-ai-agents-and-chatbots-with-langgraph) | Kumaran Ponnambalam | 2025-02-12 | 1h14 | ✅ Đã xác minh |
 | 12 | [AI Productivity with MCP: How to Leverage MCP Servers with Claude](https://www.linkedin.com/learning/ai-productivity-with-mcp-how-to-leverage-mcp-servers-with-claude) | Harshit Tyagi | 2025-12-10 | 39m | ✅ Đã xác minh |
 | 13 | [Hands-On Generative AI with Multi-Agent LangChain](https://www.linkedin.com/learning/hands-on-generative-ai-with-multi-agent-langchain-building-real-world-applications) | Nayan Saxena | 2024-02-27 | 41m | ✅ Đã xác minh |
-| 12–13 | [Claude Code 101: From Prompt to Product](https://www.linkedin.com/learning/claude-code-101-from-prompt-to-product) | — | — | — | [Chưa xác minh] |
+| 12–13 | [Claude Code 101: From Prompt to Product](https://www.linkedin.com/learning/claude-code-101-from-prompt-to-product) | — | — | — | ✅ Đã xác minh (chủ repo mở được khóa học từ tài khoản LinkedIn Learning, 2026-08-16) |
 | 14 | [GraphRAG Essential Training](https://www.linkedin.com/learning/graphrag-essential-training) (Neo4j, có chương evaluation pipeline) | Dr. Clair Sullivan | 2025-07-10 | 1h39 | ✅ Đã xác minh |
 | 14 | [Introduction to Neo4j](https://www.linkedin.com/learning/introduction-to-neo4j) | Ljubica Lazarevic | 2022-08-22 (cũ) | 1h25 | ✅ Đã xác minh |
 | 15 | [LLMOps in Practice: A Deep Dive](https://www.linkedin.com/learning/llmops-in-practice-a-deep-dive) | Laurence Moroney | 2024-12-18 | 4h26 | ✅ Đã xác minh |
 | 15 | [Advanced LLMOps: Deploying and Managing LLMs in Production](https://www.linkedin.com/learning/advanced-llmops-deploying-and-managing-llms-in-production) | Soham Chatterjee, Archana Vaidheeswaran | 2024-07-19 | 1h45 | ✅ Đã xác minh |
-| Gap: safety | Red Teaming for Generative AI: Building Robust and Responsible Solutions | Rashim Mogha | 2024-08-28 | 27m | ✅ Đã xác minh (trang trả về khi fetch URL prompt-injection bên dưới) |
-| Gap: security | [Mitigating Prompt Injection and Prompt Hacking](https://www.linkedin.com/learning/mitigating-prompt-injection-and-prompt-hacking) | — | — | — | [Chưa xác minh] — fetch URL này trả về trang khóa Red Teaming; tên khóa chỉ xác nhận qua kết quả tìm kiếm |
+| Gap: safety | [Red Teaming for Generative AI: Building Robust and Responsible Solutions](https://www.linkedin.com/learning/red-teaming-for-generative-ai-building-robust-and-responsible-solutions) | Rashim Mogha | 2024-08-28 | 27m | ✅ Đã xác minh (metadata fetch từ trang 2026-08-16; URL do chủ repo xác nhận từ tài khoản, 2026-08-16) |
+| Gap: security | [Mitigating Prompt Injection and Prompt Hacking](https://www.linkedin.com/learning/mitigating-prompt-injection-and-prompt-hacking) | — | — | — | ✅ Đã xác minh (chủ repo mở được khóa học từ tài khoản LinkedIn Learning, 2026-08-16; metadata giảng viên/ngày chưa tra được từ ngoài) |
 | Prompt eng. | [Introduction to Prompt Engineering for Generative AI](https://www.linkedin.com/learning/introduction-to-prompt-engineering-for-generative-ai-24636124) | Ronnie Sheer | 2024-08-28 | 1h03 | ✅ Đã xác minh |
 
 ## Mảng KHÔNG có khóa tương ứng (tại ngày tra cứu 2026-08-16)
