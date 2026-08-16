@@ -144,6 +144,110 @@ def check_kv_cache_matches(model, idx, max_new_tokens=8, context_size=64):
     raise NotImplementedError("EXT-TODO: assert cached == uncached")
 
 
+# ----------------------------------------------------------------------
+# 🚀 EXTENSION (tùy chọn): RoPE — Rotary Position Embedding
+# Lý thuyết: ../Week-00/advanced_topics_vi.md §A1.
+# Làm SAU khi xong toàn bộ skeleton phía trên. Không bắt buộc cho deliverable.
+# Ý tưởng: thay pos_emb học được bằng phép XOAY từng cặp chiều của q, k
+# theo góc tỉ lệ với vị trí token. Attention score q·k khi đó chỉ phụ thuộc
+# khoảng cách tương đối (m - n) — không phụ thuộc vị trí tuyệt đối.
+# ----------------------------------------------------------------------
+def precompute_rope_freqs(head_dim, max_len, base=10000):
+    """Tính trước (cos, sin) cho mọi vị trí 0..max_len-1.
+
+    Trả về tensor (hoặc tuple cos/sin) shape (max_len, head_dim // 2).
+    """
+    # EXT-TODO 4a: tính tần số cho từng CẶP chiều (head_dim phải chẵn):
+    #   inv_freq = 1.0 / (base ** (torch.arange(0, head_dim, 2).float() / head_dim))
+    #   pos = torch.arange(max_len).float()
+    #   angles = torch.outer(pos, inv_freq)        # (max_len, head_dim//2)
+    #   return torch.cos(angles), torch.sin(angles)
+    raise NotImplementedError("EXT-TODO: precompute cos/sin cho RoPE")
+
+
+def apply_rope(q, k, freqs):
+    """Xoay q, k theo cặp chiều xen kẽ (interleaved pairs).
+
+    q, k: (batch, n_heads, seq_len, head_dim); freqs = (cos, sin) đã cắt theo seq_len.
+    """
+    # EXT-TODO 4b: với mỗi cặp (x1, x2) = (x[..., 0::2], x[..., 1::2]):
+    #   x1' = x1 * cos - x2 * sin
+    #   x2' = x1 * sin + x2 * cos
+    #   rồi ghép xen kẽ lại về shape ban đầu (stack theo chiều mới + flatten,
+    #   hoặc dùng torch.stack([x1', x2'], dim=-1).flatten(-2)).
+    #   Áp CÙNG phép xoay cho cả q và k; trả về (q_rot, k_rot).
+    raise NotImplementedError("EXT-TODO: apply rotation cho q, k")
+
+
+def check_rope_properties(head_dim=64, max_len=128):
+    """Sanity check 2 tính chất của RoPE trên tensor ngẫu nhiên."""
+    # EXT-TODO 5: kiểm tra bằng số (torch.allclose):
+    #   (1) Vị trí 0 là identity: xoay q, k tại pos=0 (cos=1, sin=0)
+    #       phải cho lại đúng q, k ban đầu.
+    #   (2) Tính tương đối (shift-invariance): với q cố định ở pos m, k ở pos n,
+    #       dot product (q_rot_m · k_rot_n) chỉ phụ thuộc (m - n).
+    #       Cách check: chọn (m, n) và (m + s, n + s) với shift s bất kỳ,
+    #       assert torch.allclose(dot(m, n), dot(m + s, n + s), atol=1e-5).
+    #   Gợi ý: sinh q, k ngẫu nhiên shape (1, 1, max_len, head_dim),
+    #   dùng precompute_rope_freqs + apply_rope ở trên.
+    raise NotImplementedError("EXT-TODO: check identity tại pos 0 + shift-invariance")
+
+
+# ----------------------------------------------------------------------
+# 🚀 EXTENSION (tùy chọn): MoE FFN toy — Mixture of Experts
+# Lý thuyết: ../Week-00/advanced_topics_vi.md §A7.
+# Làm SAU khi xong toàn bộ skeleton phía trên. Không bắt buộc cho deliverable.
+# LƯU Ý: đây là bài tập TOY ĐỘC LẬP để hiểu router + expert + aux loss,
+# KHÔNG thay FFN trong GPT skeleton chính ở trên.
+# Ý tưởng: thay 1 FFN dày bằng n_experts FFN nhỏ; router chọn top-k expert
+# cho từng token; aux loss ép tải phân bổ đều giữa các expert (Switch
+# Transformer, arXiv 2101.03961).
+# ----------------------------------------------------------------------
+class MoEFeedForward(nn.Module):
+    """FFN kiểu MoE: router top-k trên n_experts expert nhỏ."""
+
+    def __init__(self, emb_dim, n_experts=4, top_k=2):
+        super().__init__()
+        self.n_experts = n_experts
+        self.top_k = top_k
+        # EXT-TODO 6a: khởi tạo
+        #   self.router = nn.Linear(emb_dim, n_experts, bias=False)
+        #   self.experts = nn.ModuleList([
+        #       nn.Sequential(nn.Linear(emb_dim, 4 * emb_dim), GELU(),
+        #                     nn.Linear(4 * emb_dim, emb_dim))
+        #       for _ in range(n_experts)])
+        raise NotImplementedError("EXT-TODO: MoEFeedForward.__init__")
+
+    def forward(self, x):
+        """x: (batch, seq_len, emb_dim) → (output cùng shape, aux_loss scalar)."""
+        # EXT-TODO 6b: router — chọn top-k expert cho từng token:
+        #   logits = self.router(x)                        # (b, t, n_experts)
+        #   probs = torch.softmax(logits, dim=-1)
+        #   topk_probs, topk_idx = probs.topk(self.top_k, dim=-1)
+        # EXT-TODO 6c: dispatch — tổng có trọng số output của các expert được chọn:
+        #   out = torch.zeros_like(x)
+        #   với mỗi expert e: mask = (topk_idx == e) → lấy token thuộc e,
+        #   out[token] += trọng_số_router * self.experts[e](x[token])
+        #   (cách chậm-nhưng-rõ: loop qua n_experts; đủ cho toy này.)
+        # EXT-TODO 7a: aux load-balancing loss theo Switch Transformer:
+        #   f_e = tỉ lệ token được GÁN cho expert e (trong top-k, tính từ topk_idx)
+        #   p_e = trung bình xác suất router cho expert e (từ probs, trên mọi token)
+        #   aux_loss = n_experts * sum(f_e * p_e)
+        #   return out, aux_loss
+        raise NotImplementedError("EXT-TODO: router + dispatch + aux loss")
+
+
+def check_moe_shapes(emb_dim=32, batch=2, seq_len=8):
+    """Sanity check: output shape khớp input, aux_loss là scalar > 0."""
+    # EXT-TODO 7b: chạy trên input ngẫu nhiên và assert:
+    #   moe = MoEFeedForward(emb_dim)
+    #   x = torch.randn(batch, seq_len, emb_dim)
+    #   out, aux_loss = moe(x)
+    #   assert out.shape == x.shape, "MoE làm đổi shape!"
+    #   assert aux_loss.dim() == 0 and aux_loss.item() > 0, "aux_loss phải là scalar > 0"
+    raise NotImplementedError("EXT-TODO: assert shape + aux_loss scalar")
+
+
 if __name__ == "__main__":
     torch.manual_seed(123)
     model = GPTModel(GPT_CONFIG_124M)

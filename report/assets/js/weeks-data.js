@@ -72,7 +72,7 @@ window.WEEKS_DATA = [
   n:5, phase:1, title:"Pretraining: training loop + 1 lần chạy GPT-2 thật", dur:"~12–15 giờ + thời gian train", hw:"Local 3070 Ti (validate) · Cloud (run thật ~$15–35)",
   obj:["Hiểu pretraining loop, cross-entropy/perplexity, LR scheduling, checkpointing","Thực sự pretrain một model nhỏ"],
   src:["<b>nanoGPT</b> train.py (clipping, LR decay, mixed precision, grad accum)","<b>Karpathy</b> llm.c reproduce GPT-2 (Discussion #481)","<b>HF</b> Ultra-Scale Playbook"],
-  deliver:"Checkpoint base-model nhỏ + write-up <b>so sánh loss curve</b> với GPT-2 gốc (<code>04_loss_analysis.md</code>).",
+  deliver:"Checkpoint base-model nhỏ + write-up <b>so sánh loss curve</b> với GPT-2 gốc (<code>04_loss_analysis.md</code>) + pipeline <b>data dedup & quality filter</b> kiểu FineWeb (<code>05_data_dedup.py</code>).",
   know:`<h5>Loss & perplexity</h5>
    <div class="formula">\\( L=-\\dfrac{1}{N}\\sum_t \\log p_\\theta(x_t\\mid x_{<t}), \\quad \\text{PPL}=e^{L} \\)</div>
    <p>GPT-2 gốc đạt val loss ≈ <b>3.5</b> — dùng làm mốc so sánh cho lần chạy của bạn.</p>

@@ -70,7 +70,21 @@ Thay vì *cộng* một vector vị trí vào embedding (GPT-2), RoPE **xoay** v
 
 $$ \big(x_{2i},\,x_{2i+1}\big) \;\rightarrow\; \big(x_{2i}\cos m\theta_i - x_{2i+1}\sin m\theta_i,\;\; x_{2i}\sin m\theta_i + x_{2i+1}\cos m\theta_i\big) $$
 
-Hệ quả quan trọng: tích vô hướng \(q_m \cdot k_n\) **chỉ phụ thuộc khoảng cách tương đối** \((m-n)\), không phụ thuộc vị trí tuyệt đối → tổng quát hoá tốt hơn ra ngoài độ dài đã train, và là nền của các thủ thuật mở rộng context (NTK/YaRN scaling). Áp dụng *trong* attention, lên Q và K, không lên V.
+Hệ quả quan trọng: tích vô hướng \(q_m \cdot k_n\) **chỉ phụ thuộc khoảng cách tương đối** \((m-n)\), không phụ thuộc vị trí tuyệt đối → tổng quát hoá tốt hơn ra ngoài độ dài đã train, và là nền của các thủ thuật mở rộng context (tiểu mục ngay dưới). Áp dụng *trong* attention, lên Q và K, không lên V.
+
+#### A1.1. Mở rộng context với RoPE: PI → NTK-aware → YaRN
+
+> Nguồn: Position Interpolation — Chen et al. 2023 (arXiv [2306.15595](https://arxiv.org/abs/2306.15595), abstract tra 2026-08-16); YaRN — Peng et al. 2023 (arXiv [2309.00071](https://arxiv.org/abs/2309.00071), abstract + full text HTML tra 2026-08-16).
+
+**Vì sao extrapolation "trần" thất bại.** Model chỉ từng thấy các góc quay \(m\theta_i\) với \(m\) trong độ dài train (vd. 0–4095). Cho \(m\) vượt xa mức đó là đưa attention vào vùng góc chưa từng gặp — abstract PI mô tả extrapolation "may lead to catastrophically high attention scores that completely ruin the self-attention mechanism" (điểm attention cao thảm hoạ, phá vỡ cơ chế self-attention).
+
+Ba mức khắc phục, đều xoay quanh câu hỏi **"rescale cái gì"**:
+
+- **Position Interpolation (PI)**: *rescale vị trí*. Nén tuyến tính chỉ số vị trí \(m \rightarrow m \cdot L/L'\) (\(L\) = độ dài train, \(L'\) = độ dài mới) để mọi vị trí mới rơi ngược vào dải góc đã train — nội suy thay vì ngoại suy. Abstract PI: mở rộng LLaMA lên **32768** token với fine-tune **dưới 1000 bước**, và cận trên của nội suy nhỏ hơn ngoại suy "~600×". Nhược điểm (paper YaRN chỉ ra): nén *đều mọi chiều* làm mất thành phần tần số cao — "it removes the high frequency components of RoPE" — tức là làm mờ khả năng phân biệt các token *sát nhau*.
+- **NTK-aware scaling**: *rescale tần số (base), không đều*. Thay vì nén mọi chiều cùng hệ số \(s\), đổi base \(b \rightarrow b \cdot s^{d/(d-2)}\) — full text YaRN: "we spread out the interpolation pressure across multiple dimensions by scaling high frequencies less and low frequencies more" (chiều tần số cao gần như giữ nguyên để không mất chi tiết cục bộ, chiều tần số thấp nén nhiều để phủ được context dài).
+- **YaRN**: kết hợp **NTK-by-parts** (chọn nội suy theo *từng chiều*, dựa trên tỉ lệ bước sóng/context: chiều tần số cao giữ nguyên, chiều tần số thấp mới nội suy) + **attention temperature scaling** (nhân thêm nhiệt độ \(t\) vào softmax attention, \(\sqrt{1/t}=0.1\ln s + 1\)). Abstract YaRN: cần "10x less tokens and 2.5x less training steps than previous methods" để đạt cùng mức mở rộng context.
+
+Mental model gọn: PI kéo *vị trí* về vùng đã train; NTK-aware kéo *tần số* một cách có chọn lọc; YaRN làm việc chọn lọc đó theo từng chiều rồi vá nốt phần softmax. Cả ba đều rẻ vì **không đổi kiến trúc** — chỉ đổi cách tính góc quay RoPE (± một lượng fine-tune nhỏ).
 
 ### A2. RMSNorm (thay LayerNorm)
 
@@ -100,9 +114,28 @@ Nén K,V xuống một **vector tiềm ẩn (latent) chiều thấp** rồi mớ
 
 Mỗi token chỉ attend tới \(w\) token gần nhất (cửa sổ trượt) thay vì toàn bộ quá khứ → chi phí tuyến tính theo độ dài. Mistral/Qwen dùng xen kẽ lớp full-attention và sliding-window để cân bằng tầm xa và chi phí.
 
+#### A6.1. Attention sinks & StreamingLLM — vì sao vài token đầu tiên "thiêng"
+
+> Nguồn: StreamingLLM — Xiao et al. 2023, *Efficient Streaming Language Models with Attention Sinks* (arXiv [2309.17453](https://arxiv.org/abs/2309.17453), abstract tra 2026-08-16).
+
+Cửa sổ trượt "ngây thơ" có một chỗ gãy: khi hội thoại dài vượt kích thước cache và các token *đầu tiên* bị đẩy khỏi KV cache, chất lượng sụp — abstract mô tả window attention thất bại "when the text length surpasses the cache size". Phát hiện của paper: chỉ cần **giữ lại KV của các token đầu tiên** là "will largely recover the performance of window attention" — dù các token đó *không quan trọng về ngữ nghĩa*. Paper gọi hiện tượng này là **attention sink**: các token đầu hút một lượng attention lớn bất thường.
+
+[Suy luận] Cách giải thích trực giác (dựa trên lập luận trong paper, không nằm trong abstract): softmax buộc tổng attention = 1, nên khi một head "không cần nhìn đâu cả" nó vẫn phải đổ trọng số đi đâu đó — và chỗ đổ ổn định nhất là các vị trí đầu tiên, vì *mọi* token về sau đều nhìn thấy chúng trong attention nhân quả. Rút chúng khỏi cache là rút mất "chỗ xả" mà model đã học cách dựa vào.
+
+**Công thức window + sink** (StreamingLLM): KV cache = **vài token sink đầu chuỗi** (giữ cố định) **+ cửa sổ trượt \(w\) token gần nhất** — không cần fine-tune. Abstract: cách này cho model train với attention window hữu hạn "generalize to infinite sequence lengths without any fine-tuning", chạy tới "4 million tokens and more", nhanh hơn baseline sliding-window-có-tính-lại tới **22.2×**. Paper còn ghi nhận: thêm một placeholder token làm sink chuyên dụng ngay từ pretraining giúp streaming tốt hơn nữa. Lưu ý phạm vi: đây là kỹ thuật *streaming/bộ nhớ cache*, không phải mở rộng context "thật" — model vẫn không nhớ nội dung đã rơi khỏi cửa sổ (khác với A1.1, nơi model thật sự attend được cả context dài).
+
 ### A7. MoE — Mixture of Experts
 
-Thay một FFN dày bằng **nhiều FFN "expert"**; một **router** chọn top-\(k\) expert cho mỗi token (ví dụ 8 trên 256). Tổng tham số rất lớn nhưng **tham số *active* mỗi token nhỏ** → "dung lượng" lớn với chi phí tính toán thấp. Cần lo **load balancing** (tránh dồn token vào ít expert). Qwen3-MoE, DeepSeek, gpt-oss đều theo hướng này (nền lý thuyết: Switch Transformer, arXiv 2101.03961; Mixtral, arXiv 2401.04088).
+> Nguồn: Switch Transformer — Fedus et al. 2021 (arXiv [2101.03961](https://arxiv.org/abs/2101.03961), abstract + full text tra 2026-08-16); Mixtral — Jiang et al. 2024 (arXiv [2401.04088](https://arxiv.org/abs/2401.04088), abstract tra 2026-08-16).
+
+Thay một FFN dày bằng **nhiều FFN "expert"**; mỗi token chỉ đi qua vài expert. Ý tưởng gốc theo abstract Switch Transformer: MoE "selects different parameters for each incoming example. The result is a sparsely-activated model — with outrageous numbers of parameters — but a constant computational cost" (model kích hoạt thưa: số tham số khổng lồ nhưng chi phí tính toán mỗi token không đổi). Qwen3-MoE, DeepSeek, gpt-oss đều theo hướng này. Cơ chế đầy đủ gồm 4 mảnh:
+
+1. **Router = linear + softmax, chọn top-\(k\).** Router tính logits \(h(x)=W_r x\), softmax ra xác suất \(p_i(x)\) trên các expert, rồi gửi token tới \(k\) expert xác suất cao nhất; output là tổng có trọng số \(p_i(x)\,E_i(x)\). Switch Transformer đơn giản hoá về \(k=1\) (mỗi token đúng một expert) để giảm chi phí router và communication; Mixtral dùng \(k=2\) ("a router network selects two experts to process the current state and combine their outputs" — abstract).
+2. **Auxiliary load-balancing loss.** Router train "trần" hay sập về vài expert quen (rich-get-richer: expert nhận nhiều token → học tốt hơn → càng được chọn). Switch Transformer thêm loss phụ \(\;\alpha \cdot N \cdot \sum_{i=1}^{N} f_i \cdot P_i\;\) với \(f_i\) = "fraction of tokens dispatched to expert i" (tỉ lệ token *thực gửi* tới expert \(i\)) và \(P_i\) = "fraction of the router probability allocated for expert i" (tỉ lệ *xác suất* router dành cho expert \(i\)). Loss này nhỏ nhất khi phân bố đều (\(f_i = P_i = 1/N\)), tức là nó phạt việc dồn token vào ít expert; paper đặt \(\alpha = 10^{-2}\).
+3. **Capacity factor.** Vì expert nằm trên device khác nhau, mỗi expert có buffer cứng: *expert capacity* = (số token mỗi batch / số expert) × **capacity factor**. Factor > 1 chừa đệm cho routing lệch; token vượt capacity bị "drop" — không qua expert, chỉ đi tiếp bằng residual connection. Đây là trade-off thật của MoE: capacity thấp → mất token, capacity cao → phí bộ nhớ/tính toán.
+4. **Active vs total params — ví dụ Mixtral 8x7B.** Abstract Mixtral: mỗi layer có **8 expert FFN**, router chọn **2**; "each token has access to 47B parameters, but only uses 13B active parameters during inference" — tức là trả VRAM cho 47B (phải load hết expert) nhưng trả FLOPs mỗi token chỉ cỡ model dense ~13B. Đó là lời hứa của MoE: *dung lượng kiến thức của model to, chi phí sinh token của model nhỏ* — đổi lại bằng bộ nhớ và độ phức tạp routing/balancing ở trên.
+
+**Thực hành:** bài tập MoE toy (router top-k + aux loss trên FFN nhỏ) có trong phần extension của [`../Week-04/02_gpt_model.py`](../Week-04/02_gpt_model.py) — làm sau khi lắp xong GPT dense ở Tuần 4.
 
 ---
 
@@ -124,9 +157,19 @@ Từ logits → phân phối, các chiến lược:
 - **Top-p (nucleus)**: lấy tập token nhỏ nhất có tổng xác suất \(\ge p\).
 - Thực tế thường kết hợp temperature + top-p. (Tuần 5 đã dùng temperature & top-k; phần này mở rộng thêm top-p.)
 
-### B3. Speculative decoding (khái niệm)
+### B3. Speculative decoding
 
-Dùng một model "nháp" nhỏ để đề xuất nhiều token, model lớn **verify song song** → tăng tốc mà không đổi phân phối đầu ra. Hữu ích khi serving; chỉ cần nắm ý tưởng ở mức này.
+> Nguồn: Leviathan et al. 2022, *Fast Inference from Transformers via Speculative Decoding* (arXiv [2211.17192](https://arxiv.org/abs/2211.17192), abstract tra 2026-08-16).
+
+Nút thắt của decode tự hồi quy: sinh \(K\) token cần \(K\) lần forward *tuần tự* model lớn — abstract: "decoding K tokens takes K serial runs of the model" — trong khi GPU lại rất giỏi chạy *song song*. Speculative decoding đổi tuần tự lấy song song, gồm 3 bước mỗi vòng:
+
+1. **Draft**: một model nháp nhỏ (rẻ) sinh tuần tự \(k\) token đề xuất \(x_1,\dots,x_k\). Quan sát nền của paper: "hard language-modeling tasks often include easier subtasks that can be approximated well by more efficient models" — phần lớn token (từ nối, cụm quen) model nhỏ đoán được y hệt model lớn.
+2. **Verify song song**: model lớn (target) chạy **một** lần forward trên cả \(k\) token đề xuất cùng lúc (mỗi vị trí đã có đủ prefix), lấy ra phân phối \(p(x_i \mid \dots)\) của target tại từng vị trí. Một forward-với-\(k\)-vị-trí đắt gần bằng một forward-1-token vì decode vốn bị nghẽn băng thông bộ nhớ chứ không nghẽn FLOPs — nên "kiểm \(k\) token" gần như miễn phí so với "sinh \(k\) token".
+3. **Acceptance–rejection giữ nguyên phân phối gốc**: duyệt trái→phải, token nháp \(x_i\) được nhận với xác suất \(\min(1,\; p(x_i)/q(x_i))\) (\(q\) = phân phối của model nháp); gặp token đầu tiên bị từ chối thì dừng, sample lại token đó từ phân phối hiệu chỉnh \(\propto \max(0, p - q)\) rồi sang vòng mới. Abstract khẳng định kết quả then chốt: tăng tốc "without changing the distribution" — đầu ra **identical** về phân phối với việc decode thẳng model lớn, không phải một phép xấp xỉ.
+
+Được ăn cả: mỗi vòng nhận trung bình nhiều hơn 1 token thì tốc độ tăng; tệ nhất (nháp trật hết) vẫn nhận đúng 1 token như decode thường. Abstract báo cáo **2X–3X** trên T5-XXL so với implementation T5X chuẩn, "without retraining or architecture changes". Điều kiện dùng: có sẵn model nháp *cùng tokenizer*, và model nháp phải "hợp gu" target (tỉ lệ chấp nhận cao) — nháp quá lệch thì verify toàn từ chối, thành chạy hai model mà tốc độ như một.
+
+**Thực hành:** bài thực hành speculative decoding có trong phần extension của Tuần 9 (local inference).
 
 ### B4. Quantization internals (sâu hơn Tuần 8)
 
@@ -198,15 +241,28 @@ Hiểu tokenizer giải thích nhiều "bug" nổi tiếng: đếm chữ "r" tro
 
 ## F. Scale & Parallelism
 
-> **Học ở tuần:** 5 (cloud run). Nguồn: HF *Ultra-Scale Playbook*; PyTorch DDP docs; nanochat `torchrun`.
+> **Học ở tuần:** 5 (cloud run). Nguồn: HF *Ultra-Scale Playbook*; PyTorch DDP docs; nanochat `torchrun`; ZeRO — Rajbhandari et al. 2019 (arXiv [1910.02054](https://arxiv.org/abs/1910.02054), abstract + full text tra 2026-08-16); [PyTorch FSDP docs](https://docs.pytorch.org/docs/stable/fsdp.html) (fetch xác nhận URL sống 2026-08-16).
 
 - **DDP (Data Parallel)**: nhân bản model trên N GPU, mỗi GPU một phần batch, **all-reduce** gradient. Đây là mức song song đầu tiên cần biết (nanoGPT/llm.c đều train multi-GPU bằng DDP/torchrun).
 - **Tensor Parallel (TP)**: chia *trong* một lớp (ma trận) qua nhiều GPU — cho model không vừa 1 GPU.
 - **Pipeline Parallel (PP)**: chia *theo lớp* thành các stage.
-- **ZeRO / FSDP**: shard optimizer state / gradient / param qua GPU để giảm bộ nhớ (DeepSpeed ZeRO-1/2/3, PyTorch FSDP).
 - **MFU** (Model FLOPs Utilization): % FLOP lý thuyết thực sự dùng được — thước đo hiệu quả train (nanochat theo dõi `train/mfu`).
 
-Với bạn (1 GPU 8GB local): chủ yếu dùng **gradient accumulation** (D) ở local; **DDP** chỉ khi thuê multi-GPU cloud cho lần pretrain.
+### F1. ZeRO stages 1/2/3 — shard dần từng loại state
+
+Điểm mù của DDP: mỗi GPU giữ **bản sao đầy đủ** của model state — params + gradients + optimizer states (với AdamW mixed-precision, optimizer states thường là phần *nặng nhất*). ZeRO (Zero Redundancy Optimizer) xoá dần sự dư thừa đó, theo 3 stage *cộng dồn* — mỗi stage shard thêm một loại state qua \(N_d\) GPU (số liệu memory-reduction lấy từ paper, tra 2026-08-16):
+
+1. **Stage 1 — \(P_{os}\)**: shard **optimizer states** (mỗi GPU giữ \(1/N_d\)); paper: "4x memory reduction, same communication volume as DP" — giảm ~4× bộ nhớ, communication không đổi.
+2. **Stage 2 — \(P_{os+g}\)**: shard thêm **gradients** (reduce-scatter về đúng GPU chịu trách nhiệm update phần param tương ứng); paper: "8x memory reduction, same communication volume as DP".
+3. **Stage 3 — \(P_{os+g+p}\)**: shard nốt **parameters** — mỗi GPU chỉ giữ mảnh của mình, forward/backward cần lớp nào thì broadcast/gather lớp đó *đúng lúc* rồi thả ra; paper: memory giảm **tuyến tính theo \(N_d\)**, đổi lại "~50% increase in communication volume". Đây là stage duy nhất phá được giới hạn "model phải vừa 1 GPU".
+
+Trục trade-off để nhớ: stage càng cao càng tiết kiệm bộ nhớ, càng tốn communication — chọn stage thấp nhất đủ vừa model.
+
+### F2. FSDP — ZeRO-3-style trong PyTorch
+
+**FSDP (FullyShardedDataParallel)** là cách PyTorch tích hợp ý tưởng ZeRO vào core: docs chính thức ([docs.pytorch.org/docs/stable/fsdp.html](https://docs.pytorch.org/docs/stable/fsdp.html), tra 2026-08-16) mô tả `ShardingStrategy.FULL_SHARD` là "Parameters, gradients, and optimizer states are sharded" — đúng dáng ZeRO-3; `SHARD_GRAD_OP` chỉ shard gradient + optimizer states (dáng ZeRO-2 — docs thậm chí có biến thể tên `_HYBRID_SHARD_ZERO2`); `NO_SHARD` thì hành xử như DDP. Nghĩa là chuyển DDP → FSDP không phải đổi framework, chỉ đổi *chiến lược trải state lên GPU*.
+
+**Kế hoạch hands-on:** Chủ repo xác nhận 2026-08-16 sẵn sàng thuê GPU cloud — DDP/FSDP hands-on đã được đưa vào Week-05 extension (thuê máy 2×GPU); xem block extension trong README Tuần 5. Ở local 1 GPU 8GB, công cụ chính vẫn là **gradient accumulation** (D); F1–F2 là thứ bạn chạy thật trên máy thuê.
 
 ---
 
@@ -400,7 +456,7 @@ OCR pipeline: ảnh → *text* (bước OCR tất định) → model **chỉ th�
 ## Tóm tắt ưu tiên (nếu thời gian hẹp)
 
 1. **Bắt buộc**: KV cache (B1), RoPE (A1), RMSNorm/SwiGLU (A2–A3), GQA (A4), gradient accumulation (D), bits-per-byte (H) — đây là khoảng cách lớn nhất giữa "GPT-2 2019" và "LLM bạn dùng hằng ngày". Với Phase 3: 5 tầng engineering (I1) + 4 điều kiện của ratchet loop (I2) + complexity budget (I5).
-2. **Nên có**: MoE (A7), quantization internals (B4), Muon (D1), full alignment pipeline (G), BPE training (E), 5 workflow patterns (I3), blocking + incremental update cho KG (I4), PagedAttention + continuous batching (J), test-time compute & reasoning models (K). *(K xếp tier 2 chứ không phải tier 1 vì nó là phần mở rộng của G — hiểu GRPO/RLVR ở tier trên trước đã, K chỉ "thấm" khi đã có G.)*
-3. **Để dành**: MLA (A5), sliding window (A6), speculative decoding (B3), TP/PP/FSDP (F), Dynamic Workflows ở quy mô 1.000 sub-agent (I3), multimodal/VLM (L — ngoài phạm vi hands-on) — đào khi cần.
+2. **Nên có**: MoE (A7 — có bài tập toy ở Week-04 extension), quantization internals (B4), speculative decoding (B3 — có thực hành ở Week-09 extension), Muon (D1), full alignment pipeline (G), BPE training (E), **DDP/FSDP + ZeRO stages (F — lên tier này vì đã có hands-on 2×GPU ở Week-05 extension)**, 5 workflow patterns (I3), blocking + incremental update cho KG (I4), PagedAttention + continuous batching (J), test-time compute & reasoning models (K). *(K xếp tier 2 chứ không phải tier 1 vì nó là phần mở rộng của G — hiểu GRPO/RLVR ở tier trên trước đã, K chỉ "thấm" khi đã có G.)*
+3. **Để dành**: MLA (A5), sliding window + attention sinks (A6), context extension PI/NTK/YaRN (A1.1), TP/PP (phần còn lại của F chưa có hands-on), Dynamic Workflows ở quy mô 1.000 sub-agent (I3), multimodal/VLM (L — ngoài phạm vi hands-on) — đào khi cần.
 
 > **Neo nguồn nhanh:** paper mở (RoPE/GQA/MLA/MoE/FlashAttention — kiến trúc hiện đại) · `nanoGPT/train.py` (training dynamics) + HF Ultra-Scale Playbook (parallelism) · FareedKhan `src/post_training` (alignment) · nanochat `gpt.py`/`engine.py`/`optim.py`/`tok_train.py` (full-stack hiện đại) · [`../docs/`](../docs/) 2 PDF Graph-Engineering + sơ đồ 5 tầng (agentic/graph).

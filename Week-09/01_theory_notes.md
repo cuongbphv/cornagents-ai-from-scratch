@@ -67,7 +67,27 @@ Sau vài tuần fine-tune, bạn sẽ có nhiều adapter cho các sub-task khá
 
 **Caveat trung thực — đọc trước khi merge:** [Chưa xác minh] Không có nguồn nào trong bảng dưới cho phép nói trước "merge A + B sẽ giữ được chất lượng của cả A lẫn B" cho cặp adapter cụ thể của bạn — merging là kỹ thuật **thực nghiệm**, kết quả phụ thuộc cặp model/task và chỉ biết sau khi đo. Quy trình đúng của repo này: merge xong bắt buộc chạy lại bộ 10 prompt song ngữ (mục 5) + eval set nghiệp vụ, so từng cặp output với từng adapter gốc; giữ bản merge chỉ khi số đo không tụt.
 
-## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 8. Speculative decoding — chạy thử trên stack local
+
+Đây là phần "làm thật" của mục B3 trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md).
+
+**Cơ chế (Leviathan et al. 2022, arXiv 2211.17192 — abstract kiểm 2026-08-16, CC BY 4.0):**
+
+1. Một **draft model nhỏ** (cùng tokenizer với model đích) sinh trước k token nháp theo kiểu autoregressive bình thường — rẻ vì model nhỏ.
+2. **Target model lớn** chạy **một** lượt forward trên cả k token đó **song song** (thay vì k lượt tuần tự) để lấy phân phối của chính nó tại từng vị trí.
+3. **Luật chấp nhận:** duyệt từng token nháp; token được giữ với xác suất phụ thuộc tỷ lệ p_target/p_draft, gặp token bị từ chối thì dừng và lấy mẫu lại từ phân phối đã hiệu chỉnh của target. Abstract của paper khẳng định phương pháp cho kết quả **giữ nguyên phân phối của model lớn** ("identical outputs" so với decode chuẩn, đo trên T5-XXL với speedup 2–3×), không cần train lại hay đổi kiến trúc.
+4. Vì output không đổi, đây là tối ưu **tốc độ thuần túy** — khác quantization (đánh đổi chất lượng).
+
+**Vì sao speedup phụ thuộc acceptance rate:** mỗi vòng, chi phí gần như cố định là 1 forward của target (+ k forward rẻ của draft); số token "ăn được" mỗi vòng = số token nháp được chấp nhận (+1 token lấy mẫu lại). Draft đoán trúng nhiều → nhiều token/1 forward lớn → nhanh; draft đoán trật liên tục → mỗi vòng chỉ được ~1 token mà vẫn tốn thêm chi phí chạy draft → có thể **chậm hơn** không dùng draft. [Suy luận] Hệ quả thực dụng: chọn draft cùng họ model, cùng tokenizer, và đo trên chính workload của bạn — đoán trúng hay không phụ thuộc domain prompt.
+
+**Hands-on trên stack tuần này (flag đã kiểm từ nguồn chính thức, KHÔNG đoán):**
+
+- **llama.cpp** (`llama-server`): flag nạp draft model là `--model-draft` (alias `-md`, `--spec-draft-model`), mô tả nguyên văn "draft model for speculative decoding"; số token nháp mỗi vòng chỉnh bằng `--spec-draft-n-max` — kiểm từ README của `tools/server` trong repo ggml-org/llama.cpp ngày 2026-08-16.
+- **MLX**: `mlx_lm.generate` có `--draft-model` ("A model to be used for speculative decoding.") và `--num-draft-tokens` (mặc định 3) — kiểm trực tiếp argparse trong `mlx_lm/generate.py` của repo ml-explore/mlx-lm ngày 2026-08-16.
+- **Đo theo đúng protocol mục 4:** cùng model đích, cùng prompt, cùng `max_tokens`; chạy ≥3 lần mỗi cấu hình (có draft vs không draft), bỏ lần đầu, lấy trung bình tokens/giây; ghi kèm ngày đo + máy (Mac hay 3070 Ti) + tên/kích thước draft model. Lệnh sẵn dùng trong [`02_mlx_commands.md`](02_mlx_commands.md) mục 6.
+- [Chưa xác minh] Tôi không kiểm chứng được speculative decoding có nhanh hơn trên chính hai máy của bạn với cặp model bạn chọn — như mọi số đo trong tuần này, chỉ số tự đo mới có giá trị.
+
+## 9. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
@@ -75,6 +95,9 @@ Sau vài tuần fine-tune, bạn sẽ có nhiều adapter cho các sub-task khá
 | Biderman et al. 2024 — LoRA Learns Less and Forgets Less (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.09673 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 5 |
 | Ilharco et al. 2022 — Editing Models with Task Arithmetic (abstract kiểm 2026-08-16) | https://arxiv.org/abs/2212.04089 | 7 |
 | arcee-ai/mergekit (LGPL-3.0 — LICENSE kiểm 2026-08-16) | https://github.com/arcee-ai/mergekit | 7 |
+| Leviathan et al. 2022 — Fast Inference from Transformers via Speculative Decoding (abstract kiểm 2026-08-16, CC BY 4.0) | https://arxiv.org/abs/2211.17192 | 8 |
+| llama.cpp `tools/server` README — flag `--model-draft`/`-md`, `--spec-draft-n-max` (kiểm 2026-08-16) | https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md | 8 |
+| ml-explore/mlx-lm `mlx_lm/generate.py` — flag `--draft-model`, `--num-draft-tokens` (kiểm 2026-08-16) | https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/generate.py | 8 |
 
 (Ollama, LM Studio, llama.cpp/GGUF: link trong README nguồn học — công cụ cài trên máy, tự xác minh version lúc cài. Các con số tốc độ trong tuần này do BẠN đo, không có số tham khảo nào đáng tin hơn máy của chính bạn.)
 
@@ -85,3 +108,4 @@ Sau vài tuần fine-tune, bạn sẽ có nhiều adapter cho các sub-task khá
 3. Dựng Ollama + LM Studio, đo tốc độ hai máy theo protocol mục 4.
 4. Viết [`03_hardware_decision.md`](03_hardware_decision.md) từ số đo thật; làm [`quiz.md`](quiz.md).
 5. (Khi đã có ≥2 adapter) đọc mục 7 trước khi merge; mọi bản merge phải qua lại bộ 10 prompt song ngữ mới được giữ.
+6. (Mở rộng) Chạy thử speculative decoding theo mục 8: đo tokens/giây có draft vs không draft (≥3 lần, cùng prompt), ghi ngày + máy + draft model vào [`03_hardware_decision.md`](03_hardware_decision.md).
