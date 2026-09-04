@@ -6,12 +6,12 @@
 
 Ý tưởng cốt lõi của LoRA?
 
-- **A.** Lượng tử hoá trọng số xuống 4-bit
-- **B.** Đóng băng W, học thêm hai ma trận thấp hạng B,A sao cho W' = W + BA với rank r ≪ d (đáp án đúng)
+- **A.** Đóng băng W, học thêm hai ma trận thấp hạng B,A sao cho W' = W + BA với rank r ≪ d (đáp án đúng)
+- **B.** Lượng tử hoá trọng số xuống 4-bit
 - **C.** Tăng learning rate cho lớp cuối
 - **D.** Cắt tỉa (prune) trọng số nhỏ
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** LoRA chỉ train BA (ít tham số) thay vì toàn bộ W → tiết kiệm VRAM lớn, là nền của QLoRA (Tuần 11).
 
@@ -40,10 +40,10 @@ Trong instruction fine-tuning, vì sao thường mask phần prompt/instruction 
 
 Instruction fine-tuning khác pretraining ở điểm nào về DỮ LIỆU và MỤC TIÊU?
 
-- **A.** Khác thuật toán tối ưu hoàn toàn (không dùng cross-entropy)
+- **A.** Pretraining chỉ dùng cho model nhỏ
 - **B.** Pretraining: text thô, học dự đoán token kế; instruction FT: cặp (instruction, response) có cấu trúc, học làm theo yêu cầu, cùng loss cross-entropy nhưng phân phối dữ liệu và hành vi đích khác (đáp án đúng)
 - **C.** Instruction FT không cần gradient
-- **D.** Pretraining chỉ dùng cho model nhỏ
+- **D.** Khác thuật toán tối ưu hoàn toàn (không dùng cross-entropy)
 
 **Đáp án: B**
 
@@ -53,12 +53,12 @@ Instruction fine-tuning khác pretraining ở điểm nào về DỮ LIỆU và 
 
 Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưng theo Shi et al. 2024, Instruction Tuning With Loss Over Instructions (arXiv 2405.14394, dẫn ở mục 3 theory notes), tính loss CẢ trên phần instruction lại có lợi trong điều kiện nào?
 
-- **A.** Luôn luôn có lợi, nên bỏ hẳn masking
-- **B.** Khi dataset có instruction dài kèm output ngắn, hoặc khi có ít mẫu train, nhóm tác giả quy lợi ích cho việc giảm overfitting (đáp án đúng)
-- **C.** Khi model có trên 7B tham số
+- **A.** Khi dataset có instruction dài kèm output ngắn, hoặc khi có ít mẫu train, nhóm tác giả quy lợi ích cho việc giảm overfitting (đáp án đúng)
+- **B.** Khi model có trên 7B tham số
+- **C.** Luôn luôn có lợi, nên bỏ hẳn masking
 - **D.** Khi dùng optimizer khác AdamW
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Theo mục 3 của 01_theory_notes.md: mask chuẩn vẫn là mặc định của bài tuần này; ngoại lệ 'lengthy instructions + brief outputs' và ít mẫu train là nuance từ arXiv 2405.14394 (F.cross_entropy có ignore_index=-100 mặc định nên chỉ cần gán nhãn -100 là mask).
 
@@ -66,10 +66,10 @@ Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưn
 
 LoRA r=16 trên ma trận 4096×4096 chỉ train ~0.78% tham số, nhưng vì sao VRAM khi train giảm còn MẠNH hơn cả tỷ lệ đó?
 
-- **A.** Vì LoRA tự động quantize base model xuống 4-bit
+- **A.** Vì ma trận A, B được lưu ở CPU
 - **B.** Vì AdamW giữ 2 giá trị moment cho MỖI tham số được train, LoRA cắt số tham số train ~50-100× nên cắt luôn optimizer state tương ứng, thường là phần ăn VRAM lớn nhất khi full FT (đáp án đúng)
 - **C.** Vì LoRA bỏ không lưu activation
-- **D.** Vì ma trận A, B được lưu ở CPU
+- **D.** Vì LoRA tự động quantize base model xuống 4-bit
 
 **Đáp án: B**
 
@@ -83,12 +83,12 @@ LoRA r=16 trên ma trận 4096×4096 chỉ train ~0.78% tham số, nhưng vì sa
 
 Shazeer (arXiv 2002.05202) thay FFN 'Linear rồi GELU' bằng SwiGLU có ba ma trận. Ông giữ số tham số không đổi bằng cách nào, và điều này giải thích con số nào trong config Mistral 7B?
 
-- **A.** Bỏ ma trận output
-- **B.** Giảm số đơn vị ẩn d_ff; Mistral 7B có hidden_dim 14336 với d = 4096, tức 3,5d thay cho 4d (đáp án đúng)
+- **A.** Chia sẻ trọng số giữa hai ma trận gate và up
+- **B.** Bỏ ma trận output
 - **C.** Dùng bias để bù
-- **D.** Chia sẻ trọng số giữa hai ma trận gate và up
+- **D.** Giảm số đơn vị ẩn d_ff; Mistral 7B có hidden_dim 14336 với d = 4096, tức 3,5d thay cho 4d (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Shazeer mục 3: 'we reduce the number of hidden units d_ff'. Mistral 7B Table 1 (arXiv 2310.06825).
 

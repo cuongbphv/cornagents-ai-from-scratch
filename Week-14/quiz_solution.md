@@ -6,12 +6,12 @@
 
 Hybrid retrieval kết hợp BM25 và vector search; chúng thường được trộn bằng kỹ thuật nào?
 
-- **A.** Lấy trung bình embedding
-- **B.** Reciprocal Rank Fusion (RRF): hợp nhất thứ hạng từ hai bộ retrieve (đáp án đúng)
+- **A.** Chỉ lấy BM25
+- **B.** Lấy trung bình embedding
 - **C.** Nối kết quả ngẫu nhiên
-- **D.** Chỉ lấy BM25
+- **D.** Reciprocal Rank Fusion (RRF): hợp nhất thứ hạng từ hai bộ retrieve (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** BM25 (lexical) bắt từ khoá chính xác; vector (semantic) bắt ý nghĩa; RRF hợp nhất để bù điểm yếu của nhau.
 
@@ -27,12 +27,12 @@ Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?
 
 Trong RAGAS, 'faithfulness' đo điều gì?
 
-- **A.** Câu trả lời có bám/được hỗ trợ bởi context retrieve hay không (chống bịa) (đáp án đúng)
+- **A.** Số token dùng
 - **B.** Tốc độ trả lời
 - **C.** Độ dài câu trả lời
-- **D.** Số token dùng
+- **D.** Câu trả lời có bám/được hỗ trợ bởi context retrieve hay không (chống bịa) (đáp án đúng)
 
-**Đáp án: A**
+**Đáp án: D**
 
 **Giải thích:** Faithfulness kiểm tra các khẳng định trong câu trả lời có truy được về context không → thước đo chống hallucination.
 
@@ -40,12 +40,12 @@ Trong RAGAS, 'faithfulness' đo điều gì?
 
 'Context precision' và 'context recall' trong RAGAS đánh giá khâu nào?
 
-- **A.** Khâu generate
-- **B.** Chất lượng RETRIEVAL, đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không (đáp án đúng)
-- **C.** Tốc độ embedding
-- **D.** Chi phí API
+- **A.** Chất lượng RETRIEVAL, đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không (đáp án đúng)
+- **B.** Chi phí API
+- **C.** Khâu generate
+- **D.** Tốc độ embedding
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Hai chỉ số này tách bạch lỗi do retrieval kém với lỗi do generation kém.
 
@@ -61,12 +61,12 @@ Vì sao cần eval set + cẩn trọng với LLM-as-judge?
 
 Langfuse/LangSmith dùng để làm gì?
 
-- **A.** Train embedding
-- **B.** Tracing/observability: ghi lại từng bước retrieve → generate, chạy eval, LLM-as-judge (đáp án đúng)
-- **C.** Lưu vector
-- **D.** Lượng tử hoá model
+- **A.** Tracing/observability: ghi lại từng bước retrieve → generate, chạy eval, LLM-as-judge (đáp án đúng)
+- **B.** Train embedding
+- **C.** Lượng tử hoá model
+- **D.** Lưu vector
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Tracing giúp gỡ lỗi pipeline (đoạn nào retrieve sai, prompt nào hỏng) và đo chất lượng có hệ thống.
 
@@ -86,9 +86,9 @@ Theo IR-book mục 11.4.3, BM25 được thiết kế để mô hình xác suấ
 
 Zheng et al. (arXiv 2306.05685) nêu những thiên vị nào của LLM-as-judge, và bạn kiểm position bias bằng cách nào trong rubric RAGAS?
 
-- **A.** Chỉ có thiên vị độ dài; kiểm bằng cách cắt câu trả lời
+- **A.** Chỉ có self-enhancement; kiểm bằng dùng model khác
 - **B.** Position bias, verbosity bias, self-enhancement bias, và limited reasoning ability; kiểm position bias bằng cách đảo thứ tự hai câu trả lời và xem phán quyết có đổi không (đáp án đúng)
-- **C.** Chỉ có self-enhancement; kiểm bằng dùng model khác
+- **C.** Chỉ có thiên vị độ dài; kiểm bằng cách cắt câu trả lời
 - **D.** Không có thiên vị nào đáng kể vì agreement trên 80%
 
 **Đáp án: B**

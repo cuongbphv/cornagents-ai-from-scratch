@@ -14,12 +14,12 @@ Use case capstone khuyến nghị và 3 thành phần kỹ thuật của nó?
 
 Bộ ba metric đánh giá capstone agentic gồm?
 
-- **A.** Loss, perplexity, BLEU
-- **B.** Success rate, human-override rate, groundedness (đáp án đúng)
-- **C.** FPS, latency, throughput
-- **D.** Precision, recall, F1 (chỉ vậy)
+- **A.** FPS, latency, throughput
+- **B.** Loss, perplexity, BLEU
+- **C.** Precision, recall, F1 (chỉ vậy)
+- **D.** Success rate, human-override rate, groundedness (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Success rate (hoàn thành đúng), human-override rate (tần suất người phải sửa, đo độ tin), groundedness (bám tài liệu nguồn, chống bịa).
 
@@ -35,12 +35,12 @@ Vì sao chiến lược 'Claude làm brain + model 7B fine-tuned cho sub-task' l
 
 'Groundedness' đo điều gì?
 
-- **A.** Tốc độ agent
-- **B.** Mức độ output bám vào/được hỗ trợ bởi tài liệu nguồn (chống bịa) (đáp án đúng)
+- **A.** Chi phí token
+- **B.** Tốc độ agent
 - **C.** Số agent dùng
-- **D.** Chi phí token
+- **D.** Mức độ output bám vào/được hỗ trợ bởi tài liệu nguồn (chống bịa) (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Tương tự faithfulness trong RAGAS, áp cho output cuối của workflow, quan trọng trong domain tài chính.
 
@@ -60,12 +60,12 @@ Viết retrospective 'nối về Phase 1' nghĩa là gì?
 
 PDF Karpathy-Loop yêu cầu khai báo complexity budget trước mỗi run và làm gì khi hết budget?
 
-- **A.** Chạy tiếp đến khi xong
-- **B.** Trả artifact tốt nhất hiện có kèm danh sách việc chưa xử lý và lý do dừng; không che partial failure sau một câu trả lời trôi chảy (đáp án đúng)
+- **A.** Trả artifact tốt nhất hiện có kèm danh sách việc chưa xử lý và lý do dừng; không che partial failure sau một câu trả lời trôi chảy (đáp án đúng)
+- **B.** Xóa artifact và báo lỗi
 - **C.** Tự động tăng budget
-- **D.** Xóa artifact và báo lỗi
+- **D.** Chạy tiếp đến khi xong
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Budget gồm số lần gọi model, sub-agent, worker song song, thời gian, token, chi phí, retry, và bằng chứng tối thiểu để kết thúc (PDF mục VII). Metric bị game là rủi ro đi kèm: loop chỉ cải thiện thứ nó thấy.
 

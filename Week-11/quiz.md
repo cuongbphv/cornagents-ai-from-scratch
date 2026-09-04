@@ -7,19 +7,19 @@
 
 QLoRA = ?
 
-- **A.** LoRA chạy trên nhiều GPU
-- **B.** Quantize base model xuống 4-bit (NF4, đóng băng) + chỉ train adapter LoRA ở bf16
-- **C.** Lượng tử hoá cả adapter xuống 4-bit
-- **D.** LoRA cho mô hình vision
+- **A.** LoRA cho mô hình vision
+- **B.** Lượng tử hoá cả adapter xuống 4-bit
+- **C.** LoRA chạy trên nhiều GPU
+- **D.** Quantize base model xuống 4-bit (NF4, đóng băng) + chỉ train adapter LoRA ở bf16
 
 ## Câu 2 (Trắc nghiệm)
 
 Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?
 
-- **A.** ~2GB
-- **B.** ~5GB
-- **C.** ~12GB
-- **D.** ~24GB
+- **A.** ~5GB
+- **B.** ~2GB
+- **C.** ~24GB
+- **D.** ~12GB
 
 ## Câu 3 (Tự luận)
 
@@ -29,19 +29,19 @@ Liệt kê config QLoRA hợp lý cho GPU 8GB.
 
 [Nâng cao] NF4 (trong QLoRA) là gì?
 
-- **A.** Một định dạng file model
-- **B.** Kiểu lượng tử hoá 4-bit 'normal float', phân bố các mức tối ưu cho trọng số gần Gaussian
-- **C.** Một optimizer
+- **A.** Kiểu lượng tử hoá 4-bit 'normal float', phân bố các mức tối ưu cho trọng số gần Gaussian
+- **B.** Một optimizer
+- **C.** Một định dạng file model
 - **D.** Một loại attention
 
 ## Câu 5 (Trắc nghiệm)
 
 [Nâng cao] GGUF là gì?
 
-- **A.** Một thuật toán lượng tử hoá mới
+- **A.** Một kiểu attention
 - **B.** Một ĐỊNH DẠNG FILE của llama.cpp (chứa weight + metadata, các k-quant như Q4_K_M) mà Ollama/LM Studio load
 - **C.** Một benchmark
-- **D.** Một kiểu attention
+- **D.** Một thuật toán lượng tử hoá mới
 
 ## Câu 6 (Tự luận)
 
@@ -57,10 +57,10 @@ Khi nào nên ngừng fine-tune local và chuyển lên cloud (4090/A100)?
 
 AWQ (arXiv 2306.00978) bảo vệ khoảng 1% trọng số 'salient'. Theo paper, tín hiệu nào cho biết kênh nào là salient, và vì sao họ không dùng mixed precision?
 
-- **A.** Độ lớn của trọng số; mixed precision quá đắt để tính
-- **B.** Phân phối activation, không phải trọng số; thay vì trộn độ chính xác (khó tối ưu trên phần cứng) họ nhân scale các kênh salient bằng một phép biến đổi tương đương
+- **A.** Phân phối activation, không phải trọng số; thay vì trộn độ chính xác (khó tối ưu trên phần cứng) họ nhân scale các kênh salient bằng một phép biến đổi tương đương
+- **B.** Entropy của token
 - **C.** Gradient khi fine-tune
-- **D.** Entropy của token
+- **D.** Độ lớn của trọng số; mixed precision quá đắt để tính
 
 ## Nâng cao 2 (Tự luận)
 

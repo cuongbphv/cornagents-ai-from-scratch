@@ -14,12 +14,12 @@ Trong micrograd, mỗi đối tượng Value lưu những gì và làm gì khi b
 
 backward() duyệt đồ thị theo thứ tự nào?
 
-- **A.** Thứ tự ngẫu nhiên
-- **B.** Thứ tự topo NGƯỢC (từ output về input) (đáp án đúng)
-- **C.** Theo thứ tự khởi tạo biến
-- **D.** Theo độ lớn của grad
+- **A.** Thứ tự topo NGƯỢC (từ output về input) (đáp án đúng)
+- **B.** Theo độ lớn của grad
+- **C.** Thứ tự ngẫu nhiên
+- **D.** Theo thứ tự khởi tạo biến
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Phải xử lý một node sau khi đã cộng xong mọi gradient đến từ các node phía sau nó → duyệt topo ngược.
 
@@ -35,10 +35,10 @@ Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta 
 
 Đạo hàm của tanh(x) là gì (hay gặp khi tự code backward)?
 
-- **A.** tanh(x)
+- **A.** e^x / (1+e^x)
 - **B.** 1 - tanh^2(x) (đáp án đúng)
-- **C.** x(1-x)
-- **D.** e^x / (1+e^x)
+- **C.** tanh(x)
+- **D.** x(1-x)
 
 **Đáp án: B**
 
@@ -48,12 +48,12 @@ Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta 
 
 Khi một biến được dùng ở NHIỀU nhánh của đồ thị, gradient của nó được xử lý thế nào?
 
-- **A.** Lấy gradient lớn nhất
-- **B.** Cộng dồn (+=) gradient từ tất cả các nhánh (đáp án đúng)
+- **A.** Lấy trung bình
+- **B.** Lấy gradient lớn nhất
 - **C.** Ghi đè bằng gradient cuối cùng
-- **D.** Lấy trung bình
+- **D.** Cộng dồn (+=) gradient từ tất cả các nhánh (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Theo quy tắc tổng của chain rule, gradient từ các đường khác nhau phải CỘNG dồn. Quên += (dùng =) là bug micrograd kinh điển.
 
@@ -82,11 +82,11 @@ Bạn vừa điền xong _backward cho các phép trong micrograd nhưng chưa m
 Backward của micrograd duyệt đồ thị theo thứ tự topo đảo ngược. Vì sao thứ tự này là bắt buộc, không chỉ là tiện?
 
 - **A.** Vì Python yêu cầu duyệt tập hợp theo thứ tự
-- **B.** Vì khi một node phát gradient xuống toán hạng, gradient của chính nó phải đã được cộng đủ từ mọi nhánh phía trên; thứ tự topo đảo ngược bảo toàn điều đó (đáp án đúng)
+- **B.** Vì tanh chỉ khả vi theo thứ tự đó
 - **C.** Vì thứ tự topo giúp giảm bộ nhớ
-- **D.** Vì tanh chỉ khả vi theo thứ tự đó
+- **D.** Vì khi một node phát gradient xuống toán hạng, gradient của chính nó phải đã được cộng đủ từ mọi nhánh phía trên; thứ tự topo đảo ngược bảo toàn điều đó (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Đây là chain rule trên đồ thị (MML mục 5.6, trang 159; UDL mục 7.4, trang 103). Nếu một node có fan-out và bạn duyệt sai thứ tự, nó sẽ phát gradient chưa đầy đủ xuống dưới.
 

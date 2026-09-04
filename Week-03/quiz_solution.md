@@ -7,11 +7,11 @@
 Trong khung học thống kê của Shalev-Shwartz và Ben-David, learner được biết gì và không được biết gì?
 
 - **A.** Biết phân phối D và hàm nhãn f, chỉ không biết tập test
-- **B.** Biết training data S gồm các cặp (x, y); không biết phân phối D sinh ra x và hàm gán nhãn f (đáp án đúng)
-- **C.** Biết phân phối D nhưng không biết training data
-- **D.** Biết mọi thứ trừ kích thước mẫu m
+- **B.** Biết mọi thứ trừ kích thước mẫu m
+- **C.** Biết training data S gồm các cặp (x, y); không biết phân phối D sinh ra x và hàm gán nhãn f (đáp án đúng)
+- **D.** Biết phân phối D nhưng không biết training data
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** UML mục 2.1 (trang 33) và câu ở trang 35: learner 'mù' với D và f, cách duy nhất tương tác với thế giới là qua training set. Vì thế lỗi thật L_D(h) không tính được, chỉ tính được lỗi trên mẫu.
 
@@ -20,11 +20,11 @@ Trong khung học thống kê của Shalev-Shwartz và Ben-David, learner đư�
 Empirical Risk Minimization trên toàn bộ các hàm có thể có thì dẫn đến hậu quả gì, và lý thuyết đề xuất cách khắc phục nào?
 
 - **A.** Dẫn đến underfitting; khắc phục bằng cách tăng learning rate
-- **B.** Dẫn đến overfitting vì một hàm nhớ hết mẫu có lỗi mẫu bằng 0 nhưng lỗi thật cao; khắc phục bằng cách giới hạn trước lớp giả thuyết H, gọi là inductive bias (đáp án đúng)
-- **C.** Không có hậu quả gì nếu dữ liệu đủ sạch
+- **B.** Không có hậu quả gì nếu dữ liệu đủ sạch
+- **C.** Dẫn đến overfitting vì một hàm nhớ hết mẫu có lỗi mẫu bằng 0 nhưng lỗi thật cao; khắc phục bằng cách giới hạn trước lớp giả thuyết H, gọi là inductive bias (đáp án đúng)
 - **D.** Dẫn đến chi phí tính toán cao; khắc phục bằng GPU
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** UML mục 2.2 định nghĩa empirical risk (eq. 2.2, trang 35) và mục 2.3 (trang 36) đưa ra ERM với inductive bias. Lab 02_erm_lab.py cho thấy đa thức bậc cao có train loss thấp nhất nhưng validation loss lớn.
 
@@ -41,11 +41,11 @@ Hãy viết công thức tách lỗi của giả thuyết ERM thành approximati
 Trong định nghĩa PAC learnability, hai tham số ε và δ lần lượt mang ý nghĩa gì?
 
 - **A.** ε là learning rate, δ là kích thước batch
-- **B.** ε là độ chính xác cho phép của giả thuyết trả về (phần 'approximately correct'), δ là xác suất thất bại được chấp nhận (phần 'probably') (đáp án đúng)
-- **C.** ε là số mẫu, δ là số chiều của dữ liệu
-- **D.** ε là lỗi trên training set, δ là lỗi trên test set
+- **B.** ε là số mẫu, δ là số chiều của dữ liệu
+- **C.** ε là lỗi trên training set, δ là lỗi trên test set
+- **D.** ε là độ chính xác cho phép của giả thuyết trả về (phần 'approximately correct'), δ là xác suất thất bại được chấp nhận (phần 'probably') (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** UML Definition 3.1 (trang 43): với m ≥ m_H(ε, δ) mẫu i.i.d., thuật toán trả về h có lỗi thật không quá ε với xác suất ít nhất 1 − δ. Hai xấp xỉ này là không tránh được vì mẫu hữu hạn và ngẫu nhiên.
 
@@ -54,11 +54,11 @@ Trong định nghĩa PAC learnability, hai tham số ε và δ lần lượt man
 Điều gì tuyệt đối không được làm với validation data, và vì sao?
 
 - **A.** Không được vẽ đồ thị trên validation data vì tốn thời gian
-- **B.** Không được dùng validation data để ước lượng hay chọn tham số model, vì khi đó ước lượng lỗi trên nó không còn độc lập và không còn là ước lượng không chệch của lỗi thật (đáp án đúng)
-- **C.** Không được chia validation data ngẫu nhiên vì làm mất thứ tự thời gian
-- **D.** Không được để validation data nhỏ hơn 50% dữ liệu
+- **B.** Không được để validation data nhỏ hơn 50% dữ liệu
+- **C.** Không được dùng validation data để ước lượng hay chọn tham số model, vì khi đó ước lượng lỗi trên nó không còn độc lập và không còn là ước lượng không chệch của lỗi thật (đáp án đúng)
+- **D.** Không được chia validation data ngẫu nhiên vì làm mất thứ tự thời gian
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** Shalizi mục 3.4 (trang 81): 'we absolutely, positively, cannot use any of the validation data in estimating the model.' UML mục 11.2 (trang 146) chỉ ra bound từ validation set độc lập chính xác hơn bound VC, nhưng chỉ khi nó thật sự độc lập.
 
@@ -78,12 +78,12 @@ Logistic regression khác linear regression ở những điểm nào về đầu
 
 Shalev-Shwartz và Ben-David tách lỗi của giả thuyết ERM thành ε_app + ε_est. Khi bạn tăng hạng r của LoRA ở Tuần 11, thành phần nào của phân tích này có xu hướng thay đổi theo hướng nào?
 
-- **A.** Cả hai đều giảm vì model mạnh hơn
-- **B.** ε_app giảm vì lớp giả thuyết rộng hơn, còn ε_est có xu hướng tăng vì mẫu hữu hạn phải ước lượng nhiều tham số hơn (đáp án đúng)
-- **C.** Chỉ ε_est giảm
-- **D.** Không thành phần nào đổi vì LoRA không đổi lớp giả thuyết
+- **A.** ε_app giảm vì lớp giả thuyết rộng hơn, còn ε_est có xu hướng tăng vì mẫu hữu hạn phải ước lượng nhiều tham số hơn (đáp án đúng)
+- **B.** Không thành phần nào đổi vì LoRA không đổi lớp giả thuyết
+- **C.** Cả hai đều giảm vì model mạnh hơn
+- **D.** Chỉ ε_est giảm
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** UML mục 5.2 (trang 64): approximation error chỉ phụ thuộc H, estimation error là giá của mẫu hữu hạn. Tăng r mở rộng H. Kết quả thực nghiệm phụ thuộc dữ liệu; đây là khung để đọc, không phải dự đoán chắc.
 

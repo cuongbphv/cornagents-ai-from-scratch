@@ -6,12 +6,12 @@
 
 Một nn.Linear(in, out) thực chất tính gì?
 
-- **A.** y = x @ W + b với W có shape (in, out)
-- **B.** y = x @ W^T + b với W lưu shape (out, in) (đáp án đúng)
-- **C.** y = W @ x luôn luôn, không có bias
-- **D.** y = softmax(x @ W)
+- **A.** y = W @ x luôn luôn, không có bias
+- **B.** y = x @ W + b với W có shape (in, out)
+- **C.** y = softmax(x @ W)
+- **D.** y = x @ W^T + b với W lưu shape (out, in) (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** PyTorch lưu weight shape (out, in), nên forward là y = x @ W^T + b. Đây là khối tuyến tính cơ bản lặp lại khắp transformer.
 
@@ -19,10 +19,10 @@ Một nn.Linear(in, out) thực chất tính gì?
 
 Mục đích chính của softmax là gì?
 
-- **A.** Chuẩn hoá vector về độ dài 1
+- **A.** Tính gradient của cross-entropy
 - **B.** Biến một vector logits thành phân phối xác suất (mọi phần tử dương, tổng = 1) (đáp án đúng)
 - **C.** Loại bỏ giá trị âm như ReLU
-- **D.** Tính gradient của cross-entropy
+- **D.** Chuẩn hoá vector về độ dài 1
 
 **Đáp án: B**
 
@@ -40,12 +40,12 @@ Chain rule liên quan thế nào tới backpropagation?
 
 Cross-entropy loss L_CE = -sum_i y_i log(y_hat_i) đo điều gì?
 
-- **A.** Khoảng cách Euclid giữa dự đoán và nhãn
-- **B.** Độ 'bất ngờ' của phân phối dự đoán so với nhãn thật, phạt nặng khi gán xác suất thấp cho lớp đúng (đáp án đúng)
-- **C.** Số token dự đoán sai
-- **D.** Phương sai của logits
+- **A.** Phương sai của logits
+- **B.** Số token dự đoán sai
+- **C.** Độ 'bất ngờ' của phân phối dự đoán so với nhãn thật, phạt nặng khi gán xác suất thấp cho lớp đúng (đáp án đúng)
+- **D.** Khoảng cách Euclid giữa dự đoán và nhãn
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** Với nhãn one-hot, L_CE = -log(xác suất gán cho lớp đúng). Gán xác suất gần 1 cho lớp đúng → loss ~0; gần 0 → loss rất lớn.
 
@@ -53,12 +53,12 @@ Cross-entropy loss L_CE = -sum_i y_i log(y_hat_i) đo điều gì?
 
 Cộng tensor shape (B, 1, D) với (1, T, D) bằng broadcasting cho ra shape nào?
 
-- **A.** (B, T, D) (đáp án đúng)
-- **B.** (B, 1, D)
-- **C.** Lỗi, không broadcast được
-- **D.** (B, T, 1)
+- **A.** (B, 1, D)
+- **B.** (B, T, 1)
+- **C.** (B, T, D) (đáp án đúng)
+- **D.** Lỗi, không broadcast được
 
-**Đáp án: A**
+**Đáp án: C**
 
 **Giải thích:** Broadcasting căn phải các chiều; chiều bằng 1 được 'kéo dài'. (B,1,D) và (1,T,D) → (B,T,D). Hiểu broadcasting là chìa khoá đọc code attention.
 
@@ -74,12 +74,12 @@ torch.no_grad() và requires_grad khác nhau thế nào, dùng khi nào?
 
 Dot product giữa hai vector đo điều gì (ý nghĩa cho attention)?
 
-- **A.** Luôn là khoảng cách giữa hai điểm
-- **B.** Độ 'cùng hướng' / tương đồng, lớn khi hai vector cùng hướng (đáp án đúng)
-- **C.** Góc tuyệt đối tính bằng độ
-- **D.** Tổng bình phương các phần tử
+- **A.** Độ 'cùng hướng' / tương đồng, lớn khi hai vector cùng hướng (đáp án đúng)
+- **B.** Góc tuyệt đối tính bằng độ
+- **C.** Tổng bình phương các phần tử
+- **D.** Luôn là khoảng cách giữa hai điểm
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** a·b = |a||b|cosθ. Trong attention, query·key chính là điểm tương đồng dùng để quyết định token nào 'chú ý' tới token nào.
 
@@ -99,12 +99,12 @@ Dot product giữa hai vector đo điều gì (ý nghĩa cho attention)?
 
 nanoGPT đặt dropout = 0.0 cho pretraining với comment 'for pretraining 0 is good, for finetuning try 0.1+'. Khung nào của Tuần 3 giải thích lựa chọn này?
 
-- **A.** Dropout làm chậm GPU nên bỏ khi có nhiều dữ liệu
-- **B.** Pretraining chạy trên dữ liệu rất lớn, thường dưới một epoch, nên estimation error nhỏ và regularization kiểu dropout ít cần; fine-tune trên dữ liệu nhỏ dễ overfit nên cần regularization hơn (đáp án đúng)
-- **C.** Dropout chỉ hoạt động với LayerNorm
-- **D.** Dropout không tương thích với bf16
+- **A.** Dropout chỉ hoạt động với LayerNorm
+- **B.** Dropout không tương thích với bf16
+- **C.** Dropout làm chậm GPU nên bỏ khi có nhiều dữ liệu
+- **D.** Pretraining chạy trên dữ liệu rất lớn, thường dưới một epoch, nên estimation error nhỏ và regularization kiểu dropout ít cần; fine-tune trên dữ liệu nhỏ dễ overfit nên cần regularization hơn (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Giá trị đọc từ nanoGPT/train.py ngày 2026-09-04. Lý giải theo error decomposition của UML mục 5.2 là suy luận của người viết dựa trên khung lý thuyết, không phải kết luận trong code.
 

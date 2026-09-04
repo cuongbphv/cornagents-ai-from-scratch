@@ -6,10 +6,10 @@
 
 Vì sao MacBook 24GB có thể fine-tune model lớn hơn RTX 3070 Ti 8GB?
 
-- **A.** CPU Mac nhanh hơn GPU
+- **A.** Mac có nhiều GPU hơn
 - **B.** Unified memory 24GB dùng chung cho cả 'GPU', cho phép chứa model 13-14B (đổi lại chậm hơn ~2-4×) (đáp án đúng)
 - **C.** MLX nén model xuống 1-bit
-- **D.** Mac có nhiều GPU hơn
+- **D.** CPU Mac nhanh hơn GPU
 
 **Đáp án: B**
 
@@ -27,12 +27,12 @@ Mô tả luồng fine-tune → phục vụ bằng MLX trên Mac.
 
 Ollama và LM Studio đóng vai trò gì?
 
-- **A.** Train model from scratch
-- **B.** Lớp inference/serving local, tải, quản lý và chat với model (GGUF/MLX) qua API/GUI (đáp án đúng)
+- **A.** Lớp inference/serving local, tải, quản lý và chat với model (GGUF/MLX) qua API/GUI (đáp án đúng)
+- **B.** Train model from scratch
 - **C.** Vector database cho RAG
 - **D.** Tokenizer
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Chúng giúp chạy model local dễ dàng; Ollama có API kiểu OpenAI tiện cắm vào RAG/agents.
 
@@ -48,12 +48,12 @@ Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.
 
 Theo Ilharco et al. 2022 (task arithmetic, mục 7 theory notes), 'task vector' là gì và cộng/trừ nó dùng để làm gì?
 
-- **A.** Vector embedding của mô tả task, dùng để retrieve adapter phù hợp
-- **B.** τ = W_finetuned − W_base, 'hướng' fine-tune đã đẩy model tới trong không gian trọng số; CỘNG nhiều τ để ghép nhiều kỹ năng vào một model, PHỦ ĐỊNH (−τ) để giảm một hành vi mà ít ảnh hưởng task khác (đáp án đúng)
-- **C.** Gradient trung bình của batch cuối cùng khi train
-- **D.** Một hàng của ma trận LoRA A
+- **A.** Gradient trung bình của batch cuối cùng khi train
+- **B.** Một hàng của ma trận LoRA A
+- **C.** τ = W_finetuned − W_base, 'hướng' fine-tune đã đẩy model tới trong không gian trọng số; CỘNG nhiều τ để ghép nhiều kỹ năng vào một model, PHỦ ĐỊNH (−τ) để giảm một hành vi mà ít ảnh hưởng task khác (đáp án đúng)
+- **D.** Vector embedding của mô tả task, dùng để retrieve adapter phù hợp
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** Mục 7 của 01_theory_notes.md (arXiv 2212.04089): LoRA adapter merge về được dạng ΔW nên cũng quy về khung task vector. Caveat của repo: merging là kỹ thuật THỰC NGHIỆM, merge xong bắt buộc chạy lại bộ 10 prompt song ngữ + eval nghiệp vụ, chỉ giữ bản merge khi số đo không tụt.
 
@@ -73,9 +73,9 @@ Mô tả quy trình kiểm tra catastrophic forgetting song ngữ bắt buộc c
 
 Rolling buffer cache của Mistral 7B hoạt động thế nào và cho tiết kiệm bao nhiêu theo paper?
 
-- **A.** Cache lưu toàn bộ K, V nhưng nén 8 bit
+- **A.** Cache chỉ giữ token đầu tiên
 - **B.** Cache có kích thước cố định W; cặp K, V ở bước i ghi vào ô i mod W nên khi i vượt W cache ghi đè và không lớn thêm; ở chuỗi 32k paper báo giảm 8 lần bộ nhớ cache mà không ảnh hưởng chất lượng (đáp án đúng)
-- **C.** Cache chỉ giữ token đầu tiên
+- **C.** Cache lưu toàn bộ K, V nhưng nén 8 bit
 - **D.** Cache lưu trên CPU
 
 **Đáp án: B**

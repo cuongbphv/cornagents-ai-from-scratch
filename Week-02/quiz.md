@@ -7,10 +7,10 @@
 
 Với hàm f(x₁, x₂) = x₁²x₂ + x₁x₂³, gradient tại điểm (1, 2) bằng bao nhiêu?
 
-- **A.** [4, 13]
-- **B.** [12, 13]
+- **A.** [12, 13]
+- **B.** [5, 9]
 - **C.** [12, 7]
-- **D.** [5, 9]
+- **D.** [4, 13]
 
 ## Câu 2 (Tự luận)
 
@@ -29,10 +29,10 @@ Một bệnh có tỉ lệ 1% trong dân số. Xét nghiệm phát hiện đúng
 
 Luật số lớn nói gì về loss tính trên một batch trong training, và điều đó giải thích hiện tượng nào trên loss curve?
 
-- **A.** Loss trên batch luôn bằng loss kỳ vọng, nên loss curve phải trơn
-- **B.** Loss trên batch là trung bình mẫu của loss kỳ vọng, có phương sai tỉ lệ với 1/n, nên batch nhỏ cho loss curve nhấp nhô hơn batch lớn
+- **A.** Loss trên batch là trung bình mẫu của loss kỳ vọng, có phương sai tỉ lệ với 1/n, nên batch nhỏ cho loss curve nhấp nhô hơn batch lớn
+- **B.** Loss trên batch chỉ hội tụ khi learning rate giảm về 0
 - **C.** Loss trên batch không liên quan đến loss kỳ vọng vì dữ liệu không độc lập
-- **D.** Loss trên batch chỉ hội tụ khi learning rate giảm về 0
+- **D.** Loss trên batch luôn bằng loss kỳ vọng, nên loss curve phải trơn
 
 ## Câu 5 (Tự luận)
 
@@ -42,19 +42,19 @@ Vì sao cross-entropy loss được xem là negative log-likelihood, và vì sao
 
 Trên hàm f(x) = x² với đạo hàm 2x, chạy gradient descent từ x₀ = 5 với step size 1.1 thì điều gì xảy ra sau 20 bước, và vì sao?
 
-- **A.** Hội tụ về 0 vì hàm lồi nên mọi step size đều được
-- **B.** Dao động quanh 0 với biên độ không đổi
-- **C.** Phân kỳ, vì mỗi bước nhân x với (1 − 2 × 1.1) = −1.2 nên trị tuyệt đối tăng theo cấp số nhân
-- **D.** Dừng ngay tại x = 5 vì gradient bằng 0
+- **A.** Phân kỳ, vì mỗi bước nhân x với (1 − 2 × 1.1) = −1.2 nên trị tuyệt đối tăng theo cấp số nhân
+- **B.** Hội tụ về 0 vì hàm lồi nên mọi step size đều được
+- **C.** Dừng ngay tại x = 5 vì gradient bằng 0
+- **D.** Dao động quanh 0 với biên độ không đổi
 
 ## Câu 7 (Trắc nghiệm)
 
 Theo MacKay (ITILA eq. 2.45-2.46), relative entropy D_KL(P‖Q) luôn không âm và chỉ bằng 0 khi P = Q. Điều này nói gì về giá trị nhỏ nhất mà cross-entropy loss có thể đạt khi train một model?
 
-- **A.** Cross-entropy có thể xuống 0 với mọi dữ liệu nếu train đủ lâu
-- **B.** Cross-entropy nhỏ nhất bằng entropy của phân phối dữ liệu, đạt được khi phân phối model trùng phân phối thật, vì cross-entropy = entropy + KL
-- **C.** Cross-entropy không có đáy vì log không bị chặn
-- **D.** Cross-entropy nhỏ nhất bằng KL divergence
+- **A.** Cross-entropy không có đáy vì log không bị chặn
+- **B.** Cross-entropy nhỏ nhất bằng KL divergence
+- **C.** Cross-entropy nhỏ nhất bằng entropy của phân phối dữ liệu, đạt được khi phân phối model trùng phân phối thật, vì cross-entropy = entropy + KL
+- **D.** Cross-entropy có thể xuống 0 với mọi dữ liệu nếu train đủ lâu
 
 ---
 
@@ -66,9 +66,9 @@ Theo MacKay (ITILA eq. 2.45-2.46), relative entropy D_KL(P‖Q) luôn không âm
 
 Theo RoFormer (arXiv 2104.09864) và cách MML định nghĩa góc giữa hai vector, vì sao xoay cả query và key theo vị trí lại làm điểm attention chỉ phụ thuộc khoảng cách tương đối?
 
-- **A.** Vì phép xoay làm mọi vector có cùng độ dài
+- **A.** Vì RoPE cộng vector vị trí vào embedding như GPT-2
 - **B.** Vì tích vô hướng của hai vector đã xoay góc mθ và nθ chỉ phụ thuộc hiệu góc (m−n)θ, do phép xoay bảo toàn độ dài và góc tương đối giữa hai vector
-- **C.** Vì RoPE cộng vector vị trí vào embedding như GPT-2
+- **C.** Vì phép xoay làm mọi vector có cùng độ dài
 - **D.** Vì key không bị xoay, chỉ query bị xoay
 
 ## Nâng cao 2 (Tự luận)

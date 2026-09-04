@@ -14,12 +14,12 @@ Phân biệt SFT, DPO và GRPO.
 
 Reward Model (RM) trong RLHF học để làm gì?
 
-- **A.** Sinh phản hồi cuối cùng cho người dùng
-- **B.** Chấm điểm/so sánh mức ưu tiên giữa các output để hướng dẫn RL (đáp án đúng)
-- **C.** Tokenize dữ liệu
-- **D.** Lưu KV cache
+- **A.** Chấm điểm/so sánh mức ưu tiên giữa các output để hướng dẫn RL (đáp án đúng)
+- **B.** Tokenize dữ liệu
+- **C.** Lưu KV cache
+- **D.** Sinh phản hồi cuối cùng cho người dùng
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** RM học từ nhãn ưu tiên của con người, xuất ra điểm scalar; PPO dùng điểm này làm reward. FareedKhan implement RM from scratch.
 
@@ -27,12 +27,12 @@ Reward Model (RM) trong RLHF học để làm gì?
 
 So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 
-- **A.** Bỏ dữ liệu ưu tiên (preference)
-- **B.** Bỏ việc train reward model riêng và vòng lặp PPO, tối ưu thẳng từ cặp ưu tiên (đáp án đúng)
-- **C.** Bỏ model tham chiếu (reference)
-- **D.** Bỏ tokenizer
+- **A.** Bỏ tokenizer
+- **B.** Bỏ model tham chiếu (reference)
+- **C.** Bỏ dữ liệu ưu tiên (preference)
+- **D.** Bỏ việc train reward model riêng và vòng lặp PPO, tối ưu thẳng từ cặp ưu tiên (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** DPO biến bài toán RLHF thành một loss phân loại trực tiếp trên cặp (chosen, rejected), vẫn dùng policy tham chiếu nhưng không cần RM/PPO.
 
@@ -49,11 +49,11 @@ So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 [Nâng cao] Bước 'midtrain' (nanochat) nằm ở đâu trong pipeline?
 
 - **A.** Trước pretrain
-- **B.** Giữa pretrain và SFT, dạy format hội thoại, special tokens, tool use (đáp án đúng)
-- **C.** Sau GRPO
-- **D.** Thay thế SFT
+- **B.** Sau GRPO
+- **C.** Thay thế SFT
+- **D.** Giữa pretrain và SFT, dạy format hội thoại, special tokens, tool use (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Midtrain là khái niệm KHÔNG có trong pipeline GPT-2 kinh điển; nó chuẩn bị base model cho giai đoạn chat/SFT.
 
@@ -78,11 +78,11 @@ Jurafsky và Martin viết rằng các phương pháp alignment bằng dữ li�
 Dataset HH-RLHF (Bai et al. 2022) bạn dùng tuần này viết tắt của gì, và điều đó nói gì về nội dung các cặp chosen/rejected?
 
 - **A.** 'Human-Human RLHF', data do hai người chat với nhau
-- **B.** 'Helpful and Harmless', một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn' (đáp án đúng)
+- **B.** 'Helpful Hints for RLHF', bộ hướng dẫn gán nhãn
 - **C.** 'High-quality Human RLHF', data đã lọc chất lượng cao
-- **D.** 'Helpful Hints for RLHF', bộ hướng dẫn gán nhãn
+- **D.** 'Helpful and Harmless', một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn' (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** Mục 7 của 01_theory_notes.md: cái tên đúng nghĩa đen 'Helpful and Harmless' (Bai et al. 2022, arXiv 2204.05862): harmlessness nằm ngay trong preference data. Bài tập cuối tuần: tự mở vài mẫu HH-RLHF và tìm một cặp khác nhau về AN TOÀN chứ không phải chất lượng.
 
@@ -102,12 +102,12 @@ Vì sao nói 'refusal là hành vi được HUẤN LUYỆN, không phải bản 
 
 GRPO (DeepSeekMath, arXiv 2402.03300) khác PPO ở điểm cốt lõi nào?
 
-- **A.** GRPO không cần reward
-- **B.** GRPO bỏ critic (value network), ước lượng baseline từ điểm của một nhóm output sinh cho cùng prompt (đáp án đúng)
-- **C.** GRPO không dùng KL
-- **D.** GRPO chỉ dùng cho code
+- **A.** GRPO chỉ dùng cho code
+- **B.** GRPO không dùng KL
+- **C.** GRPO bỏ critic (value network), ước lượng baseline từ điểm của một nhóm output sinh cho cùng prompt (đáp án đúng)
+- **D.** GRPO không cần reward
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** Trích paper: 'GRPO foregoes the critic model, instead estimating the baseline from group scores, significantly reducing training resources'.
 

@@ -7,11 +7,11 @@
 Bốn stage của knowledge graph pipeline (Anthropic Playbook) theo đúng thứ tự?
 
 - **A.** Querying → Assembly → Resolution → Extraction
-- **B.** Extraction (Haiku, structured outputs) → Resolution (Sonnet, cluster) → Assembly (NetworkX graph) → Querying (subgraph + grounded answer) (đáp án đúng)
-- **C.** Embedding → Chunking → Retrieval → Generation
+- **B.** Embedding → Chunking → Retrieval → Generation
+- **C.** Extraction (Haiku, structured outputs) → Resolution (Sonnet, cluster) → Assembly (NetworkX graph) → Querying (subgraph + grounded answer) (đáp án đúng)
 - **D.** Extraction → Querying → Resolution → Assembly
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** Mỗi stage là một prompt/model call: Haiku extract entities+relations theo Pydantic schema; Sonnet resolve surface forms; NetworkX MultiDiGraph lắp graph với provenance; Sonnet trả lời trên subgraph đã serialize.
 
@@ -40,12 +40,12 @@ Vì sao extraction prompt yêu cầu viết 'one-sentence description grounded i
 
 Vì sao với knowledge graph, PRECISION của extraction thường quan trọng hơn RECALL?
 
-- **A.** Vì recall không đo được
-- **B.** Vì một entity SAI sinh ra các quan hệ sai và lan truyền qua multi-hop reasoning (graph chủ động gây nhiễu), còn entity THIẾU chỉ làm graph không đầy đủ nhưng vẫn đúng (đáp án đúng)
-- **C.** Vì precision rẻ hơn để tính
-- **D.** Vì Haiku không thể đạt recall cao
+- **A.** Vì Haiku không thể đạt recall cao
+- **B.** Vì precision rẻ hơn để tính
+- **C.** Vì một entity SAI sinh ra các quan hệ sai và lan truyền qua multi-hop reasoning (graph chủ động gây nhiễu), còn entity THIẾU chỉ làm graph không đầy đủ nhưng vẫn đúng (đáp án đúng)
+- **D.** Vì recall không đo được
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** Kết quả trên Apollo corpus: precision 1.00, recall 0.38-0.55, extractor bảo thủ là trade-off ĐÚNG cho production; evaluation harness giúp bạn chỉnh trade-off này có chủ đích.
 
@@ -61,12 +61,12 @@ Nêu 3 vai trò của knowledge graph trong kiến trúc multi-agent (theo Playb
 
 'Grounded answer' khác 'ungrounded answer' thế nào khi query graph?
 
-- **A.** Grounded chạy nhanh hơn
-- **B.** Grounded bị ràng buộc 'answer using ONLY the graph, cite edges', trả lời truy vết được về triples có provenance và nói rõ graph KHÔNG chứa gì; ungrounded dựa vào pretraining nên nghe hợp lý nhưng trên private corpus thì không kiểm chứng được (đáp án đúng)
+- **A.** Grounded bị ràng buộc 'answer using ONLY the graph, cite edges', trả lời truy vết được về triples có provenance và nói rõ graph KHÔNG chứa gì; ungrounded dựa vào pretraining nên nghe hợp lý nhưng trên private corpus thì không kiểm chứng được (đáp án đúng)
+- **B.** Grounded chạy nhanh hơn
 - **C.** Ungrounded luôn sai
 - **D.** Grounded không cần model
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Trên corpus riêng (tài liệu Finance Banking nội bộ) model không có kiến thức pretraining, chỉ grounded answer là dùng được, và citation kiểm tra được bằng string matching.
 
@@ -86,12 +86,12 @@ Evaluation feedback loop của KG pipeline hoạt động thế nào và vì sao
 
 Playbook Graph Engineering dùng blocking trước resolution. Blocking là gì và nguyên tắc chung nào nó minh họa?
 
-- **A.** Chặn model không được đọc tài liệu dài
-- **B.** Gom ứng viên bằng tín hiệu rẻ (trùng token tên, Jaccard, quy tắc) thành block 50-100 rồi chỉ để model phân xử trong block; nguyên tắc: model cho phần cần phán xét, logic tất định cho phần còn lại (đáp án đúng)
-- **C.** Xóa mọi thực thể xuất hiện một lần
-- **D.** Chia tài liệu thành chunk cố định 512 token
+- **A.** Gom ứng viên bằng tín hiệu rẻ (trùng token tên, Jaccard, quy tắc) thành block 50-100 rồi chỉ để model phân xử trong block; nguyên tắc: model cho phần cần phán xét, logic tất định cho phần còn lại (đáp án đúng)
+- **B.** Chia tài liệu thành chunk cố định 512 token
+- **C.** Chặn model không được đọc tài liệu dài
+- **D.** Xóa mọi thực thể xuất hiện một lần
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Playbook (docs/Graph-Engineering-Athropic-Playbook.pdf) ghi pipeline 'works unchanged on blocks of 50-100' và mô tả 'blocking plus expensive LLM arbitration within blocks'.
 

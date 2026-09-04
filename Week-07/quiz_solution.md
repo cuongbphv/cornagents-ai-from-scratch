@@ -6,12 +6,12 @@
 
 LayerNorm trong transformer chuẩn hoá theo chiều nào?
 
-- **A.** Theo chiều batch (như BatchNorm)
-- **B.** Theo chiều feature/embedding của từng token (last dim) (đáp án đúng)
-- **C.** Theo chiều sequence
-- **D.** Theo toàn bộ tensor
+- **A.** Theo chiều sequence
+- **B.** Theo toàn bộ tensor
+- **C.** Theo chiều batch (như BatchNorm)
+- **D.** Theo chiều feature/embedding của từng token (last dim) (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** LayerNorm chuẩn hoá theo feature của mỗi token độc lập (không phụ thuộc batch) → ổn định, hợp với độ dài chuỗi thay đổi.
 
@@ -27,12 +27,12 @@ Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp trai
 
 Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên khoảng mấy lần d_model?
 
-- **A.** 2 lần
-- **B.** 4 lần (đáp án đúng)
-- **C.** 8 lần
-- **D.** Không mở rộng
+- **A.** 4 lần (đáp án đúng)
+- **B.** Không mở rộng
+- **C.** 2 lần
+- **D.** 8 lần
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** FFN: Linear(d → 4d) → GELU → Linear(4d → d). Hệ số 4× là chuẩn của GPT-2.
 
@@ -40,12 +40,12 @@ Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên kho�
 
 GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n_heads=12)?
 
-- **A.** ~50M
-- **B.** ~124M (đáp án đúng)
-- **C.** ~350M
+- **A.** ~124M (đáp án đúng)
+- **B.** ~350M
+- **C.** ~50M
 - **D.** ~1.5B
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** ~124M. Verify số tham số là cách kiểm tra nhanh kiến trúc đã ghép đúng.
 
@@ -61,12 +61,12 @@ GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n
 
 [Nâng cao] SwiGLU FFN của Llama/Qwen thay thế phần nào của GPT-2?
 
-- **A.** Thay attention
-- **B.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn (đáp án đúng)
-- **C.** Thay LayerNorm
-- **D.** Thay positional embedding
+- **A.** Thay LayerNorm
+- **B.** Thay positional embedding
+- **C.** Thay attention
+- **D.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** SwiGLU = (SiLU(x W_gate) ⊙ x W_up) W_down; có 3 ma trận nên giảm chiều ẩn để giữ số tham số tương đương.
 
@@ -74,12 +74,12 @@ GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n
 
 [Nâng cao] Trong một lớp Mixture-of-Experts (MoE), 'router' làm gì?
 
-- **A.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert (đáp án đúng)
-- **B.** Định tuyến gradient ngược
-- **C.** Chọn GPU để chạy
+- **A.** Định tuyến gradient ngược
+- **B.** Chọn GPU để chạy
+- **C.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert (đáp án đúng)
 - **D.** Sắp xếp token theo độ dài
 
-**Đáp án: A**
+**Đáp án: C**
 
 **Giải thích:** Router gán mỗi token cho top-k experts → tổng tham số lớn nhưng tham số active mỗi token nhỏ; cần lo load balancing. Qwen3-MoE, gpt-oss, DeepSeek dùng MoE.
 
@@ -91,12 +91,12 @@ GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n
 
 Top-p (nucleus) sampling khác top-k ở điểm nào theo Jurafsky và Martin, và vì sao điểm đó quan trọng khi ngữ cảnh đổi?
 
-- **A.** Top-p luôn chọn nhiều token hơn top-k
-- **B.** Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh (đáp án đúng)
-- **C.** Top-p chỉ dùng khi temperature bằng 1
-- **D.** Top-p là greedy với p = 1
+- **A.** Top-p chỉ dùng khi temperature bằng 1
+- **B.** Top-p là greedy với p = 1
+- **C.** Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh (đáp án đúng)
+- **D.** Top-p luôn chọn nhiều token hơn top-k
 
-**Đáp án: B**
+**Đáp án: C**
 
 **Giải thích:** SLP3 mục 7.6.4 (trang 200): k cố định là điểm yếu vì có ngữ cảnh 10 token đầu chiếm gần hết khối xác suất, có ngữ cảnh phân phối phẳng.
 

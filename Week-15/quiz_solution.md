@@ -14,10 +14,10 @@ Mô tả 'agent loop' cơ bản.
 
 MCP (Model Context Protocol) là gì?
 
-- **A.** Một model ngôn ngữ
+- **A.** Một định dạng file
 - **B.** Một chuẩn mở để kết nối model với tool/nguồn dữ liệu qua server/client (GitHub, Postgres, Slack, filesystem...) (đáp án đúng)
 - **C.** Một thuật toán RL
-- **D.** Một định dạng file
+- **D.** Một model ngôn ngữ
 
 **Đáp án: B**
 
@@ -27,12 +27,12 @@ MCP (Model Context Protocol) là gì?
 
 Khác biệt chính giữa LangGraph và CrewAI?
 
-- **A.** LangGraph chỉ cho vision, CrewAI cho text
-- **B.** LangGraph: graph có trạng thái, tường minh, auditable; CrewAI: crew theo vai (role) prototype nhanh (đáp án đúng)
-- **C.** Cả hai giống hệt nhau
-- **D.** CrewAI không hỗ trợ tool
+- **A.** LangGraph: graph có trạng thái, tường minh, auditable; CrewAI: crew theo vai (role) prototype nhanh (đáp án đúng)
+- **B.** LangGraph chỉ cho vision, CrewAI cho text
+- **C.** CrewAI không hỗ trợ tool
+- **D.** Cả hai giống hệt nhau
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** LangGraph hợp workflow cần kiểm soát/audit (tài chính có quy định); CrewAI nhanh để dựng nhóm agent theo vai.
 
@@ -48,12 +48,12 @@ Vì sao workflow tài chính có quy định nên ưu tiên LangGraph?
 
 Human-in-the-loop (HITL) gate nghĩa là gì?
 
-- **A.** Agent chạy hoàn toàn tự động không cần người
-- **B.** Điểm dừng yêu cầu con người phê duyệt/sửa trước khi agent đi tiếp (đáp án đúng)
+- **A.** Cách tính token
+- **B.** Agent chạy hoàn toàn tự động không cần người
 - **C.** Một loại tool
-- **D.** Cách tính token
+- **D.** Điểm dừng yêu cầu con người phê duyệt/sửa trước khi agent đi tiếp (đáp án đúng)
 
-**Đáp án: B**
+**Đáp án: D**
 
 **Giải thích:** HITL gate đặt giữa các stage rủi ro để con người kiểm soát; thiết kế least-privilege + HITL ngay từ đầu.
 
@@ -61,12 +61,12 @@ Human-in-the-loop (HITL) gate nghĩa là gì?
 
 Mô hình 5 tầng engineering (docs/5-layers-multi-agent.jpg) xếp theo thứ tự nào, từ trong ra ngoài?
 
-- **A.** Prompt → Harness → Context → Graph → Loop
-- **B.** Prompt → Context → Harness → Loop → Graph (đáp án đúng)
-- **C.** Context → Prompt → Loop → Harness → Graph
-- **D.** Loop → Prompt → Context → Graph → Harness
+- **A.** Prompt → Context → Harness → Loop → Graph (đáp án đúng)
+- **B.** Loop → Prompt → Context → Graph → Harness
+- **C.** Prompt → Harness → Context → Graph → Loop
+- **D.** Context → Prompt → Loop → Harness → Graph
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Prompt (the message) → Context (the memory) → Harness (the machine: gather-act-verify) → Loop (the system: run-check-decide) → Graph (the organization: nhiều agent + shared memory). Mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó là engineering.
 
@@ -86,12 +86,12 @@ Bốn điều kiện nào làm loop autoresearch của Karpathy chạy được,
 
 Anthropic phân biệt workflow và agent thế nào, và khuyến nghị nào của họ về framework?
 
-- **A.** Workflow là agent chạy nhanh hơn; nên dùng framework nặng
-- **B.** Workflow là hệ trong đó LLM và tool được điều phối qua các đường code định trước; agent là hệ trong đó LLM tự điều khiển quy trình và cách dùng tool; các triển khai thành công nhất dùng các pattern đơn giản, ghép được, không dùng framework phức tạp (đáp án đúng)
-- **C.** Agent luôn tốt hơn workflow
-- **D.** Không có khác biệt
+- **A.** Workflow là hệ trong đó LLM và tool được điều phối qua các đường code định trước; agent là hệ trong đó LLM tự điều khiển quy trình và cách dùng tool; các triển khai thành công nhất dùng các pattern đơn giản, ghép được, không dùng framework phức tạp (đáp án đúng)
+- **B.** Không có khác biệt
+- **C.** Workflow là agent chạy nhanh hơn; nên dùng framework nặng
+- **D.** Agent luôn tốt hơn workflow
 
-**Đáp án: B**
+**Đáp án: A**
 
 **Giải thích:** Trích 'Building Effective AI Agents': workflows là 'Systems where LLMs and tools are orchestrated through predefined code paths'; agents là 'Systems where LLMs dynamically direct their own processes and tool usage'.
 

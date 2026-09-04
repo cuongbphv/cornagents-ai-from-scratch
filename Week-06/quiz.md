@@ -7,10 +7,10 @@
 
 Vì sao trong scaled dot-product attention ta chia cho sqrt(d_k)?
 
-- **A.** Để tiết kiệm bộ nhớ
+- **A.** Để score luôn dương
 - **B.** Để chuẩn hoá vector về độ dài 1
-- **C.** Để giữ phương sai của score ổn định, tránh softmax bão hoà làm gradient triệt tiêu
-- **D.** Để score luôn dương
+- **C.** Để tiết kiệm bộ nhớ
+- **D.** Để giữ phương sai của score ổn định, tránh softmax bão hoà làm gradient triệt tiêu
 
 ## Câu 2 (Tự luận)
 
@@ -20,19 +20,19 @@ Causal mask làm gì và cài đặt thế nào?
 
 Token embedding và positional embedding được kết hợp thế nào trong GPT-2?
 
-- **A.** Nối (concatenate) lại
-- **B.** Cộng vào nhau (cùng chiều d_model)
-- **C.** Nhân element-wise
-- **D.** Chỉ dùng token embedding
+- **A.** Nhân element-wise
+- **B.** Chỉ dùng token embedding
+- **C.** Nối (concatenate) lại
+- **D.** Cộng vào nhau (cùng chiều d_model)
 
 ## Câu 4 (Trắc nghiệm)
 
 Ma trận attention scores (trước khi nhân V) có shape nào với input (batch, seq, d)?
 
-- **A.** (batch, seq, d)
-- **B.** (batch, seq, seq)
-- **C.** (batch, d, d)
-- **D.** (seq, seq)
+- **A.** (batch, d, d)
+- **B.** (seq, seq)
+- **C.** (batch, seq, d)
+- **D.** (batch, seq, seq)
 
 ## Câu 5 (Tự luận)
 
@@ -42,19 +42,19 @@ Ma trận attention scores (trước khi nhân V) có shape nào với input (ba
 
 [Nâng cao] Mục đích chính của Grouped-Query Attention (GQA) so với Multi-Head Attention?
 
-- **A.** Tăng số head để chính xác hơn
-- **B.** Cho các nhóm head chia sẻ chung K,V để GIẢM kích thước KV cache khi inference
+- **A.** Thay softmax bằng sigmoid
+- **B.** Tăng số head để chính xác hơn
 - **C.** Bỏ hoàn toàn key và value
-- **D.** Thay softmax bằng sigmoid
+- **D.** Cho các nhóm head chia sẻ chung K,V để GIẢM kích thước KV cache khi inference
 
 ## Câu 7 (Trắc nghiệm)
 
 [Nâng cao] Độ phức tạp bộ nhớ/tính toán của self-attention thường (full) theo độ dài seq n là?
 
-- **A.** O(n)
-- **B.** O(n log n)
-- **C.** O(n^2)
-- **D.** O(1)
+- **A.** O(1)
+- **B.** O(n)
+- **C.** O(n log n)
+- **D.** O(n^2)
 
 ## Câu 8 (Tự luận)
 
@@ -70,10 +70,10 @@ Jurafsky và Martin (SLP3 mục 2.4) nói từ và morpheme có nghĩa ổn đ�
 
 GQA (arXiv 2305.13245) là gì, và vì sao nó làm giảm KV cache nhưng không làm giảm số phép nhân trong QKᵀ?
 
-- **A.** GQA giảm số query head
-- **B.** GQA chia query head thành g nhóm cùng chia sẻ một cặp K, V; cache chỉ lưu n_kv_head cặp nên nhỏ hơn, nhưng mỗi query head vẫn tính điểm với toàn bộ K của nhóm nên số phép nhân điểm attention không đổi
+- **A.** GQA chia query head thành g nhóm cùng chia sẻ một cặp K, V; cache chỉ lưu n_kv_head cặp nên nhỏ hơn, nhưng mỗi query head vẫn tính điểm với toàn bộ K của nhóm nên số phép nhân điểm attention không đổi
+- **B.** GQA chỉ áp dụng khi train, không khi inference
 - **C.** GQA bỏ hẳn value
-- **D.** GQA chỉ áp dụng khi train, không khi inference
+- **D.** GQA giảm số query head
 
 ## Nâng cao 2 (Tự luận)
 

@@ -7,10 +7,10 @@
 
 LayerNorm trong transformer chuẩn hoá theo chiều nào?
 
-- **A.** Theo chiều batch (như BatchNorm)
-- **B.** Theo chiều feature/embedding của từng token (last dim)
-- **C.** Theo chiều sequence
-- **D.** Theo toàn bộ tensor
+- **A.** Theo chiều sequence
+- **B.** Theo toàn bộ tensor
+- **C.** Theo chiều batch (như BatchNorm)
+- **D.** Theo chiều feature/embedding của từng token (last dim)
 
 ## Câu 2 (Tự luận)
 
@@ -20,18 +20,18 @@ Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp trai
 
 Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên khoảng mấy lần d_model?
 
-- **A.** 2 lần
-- **B.** 4 lần
-- **C.** 8 lần
-- **D.** Không mở rộng
+- **A.** 4 lần
+- **B.** Không mở rộng
+- **C.** 2 lần
+- **D.** 8 lần
 
 ## Câu 4 (Trắc nghiệm)
 
 GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n_heads=12)?
 
-- **A.** ~50M
-- **B.** ~124M
-- **C.** ~350M
+- **A.** ~124M
+- **B.** ~350M
+- **C.** ~50M
 - **D.** ~1.5B
 
 ## Câu 5 (Tự luận)
@@ -42,18 +42,18 @@ GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n
 
 [Nâng cao] SwiGLU FFN của Llama/Qwen thay thế phần nào của GPT-2?
 
-- **A.** Thay attention
-- **B.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn
-- **C.** Thay LayerNorm
-- **D.** Thay positional embedding
+- **A.** Thay LayerNorm
+- **B.** Thay positional embedding
+- **C.** Thay attention
+- **D.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn
 
 ## Câu 7 (Trắc nghiệm)
 
 [Nâng cao] Trong một lớp Mixture-of-Experts (MoE), 'router' làm gì?
 
-- **A.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert
-- **B.** Định tuyến gradient ngược
-- **C.** Chọn GPU để chạy
+- **A.** Định tuyến gradient ngược
+- **B.** Chọn GPU để chạy
+- **C.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert
 - **D.** Sắp xếp token theo độ dài
 
 ---
@@ -66,10 +66,10 @@ GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n
 
 Top-p (nucleus) sampling khác top-k ở điểm nào theo Jurafsky và Martin, và vì sao điểm đó quan trọng khi ngữ cảnh đổi?
 
-- **A.** Top-p luôn chọn nhiều token hơn top-k
-- **B.** Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh
-- **C.** Top-p chỉ dùng khi temperature bằng 1
-- **D.** Top-p là greedy với p = 1
+- **A.** Top-p chỉ dùng khi temperature bằng 1
+- **B.** Top-p là greedy với p = 1
+- **C.** Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh
+- **D.** Top-p luôn chọn nhiều token hơn top-k
 
 ## Nâng cao 2 (Tự luận)
 
