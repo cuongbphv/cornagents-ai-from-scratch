@@ -87,11 +87,11 @@ llm.c #481:   train 124M trên 10B token FineWeb (nguyên văn discussion, kiể
 
 Nghĩa là run tham chiếu của tuần này là **"over-token"** theo chuẩn Chinchilla. [Suy luận] Vì sao vẫn hợp lý: Chinchilla-optimal chỉ tối ưu loss **cho một budget compute train cố định**; nếu thứ bạn quan tâm là chất lượng của model nhỏ khi **inference** (chạy được trên máy yếu), train quá mốc vẫn tiếp tục hạ loss, trả thêm compute lúc train để đổi lấy model nhỏ mà tốt hơn. Đây là diễn giải từ chính power law của Kaplan (loss vẫn giảm theo data khi chưa hội tụ), không phải khẳng định của riêng paper nào về run 10B token này.
 
-Bài học thực dụng khi đọc README các model đời nay: thấy "8B params, 15T tokens" đừng thắc mắc "sao train lố thế", họ cố ý over-train vì tối ưu chi phí inference, không phải tối ưu compute train theo Chinchilla.
+Khi đọc README các model đời nay, thấy "8B params, 15T tokens" đừng thắc mắc "sao train lố thế", họ cố ý over-train vì tối ưu chi phí inference, không phải tối ưu compute train theo Chinchilla.
 
 ## 10. Data curation & dedup: làm thật trước khi train
 
-Mua GPU giờ mới là nửa việc; nửa kia là **dữ liệu cho GPU ăn**. Paper FineWeb (PDF local, xem bảng Nguồn; đọc bản PDF ngày 2026-08-16) dành hẳn các mục 3.4-3.6 để ablate từng quyết định lọc/dedup, hiếm tài liệu mở nào kể kỹ như vậy.
+Thuê GPU mới là nửa việc; nửa kia là dữ liệu. Paper FineWeb (PDF local, xem bảng Nguồn; đọc bản PDF ngày 2026-08-16) dành các mục 3.4-3.6 để ablate từng quyết định lọc và dedup.
 
 **Vì sao dedup quan trọng, và không phải "càng dedup càng tốt".** FineWeb §3.4: dedup MinHash **toàn cục** trên cả 96 snapshot loại tới 90% dữ liệu ở các snapshot cũ nhưng model "showed little improvement over a model trained on the non-deduplicated data" (nguyên văn); kiểm tra lại thì phần dữ liệu bị giữ lại của snapshot cũ "contains more ads, incoherent lists of keywords and generally badly formatted text" hơn phần bị loại. Chuyển sang dedup **từng snapshot độc lập** thì điểm benchmark mới cải thiện (Fig. 5). Bài học: dedup là để loại các **cụm trùng lặp khổng lồ**, không phải để vắt kiệt mọi cặp na ná nhau.
 

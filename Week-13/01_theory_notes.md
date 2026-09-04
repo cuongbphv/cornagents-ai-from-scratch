@@ -26,7 +26,7 @@ Kiểm chứng 2026-08-11: `cos(a, 2a) = 1.0` (cùng hướng tuyệt đối, co
 
 **Embedding model là quyết định chất lượng số 1 của RAG**: nó quyết định "gần nghĩa" nghĩa là gì. Chọn theo benchmark phù hợp ngôn ngữ của corpus (mục 6).
 
-Đừng coi cosine là chân lý mặc định. Steck et al. 2024 (arXiv [2403.05440](https://arxiv.org/abs/2403.05440), abstract tra 2026-08-12) chỉ ra với embedding học từ model có regularization, "cosine-similarity can yield arbitrary and therefore meaningless 'similarities'", có trường hợp thua cả dot product không chuẩn hóa. Bài học thực dụng: chất lượng retrieval đo bằng eval set của bạn (Tuần 14), không suy ra từ việc "đã dùng đúng công thức".
+Đừng coi cosine là chân lý mặc định. Steck et al. 2024 (arXiv [2403.05440](https://arxiv.org/abs/2403.05440), abstract tra 2026-08-12) chỉ ra với embedding học từ model có regularization, "cosine-similarity can yield arbitrary and therefore meaningless 'similarities'", có trường hợp thua cả dot product không chuẩn hóa. Chất lượng retrieval đo bằng eval set của bạn (Tuần 14), không suy ra từ việc "đã dùng đúng công thức".
 
 ## 3. Chunking: cắt tài liệu không làm đứt nghĩa
 

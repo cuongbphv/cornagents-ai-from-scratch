@@ -75,7 +75,7 @@ OWASP xếp Prompt Injection là **LLM01**: rủi ro số 1 trong *OWASP Top 10 
 | Output filtering | validate output theo artifact contract (mục 4): sai schema là chặn tại biên, kể cả khi model đã bị lừa | mục 4, contract chính là filter |
 | HITL gate | hành động khó đảo (merge/commit/gửi đi) phải qua người duyệt, lớp chặn cuối khi mọi lớp trên thủng | mục 5, gate đã đặt |
 
-Cách đọc bảng: mỗi lớp giả định lớp trước **đã thủng**. Payload lọt qua delimiter → nó chỉ gọi được tool trong scope hẹp → output lệch contract bị chặn → hành động lớn còn người duyệt. Đó là lý do §4 và §5 của file này thực chất là một hệ phòng thủ, không phải hai mục rời.
+Mỗi lớp trong bảng giả định lớp trước đã thủng. Payload lọt qua delimiter → nó chỉ gọi được tool trong scope hẹp → output lệch contract bị chặn → hành động lớn còn người duyệt. Đó là lý do §4 và §5 của file này thực chất là một hệ phòng thủ, không phải hai mục rời.
 
 ## 6. Ba agent của tuần: điểm thiết kế chính
 

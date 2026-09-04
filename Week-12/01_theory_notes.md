@@ -65,7 +65,7 @@ Sau vài tuần fine-tune, bạn sẽ có nhiều adapter cho các sub-task khá
 
 **Tool phổ biến:** `arcee-ai/mergekit` (GitHub public, license **LGPL-3.0**: kiểm file LICENSE 2026-08-16, là license mã nguồn mở chuẩn FSF nên nằm trong phạm vi nguồn cho phép của repo) cài đặt sẵn task arithmetic, SLERP và nhiều method khác qua file YAML.
 
-**Caveat trung thực, đọc trước khi merge:** [Chưa xác minh] Không có nguồn nào trong bảng dưới cho phép nói trước "merge A + B sẽ giữ được chất lượng của cả A lẫn B" cho cặp adapter cụ thể của bạn, merging là kỹ thuật **thực nghiệm**, kết quả phụ thuộc cặp model/task và chỉ biết sau khi đo. Quy trình đúng của repo này: merge xong bắt buộc chạy lại bộ 10 prompt song ngữ (mục 5) + eval set nghiệp vụ, so từng cặp output với từng adapter gốc; giữ bản merge chỉ khi số đo không tụt.
+**Đọc trước khi merge:** [Chưa xác minh] Không có nguồn nào trong bảng dưới cho phép nói trước "merge A + B sẽ giữ được chất lượng của cả A lẫn B" cho cặp adapter cụ thể của bạn, merging là kỹ thuật **thực nghiệm**, kết quả phụ thuộc cặp model/task và chỉ biết sau khi đo. Quy trình đúng của repo này: merge xong bắt buộc chạy lại bộ 10 prompt song ngữ (mục 5) + eval set nghiệp vụ, so từng cặp output với từng adapter gốc; giữ bản merge chỉ khi số đo không tụt.
 
 ## 8. Speculative decoding: chạy thử trên stack local
 
@@ -80,7 +80,7 @@ Sau vài tuần fine-tune, bạn sẽ có nhiều adapter cho các sub-task khá
 
 **Vì sao speedup phụ thuộc acceptance rate:** mỗi vòng, chi phí gần như cố định là 1 forward của target (+ k forward rẻ của draft); số token "ăn được" mỗi vòng = số token nháp được chấp nhận (+1 token lấy mẫu lại). Draft đoán trúng nhiều → nhiều token/1 forward lớn → nhanh; draft đoán trật liên tục → mỗi vòng chỉ được ~1 token mà vẫn tốn thêm chi phí chạy draft → có thể **chậm hơn** không dùng draft. [Suy luận] Hệ quả thực dụng: chọn draft cùng họ model, cùng tokenizer, và đo trên chính workload của bạn, đoán trúng hay không phụ thuộc domain prompt.
 
-**Hands-on trên stack tuần này (flag đã kiểm từ nguồn chính thức, KHÔNG đoán):**
+**Hands-on trên stack tuần này (flag đã kiểm từ nguồn chính thức):**
 
 - **llama.cpp** (`llama-server`): flag nạp draft model là `--model-draft` (alias `-md`, `--spec-draft-model`), mô tả nguyên văn "draft model for speculative decoding"; số token nháp mỗi vòng chỉnh bằng `--spec-draft-n-max`: kiểm từ README của `tools/server` trong repo ggml-org/llama.cpp ngày 2026-08-16.
 - **MLX**: `mlx_lm.generate` có `--draft-model` ("A model to be used for speculative decoding.") và `--num-draft-tokens` (mặc định 3): kiểm trực tiếp argparse trong `mlx_lm/generate.py` của repo ml-explore/mlx-lm ngày 2026-08-16.
