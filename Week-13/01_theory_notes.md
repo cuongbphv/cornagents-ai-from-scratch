@@ -1,87 +1,92 @@
-# Lý thuyết Tuần 13 — 5 workflow patterns + agent graph cho SDLC
+# Lý thuyết Tuần 13: RAG pipeline end-to-end
 
-> Đọc trước khi code [`02_agents.py`](02_agents.py). Nguồn chính: tài liệu trong repo (`docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` mục IV, VI.D, VIII) — các con số trong file này lấy từ tài liệu đó, ghi rõ tại chỗ.
+> Đọc trước khi điền [`02_rag_pipeline.py`](02_rag_pipeline.py). Ví dụ số kiểm chứng bằng PyTorch 2.5.1 + tiktoken ngày 2026-08-11; nguồn cuối file.
 
 ---
 
-## 1. Năm workflow patterns — vốn từ vựng thiết kế của tuần
+## 1. Vì sao RAG: và vì sao không phải fine-tune
 
-Từ PDF mục IV (cùng họ với bài "Building Effective Agents" của Anthropic mà PDF tổng hợp):
+Nguyên tắc đã chốt từ Tuần 11: **fine-tune dạy hành vi, RAG cung cấp kiến thức.** Kiến thức quy định (thông tư, điều khoản) thay đổi liên tục và cần dẫn nguồn, nhét vào trọng số thì không cập nhật được, không trích dẫn được, và không kiểm chứng được. RAG (Lewis et al., arXiv 2005.11401) tách đôi: kiến thức nằm trong **kho tài liệu truy xuất được**, model chỉ làm việc đọc-hiểu-trả-lời trên context được đưa vào.
 
-| Pattern | Cấu trúc | Dùng khi |
-|---------|----------|----------|
-| **Prompt Chaining** | A → B → C, output trước là input sau | các bước ổn định, biết trước thứ tự |
-| **Routing** | phân loại input → rẽ nhánh xử lý chuyên biệt | input nhiều loại khác hẳn nhau |
-| **Parallelization** | chạy nhiều nhánh cùng lúc → gộp | subtask độc lập, hoặc cần nhiều góc nhìn |
-| **Orchestrator–Workers** | agent điều phối giao việc động cho worker | không biết trước cần những subtask nào |
-| **Evaluator–Optimizer** | generate ↔ evaluate lặp đến đạt | có tiêu chí chấm rõ, cần chất lượng cao |
+Pipeline baseline 6 khâu, hỏng khâu nào hỏng cả chuỗi:
 
-Nguyên tắc gốc của tài liệu: *"simple, composable patterns rather than complex frameworks"* — chọn pattern đơn giản nhất đủ dùng, ghép lại được.
-
-## 2. Chi phí thật của multi-agent — số phải nhớ trước khi tách vai
-
-Theo PDF (mục IV/VIII, nhắc lại trong README): multi-agent hơn single agent ~**90%** ở task đa hướng nhưng tốn **10–15× token**. Hệ quả kỷ luật:
-
-- Chỉ tách vai khi chuyên môn hoá **thêm tín hiệu** (worker có context/tool/prompt thật sự khác nhau), không tách để "cho giống kiến trúc đẹp".
-- **Định nghĩa reducer trước khi fan-out** — ai gộp kết quả, gộp thế nào; fan-out không reducer là rác song song.
-- **Khi nào ĐỪNG fan-out** (mục nâng cao I3): task cần một mạch tư duy liền (thiết kế kiến trúc, viết narrative, refactor gắn kết) — chia nhỏ làm tệ hơn; và fan-out tạo **lỗi tương quan** — nhiều worker cùng sai một kiểu, verification chỉ cứu được nếu reviewer có prompt/bằng chứng/vai khác.
-
-## 3. Sáu câu hỏi chọn kiến trúc (PDF mục VIII — dùng nguyên bảng trong README)
-
-Bảng đầy đủ ở [README.md](README.md); điều đáng nhấn: câu 1 — **success có verify được không?** Không verify được thì chưa được phép nói đến autonomy; viết test/rubric trước. Đây là cùng nguyên tắc với 4 điều kiện của loop Tuần 12, nâng lên mức graph.
-
-## 4. Artifact contract — handoff bằng schema, không bằng văn xuôi
-
-Mỗi cạnh trong graph (agent A → agent B) là một **hợp đồng dữ liệu**: schema tường minh (Pydantic/JSON Schema), có validation tại biên. Vì sao không dùng prose: văn xuôi không validate được, trôi format âm thầm, và agent nhận phải "đoán" — đúng loại lỗi tầng 1–2 đã học cách chẩn đoán ở Tuần 12. Ví dụ contract cho Requirements Analyst:
-
-```python
-class UserStory(BaseModel):
-    story_id: str
-    as_a: str            # vai — nội dung tiếng Việt
-    i_want: str
-    so_that: str
-    acceptance_criteria: list[str]   # mỗi AC kiểm được đúng/sai
-    source_refs: list[str]           # điều khoản/tài liệu grounding (RAG Tuần 10–11)
+```
+Load PDF → Chunk → Embed → Vector store → Retrieve top-k → Generate (kèm context)
 ```
 
-`source_refs` là chỗ RAG cắm vào: story sinh ra phải **dẫn được về tài liệu nghiệp vụ** — không có ref thì evaluator từ chối, đó chính là quality gate rẻ nhất.
+## 2. Embeddings + cosine similarity: thước đo "gần nghĩa"
 
-## 5. Human-in-the-loop gates + least privilege
+Embedding model biến đoạn văn thành vector; hai đoạn gần nghĩa → vector gần nhau theo **cosine similarity**:
 
-- **Gate đặt ở chỗ chi phí sai cao nhất**: sau requirements (hiểu sai đề → mọi thứ sau sai) và trước merge/commit (hành động khó đảo). Gate = artifact trình cho người + trạng thái chờ duyệt, không phải "in ra console rồi chạy tiếp".
-- **Least privilege cho tool**: Requirements Analyst chỉ cần đọc RAG — không cần quyền ghi file; Test-Gen cần ghi file test — không cần network. Scope hẹp làm sai sót của một agent không lan thành sự cố hệ thống.
-- **Tool output là input KHÔNG đáng tin** — cùng họ vấn đề với prompt injection. Wallace et al. 2024, *The Instruction Hierarchy* (arXiv [2404.13208](https://arxiv.org/abs/2404.13208), abstract tra 2026-08-12) chỉ ra gốc rễ: LLM hiện "treat system prompts and user inputs with equal priority", và đề xuất huấn luyện model "selectively ignore lower-privileged instructions". Bạn không train lại model được, nhưng rút được nguyên tắc thiết kế: đừng đưa nguyên văn tài liệu RAG/tool output vào vị trí có quyền ra lệnh — bọc nó, đánh dấu nó là dữ liệu.
+```
+cos(a, b) = (a·b) / (|a||b|)     ∈ [−1, 1]
+```
 
-## 6. Ba agent của tuần — điểm thiết kế chính
+Kiểm chứng 2026-08-11: `cos(a, 2a) = 1.0` (cùng hướng tuyệt đối, cosine bỏ qua độ dài, chỉ đo hướng); hai vector lệch hướng cho 0.378. Retrieval = embed câu hỏi → tìm k chunk có cosine cao nhất trong store. Lưu ý nền từ Tuần 4: đây vẫn chỉ là dot product sau khi chuẩn hóa.
 
-1. **Requirements Analyst** (thế mạnh BA): feature request → user stories + AC theo contract mục 4, grounded qua RAG. Đây là agent "ăn tiền" nhất vì domain knowledge của bạn nằm ở đây.
-2. **Code Review agent**: trả về **criterion-level defects** — từng lỗi gắn với tiêu chí cụ thể (đúng/sai kiểm được), cấm output "looks good". Danh sách tiêu chí là một phần của prompt, không phải để model tự nghĩ.
-3. **Test-Generation agent**: từ story/AC → test case; mỗi AC ít nhất một test — ánh xạ 1-1 kiểm được bằng code, khỏi cần LLM chấm.
+**Embedding model là quyết định chất lượng số 1 của RAG**: nó quyết định "gần nghĩa" nghĩa là gì. Chọn theo benchmark phù hợp ngôn ngữ của corpus (mục 6).
 
-Nối bằng: orchestrator–workers (phân việc) + evaluator–optimizer (vòng chất lượng quanh review), đúng gợi ý README.
+Đừng coi cosine là chân lý mặc định. Steck et al. 2024 (arXiv [2403.05440](https://arxiv.org/abs/2403.05440), abstract tra 2026-08-12) chỉ ra với embedding học từ model có regularization, "cosine-similarity can yield arbitrary and therefore meaningless 'similarities'", có trường hợp thua cả dot product không chuẩn hóa. Bài học thực dụng: chất lượng retrieval đo bằng eval set của bạn (Tuần 14), không suy ra từ việc "đã dùng đúng công thức".
 
-Khi viết `03_agent_design.md`, có thể mượn khung mô tả của survey Tran et al. 2025 (arXiv [2501.06322](https://arxiv.org/abs/2501.06322), abstract tra 2026-08-12): mô tả hệ multi-agent theo 5 chiều — "actors (agents involved), types (e.g., cooperation, competition...), structures (e.g., peer-to-peer, centralized...), strategies (e.g., role-based...), and coordination protocols". Điền đủ 5 ô cho thiết kế của mình là một bài kiểm tra "mình đã nghĩ hết chưa" rẻ tiền.
+## 3. Chunking: cắt tài liệu không làm đứt nghĩa
 
-## 7. Tiếng Việt trong tuần này
+- Baseline README: `RecursiveCharacterTextSplitter`, size ~800, overlap ~100. Splitter này đếm theo **ký tự** và ưu tiên cắt tại ranh giới tự nhiên (đoạn → câu → từ) theo thứ tự separator.
+- **Ký tự ≠ token.** Đo thật trên một câu thông tư tiếng Việt (cl100k, 2026-08-11): 115 ký tự → 52 token, tức ~**2.2 ký tự/token**: chunk 800 ký tự tiếng Việt ≈ 360 token. Muốn kiểm soát ngân sách context chính xác thì đếm bằng token của đúng model bạn dùng, đừng áng chừng theo ký tự.
+- Overlap tồn tại để câu nằm vắt qua ranh giới chunk không bị mất ngữ cảnh ở cả hai phía.
+- Với văn bản pháp luật, ranh giới tự nhiên tốt nhất là **Điều/Khoản/Điểm**: cắt theo cấu trúc văn bản (semantic) luôn thắng cắt theo đếm ký tự mù; giữ số hiệu Điều trong metadata của chunk.
 
-- **Schema tiếng Anh, nội dung tiếng Việt** (quy ước Tuần 12 mục 6): field `as_a`, `acceptance_criteria` là tiếng Anh; giá trị bên trong là tiếng Việt nghiệp vụ. Validation không phụ thuộc ngôn ngữ nội dung.
-- **Glossary nghiệp vụ VN–EN là một artifact hạng nhất**: thuật ngữ tài chính ("tài sản bảo đảm", "hạn mức tín dụng", "giải ngân") phải dịch/diễn giải nhất quán giữa các agent — đưa glossary vào context của MỌI agent (tầng 2), đừng để mỗi agent tự dịch một kiểu. Tuần 14 sẽ nâng glossary này lên thành entity trong knowledge graph.
-- **AC viết tiếng Việt vẫn phải kiểm được đúng/sai** — "hệ thống phản hồi nhanh" không kiểm được; "API trả kết quả trong ≤ 2s với 95% request" kiểm được. Ngôn ngữ nào cũng vậy, nhưng viết AC kiểm được bằng tiếng Việt là kỹ năng BA bạn mang sẵn — dùng nó làm tiêu chí cho evaluator.
+## 4. Vector store + metadata: chỗ provenance bắt đầu
 
-## 8. Nguồn
+- **Chroma** cho dev (persist xuống đĩa, không cần server); pgvector/Qdrant khi cần production.
+- Mỗi chunk lưu kèm **metadata: tên văn bản, số hiệu, điều khoản, ngày hiệu lực**: Tuần 17 cần chúng làm provenance, và câu trả lời có dẫn nguồn cần chúng ngay tuần này. Mất metadata lúc ingest là mất vĩnh viễn.
 
-| Nguồn | Vị trí | Dùng cho mục |
-|-------|--------|--------------|
-| Karpathy-Loop PDF (mục IV, VI.D, VIII) | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 1, 2, 3 |
-| Claude Agent SDK docs (xác minh 2026-08-11) | https://code.claude.com/docs/en/agent-sdk | 5, 6 |
-| Wallace et al. 2024 — The Instruction Hierarchy (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2404.13208 | 5 |
-| Tran et al. 2025 — Multi-Agent Collaboration Mechanisms: A Survey (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2501.06322 | 6 |
+## 5. Generate: grounding là mục tiêu, không phải văn hay
 
-(CodeRabbit/Sonar/GlobalLogic: tham chiếu pattern trong README — đọc lấy ý quality gate, không phải nguồn trích số liệu.)
+- Prompt template tối thiểu: *"Chỉ trả lời dựa trên context dưới đây. Không tìm thấy thông tin thì nói không tìm thấy."* + context top-k + câu hỏi.
+- **Temperature ≤ 0.3** cho RAG nghiệp vụ (khuyến nghị trong README, mục nâng cao B2): cùng context đó, temperature cao làm model "suy diễn vượt nguồn" nhiều hơn.
+- Test 10 câu hỏi domain: với mỗi câu trả lời, tự hỏi **"câu này dẫn về được chunk nào?"**: không dẫn được = chưa grounded, đánh dấu lại làm baseline cho Tuần 14 đo.
+
+## 6. Tiếng Việt trong tuần này: 3 bẫy có bằng chứng
+
+1. **Unicode NFC vs NFD**: bẫy âm thầm nhất. Kiểm chứng 2026-08-11: ký tự `ế` dạng NFC là **1 codepoint**, dạng NFD là **3 codepoint** (e + dấu mũ + dấu sắc), và hai chuỗi **không bằng nhau** khi so sánh trực tiếp. Corpus scrape từ nhiều nguồn có thể trộn cả hai dạng → cùng một từ thành hai chuỗi khác nhau khi match, đếm ký tự lệch, highlight sai. **Chuẩn hóa `unicodedata.normalize("NFC", text)` ngay tại bước load, trước mọi xử lý khác.**
+2. **Embedding model phải hỗ trợ tiếng Việt thật**: model embedding train chủ yếu tiếng Anh cho cosine similarity kém nghĩa trên tiếng Việt. Chọn theo **VN-MTEB** (benchmark embedding tiếng Việt, mục 9 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)); nghi ngờ thì tự test: 5 cặp câu nghiệp vụ đồng nghĩa + 5 cặp không liên quan, xem cosine có tách hai nhóm không.
+3. **Ngân sách token tiếng Việt**: 2.2 ký tự/token (đo ở mục 3): khi ước lượng "top-k chunk có vừa context window không", tính bằng token thật, nhất là khi generate bằng model local context ngắn.
+
+Corpus khuyến nghị + lưu ý pháp lý: xem mục 📦 trong [README.md](README.md) (nguồn vbpl.vn, giữ metadata ngày hiệu lực).
+
+## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+
+| Nguồn | URL | Dùng cho mục |
+|-------|-----|--------------|
+| Lewis et al. 2020, RAG | https://arxiv.org/abs/2005.11401 | 1 |
+| Steck et al. 2024, Is Cosine-Similarity Really About Similarity? (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2403.05440 | 2 |
+| Gekhman et al. 2024, FT trên kiến thức mới & hallucination (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.05904, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
+
+(LlamaIndex/LangChain docs, NirDiamant/RAG_Techniques: link trong README nguồn học, API đổi theo version, đọc docs đúng version bạn cài.)
 
 ## Sau khi đọc xong
 
-1. Map từng stage SDLC ↔ pattern + I/O (giấy trước, code sau).
-2. Viết artifact contract (mục 4) cho cả 3 handoff TRƯỚC khi viết agent nào.
-3. Code 3 agent trong [`02_agents.py`](02_agents.py), nối graph, thêm gate + least privilege.
-4. Chạy 1 requirement Finance Banking end-to-end; ghi [`03_agent_design.md`](03_agent_design.md); làm [`quiz.md`](quiz.md).
+1. Thu thập corpus vào `data/`, **normalize NFC ngay khi load**.
+2. Điền [`02_rag_pipeline.py`](02_rag_pipeline.py) theo 6 khâu; chunk giữ metadata điều khoản.
+3. Test 10 câu hỏi domain, ghi lại câu nào grounded/câu nào không, đây là baseline Tuần 14.
+4. Làm [`quiz.md`](quiz.md).
+
+## 8. RAG trong dòng lịch sử information retrieval
+
+Pipeline sáu khâu ở mục 1 là cách một kỹ sư dựng RAG. Mục này kể lại cùng hệ thống bằng ngôn ngữ của ngành information retrieval, để bạn dùng đúng thuật ngữ khi đọc paper và khi thiết kế eval ở Tuần 14.
+
+**Từ vựng chuẩn.** Jurafsky và Martin (SLP3 mục 11.1, trang 254) gọi bài toán là **ad hoc retrieval**: người dùng đưa một query, hệ thống trả về một tập tài liệu có thứ tự từ một collection. **Document** là bất kỳ đơn vị text nào hệ thống index và trả về, có thể là trang web, bài báo, hay đoạn ngắn như một paragraph; với RAG, chunk của bạn chính là document. **Collection** là tập tài liệu phục vụ truy vấn; **term** là từ (hoặc cụm từ) trong collection; **query** biểu diễn nhu cầu thông tin dưới dạng tập term. Kiến trúc chung (Figure 11.1 của SLP3) có hai nhánh: xử lý và index tài liệu, và xử lý query thành vector; xếp hạng dựa trên điểm liên quan giữa hai vector. Hai lớp hệ thống IR khác nhau ở loại vector: **sparse**, tức vector đếm có trọng số tf-idf hoặc BM25, và **dense**, tức embedding từ encoder. Pipeline Tuần 13 của bạn là dense retrieval; Tuần 14 thêm nhánh sparse thành hybrid.
+
+**Vì sao cần dense.** SLP3 mục 11.3 (trang 264) chỉ ra khiếm khuyết của tf-idf và BM25: "they work only if there is exact overlap of words between the query and document", nên người hỏi phải đoán đúng từ người viết đã dùng, vấn đề mang tên vocabulary mismatch (Furnas et al. 1987). Embedding dày giải quyết bằng cách so nghĩa; ý tưởng có từ Latent Semantic Indexing (Deerwester et al. 1990) và nay hiện thực bằng encoder như BERT. [Suy luận] Với tài liệu pháp lý tiếng Việt, mismatch dễ xảy ra: người hỏi nói "phí phạt trả nợ trước hạn", văn bản viết "phí trả nợ trước hạn" hoặc dẫn số điều khoản. Đây là lý do baseline dense của tuần này đáng có, và cũng là lý do Tuần 14 vẫn cần BM25 cho các trường hợp cần khớp chính xác số hiệu văn bản.
+
+**RAG hai giai đoạn.** SLP3 mục 11.4 (trang 267) mô tả RAG cơ bản: giai đoạn retrieve lấy các passage liên quan từ một collection định trước, ví dụ bằng dense retriever; giai đoạn generate ghép các passage đó với prompt của người dùng và đưa cho LLM sinh câu trả lời điều kiện trên cả hai. Hệ thống có hai thành phần chính, retriever và generator, thành phần sau đôi khi gọi là reader vì lý do lịch sử. Ba mục tiêu của RAG theo SLP3: giảm hallucination bằng cách cho model một tập tài liệu đáng tin, sinh text đúng về dữ liệu riêng (email, hồ sơ, tài liệu nội bộ, văn bản pháp lý), và xử lý kiến thức thay đổi theo thời gian, khi nhu cầu thông tin nói về dữ liệu sau thời điểm model được train. Ba mục tiêu này trùng khít với lý do repo chọn RAG cho kiến thức quy định thay vì fine-tune: văn bản pháp luật thay đổi, cần dẫn nguồn, và không được bịa.
+
+**Ghi gì cho baseline.** Với mỗi câu hỏi trong bộ 10 câu, lưu id chunk được retrieve, điểm cosine, và câu trả lời. Tuần 14 bạn sẽ cần đúng ba cột này để tính context precision và recall theo định nghĩa IR-book mục 8, và để so trước và sau khi thêm BM25 và reranker.
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **RAG trong dòng lịch sử IR.** SLP3 chương 11: mục 11.1 (trang 254) là IR cổ điển, mục 11.3 (trang 264) chỉ ra khiếm khuyết của tf-idf và BM25: "they work only if there is exact overlap of words between the query and document", gọi là vocabulary mismatch problem, và dense embedding là cách giải. Mục 11.4 (trang 267) định nghĩa RAG gồm hai thành phần retriever và generator, và nêu các mục tiêu: "RAG can help mitigate hallucination, by giving the model a set of trusted documents", dữ liệu riêng, và kiến thức thay đổi theo thời gian. Ba mục tiêu này trùng với lý do repo chọn RAG cho kiến thức quy định.
+- **tf-idf và vector space model.** IR-book mục 6.2.2 Tf-idf weighting (trang 118) và 6.3 (trang 120): điểm giống nhau giữa cosine similarity của embedding và cosine trên vector tf-idf là cùng công thức góc của Tuần 1; khác ở cách dựng vector.
+- **Code tham chiếu mở.** Notebook `chapter08/Chapter 8 - Semantic Search.ipynb` và `chapter10/Chapter 10 - Creating Text Embedding Models.ipynb` trong repo Hands-On LLM (Apache-2.0).

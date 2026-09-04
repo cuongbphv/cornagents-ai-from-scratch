@@ -1,73 +1,67 @@
-# Tuần 9 — Fine-tuning trên Mac/MLX + local inference stack
+# Tuần 9: Instruction fine-tuning (classification + instruction-following + LoRA)
 
-> Phase 2 — Applied. Dùng MacBook 24GB cho thế mạnh của nó (unified memory) và dựng bộ công cụ inference local.
+> Phase 1: Deep Internals. Fine-tune cho classification & instruction-following. (Alignment được tách riêng sang Tuần 10 để giảm tải.)
 
 ## Mục tiêu
 
-- Fine-tune model 7B–8B với LoRA/QLoRA bằng **MLX** trên Mac.
-- Dựng **local inference stack** (Ollama + LM Studio).
+- Fine-tune cho **classification** (ch.6) và **instruction-following** (ch.7).
+- Hiểu và áp dụng **LoRA** (Appendix E): so sánh với full fine-tuning.
 
 ## Nguồn học
 
-- **`mlx-lm`** docs + `mlx_lm.lora`.
-- Tùy chọn: **MLX LoRA Studio** (GUI), **mlx-tune** (SFT/DPO/GRPO trên MLX).
-- **Ollama**, **LM Studio** (chạy cả GGUF & MLX), **llama.cpp**.
+- Paper LoRA (arXiv 2106.09685); paper InstructGPT (arXiv 2203.02155); HF PEFT docs (huggingface.co/docs/peft); `FareedKhan-dev/train-llm-from-scratch` phần SFT.
 - Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — unified memory, MLX flow, GGUF/Ollama, protocol đo tốc độ + forgetting.
-2. [`02_mlx_commands.md`](02_mlx_commands.md) — lệnh MLX/Ollama/LM Studio sẵn dùng.
-3. [`03_hardware_decision.md`](03_hardware_decision.md) — bảng quyết định từ số đo thật (deliverable).
-4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): classification FT, instruction FT + masking, LoRA.
+2. [`02_instruction_finetune.py`](02_instruction_finetune.py): TỰ code format dataset + fine-tune loop (deliverable).
+3. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-Fine-tune 7B–8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qua Ollama/LM Studio. Với 24GB unified memory có thể fine-tune tới ~13–14B (QLoRA ~14–18GB working memory).
+1. Fine-tune classifier (ch.6): dataset spam, sửa head phân loại, đo accuracy.
+2. Instruction-fine-tune model của bạn (hoặc một pretrained nhỏ) theo ch.7 với Alpaca-style template.
+3. Áp dụng LoRA và so sánh full FT vs LoRA (tham số train được, VRAM, chất lượng).
 
 ## Deliverable
 
-- Local inference stack hoạt động (Ollama + LM Studio).
-- Một model MLX đã fine-tune.
-- Ghi chú ngắn: khi nào dùng **Mac vs 3070 Ti vs cloud** → `03_hardware_decision.md`.
+- Một **instruction-following mini-model** chat được.
+- Ghi chú so sánh **full FT vs LoRA** (thêm vào cuối `02_instruction_finetune.py` hoặc file note riêng).
 
 ## Thời lượng
 
-~8–10 giờ.
+~10-12 giờ.
 
 ## Phần cứng
 
-**MacBook Pro 24GB** (unified memory tỏa sáng; ~2–4× chậm hơn NVIDIA nhưng chứa model lớn hơn). Dựng **Ollama** trên cả hai máy để serve.
+- 3070 Ti là đủ cho ch.6-7 (model nhỏ, LoRA).
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — chốt bộ 10 prompt song ngữ TRƯỚC khi fine-tune
-- [ ] Cài `mlx-lm` (`pip install mlx-lm`) trên Mac
-- [ ] Tải model MLX-format (HF `mlx-community/...`)
-- [ ] LoRA fine-tune: `mlx_lm.lora --model ... --train --data ... --iters 500`
-- [ ] Fuse adapter: `mlx_lm.fuse --model ... --adapter-path ...`
-- [ ] Cài Ollama + tạo Modelfile cho model GGUF (từ Tuần 8) / MLX
-- [ ] Cài LM Studio, load model, test chat
-- [ ] So tốc độ Mac vs 3070 Ti trên cùng prompt
-- [ ] Viết `03_hardware_decision.md`
+- [ ] Đọc `01_theory_notes.md`: chạy lại được mọi snippet trong đó
+- [ ] ch.6: chuẩn bị dataset classification (spam) + sửa head phân loại
+- [ ] ch.6: fine-tune classifier, đo accuracy train/val/test
+- [ ] ch.7: format instruction dataset (Alpaca-style prompt template)
+- [ ] ch.7: instruction fine-tune + sinh phản hồi
+- [ ] Áp dụng LoRA (Appendix E): so sánh full FT vs LoRA
+- [ ] Chat thử với mini-model → ghi vài ví dụ
 
-## 🚀 Bổ sung nâng cao (serving & quantization)
+## 🚀 Bổ sung nâng cao (định vị trong pipeline lớn)
 
-Tuần này bạn serve model thật, nên các mục sau trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) rất sát:
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G, chỉ phần sơ đồ pipeline** (đừng đọc hết, phần còn lại là của Tuần 10):
 
-- **B1 KV cache** — bộ nhớ KV cache ≈ `2 · n_layers · n_kv_heads · d_head · seq · dtype`, chính là nút thắt VRAM khi context dài. Đây là lý do GQA/MQA/MLA tồn tại.
-- **B3 Speculative decoding** — model "nháp" nhỏ đề xuất, model lớn verify song song → nhanh hơn mà không đổi phân phối.
-- **B4 GGUF** — nhắc lại cho rõ: GGUF là **định dạng file** của llama.cpp (Q4_K_M, Q5_K_M…), *không phải* thuật toán lượng tử hoá. Đây chính là thứ Ollama/LM Studio load.
+```
+Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR
+                       ↑
+              instruction fine-tuning bạn làm tuần này ≈ bước SFT
+```
 
-> Nguồn: nanochat `engine.py` (KV cache); docs llama.cpp/GGUF (quantization).
+Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeline lớn, và **Midtrain** (khái niệm nanochat, không có trong pipeline GPT-2 kinh điển) chen vào trước SFT để dạy format hội thoại + special tokens + tool use.
 
-## 📦 Dữ liệu cho tuần này
-
-Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **7** (VRAM/base model) và mục **8** (song ngữ).
-
-Kiểm tra quan trọng ở tuần này: model vừa fine-tune có **giữ được tiếng Anh** không. Hiện tượng "catastrophic forgetting khả năng sinh ngôn ngữ khác" khi fine-tune lệch một thứ tiếng là có thật và đã được công bố — chạy vài prompt tiếng Anh trước/sau để so.
+> ➡️ Tuần 10 sẽ đọc mục **G** đầy đủ (RM, PPO, DPO, GRPO/RLVR).
 
 ## File trong folder
 
@@ -75,8 +69,9 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: unified memory, MLX, GGUF, protocol đo |
-| 2 | `02_mlx_commands.md` | Các lệnh MLX/Ollama/LM Studio sẵn dùng |
-| 3 | `03_hardware_decision.md` | Bảng quyết định Mac vs 3070 Ti vs cloud (deliverable) |
-| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: classification/instruction FT, LoRA |
+| 2 | `02_instruction_finetune.py` | Skeleton format dataset + fine-tune loop (TODO) |
+| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+
+> ➡️ Tiếp theo: **Tuần 10** đi sâu pipeline alignment (SFT → RM → DPO/PPO → GRPO).

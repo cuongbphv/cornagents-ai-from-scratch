@@ -1,84 +1,117 @@
-# Tuần 4 — Đáp án & Giải thích: Lắp ráp & chạy mô hình GPT
+# Tuần 4, Đáp án & Giải thích: PyTorch core: từ NumPy sang tensor, autograd, training loop
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
-LayerNorm trong transformer chuẩn hoá theo chiều nào?
+Một nn.Linear(in, out) thực chất tính gì?
 
-- **A.** Theo chiều batch (như BatchNorm)
-- **B.** Theo chiều feature/embedding của từng token (last dim) ✅
-- **C.** Theo chiều sequence
-- **D.** Theo toàn bộ tensor
-
-**Đáp án: B**
-
-**Giải thích:** LayerNorm chuẩn hoá theo feature của mỗi token độc lập (không phụ thuộc batch) → ổn định, hợp với độ dài chuỗi thay đổi.
-
-## Câu 2 (Tự luận)
-
-Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp train mạng sâu?
-
-**Trả lời mẫu:** Residual tạo một 'đường cao tốc' để gradient chảy thẳng về các lớp đầu mà không bị nhân nhỏ dần qua nhiều lớp (chống vanishing gradient). Đặt LayerNorm TRƯỚC sublayer (pre-LN) giữ đầu vào mỗi sublayer ở thang đo ổn định, làm việc xếp chồng hàng chục block ổn định hơn so với post-LN. Nhờ vậy có thể train transformer rất sâu.
-
-**Giải thích:** Ngoài vai trò shortcut gradient, residual còn cho phép mỗi block tinh chỉnh dần biểu diễn (residual stream).
-
-## Câu 3 (Trắc nghiệm)
-
-Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên khoảng mấy lần d_model?
-
-- **A.** 2 lần
-- **B.** 4 lần ✅
-- **C.** 8 lần
-- **D.** Không mở rộng
+- **A.** y = x @ W + b với W có shape (in, out)
+- **B.** y = x @ W^T + b với W lưu shape (out, in) ✅
+- **C.** y = W @ x luôn luôn, không có bias
+- **D.** y = softmax(x @ W)
 
 **Đáp án: B**
 
-**Giải thích:** FFN: Linear(d → 4d) → GELU → Linear(4d → d). Hệ số 4× là chuẩn của GPT-2.
+**Giải thích:** PyTorch lưu weight shape (out, in), nên forward là y = x @ W^T + b. Đây là khối tuyến tính cơ bản lặp lại khắp transformer.
+
+## Câu 2 (Trắc nghiệm)
+
+Mục đích chính của softmax là gì?
+
+- **A.** Chuẩn hoá vector về độ dài 1
+- **B.** Biến một vector logits thành phân phối xác suất (mọi phần tử dương, tổng = 1) ✅
+- **C.** Loại bỏ giá trị âm như ReLU
+- **D.** Tính gradient của cross-entropy
+
+**Đáp án: B**
+
+**Giải thích:** softmax(z)_i = e^{z_i} / sum_j e^{z_j}: mũ hoá làm mọi giá trị dương, chia tổng làm chúng cộng lại bằng 1 → phân phối xác suất trên các lớp/token.
+
+## Câu 3 (Tự luận)
+
+Chain rule liên quan thế nào tới backpropagation?
+
+**Trả lời mẫu:** Backprop = áp dụng chain rule lan ngược qua đồ thị tính toán. Đạo hàm của loss theo một tham số ở lớp sâu = tích các đạo hàm cục bộ dọc đường đi: dL/dw = dL/dg · dg/dw. Mỗi lớp chỉ cần biết đạo hàm cục bộ của nó và nhận gradient từ lớp sau, nhân vào, rồi truyền tiếp về trước.
+
+**Giải thích:** Đây là toàn bộ ý tưởng của autograd: lưu đồ thị forward, rồi nhân dồn đạo hàm cục bộ theo chiều ngược lại.
 
 ## Câu 4 (Trắc nghiệm)
 
-GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n_heads=12)?
+Cross-entropy loss L_CE = -sum_i y_i log(y_hat_i) đo điều gì?
 
-- **A.** ~50M
-- **B.** ~124M ✅
-- **C.** ~350M
-- **D.** ~1.5B
-
-**Đáp án: B**
-
-**Giải thích:** ~124M. Verify số tham số là cách kiểm tra nhanh kiến trúc đã ghép đúng.
-
-## Câu 5 (Tự luận)
-
-[Nâng cao] RMSNorm khác LayerNorm ở điểm nào, vì sao model hiện đại chuộng nó?
-
-**Trả lời mẫu:** RMSNorm bỏ bước trừ mean và bỏ bias β; chỉ chia cho căn của trung bình bình phương rồi nhân γ: x / sqrt(mean(x^2) + eps) · γ. Ít phép tính hơn LayerNorm nhưng ổn định tương đương, nên Llama/Qwen dùng để rẻ và nhanh hơn ở quy mô lớn.
-
-**Giải thích:** Xem mục A2 trong advanced_topics_vi.md.
-
-## Câu 6 (Trắc nghiệm)
-
-[Nâng cao] SwiGLU FFN của Llama/Qwen thay thế phần nào của GPT-2?
-
-- **A.** Thay attention
-- **B.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn ✅
-- **C.** Thay LayerNorm
-- **D.** Thay positional embedding
+- **A.** Khoảng cách Euclid giữa dự đoán và nhãn
+- **B.** Độ 'bất ngờ' của phân phối dự đoán so với nhãn thật, phạt nặng khi gán xác suất thấp cho lớp đúng ✅
+- **C.** Số token dự đoán sai
+- **D.** Phương sai của logits
 
 **Đáp án: B**
 
-**Giải thích:** SwiGLU = (SiLU(x W_gate) ⊙ x W_up) W_down; có 3 ma trận nên giảm chiều ẩn để giữ số tham số tương đương.
+**Giải thích:** Với nhãn one-hot, L_CE = -log(xác suất gán cho lớp đúng). Gán xác suất gần 1 cho lớp đúng → loss ~0; gần 0 → loss rất lớn.
 
-## Câu 7 (Trắc nghiệm)
+## Câu 5 (Trắc nghiệm)
 
-[Nâng cao] Trong một lớp Mixture-of-Experts (MoE), 'router' làm gì?
+Cộng tensor shape (B, 1, D) với (1, T, D) bằng broadcasting cho ra shape nào?
 
-- **A.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert ✅
-- **B.** Định tuyến gradient ngược
-- **C.** Chọn GPU để chạy
-- **D.** Sắp xếp token theo độ dài
+- **A.** (B, T, D) ✅
+- **B.** (B, 1, D)
+- **C.** Lỗi, không broadcast được
+- **D.** (B, T, 1)
 
 **Đáp án: A**
 
-**Giải thích:** Router gán mỗi token cho top-k experts → tổng tham số lớn nhưng tham số active mỗi token nhỏ; cần lo load balancing. Qwen3-MoE, gpt-oss, DeepSeek dùng MoE.
+**Giải thích:** Broadcasting căn phải các chiều; chiều bằng 1 được 'kéo dài'. (B,1,D) và (1,T,D) → (B,T,D). Hiểu broadcasting là chìa khoá đọc code attention.
+
+## Câu 6 (Tự luận)
+
+torch.no_grad() và requires_grad khác nhau thế nào, dùng khi nào?
+
+**Trả lời mẫu:** requires_grad=True đánh dấu một tensor cần theo dõi để tính gradient (tham số train được). torch.no_grad() là context tắt việc xây đồ thị autograd cho mọi phép tính bên trong, dùng khi inference/đánh giá hoặc cập nhật tham số thủ công, để tiết kiệm bộ nhớ và tránh tính gradient thừa.
+
+**Giải thích:** Quên no_grad() khi eval/generate là lỗi VRAM phổ biến, nhất là trên card 8GB.
+
+## Câu 7 (Trắc nghiệm)
+
+Dot product giữa hai vector đo điều gì (ý nghĩa cho attention)?
+
+- **A.** Luôn là khoảng cách giữa hai điểm
+- **B.** Độ 'cùng hướng' / tương đồng, lớn khi hai vector cùng hướng ✅
+- **C.** Góc tuyệt đối tính bằng độ
+- **D.** Tổng bình phương các phần tử
+
+**Đáp án: B**
+
+**Giải thích:** a·b = |a||b|cosθ. Trong attention, query·key chính là điểm tương đồng dùng để quyết định token nào 'chú ý' tới token nào.
+
+## Câu 8 (Tự luận)
+
+Ở Tuần 3 bạn viết logistic regression bằng NumPy với hàm grad tự tính và kiểm bằng sai phân. Khi viết lại bằng PyTorch, dòng nào thay cho hàm grad, dòng nào thay cho phép cập nhật w -= lr * grad, và vì sao xuất hiện thêm bước zero_grad() mà vòng lặp NumPy không cần?
+
+**Trả lời mẫu:** loss.backward() thay cho hàm grad: autograd áp chain rule ngược trên đồ thị tính toán và điền vào .grad của từng tham số. optimizer.step() thay cho w -= lr * grad, với lr là step size. Bước zero_grad() cần vì PyTorch cộng dồn gradient vào .grad qua các lần backward (thiết kế phục vụ gradient accumulation); vòng lặp NumPy tính gradient mới mỗi lần nên không có gì để xóa. Cách kiểm bằng sai phân của Tuần 2 vẫn dùng được để đối chiếu .grad.
+
+**Giải thích:** Đây là toàn bộ 'phần mới' của Tuần 4: đổi công cụ, không đổi toán. Nếu bạn chỉ ra được ba dòng này thì đã nối xong Phase 0 với PyTorch.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+nanoGPT đặt dropout = 0.0 cho pretraining với comment 'for pretraining 0 is good, for finetuning try 0.1+'. Khung nào của Tuần 3 giải thích lựa chọn này?
+
+- **A.** Dropout làm chậm GPU nên bỏ khi có nhiều dữ liệu
+- **B.** Pretraining chạy trên dữ liệu rất lớn, thường dưới một epoch, nên estimation error nhỏ và regularization kiểu dropout ít cần; fine-tune trên dữ liệu nhỏ dễ overfit nên cần regularization hơn ✅
+- **C.** Dropout chỉ hoạt động với LayerNorm
+- **D.** Dropout không tương thích với bf16
+
+**Đáp án: B**
+
+**Giải thích:** Giá trị đọc từ nanoGPT/train.py ngày 2026-09-04. Lý giải theo error decomposition của UML mục 5.2 là suy luận của người viết dựa trên khung lý thuyết, không phải kết luận trong code.
+
+## Nâng cao 2 (Tự luận)
+
+Vì sao PyTorch cộng dồn gradient vào .grad thay vì ghi đè, và kỹ thuật nào trong nanoGPT dựa trực tiếp vào hành vi đó?
+
+**Trả lời mẫu:** Cộng dồn cho phép gọi backward nhiều lần trên nhiều micro-batch rồi mới step một lần, tức gradient accumulation; nanoGPT có gradient_accumulation_steps = 5 * 8 với comment 'used to simulate larger batch sizes'. Hệ quả là mỗi lần bắt đầu tích lũy phải zero_grad, còn micrograd Tuần 5 cũng phải dùng += trong _backward vì một node có thể được dùng ở nhiều nhánh.
+
+**Giải thích:** Trên card 8GB, gradient accumulation là cách duy nhất đạt effective batch lớn; hiểu cơ chế cộng dồn giúp tránh lỗi quên zero_grad.

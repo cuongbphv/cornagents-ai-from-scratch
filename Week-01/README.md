@@ -1,89 +1,85 @@
-# Tuần 1 — Toán nền tảng + PyTorch (chỉ học những gì cần)
+# Tuần 1: Đại số tuyến tính và hình học giải tích
 
-> Phase 1 — Deep Internals. Mục tiêu của tuần là ôn lại toán cốt lõi và thành thạo PyTorch tensor/autograd, đủ để Tuần 3 (attention) và Tuần 5 (pretraining) "click" thay vì gây nản.
+> Phase 0: Nền tảng toán và ML. Tuần này bạn học đúng phần đại số tuyến tính mà mọi tuần sau sẽ dùng: ma trận là ánh xạ tuyến tính, dot product đo góc, phép chiếu giải least squares, và SVD cho biết một ma trận "thực sự" có bao nhiêu chiều. Không có PyTorch trong tuần này; PyTorch bắt đầu ở Tuần 4.
 
 ## Mục tiêu
 
-- Ôn **linear algebra**: phép nhân ma trận, dot product, shape/broadcasting.
-- Ôn **calculus**: gradient, chain rule (nền tảng của backprop).
-- Ôn **probability**: softmax, cross-entropy.
-- Thành thạo **PyTorch**: tensor, autograd, `nn.Module`, optimizer, training loop.
-- Xác nhận GPU chạy được trên RTX 3070 Ti (`torch.cuda.is_available()`) hoặc Mac MPS.
+- Đọc một phép nhân ma trận như một phép biến đổi không gian, và suy ra được chiều kết quả mà không cần chạy code.
+- Giải thích được vì sao dot product đo độ cùng hướng, và vì sao cosine similarity là góc giữa hai vector.
+- Tính được nghiệm least squares bằng phép chiếu trực giao và kiểm tra phần dư trực giao với không gian cột.
+- Nêu được ý nghĩa của trị riêng, giá trị kỳ dị, và xấp xỉ hạng thấp, rồi nối nó sang câu hỏi "vì sao LoRA chỉ cần hạng r nhỏ".
 
 ## Nguồn học
 
-- Lý thuyết tự chứa của tuần: [`02_theory_notes.md`](02_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
-- PyTorch official tutorials — **"Learn the Basics"** và **"Deep Learning with PyTorch: A 60 Minute Blitz"** (docs.pytorch.org/tutorials — địa chỉ pytorch.org/tutorials redirect về đây, kiểm tra 2026-08-11).
-- PyTorch docs — `torch.Tensor`, autograd (`torch.autograd`), `nn.Module`, optimizer.
+Chi tiết chương và số trang in nằm ở [`../docs/books/README.md`](../docs/books/README.md), mục Tuần 1. Tóm tắt:
+
+- *Mathematics for Machine Learning* (Deisenroth, Faisal, Ong): chương 2 Linear Algebra, chương 3 Analytic Geometry, chương 4 Matrix Decompositions. Đây là nguồn chính.
+- *Machine Learning cơ bản* (Vũ Hữu Tiệp): chương 1 Ôn tập đại số tuyến tính, để có từ vựng tiếng Việt.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md). Mọi ví dụ số trong đó đã chạy kiểm chứng bằng NumPy 2.5.0 ngày 2026-09-04.
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_check_gpu.py`](01_check_gpu.py) — xác nhận môi trường trước tiên (5 phút).
-2. [`02_theory_notes.md`](02_theory_notes.md) — đọc lý thuyết, chạy lại từng snippet, song song với PyTorch tutorial.
-3. [`03_math_cheat_sheet.md`](03_math_cheat_sheet.md) — TỰ viết lại cheat sheet bằng lời mình (deliverable).
-4. [`04_math_practice.py`](04_math_practice.py) — luyện tương tác: đoán trước, chạy sau.
-5. [`05_train_mlp.py`](05_train_mlp.py) — TỰ code MLP + training loop (deliverable chính).
-6. [`06_solution_train_mlp.py`](06_solution_train_mlp.py) — CHỈ mở sau khi tự code xong, để đối chiếu.
-7. [`quiz.md`](quiz.md) — làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): đọc từng mục, mở đúng trang sách được dẫn khi cần chứng minh đầy đủ.
+2. [`02_linear_algebra_lab.py`](02_linear_algebra_lab.py): mỗi hàm là một thí nghiệm nhỏ. Đoán kết quả trước, chạy sau.
+3. [`03_cheat_sheet.md`](03_cheat_sheet.md): tự viết cheat sheet một trang bằng lời của bạn (deliverable).
+4. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
-Tự tay code lại một **MLP nhỏ** + training loop trong PyTorch từ đầu, và xác nhận GPU hoạt động.
+Làm hết các thí nghiệm trong `02_linear_algebra_lab.py`, và với mỗi thí nghiệm, viết một câu giải thích kết quả vào cheat sheet. Sau đó tự giải hai bài tập nhỏ bằng NumPy, không dùng `np.linalg.lstsq` và không dùng `np.linalg.svd`:
+
+1. Cho 5 điểm bất kỳ trên mặt phẳng, tìm đường thẳng least squares bằng công thức phép chiếu, rồi kiểm tra phần dư trực giao với không gian cột.
+2. Cho một ma trận 4×3 hạng 2 cộng nhiễu nhỏ, dùng eigendecomposition của ma trận Gram để tìm hai hướng chính, và so với kết quả `np.linalg.svd`.
 
 ## Deliverables
 
-1. Một notebook/script train được MLP trên toy dataset → `05_train_mlp.py` (hoặc `.ipynb`).
-2. Một **math cheat sheet 1 trang** tự viết (có thể nhờ Claude hỗ trợ) → `03_math_cheat_sheet.md`.
+1. `03_cheat_sheet.md` một trang, tự viết, có đủ bốn mục: ánh xạ tuyến tính, dot product và góc, phép chiếu, SVD.
+2. Hai bài tập ở trên, lưu trong một file `.py` hoặc notebook của bạn, có output.
 
 ## Thời lượng
 
-~10–12 giờ.
+Khoảng 10 đến 12 giờ.
 
 ## Phần cứng
 
-RTX 3070 Ti (hoặc Mac MPS) — khối lượng tính toán rất nhẹ.
+Bất kỳ máy nào chạy được Python và NumPy.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Ôn linear algebra (matrix multiply, dot product) + calculus (chain rule) — tự viết lại bằng ví dụ nhỏ
-- [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
-- [ ] Đọc docs autograd + `nn.Module` của PyTorch
-- [x] Chạy `01_check_gpu.py` → xác nhận CUDA/MPS hoạt động
-  - ✅ 2026-08-11 — CUDA khả dụng: RTX 3070 Ti, VRAM 8.0 GB, torch 2.5.1+cu121, Windows. Log: [`../journal/evidence/W01/check_gpu_2026-08-11.log`](../journal/evidence/W01/check_gpu_2026-08-11.log)
-  - Ghi chú cũ trong file này: "MPS khả dụng — macOS arm64, torch 2.12.1". `[Chưa xác minh]` — không có log kèm theo trong repo.
-- [ ] Đọc `02_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] Tự code lại `05_train_mlp.py` (KHÔNG copy — tự viết để hiểu)
-- [ ] MLP train được, loss giảm, accuracy hợp lý trên toy dataset
-- [ ] Hoàn thành `03_math_cheat_sheet.md` bằng lời của mình
-- [ ] Tự kiểm tra: giải thích được cho Claude (bằng lời mình) softmax + cross-entropy + chain rule
+- [ ] Đọc `01_theory_notes.md` mục 1 đến 3 (ánh xạ tuyến tính, quy tắc chiều, hạng)
+- [ ] Đọc MML chương 2 mục 2.4 đến 2.7 khi cần chứng minh đầy đủ
+- [ ] Đọc `01_theory_notes.md` mục 4 đến 5 (norm, dot product, góc, phép chiếu)
+- [ ] Đọc MML chương 3 mục 3.1, 3.2, 3.4, 3.8
+- [ ] Đọc `01_theory_notes.md` mục 6 đến 7 (trị riêng, SVD, xấp xỉ hạng thấp)
+- [ ] Đọc MML chương 4 mục 4.2, 4.5, 4.6
+- [ ] Chạy hết `02_linear_algebra_lab.py`, mỗi hàm đoán trước rồi chạy
+- [ ] Làm bài tập 1: least squares bằng phép chiếu
+- [ ] Làm bài tập 2: hai hướng chính từ ma trận Gram
+- [ ] Viết `03_cheat_sheet.md` bằng lời của mình
+- [ ] Tự kiểm tra: giải thích cho Claude vì sao cosine similarity là góc và vì sao SVD cho xấp xỉ hạng thấp tốt nhất
 
 ## Cách dùng Claude làm bạn học (Tuần 1)
 
-- **Giải thích toán:** dán một công thức (vd. cross-entropy) và nhờ Claude dẫn dắt từng bước, rồi nhờ Claude ra 3 câu hỏi kiểm tra.
-- **Review code:** sau khi TỰ code MLP, dán code nhờ Claude so sánh với cách chuẩn, bắt bug. Đừng để Claude viết bản nháp đầu tiên — tự code trước, review sau.
-- **Tạo flashcard/bài tập** tự kiểm tra theo từng chủ đề của tuần.
+- Dán một định nghĩa từ MML (ví dụ Def 3.7 Orthogonality) và nhờ Claude đặt ba câu hỏi kiểm tra bạn có hiểu không.
+- Sau khi tự làm bài tập, dán code và nhờ Claude so với cách chuẩn. Đừng để Claude viết bản nháp đầu tiên.
+- Nhờ Claude cho một ví dụ ma trận 2×2 rồi bạn vẽ tay ảnh của hình vuông đơn vị qua ma trận đó.
 
-> Tiêu chí tự đánh giá: **nếu chưa giải thích được một thành phần cho Claude bằng lời của mình, nghĩa là chưa học xong** — đó là tín hiệu để đi chậm lại.
+> Tiêu chí tự đánh giá: nếu chưa giải thích được một thành phần cho Claude bằng lời của mình, nghĩa là chưa học xong. Đó là tín hiệu để đi chậm lại.
 
-## 🚀 Bổ sung nâng cao
+## Bổ sung nâng cao
 
-**Tuần này cố ý KHÔNG có mục nâng cao nào.** Bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) để trống cho Tuần 1–2: mọi chủ đề nâng cao (RoPE, GQA, KV cache…) đều cần bạn nắm attention trước, nên đọc sớm chỉ gây tải vô ích.
-
-Việc của tuần này là nền: tensor, autograd, softmax/cross-entropy, chain rule. Phần nâng cao **bắt đầu từ Tuần 3**.
+Tuần này cố ý không có mục nâng cao. Bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) để trống cho Tuần 1 đến Tuần 5. Nếu còn thời gian, đọc thêm chương 2 (Nonnegative Matrix Factorization) trong sách của Moitra để thấy một phép phân rã ma trận có ý nghĩa thực tế.
 
 ## File trong folder này
 
-Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
+Số ở đầu tên file là thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này — mục tiêu, nguồn, checklist |
-| 1 | `01_check_gpu.py` | Kiểm tra CUDA/MPS, in thông tin device + VRAM |
-| 2 | `02_theory_notes.md` | Lý thuyết tự chứa của tuần: linear algebra, calculus, softmax/CE, PyTorch core |
-| 3 | `03_math_cheat_sheet.md` | Cheat sheet toán cho LLM (tự bổ sung bằng lời mình) |
-| 4 | `04_math_practice.py` | Luyện tập tương tác theo cheat sheet (đoán trước → chạy → so đáp án) |
-| 5 | `05_train_mlp.py` | Skeleton để TỰ code MLP + training loop trên toy dataset |
-| 6 | `06_solution_train_mlp.py` | Lời giải tham khảo — CHỈ mở sau khi tự code xong |
-| 7 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này: mục tiêu, nguồn, checklist |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: ánh xạ tuyến tính, norm, góc, phép chiếu, trị riêng, SVD |
+| 2 | `02_linear_algebra_lab.py` | Bảy thí nghiệm NumPy, mỗi hàm dẫn đúng trang sách |
+| 3 | `03_cheat_sheet.md` | Cheat sheet một trang bạn tự viết (deliverable) |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

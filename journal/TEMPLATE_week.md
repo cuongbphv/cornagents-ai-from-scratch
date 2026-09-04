@@ -1,4 +1,4 @@
-# Tuần XX — <tên tuần trong lộ trình>
+# Tuần XX: <tên tuần trong lộ trình>
 
 - **Tuần lịch:** YYYY-MM-DD → YYYY-MM-DD
 - **Mục tiêu tuần (copy từ Week-XX/README.md):**
@@ -12,7 +12,7 @@
 
 <!-- Copy block này cho mỗi buổi học. Ngắn gọn, có bằng chứng. -->
 
-### YYYY-MM-DD (X giờ) — <việc chính>
+### YYYY-MM-DD (X giờ): <việc chính>
 
 **Đã làm:**
 - ...
@@ -22,14 +22,14 @@
 | Loại | Chi tiết |
 |------|----------|
 | Lệnh + output | `python 02_qlora_finetune.py ...` → `loss 2.41 → 1.87 sau 200 step` (log đầy đủ: `evidence/WXX/train_2026-08-18.log`) |
-| Commit | `abc1234` — mô tả ngắn |
+| Commit | `abc1234`: mô tả ngắn |
 | Artifact | `outputs/adapter-v1/` (kích thước, thời điểm tạo) |
 | Số liệu | metric = X, đo bằng <script/lệnh>, ngày YYYY-MM-DD |
 
 **Vướng mắc / lỗi gặp:**
 - Triệu chứng → nguyên nhân (nếu đã xác định, ngược lại ghi `[Chưa xác minh]`) → cách xử lý.
 
-**Học được (1–3 gạch đầu dòng, tự viết lại bằng lời mình):**
+**Học được (1-3 gạch đầu dòng, tự viết lại bằng lời mình):**
 - ...
 
 **Việc tiếp theo:**
@@ -55,7 +55,7 @@
 
 ### Quiz tuần
 
-- Điểm quiz (`Week-XX/quiz.md`): X/Y — làm ngày YYYY-MM-DD. Câu sai: <số câu> → chủ đề cần ôn lại: ...
+- Điểm quiz (`Week-XX/quiz.md`): X/Y, làm ngày YYYY-MM-DD. Câu sai: <số câu> → chủ đề cần ôn lại: ...
 
 ### Nhìn lại (retrospective ngắn)
 

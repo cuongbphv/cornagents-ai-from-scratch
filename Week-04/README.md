@@ -1,89 +1,109 @@
-# Tuần 4 — Lắp ráp & chạy mô hình GPT
+# Tuần 4: PyTorch core: từ NumPy sang tensor, autograd, training loop
 
-> Phase 1 — Deep Internals. Ghép mọi mảnh thành kiến trúc GPT-2 hoàn chỉnh và sinh text.
+> Phase 1: Deep Internals, tuần mở đầu. Ba tuần Phase 0 bạn làm mọi thứ bằng NumPy và tính gradient bằng tay. Tuần này đổi công cụ, không đổi toán: cùng phép nhân ma trận, cùng chain rule, cùng negative log-likelihood, nhưng PyTorch giữ đồ thị tính toán và tính gradient thay bạn. Mục tiêu là thành thạo tensor, autograd, `nn.Module`, optimizer, đủ để Tuần 6 (attention) và Tuần 8 (pretraining) "click" thay vì gây nản.
+
+## Bạn đến đây với gì, và tuần này đổi thành gì
+
+| Bạn đã làm ở Phase 0 | Tuần này thay bằng | Đọc ở |
+|---|---|---|
+| `np.array`, `@`, quy tắc chiều (Tuần 1 mục 2) | `torch.tensor`, `@`, thêm `device` và `dtype` | `02_theory_notes.md` mục 1, 4.1 |
+| Ma trận là ánh xạ tuyến tính (Tuần 1 mục 1) | `nn.Linear(in, out)` lưu W chiều (out, in), tính `x @ Wᵀ + b` | mục 1.3 |
+| Gradient tính tay, kiểm bằng sai phân (Tuần 2 mục A1, A2) | `loss.backward()` điền `.grad`; sai phân vẫn là cách kiểm | mục 2.3 |
+| Chain rule (Tuần 2 mục A3) | Autograd áp chain rule trên đồ thị, bạn chỉ viết forward | mục 2.2 |
+| MLE, NLL là cross-entropy (Tuần 2 mục B6) | `nn.CrossEntropyLoss` gộp softmax, log, NLL; đưa thẳng logits | mục 3.2 |
+| `gradient_descent_1d` tự viết (Tuần 2) | `optimizer.step()` và `zero_grad()` | mục 4.3 |
+| Logistic regression NumPy, gradient viết tay (Tuần 3) | Viết lại bằng `nn.Linear` + autograd, rồi chồng thêm lớp thành MLP | `05_train_mlp.py` phần 2 và 3 |
+| Train, validation, test (Tuần 3 mục 5) | Giữ nguyên: tách held-out trước khi train | `05_train_mlp.py` phần 1 |
+
+Nếu bạn vừa học xong Tuần 1 đến 3, mục toán trong `02_theory_notes.md` (mục 1 đến 3) chỉ là ôn có gắn API; đọc nhanh, dành thời gian cho mục 4 và cho code.
 
 ## Mục tiêu
 
-- Build đầy đủ kiến trúc **GPT-2**: layer norm, GELU FFN, residual/shortcut, transformer block.
-- Sinh text (ban đầu từ model chưa train).
+- Chuyển mọi phép toán NumPy của Phase 0 sang tensor PyTorch, thêm hai khái niệm mới: `device` và `dtype`.
+- Hiểu autograd làm gì thay cho gradient viết tay ở Tuần 2 và 3, và vì sao gradient bị cộng dồn.
+- Nhận ra softmax là pmf (Tuần 2 mục B2) và cross-entropy là NLL (Tuần 2 mục B6), rồi dùng đúng `nn.CrossEntropyLoss` với logits.
+- Thành thạo `nn.Module`, optimizer, và khung training loop năm bước.
+- Viết lại logistic regression của Tuần 3 bằng PyTorch, rồi chồng thêm một lớp ẩn thành MLP và thấy accuracy tăng trên dữ liệu không tách tuyến tính được.
+- Xác nhận GPU chạy được trên RTX 3070 Ti (`torch.cuda.is_available()`) hoặc Mac MPS.
 
 ## Nguồn học
 
-- `karpathy/nanoGPT` — `model.py` (kiến trúc GPT-2 đầy đủ) + hàm `from_pretrained` (load weights GPT-2).
-- Paper GPT-2 "Language Models are Unsupervised Multitask Learners"; paper Layer Normalization (arXiv 1607.06450), GELU (arXiv 1606.08415).
-- Karpathy — **nanoGPT** (`github.com/karpathy/nanoGPT`) làm tham chiếu chéo.
-- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+- Lý thuyết tự chứa của tuần: [`02_theory_notes.md`](02_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11). Mục 1 đến 3 dẫn ngược về đúng mục của Tuần 1 và 2.
+- Ghi chú lý thuyết Tuần 1 đến 3 ([`../Week-01/01_theory_notes.md`](../Week-01/01_theory_notes.md), [`../Week-02/01_theory_notes.md`](../Week-02/01_theory_notes.md), [`../Week-03/01_theory_notes.md`](../Week-03/01_theory_notes.md)) để mở lại khi một công thức chưa rõ; MML mục 5.6 (trang 159) nếu muốn đọc backpropagation và autodiff theo sách.
+- PyTorch official tutorials, **"Learn the Basics"** và **"Deep Learning with PyTorch: A 60 Minute Blitz"** (docs.pytorch.org/tutorials, địa chỉ pytorch.org/tutorials redirect về đây, kiểm tra 2026-08-11).
+- PyTorch docs, `torch.Tensor`, autograd (`torch.autograd`), `nn.Module`, optimizer.
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — LayerNorm, GELU, FFN, residual, đếm tham số 124M.
-2. [`02_gpt_model.py`](02_gpt_model.py) — TỰ lắp ráp GPTModel (deliverable).
-3. [`03_load_weights_notes.md`](03_load_weights_notes.md) — load trọng số GPT-2, sinh text mạch lạc.
-4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_check_gpu.py`](01_check_gpu.py): xác nhận môi trường trước tiên (5 phút).
+2. [`02_theory_notes.md`](02_theory_notes.md): đọc lý thuyết, chạy lại từng snippet, song song với PyTorch tutorial.
+3. [`03_math_cheat_sheet.md`](03_math_cheat_sheet.md): TỰ viết cheat sheet nối công thức Phase 0 với API PyTorch tương ứng (deliverable).
+4. [`04_math_practice.py`](04_math_practice.py): luyện tương tác: đoán trước, chạy sau.
+5. [`05_train_mlp.py`](05_train_mlp.py): TỰ code theo ba phần: tách held-out, logistic regression bằng PyTorch (viết lại Tuần 3), rồi MLP (deliverable chính).
+6. [`06_solution_train_mlp.py`](06_solution_train_mlp.py): CHỈ mở sau khi tự code xong, để đối chiếu.
+7. [`quiz.md`](quiz.md): làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
-- Khởi tạo config **124M**.
-- **Load trọng số GPT-2 pretrained của OpenAI** (tham chiếu cách `nanoGPT` làm trong `from_pretrained`) để xác nhận kiến trúc đúng.
-- Sinh text.
+1. Viết lại logistic regression của Tuần 3 bằng `nn.Linear` và autograd; so gradient autograd với hàm `grad` viết tay của bạn ở Tuần 3 trên cùng một batch (phải khớp).
+2. Chồng thêm một lớp ẩn thành **MLP nhỏ**, train bằng cùng training loop, so accuracy trên held-out với logistic regression.
+3. Xác nhận GPU hoạt động.
 
-## Deliverable
+## Deliverables
 
-Mô hình GPT của bạn sinh **text mạch lạc** từ trọng số GPT-2 đã load.
+1. `05_train_mlp.py` chạy được: logistic regression rồi MLP, in accuracy held-out của cả hai và một câu giải thích vì sao khác nhau.
+2. Một **cheat sheet 1 trang** tự viết → `03_math_cheat_sheet.md`: mỗi công thức ghi rõ học ở tuần nào và API PyTorch tương ứng.
 
 ## Thời lượng
 
-~10–12 giờ.
+~10-12 giờ.
 
 ## Phần cứng
 
-3070 Ti (inference 124M nằm gọn trong 8GB).
+RTX 3070 Ti (hoặc Mac MPS): khối lượng tính toán rất nhẹ.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] Code `LayerNorm` từ đầu (hiểu mean/var, scale γ + shift β)
-- [ ] Code `GELU` activation
-- [ ] Code `FeedForward` (Linear → GELU → Linear, mở rộng 4×)
-- [ ] Ghép `MultiHeadAttention` (Tuần 3) vào `TransformerBlock` + residual + pre-LN
-- [ ] Lắp `GPTModel`: token emb + pos emb → N blocks → final LN → out head
-- [ ] Verify số tham số ≈ 124M
-- [ ] Load trọng số GPT-2 OpenAI, map đúng tên layer
-- [ ] Sinh text mạch lạc → xác nhận kiến trúc đúng
-- [ ] Claude review phần load weights (dễ sai mapping)
+- [ ] Đọc bảng "Bạn đến đây với gì" ở trên; mở lại mục Tuần 1-3 nào còn mơ hồ trước khi đi tiếp
+- [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
+- [ ] Đọc docs autograd + `nn.Module` của PyTorch
+- [x] Chạy `01_check_gpu.py` → xác nhận CUDA/MPS hoạt động
+  - ✅ 2026-08-11, CUDA khả dụng: RTX 3070 Ti, VRAM 8.0 GB, torch 2.5.1+cu121, Windows. Log: [`../journal/evidence/W04/check_gpu_2026-08-11.log`](../journal/evidence/W04/check_gpu_2026-08-11.log)
+  - Ghi chú cũ trong file này: "MPS khả dụng, macOS arm64, torch 2.12.1". `[Chưa xác minh]`: không có log kèm theo trong repo.
+- [ ] Đọc `02_theory_notes.md`: chạy lại được mọi snippet trong đó
+- [ ] `05_train_mlp.py` phần 2: logistic regression bằng PyTorch; gradient autograd khớp gradient tay của Tuần 3
+- [ ] `05_train_mlp.py` phần 3: MLP train được, loss giảm, accuracy held-out cao hơn logistic regression
+- [ ] Viết một câu giải thích vì sao MLP thắng logistic regression trên two moons (gợi ý: lớp giả thuyết, Tuần 3 mục 2)
+- [ ] Hoàn thành `03_math_cheat_sheet.md` bằng lời của mình
+- [ ] Tự kiểm tra: giải thích cho Claude bằng lời mình `loss.backward()` làm gì thay cho hàm `grad` bạn viết ở Tuần 3, và vì sao phải `zero_grad()`
 
-## Config GPT-2 small (124M)
+## Cách dùng Claude làm bạn học (Tuần 4)
 
-```
-vocab_size      = 50257
-context_length  = 1024
-emb_dim         = 768
-n_heads         = 12
-n_layers        = 12
-drop_rate       = 0.1
-qkv_bias        = True   # GPT-2 dùng bias ở QKV
-```
+- **Giải thích toán:** dán một công thức (vd. cross-entropy) và nhờ Claude dẫn dắt từng bước, rồi nhờ Claude ra 3 câu hỏi kiểm tra.
+- **Review code:** sau khi TỰ code MLP, dán code nhờ Claude so sánh với cách chuẩn, bắt bug. Đừng để Claude viết bản nháp đầu tiên, tự code trước, review sau.
+- **Tạo flashcard/bài tập** tự kiểm tra theo từng chủ đề của tuần.
 
-## 🚀 Bổ sung nâng cao (GPT-2 → kiến trúc hiện đại)
+> Tiêu chí tự đánh giá: **nếu chưa giải thích được một thành phần cho Claude bằng lời của mình, nghĩa là chưa học xong**: đó là tín hiệu để đi chậm lại.
 
-Sau khi lắp xong GPT-2, đối chiếu với Llama 3/Qwen3 trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md):
+## 🚀 Bổ sung nâng cao
 
-- **A2 RMSNorm** (thay LayerNorm — bỏ mean & bias), **A3 SwiGLU FFN** (gated, thay GELU-4×), **bỏ bias** ở Linear.
-- **A7 MoE** — thay 1 FFN dày bằng nhiều expert + router top-k (Qwen3-MoE, gpt-oss).
-- **B1 KV cache** + **B2 Sampling** (temperature/top-k/**top-p**) — cho phần sinh text.
+**Tuần này cố ý KHÔNG có mục nâng cao nào.** Bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) để trống cho Tuần 4-5: mọi chủ đề nâng cao (RoPE, GQA, KV cache…) đều cần bạn nắm attention trước, nên đọc sớm chỉ gây tải vô ích.
 
-> Bài tập hay: fork model GPT-2 của bạn, thay LayerNorm→RMSNorm và GELU-FFN→SwiGLU, so số tham số. Nguồn: paper RMSNorm (arXiv 1910.07467) + GLU Variants/SwiGLU (arXiv 2002.05202); implementation Llama/Qwen trong HF `transformers`; nanochat `gpt.py`.
+Việc của tuần này là đổi công cụ từ NumPy sang PyTorch trên nền toán đã có. Phần nâng cao **bắt đầu từ Tuần 6**.
 
-## File trong folder
+## File trong folder này
 
-Số ở đầu tên file = thứ tự học.
+Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: LayerNorm, GELU, FFN, residual, param count |
-| 2 | `02_gpt_model.py` | Skeleton LayerNorm/GELU/FFN/Block/GPTModel (TODO) |
-| 3 | `03_load_weights_notes.md` | Hướng dẫn + checklist load trọng số GPT-2 |
-| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này, mục tiêu, nguồn, checklist |
+| 1 | `01_check_gpu.py` | Kiểm tra CUDA/MPS, in thông tin device + VRAM |
+| 2 | `02_theory_notes.md` | Lý thuyết tự chứa: mục 0 map NumPy sang PyTorch; mục 1-3 ôn toán có dẫn về Tuần 1-2; mục 4 PyTorch core |
+| 3 | `03_math_cheat_sheet.md` | Cheat sheet nối công thức Phase 0 với API PyTorch (tự viết bằng lời mình) |
+| 4 | `04_math_practice.py` | Luyện tập tương tác theo cheat sheet (đoán trước → chạy → so đáp án) |
+| 5 | `05_train_mlp.py` | Skeleton ba phần: held-out split, logistic regression PyTorch (viết lại Tuần 3), MLP |
+| 6 | `06_solution_train_mlp.py` | Lời giải tham khảo, CHỈ mở sau khi tự code xong |
+| 7 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

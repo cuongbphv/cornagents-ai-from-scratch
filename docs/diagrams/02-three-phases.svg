@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img">
-  <title>Three phases</title>
-  <desc>15 weeks across three phases</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="300" viewBox="0 0 1000 300" role="img">
+  <title>Four phases</title>
+  <desc>18 weeks across four phases</desc>
   <defs>
     <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse">
       <circle cx="1" cy="1" r="1" fill="#0f172a" opacity="0.05"/>
@@ -22,54 +22,70 @@
       <path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/>
     </marker>
   </defs>
-  <rect width="960" height="300" rx="18" fill="#eef3f9"/>
-  <rect width="960" height="300" rx="18" fill="url(#dots)"/>
+  <rect width="1000" height="300" rx="18" fill="#eef3f9"/>
+  <rect width="1000" height="300" rx="18" fill="url(#dots)"/>
 
-<text x="32" y="40" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Ba phase · 15 tuần</text>
-<text x="32" y="62" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="500" fill="#64748b">Deep Internals → RAG &amp; Fine-Tuning → Agentic SDLC</text>
+<text x="32" y="40" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Bốn phase · 18 tuần</text>
+<text x="32" y="62" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="500" fill="#64748b">Nền tảng toán &amp; ML → Deep Internals → RAG &amp; Fine-Tuning → Agentic SDLC</text>
 <g>
-<rect x="32" y="84" width="288" height="176" rx="18" fill="#ffffff" stroke="#2563eb" stroke-width="2.5" filter="url(#soft)"/>
-<rect x="32" y="84" width="288" height="44" rx="18" fill="#2563eb"/>
-<rect x="32" y="110" width="288" height="18" fill="#2563eb"/>
+<rect x="32" y="84" width="226" height="176" rx="18" fill="#ffffff" stroke="#e11d48" stroke-width="2.5" filter="url(#soft)"/>
+<rect x="32" y="84" width="226" height="44" rx="18" fill="#e11d48"/>
+<rect x="32" y="110" width="226" height="18" fill="#e11d48"/>
 <circle cx="60" cy="106" r="14" fill="#fff" opacity="0.95"/>
-<text x="60" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#2563eb">1</text>
-<text x="84" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 1</text>
-<text x="56" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">Deep Internals</text>
-<text x="56" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 1–7</text>
-<text x="56" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">Build &amp; pretrain</text>
-<text x="56" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">GPT-2-class from scratch</text>
-<rect x="30" y="82" width="292" height="180" rx="20" fill="none" stroke="#2563eb" stroke-width="2" opacity="0">
+<text x="60" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#e11d48">0</text>
+<text x="84" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 0</text>
+<text x="56" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">Nền tảng toán &amp; ML</text>
+<text x="56" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 1-3</text>
+<text x="56" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">Linear algebra, xác suất,</text>
+<text x="56" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">tối ưu, lý thuyết học</text>
+<rect x="30" y="82" width="230" height="180" rx="20" fill="none" stroke="#e11d48" stroke-width="2" opacity="0">
 <animate attributeName="opacity" values="0;0.35;0" dur="3.8s" begin="0.0s" repeatCount="indefinite"/>
 </rect></g>
 <g>
-<rect x="336" y="84" width="288" height="176" rx="18" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" filter="url(#soft)"/>
-<rect x="336" y="84" width="288" height="44" rx="18" fill="#0d9488"/>
-<rect x="336" y="110" width="288" height="18" fill="#0d9488"/>
-<circle cx="364" cy="106" r="14" fill="#fff" opacity="0.95"/>
-<text x="364" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0d9488">2</text>
-<text x="388" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 2</text>
-<text x="360" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">RAG &amp; Fine-Tuning</text>
-<text x="360" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 8–11</text>
-<text x="360" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">QLoRA, local serve</text>
-<text x="360" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">RAG + RAGAS</text>
-<rect x="334" y="82" width="292" height="180" rx="20" fill="none" stroke="#0d9488" stroke-width="2" opacity="0">
+<rect x="274" y="84" width="226" height="176" rx="18" fill="#ffffff" stroke="#2563eb" stroke-width="2.5" filter="url(#soft)"/>
+<rect x="274" y="84" width="226" height="44" rx="18" fill="#2563eb"/>
+<rect x="274" y="110" width="226" height="18" fill="#2563eb"/>
+<circle cx="302" cy="106" r="14" fill="#fff" opacity="0.95"/>
+<text x="302" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#2563eb">1</text>
+<text x="326" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 1</text>
+<text x="298" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">Deep Internals</text>
+<text x="298" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 4-10</text>
+<text x="298" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">Build &amp; pretrain</text>
+<text x="298" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">GPT-2-class from scratch</text>
+<rect x="272" y="82" width="230" height="180" rx="20" fill="none" stroke="#2563eb" stroke-width="2" opacity="0">
 <animate attributeName="opacity" values="0;0.35;0" dur="3.8s" begin="0.45s" repeatCount="indefinite"/>
 </rect></g>
 <g>
-<rect x="640" y="84" width="288" height="176" rx="18" fill="#ffffff" stroke="#9333ea" stroke-width="2.5" filter="url(#soft)"/>
-<rect x="640" y="84" width="288" height="44" rx="18" fill="#9333ea"/>
-<rect x="640" y="110" width="288" height="18" fill="#9333ea"/>
-<circle cx="668" cy="106" r="14" fill="#fff" opacity="0.95"/>
-<text x="668" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#9333ea">3</text>
-<text x="692" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 3</text>
-<text x="664" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">Agentic SDLC</text>
-<text x="664" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 12–15</text>
-<text x="664" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">CornAgents.AI</text>
-<text x="664" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">agents + knowledge graph</text>
-<rect x="638" y="82" width="292" height="180" rx="20" fill="none" stroke="#9333ea" stroke-width="2" opacity="0">
+<rect x="516" y="84" width="226" height="176" rx="18" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" filter="url(#soft)"/>
+<rect x="516" y="84" width="226" height="44" rx="18" fill="#0d9488"/>
+<rect x="516" y="110" width="226" height="18" fill="#0d9488"/>
+<circle cx="544" cy="106" r="14" fill="#fff" opacity="0.95"/>
+<text x="544" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#0d9488">2</text>
+<text x="568" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 2</text>
+<text x="540" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">RAG &amp; Fine-Tuning</text>
+<text x="540" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 11-14</text>
+<text x="540" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">QLoRA, local serve</text>
+<text x="540" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">RAG + RAGAS</text>
+<rect x="514" y="82" width="230" height="180" rx="20" fill="none" stroke="#0d9488" stroke-width="2" opacity="0">
 <animate attributeName="opacity" values="0;0.35;0" dur="3.8s" begin="0.9s" repeatCount="indefinite"/>
 </rect></g>
-<path d="M320 172 H336" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
-<circle r="4" fill="#0d9488"><animateMotion dur="2.2s" repeatCount="indefinite" path="M320 172 H336"/></circle>
-<path d="M624 172 H640" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
-<circle r="4" fill="#9333ea"><animateMotion dur="2.2s" repeatCount="indefinite" path="M624 172 H640"/></circle></svg>
+<g>
+<rect x="758" y="84" width="226" height="176" rx="18" fill="#ffffff" stroke="#9333ea" stroke-width="2.5" filter="url(#soft)"/>
+<rect x="758" y="84" width="226" height="44" rx="18" fill="#9333ea"/>
+<rect x="758" y="110" width="226" height="18" fill="#9333ea"/>
+<circle cx="786" cy="106" r="14" fill="#fff" opacity="0.95"/>
+<text x="786" y="111" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#9333ea">3</text>
+<text x="810" y="111" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#fff">Phase 3</text>
+<text x="782" y="156" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a">Agentic SDLC</text>
+<text x="782" y="180" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">Tuần 15-18</text>
+<text x="782" y="208" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">CornAgents.AI</text>
+<text x="782" y="228" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#0f172a">agents + knowledge graph</text>
+<rect x="756" y="82" width="230" height="180" rx="20" fill="none" stroke="#9333ea" stroke-width="2" opacity="0">
+<animate attributeName="opacity" values="0;0.35;0" dur="3.8s" begin="1.35s" repeatCount="indefinite"/>
+</rect></g>
+<path d="M258 172 H274" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+<circle r="4" fill="#2563eb"><animateMotion dur="2.2s" repeatCount="indefinite" path="M258 172 H274"/></circle>
+<path d="M500 172 H516" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+<circle r="4" fill="#0d9488"><animateMotion dur="2.2s" repeatCount="indefinite" path="M500 172 H516"/></circle>
+<path d="M742 172 H758" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+<circle r="4" fill="#9333ea"><animateMotion dur="2.2s" repeatCount="indefinite" path="M742 172 H758"/></circle></svg>

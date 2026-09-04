@@ -1,79 +1,104 @@
-# Tuần 14 — Đáp án & Giải thích: Graph Engineering: Knowledge Graph làm shared memory cho multi-agent
+# Tuần 14, Đáp án & Giải thích: Advanced RAG + đánh giá (RAGAS)
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
-Bốn stage của knowledge graph pipeline (Anthropic Playbook) theo đúng thứ tự?
+Hybrid retrieval kết hợp BM25 và vector search; chúng thường được trộn bằng kỹ thuật nào?
 
-- **A.** Querying → Assembly → Resolution → Extraction
-- **B.** Extraction (Haiku, structured outputs) → Resolution (Sonnet, cluster) → Assembly (NetworkX graph) → Querying (subgraph + grounded answer) ✅
-- **C.** Embedding → Chunking → Retrieval → Generation
-- **D.** Extraction → Querying → Resolution → Assembly
+- **A.** Lấy trung bình embedding
+- **B.** Reciprocal Rank Fusion (RRF): hợp nhất thứ hạng từ hai bộ retrieve ✅
+- **C.** Nối kết quả ngẫu nhiên
+- **D.** Chỉ lấy BM25
 
 **Đáp án: B**
 
-**Giải thích:** Mỗi stage là một prompt/model call: Haiku extract entities+relations theo Pydantic schema; Sonnet resolve surface forms; NetworkX MultiDiGraph lắp graph với provenance; Sonnet trả lời trên subgraph đã serialize.
+**Giải thích:** BM25 (lexical) bắt từ khoá chính xác; vector (semantic) bắt ý nghĩa; RRF hợp nhất để bù điểm yếu của nhau.
 
 ## Câu 2 (Tự luận)
 
-RAG và Knowledge Graph khác nhau thế nào, khi nào cần cái nào?
+Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?
 
-**Trả lời mẫu:** RAG retrieve chunk theo tương đồng ngữ nghĩa với câu hỏi — tốt cho câu hỏi single-hop (đáp án nằm trong một đoạn). Nó thất bại với multi-hop: khi đáp án phải NỐI facts từ nhiều tài liệu không giống nhau về mặt lexical/semantic. Knowledge graph biến entity chung thành node tường minh có edge sang cả hai tài liệu — graph traversal tìm ra kết nối bất kể surface form. Hai cách bổ trợ: RAG rẻ cho direct retrieval, KG cho structural reasoning; thực tế dùng cùng nhau.
+**Trả lời mẫu:** Bi-encoder mã hoá query và document RIÊNG thành vector rồi so cosine, nhanh, scale tốt, dùng để retrieve top-N từ kho lớn. Cross-encoder đưa CẢ cặp (query, document) qua model cùng lúc → chấm điểm liên quan chính xác hơn nhưng chậm, không scale cho toàn kho. Quy trình: bi-encoder lấy top-N (vd. 50), rồi cross-encoder rerank lại để chọn top-k tinh (vd. 5).
 
-**Giải thích:** Quy tắc: cần CHAIN facts xuyên nguồn / SHARE structured state / GROUND phán xét → graph. Chỉ cần retrieve/classify → RAG hoặc đơn giản hơn là đủ.
+**Giải thích:** BGE cross-encoder (mã nguồn mở) là lựa chọn phổ biến.
 
 ## Câu 3 (Trắc nghiệm)
 
-Vì sao extraction prompt yêu cầu viết 'one-sentence description grounded in this document' cho mỗi entity?
+Trong RAGAS, 'faithfulness' đo điều gì?
 
-- **A.** Để hiển thị đẹp trong UI
-- **B.** Description là tín hiệu ngữ nghĩa cho stage RESOLUTION — thiếu nó resolver chỉ thấy tên và phải đoán; 'Armstrong — phi hành gia' và 'Armstrong — nghệ sĩ jazz' trùng tên nhưng không được merge ✅
-- **C.** Để giảm token
-- **D.** Để thay thế cho embeddings
+- **A.** Câu trả lời có bám/được hỗ trợ bởi context retrieve hay không (chống bịa) ✅
+- **B.** Tốc độ trả lời
+- **C.** Độ dài câu trả lời
+- **D.** Số token dùng
 
-**Đáp án: B**
+**Đáp án: A**
 
-**Giải thích:** Description không phải metadata mà là input hạng nhất cho resolution — nó thay thứ mà trained classifier phải học từ labeled data theo domain.
+**Giải thích:** Faithfulness kiểm tra các khẳng định trong câu trả lời có truy được về context không → thước đo chống hallucination.
 
 ## Câu 4 (Trắc nghiệm)
 
-Vì sao với knowledge graph, PRECISION của extraction thường quan trọng hơn RECALL?
+'Context precision' và 'context recall' trong RAGAS đánh giá khâu nào?
 
-- **A.** Vì recall không đo được
-- **B.** Vì một entity SAI sinh ra các quan hệ sai và lan truyền qua multi-hop reasoning (graph chủ động gây nhiễu), còn entity THIẾU chỉ làm graph không đầy đủ nhưng vẫn đúng ✅
-- **C.** Vì precision rẻ hơn để tính
-- **D.** Vì Haiku không thể đạt recall cao
+- **A.** Khâu generate
+- **B.** Chất lượng RETRIEVAL, đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không ✅
+- **C.** Tốc độ embedding
+- **D.** Chi phí API
 
 **Đáp án: B**
 
-**Giải thích:** Kết quả trên Apollo corpus: precision 1.00, recall 0.38–0.55 — extractor bảo thủ là trade-off ĐÚNG cho production; evaluation harness giúp bạn chỉnh trade-off này có chủ đích.
+**Giải thích:** Hai chỉ số này tách bạch lỗi do retrieval kém với lỗi do generation kém.
 
 ## Câu 5 (Tự luận)
 
-Nêu 3 vai trò của knowledge graph trong kiến trúc multi-agent (theo Playbook).
+Vì sao cần eval set + cẩn trọng với LLM-as-judge?
 
-**Trả lời mẫu:** (1) Shared memory cho orchestrator–workers: worker đọc/ghi graph trực tiếp thay vì đẩy summary qua context window của orchestrator — window của orchestrator không phình theo số worker. (2) Grounding layer cho evaluator–optimizer: evaluator kiểm tra từng claim theo edge có provenance ('triple X không tồn tại; graph chứa Y từ document Z') — fact-check thay vì cảm giác. (3) Persistent world model cho loop chạy dài: context window bị flush thì graph vẫn còn — 'the agent forgets, the graph does not'.
+**Trả lời mẫu:** Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.
 
-**Giải thích:** Đây là 3 chỗ cắm graph vào CornAgents.AI: workers ghi, evaluator check, loop qua đêm không mất trí nhớ.
+**Giải thích:** Đo lường tốt là điều phân biệt 'nghịch' với 'kỹ thuật'.
 
 ## Câu 6 (Trắc nghiệm)
 
-'Grounded answer' khác 'ungrounded answer' thế nào khi query graph?
+Langfuse/LangSmith dùng để làm gì?
 
-- **A.** Grounded chạy nhanh hơn
-- **B.** Grounded bị ràng buộc 'answer using ONLY the graph, cite edges' — trả lời truy vết được về triples có provenance và nói rõ graph KHÔNG chứa gì; ungrounded dựa vào pretraining nên nghe hợp lý nhưng trên private corpus thì không kiểm chứng được ✅
-- **C.** Ungrounded luôn sai
-- **D.** Grounded không cần model
+- **A.** Train embedding
+- **B.** Tracing/observability: ghi lại từng bước retrieve → generate, chạy eval, LLM-as-judge ✅
+- **C.** Lưu vector
+- **D.** Lượng tử hoá model
 
 **Đáp án: B**
 
-**Giải thích:** Trên corpus riêng (tài liệu Finance Banking nội bộ) model không có kiến thức pretraining — chỉ grounded answer là dùng được, và citation kiểm tra được bằng string matching.
+**Giải thích:** Tracing giúp gỡ lỗi pipeline (đoạn nào retrieve sai, prompt nào hỏng) và đo chất lượng có hệ thống.
 
 ## Câu 7 (Tự luận)
 
-Evaluation feedback loop của KG pipeline hoạt động thế nào và vì sao nó 'cùng hình dạng' với ratchet loop của Karpathy autoresearch?
+Theo IR-book mục 11.4.3, BM25 được thiết kế để mô hình xác suất nhạy với hai đại lượng nào mà mô hình nhị phân độc lập bỏ qua, và điều đó liên quan gì đến cách bạn chunk tài liệu ở Tuần 13?
 
-**Trả lời mẫu:** Lập gold set (entities/relations tự label từ 2+ tài liệu đại diện) → chạy extraction → scorer đo precision/recall/F1 → đổi extraction prompt/schema → chạy lại → giữ thay đổi nếu F1 tăng, revert nếu giảm. Cùng hình dạng với autoresearch: act (extract) → observe (score) → learn (tune prompt) → repeat; chỉ khác artifact được tối ưu không phải train.py mà là prompt/ontology/resolution policy — 'graph autoresearch'. Không có harness này, không biết thay đổi prompt làm chất lượng tốt lên hay tệ đi, và drift theo corpus không ai bắt được.
+**Trả lời mẫu:** Hai đại lượng là tần suất từ trong tài liệu (term frequency) và độ dài tài liệu (document length); BM25 chuẩn hóa điểm theo độ dài bằng tham số b và bão hòa tần suất bằng tham số k₁. Chunk dài ngắn không đều sẽ bị chuẩn hóa độ dài kéo điểm lên xuống, nên khi dùng BM25 trong hybrid search cần chunk tương đối đều hoặc hiểu rõ ảnh hưởng của b.
 
-**Giải thích:** Trí tuệ của loop nằm ở chất lượng environmental feedback, không nằm trong model.
+**Giải thích:** IR-book trang 232 nói BM25 'sensitive to these quantities while not introducing too many additional parameters'. Hiểu hai tham số này giúp bạn không coi rank_bm25 là hộp đen khi đo lại RAGAS.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Zheng et al. (arXiv 2306.05685) nêu những thiên vị nào của LLM-as-judge, và bạn kiểm position bias bằng cách nào trong rubric RAGAS?
+
+- **A.** Chỉ có thiên vị độ dài; kiểm bằng cách cắt câu trả lời
+- **B.** Position bias, verbosity bias, self-enhancement bias, và limited reasoning ability; kiểm position bias bằng cách đảo thứ tự hai câu trả lời và xem phán quyết có đổi không ✅
+- **C.** Chỉ có self-enhancement; kiểm bằng dùng model khác
+- **D.** Không có thiên vị nào đáng kể vì agreement trên 80%
+
+**Đáp án: B**
+
+**Giải thích:** Abstract của paper liệt kê bốn hạn chế và báo judge mạnh đạt 'over 80% agreement' với người. Hai điều cùng đúng: dùng được, nhưng phải kiểm.
+
+## Nâng cao 2 (Tự luận)
+
+IR-book nói precision-recall curve của kết quả xếp hạng có hình răng cưa. Vì sao, và context precision của RAGAS liên quan thế nào?
+
+**Trả lời mẫu:** Với kết quả xếp hạng, precision và recall tính trên top-k; khi tài liệu thứ k+1 không liên quan thì recall giữ nguyên còn precision giảm, khi liên quan thì cả hai tăng, nên đường cong nhảy lên xuống (IR-book mục 8.4, trang 158). Context precision của RAGAS là phiên bản dùng LLM phán liên quan của precision trên top-k, nên nó kế thừa cả định nghĩa lẫn cách đọc răng cưa này khi bạn đổi k.
+
+**Giải thích:** Khi so baseline với hybrid và rerank, giữ cùng k để hai số đo so được với nhau.

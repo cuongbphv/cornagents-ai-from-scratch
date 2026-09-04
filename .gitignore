@@ -25,3 +25,6 @@ fused_model/
 
 # macOS
 .DS_Store
+
+# Sách PDF (chỉ giữ local, không đưa lên GitHub; catalog ở docs/books/README.md)
+books/*.pdf

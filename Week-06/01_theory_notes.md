@@ -1,88 +1,181 @@
-# Lý thuyết Tuần 6 — Fine-tuning: classification, instruction, LoRA
+# Lý thuyết Tuần 6: Tokenization, embeddings, attention từ đầu
 
-> Đọc trước khi điền TODO trong [`02_instruction_finetune.py`](02_instruction_finetune.py). Số liệu kiểm chứng ngày 2026-08-11; nguồn cuối file. Cần nắm GPT model (Tuần 4) + training loop (Tuần 5).
+> Đây là tuần crux khái niệm, đọc chậm, chạy lại từng snippet rồi mới code [`02_multihead_attention.py`](02_multihead_attention.py). Mọi ví dụ số đã chạy kiểm chứng bằng PyTorch 2.5.1 + tiktoken ngày 2026-08-11. Nguồn dẫn cuối file, xác minh cùng ngày. Cần nắm chắc Tuần 4 (dot product, softmax, matmul) và Tuần 5 (permutation-equivariance).
 
 ---
 
-## 1. Fine-tuning khác pretraining ở đâu
+## 1. Tokenization: BPE (Byte Pair Encoding)
 
-Cùng một loop 5 bước, khác 3 thứ: **khởi điểm** (trọng số pretrained, không phải random), **dữ liệu** (nhỏ, có chủ đích), **mục tiêu** (dạy hành vi/miền cụ thể thay vì đoán token trên mọi thứ). LR nhỏ hơn pretrain nhiều (thường 1e-5–1e-4) — đi bước to là phá kiến thức nền.
+### 1.1 Vấn đề
 
-📄 **Fine-tune dạy hành vi, không phải chỗ nhồi kiến thức mới** — nay có đối chứng thực nghiệm: Gekhman et al. 2024 (PDF trong repo: [`../docs/papers/2405.05904_finetuning-new-knowledge-hallucinations.pdf`](../docs/papers/2405.05904_finetuning-new-knowledge-hallucinations.pdf)) báo cáo mẫu chứa kiến thức mới được "learned significantly slower than those consistent with the model's knowledge", và khi cuối cùng cũng học được thì "linearly increase the model's tendency to hallucinate". Đây là bằng chứng trực tiếp cho nguyên tắc xương sống của repo: kiến thức quy định để ở RAG/KG (Tuần 10–14), fine-tune để dạy hành vi/định dạng.
+Model chỉ ăn số. Tách theo từ → vocab khổng lồ + từ lạ (OOV); tách theo ký tự → chuỗi quá dài. **BPE là điểm giữa**: đơn vị là "mảnh từ" (subword), đề xuất cho NMT bởi Sennrich et al. 2015 (arXiv 1508.07909).
 
-## 2. Classification fine-tuning — thay đầu, giữ thân
+### 1.2 Thuật toán train BPE: ngắn gọn đến bất ngờ
 
-- Thay head `(d → vocab)` bằng head `(d → n_classes)` — với spam: `nn.Linear(768, 2)`.
-- Model đọc cả chuỗi, lấy biểu diễn ở **token cuối** (causal attention nên token cuối là chỗ duy nhất "đã nhìn" toàn chuỗi) → head → cross-entropy trên nhãn lớp.
-- Có thể freeze phần lớn thân, chỉ train head + vài block cuối — nhanh và ít quên; trade-off tự đo bằng accuracy val.
-- Đo **accuracy trên train/val/test riêng biệt** — quen kỷ luật này trước khi sang Tuần 8.
+1. Khởi đầu: vocab = từng byte/ký tự riêng lẻ.
+2. Đếm **cặp token liền kề** xuất hiện nhiều nhất trong corpus.
+3. **Gộp (merge)** cặp đó thành token mới, thêm vào vocab.
+4. Lặp bước 2-3 đến khi đủ vocab size mong muốn.
 
-## 3. Instruction fine-tuning — dạy model "nghe lời"
+Encode văn bản mới = áp lại các merge theo đúng thứ tự đã học. Từ hay gặp thành 1 token, từ hiếm bị tách thành nhiều mảnh:
 
-Format mỗi mẫu theo template cố định (Alpaca-style):
-
-```
-Below is an instruction that describes a task...
-
-### Instruction:
-{instruction}
-
-### Input:
-{input}          ← có thể trống
-
-### Response:
-{output}
+```python
+import tiktoken
+enc = tiktoken.get_encoding("gpt2")
+enc.encode("unbelievable")          # [403, 6667, 11203, 540]
+# → ['un', 'bel', 'iev', 'able'], 4 mảnh subword
+enc.n_vocab                          # 50257 (vocab GPT-2)
 ```
 
-Hai điểm bản chất:
-1. **Template phải nhất quán tuyệt đối** giữa train và inference — model học phân phối văn bản, lệch một dấu xuống dòng cũng là phân phối khác.
-2. **Masking phần prompt**: chỉ tính loss trên token phần Response (gán nhãn `-100` cho phần trước — `F.cross_entropy` có `ignore_index=-100` mặc định). Không mask thì model tốn dung lượng học "viết lại đề bài".
-   - 📄 Nuance từ paper *Instruction Modelling* (arXiv [2405.14394](https://arxiv.org/abs/2405.14394), abstract tra 2026-08-12): mask response-only là mặc định tốt, nhưng nhóm tác giả báo cáo tính loss **cả trên phần instruction** lại có lợi ở hai điều kiện — "datasets with lengthy instructions paired with brief outputs" và khi có ít mẫu train; họ quy lợi ích cho "reduced overfitting". Bài tuần này cứ mask chuẩn; nhớ ngoại lệ này khi dataset của bạn rơi đúng hai điều kiện đó.
+(Đã chạy kiểm chứng 2026-08-11.) Tuần này dùng `tiktoken` cho nhanh; mục nâng cao E là tự train BPE bằng cách đọc `karpathy/minbpe`: bản cài đặt tối giản của đúng thuật toán 4 bước trên.
 
-Đây chính là bước **SFT** trong pipeline alignment mà Tuần 7 mở rộng: `Pretrain → SFT → RM → PPO/DPO`.
+### 1.3 Nâng cao: BPE với tiếng Việt: quan trọng vì domain của dự án là VN banking
 
-## 4. LoRA — fine-tune bằng 2% tham số
+BPE chỉ "tốt" với ngôn ngữ có nhiều trong corpus train tokenizer. Đo thực nghiệm trên máy này (tiktoken, 2026-08-11) với cùng một câu nghiệp vụ ngân hàng, bản Việt (16 từ) và bản Anh (11 từ):
 
-Ý tưởng (Hu et al., arXiv 2106.09685): thay vì cập nhật cả ma trận `W (d×d)`, học phần **delta hạng thấp**:
+| Encoding | Câu tiếng Việt | Câu tiếng Anh | VI "đắt" gấp |
+|----------|---------------|---------------|--------------|
+| `gpt2` (50k vocab) | **73 token** | 13 token | ~5.6× |
+| `cl100k_base` | 37 token | 13 token | ~2.8× |
+| `o200k_base` | 22 token | 12 token | ~1.8× |
+
+Vì sao `gpt2` tệ với tiếng Việt, thấy ngay trong output encode:
+
+```python
+enc = tiktoken.get_encoding("gpt2")
+[enc.decode([i]) for i in enc.encode("lãi suất")]
+# ['l', 'ã', 'i', ' su', '�', '�', '�', 't'], 8 token cho 2 từ!
+```
+
+- Ký tự có dấu là **2-3 byte UTF-8** (`ã` = 2 byte, `ấ` = 3 byte, đã kiểm chứng); vocab `gpt2` không có merge nào cho các cụm tiếng Việt nên rơi về **từng byte thô** (các ô `�` ở trên chính là 3 byte lẻ của `ấ`).
+- Encoding đời mới hơn của tiktoken (`cl100k_base`, `o200k_base`: theo docs repo tiktoken) đỡ hơn hẳn vì vocab lớn hơn và corpus train đa ngôn ngữ hơn, nhưng vẫn đắt hơn tiếng Anh.
+
+**Hệ quả thực tế cho dự án này:**
+1. Cùng context length, văn bản tiếng Việt "ăn" gấp nhiều lần token → chứa được ít nội dung hơn, chi phí inference/train cao hơn.
+2. Khi tự train tokenizer (mục nâng cao E): muốn dùng cho dữ liệu VN banking thì **corpus train BPE phải có tiếng Việt**: đây là lý do trực tiếp để làm mục E chứ không chỉ dùng tiktoken.
+3. Khi chọn base model để fine-tune (Tuần 12+): đo fertility (token/từ) của tokenizer model đó trên chính văn bản tiếng Việt của bạn bằng đúng phương pháp ở bảng trên trước khi chọn, vài dòng code, tránh được quyết định đắt.
+
+📄 **Đọc thêm (paper):** BPE gốc là Sennrich et al. 2015 (PDF trong repo: [`../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf`](../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf)): ý tưởng nguyên bản: "encoding rare and unknown words as sequences of subword units" cho bài toán open-vocabulary. Về mặt trái của tokenization, *Tokenization Falling Short* (arXiv [2406.11687](https://arxiv.org/abs/2406.11687), EMNLP 2024 Findings, abstract tra 2026-08-12) chỉ ra tokenizer "inherently sensitive to typographical errors, length variations, and largely oblivious to the internal structure of tokens", đúng lớp vấn đề mà văn bản tiếng Việt nhiều dấu gặp đậm hơn, và scale model chỉ giảm được một phần.
+
+### 1.4 Data loading: sliding window
+
+LM học bài toán "đoán token kế": input là cửa sổ `T` token, target là **cùng cửa sổ dịch phải 1**:
 
 ```
-h = W·x + (α/r) · B·A·x        A: (r×d), B: (d×r), r ≪ d
+tokens:  [t0, t1, t2, t3, t4, ...]
+input :  [t0, t1, t2, t3]
+target:  [t1, t2, t3, t4]     ← mỗi vị trí i học đoán token i+1
 ```
 
-- `B` khởi tạo **0** → lúc bắt đầu `BA = 0`, model y hệt base — train từ điểm an toàn.
-- `W` đóng băng; chỉ `A, B` nhận gradient.
-- Inference có thể **merge**: `W' = W + (α/r)BA` → không thêm latency.
+Một batch có shape `(batch, T)`. Đây là toàn bộ "nhãn" của pretraining, không cần gán nhãn tay (Tuần 8).
 
-Đếm tham số (kiểm chứng số học 2026-08-11):
+---
 
-| Ma trận gốc | Full FT | LoRA r=8 | LoRA r=16 |
-|-------------|---------|----------|-----------|
-| 768×768 (GPT-2) | 589,824 | 12,288 (**2.08%**) | 24,576 (4.17%) |
-| 4096×4096 (cỡ 7B) | 16,777,216 | — | 131,072 (**0.78%**) |
+## 2. Embeddings: token + position
 
-**Vì sao VRAM giảm mạnh hơn cả tỷ lệ trên:** AdamW giữ 2 giá trị moment cho **mỗi tham số được train** (Tuần 5 mục 7). LoRA cắt số tham số train được ~50–100× → cắt luôn optimizer state tương ứng — thường là phần ăn VRAM lớn nhất khi full FT.
+Hai bảng tra, **cộng vào nhau**:
 
-So sánh full FT vs LoRA cho deliverable: cùng dataset + cùng số step, ghi 3 cột — tham số train được, VRAM đỉnh (`torch.cuda.max_memory_allocated()`), chất lượng trên vài prompt cố định.
+```python
+tok_emb = nn.Embedding(vocab_size, d_model)     # (50257, d), nghĩa của token
+pos_emb = nn.Embedding(context_length, d_model) # (T_max, d), vị trí trong chuỗi
+x = tok_emb(idx) + pos_emb(torch.arange(T))     # (batch, T, d)
+```
 
-## 5. Tiếng Việt trong tuần này
+- `nn.Embedding` = bảng tra hàng, chính là `one_hot @ W` của makemore Tuần 5 (mục 2.2), viết gọn.
+- Phải cộng positional embedding vì attention permutation-equivariant (Tuần 5, mục 3.2): không có nó model mù thứ tự.
+- GPT-2 dùng positional embedding **học được, tuyệt đối** như trên; Llama 3/Qwen3 thay bằng RoPE (mục nâng cao A1, đọc sau khi xong tuần).
 
-- **Model học phân phối nó nhìn thấy:** instruction data toàn tiếng Anh thì đừng kỳ vọng model trả lời tiếng Việt tử tế. Muốn hành vi song ngữ → trộn data hai thứ tiếng (chiến lược trộn: mục 8 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
-- **Template và ngôn ngữ instruction phải nhất quán cả lúc eval:** nếu train template tiếng Anh + output tiếng Việt, thì lúc test cũng đúng cấu trúc đó; đổi kiểu giữa chừng là tự làm hỏng phép so sánh của mình.
-- GPT-2 124M của bạn pretrain trên tiếng Anh — bài instruction-FT tuần này nên làm bằng tiếng Anh cho khớp base; fine-tune tiếng Việt thật để dành cho Tuần 8 với base đa ngôn ngữ.
+---
 
-## 6. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 3. Attention: leo 4 bậc thang
 
-| Nguồn | URL | Dùng cho mục |
-|-------|-----|--------------|
-| Hu et al. 2021 — LoRA | https://arxiv.org/abs/2106.09685 | 4 |
-| Ouyang et al. 2022 — InstructGPT | https://arxiv.org/abs/2203.02155 | 3 |
-| HF PEFT docs | https://huggingface.co/docs/peft | 4 |
-| Gekhman et al. 2024 — FT trên kiến thức mới & hallucination (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.05904 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
-| Shi et al. 2024 — Instruction Modelling (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2405.14394 | 3 |
+Quy ước shape (thuộc lòng, trùng "Mốc shape cần nhớ" trong [README.md](README.md)):
+input `x: (batch, T, d_in)` → Q/K/V: `(batch, T, d_out)` → scores/weights: `(batch, T, T)` → context: `(batch, T, d_out)`.
+
+### Bậc 1: simplified self-attention (chưa có gì học được)
+
+```python
+scores  = x @ x.transpose(1, 2)          # (b, T, T): dot product mọi cặp token
+weights = torch.softmax(scores, dim=-1)  # mỗi hàng = phân phối "chú ý" của 1 token
+context = weights @ x                    # (b, T, d): trung bình có trọng số
+```
+
+Đọc cho được câu này: **hàng i của `weights` nói token i trộn thông tin các token khác theo tỉ lệ nào; `context[i]` là kết quả trộn.** Toàn bộ attention chỉ là thế, các bậc sau thêm dần chi tiết.
+
+### Bậc 2: scaled dot-product với W_Q, W_K, W_V trainable
+
+Cho token **đóng ba vai khác nhau** thay vì tự so với chính mình:
+
+```python
+Q = self.W_query(x)   # tôi đang tìm gì?
+K = self.W_key(x)     # tôi chứa gì để người khác tìm?
+V = self.W_value(x)   # nếu được chọn, tôi đưa ra thông tin gì?
+scores  = Q @ K.transpose(1, 2) / math.sqrt(d_k)
+weights = torch.softmax(scores, dim=-1)
+context = weights @ V
+```
+
+**Vì sao chia √d_k:** dot product của hai vector ngẫu nhiên d_k chiều có variance ≈ d_k, đo thực nghiệm 2026-08-11 với d_k=64, 100k cặp: `var(q·k) ≈ 63.9`; sau khi chia √d_k: `≈ 0.998`. Không chia thì score phình theo d_k, softmax bão hòa về one-hot → gradient gần 0, khó train. (Lập luận variance nêu trong chính paper Vaswani et al. 2017, mục 3.2.1.)
+
+### Bậc 3: causal mask + dropout
+
+GPT sinh trái→phải: token i **không được nhìn tương lai** (j > i). Che bằng `-inf` **trước** softmax:
+
+```python
+mask = torch.triu(torch.ones(T, T), diagonal=1).bool()   # tam giác trên
+scores = scores.masked_fill(mask, float("-inf"))
+weights = torch.softmax(scores, dim=-1)                   # e^{-inf}=0, hàng vẫn tổng=1
+weights = self.dropout(weights)
+```
+
+Đã kiểm chứng 2026-08-11: sau mask, hàng 0 dồn 100% trọng số vào vị trí 0, mọi hàng vẫn tổng 1. Phải là `-inf` trước softmax chứ không phải gán 0 sau softmax, gán 0 sau làm hàng không còn là phân phối. Test thứ ba trong [`03_test_attention.py`](03_test_attention.py) kiểm đúng tính chất này: đổi token tương lai không được làm đổi output vị trí 0.
+
+### Bậc 4: multi-head: nhiều "góc nhìn" chạy song song
+
+Chia `d_out` thành `num_heads × head_dim`, mỗi head làm attention độc lập trên lát mỏng của nó, rồi ghép lại:
+
+```python
+# (b, T, d_out) -view-> (b, T, H, hd) -transpose(1,2)-> (b, H, T, hd)
+Q = Q.view(b, T, num_heads, head_dim).transpose(1, 2)
+# ... attention y bậc 3, thao tác trên 2 chiều cuối (T, hd), H head song song ...
+# ngược lại: (b, H, T, hd) -> (b, T, H, hd) -> contiguous().view(b, T, d_out)
+context = context.transpose(1, 2).contiguous().view(b, T, d_out)
+out = self.out_proj(context)             # trộn thông tin giữa các head
+```
+
+Shape đã kiểm chứng 2026-08-11 với `(b=2, T=6, d_out=16, H=4)`: sau view+transpose là `(2, 4, 6, 4)`. Lưu ý `d_out % num_heads == 0`, và cần `.contiguous()` trước `.view()` sau transpose. Đối chiếu cách viết gộp QKV trong `nanoGPT/model.py` (class `CausalSelfAttention`) sau khi tự code xong.
+
+### Vì sao attention là O(n²): biết trước để Tuần 8+ đỡ ngạc nhiên
+
+Ma trận scores là `(T, T)`: gấp đôi độ dài chuỗi thì compute và bộ nhớ attention tăng 4 lần. Đây là lý do tồn tại FlashAttention, sliding window, KV cache... (mục nâng cao C1-C2, B1, đọc sau khi pass test).
+
+---
+
+## 4. Nguồn chính thức (đã xác minh truy cập được ngày 2026-08-11)
+
+| Nguồn | URL | License / loại | Dùng cho mục |
+|-------|-----|----------------|--------------|
+| Sennrich et al. 2015, BPE cho NMT | https://arxiv.org/abs/1508.07909, PDF local: [`../docs/papers/`](../docs/papers/README.md) | CC BY 4.0 (kiểm 2026-08-12) | 1 |
+| Tokenization Falling Short (2024) | https://arxiv.org/abs/2406.11687, chỉ link (arXiv non-exclusive) | arXiv mở (kiểm 2026-08-12) | 1.3 |
+| openai/tiktoken | https://github.com/openai/tiktoken | MIT | 1.2 |
+| karpathy/minbpe | https://github.com/karpathy/minbpe | MIT | 1.2, nâng cao E |
+| karpathy/nanoGPT (`model.py`) | https://github.com/karpathy/nanoGPT | MIT | 3 |
+| Vaswani et al. 2017, Attention Is All You Need | https://arxiv.org/abs/1706.03762 | arXiv mở | 3 |
+| The Annotated Transformer (Harvard NLP) | https://nlp.seas.harvard.edu/annotated-transformer/ | web mở | 2, 3 |
 
 ## Sau khi đọc xong
 
-1. Làm classification FT trước (đơn giản hơn, quen tay), rồi instruction FT trong [`02_instruction_finetune.py`](02_instruction_finetune.py).
-2. Áp LoRA, điền bảng so sánh full FT vs LoRA (3 cột ở mục 4) — số tự đo, kèm ngày.
-3. Chat thử với mini-model, lưu vài ví dụ vào nhật ký.
-4. Làm [`quiz.md`](quiz.md); phần sơ đồ pipeline ở mục nâng cao đọc lướt — Tuần 7 học kỹ.
+1. Chạy lại từng snippet ở mục 1-3 (gõ tay).
+2. Tự code [`02_multihead_attention.py`](02_multihead_attention.py) theo đúng 4 bậc, không nhìn nanoGPT khi code lần đầu.
+3. Chạy [`03_test_attention.py`](03_test_attention.py) → pass cả 3 test (2 shape + 1 causal).
+4. Dán code nhờ Claude review, đối chiếu `nanoGPT/model.py`.
+5. Làm [`quiz.md`](quiz.md), đối chiếu [`quiz_solution.md`](quiz_solution.md); rồi mới mở mục nâng cao (A1, A4-A5, B1, C1-C2, E).
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **Vì sao phải tokenize.** Jurafsky và Martin mở đầu mục 2.4 (SLP3, trang 42): "Tokenization, the first stage of natural language processing, is the process of segmenting the running input text into tokens", rồi giải thích chọn đơn vị cỡ morpheme bằng cách data-driven vì từ thì khó định nghĩa hình thức còh ký tự thì quá nhỏ. Thuật toán BPE được trình bày ngay sau đó, cùng thuật toán bạn cài trong tuần này.
+- **Cosine là góc.** SLP3 mục 5.4 (trang 134): "By far the most common similarity metric is the cosine of the angle between the vectors", đúng công thức Tuần 1 mục 4.
+- **Attention bằng ví dụ ngôn ngữ.** SLP3 mục 7.1 (trang 179) dùng hai câu "The chicken didn't cross the road because it was too tired" và "... because it was too wide" để chỉ ra từ *it* cần trộn thông tin từ *chicken* hay *road* tùy ngữ cảnh; đó là việc attention làm. Mục 7.4 (trang 191) mô tả input X kích thước [N × d] là tổng của token embedding và positional embedding, đúng cách GPT-2 làm.
+- **Attention bằng ma trận.** Prince, UDL mục 12.2 Dot-product self-attention (trang 208): khối self-attention nhận N input mỗi cái D × 1, tính value v_m = β_v + Ω_v x_m (eq. 12.2), rồi mỗi output là tổng có trọng số của mọi value. Mục 12.3 (trang 213) là các mở rộng: query, key, scaled dot product, multi-head. Fleuret mục 4.8 Attention layers (trang 89) nói ngắn về lý do cần một phép toán kết hợp thông tin ở các vị trí xa nhau mà fully connected và convolution không làm được.

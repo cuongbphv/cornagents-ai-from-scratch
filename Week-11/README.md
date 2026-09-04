@@ -1,73 +1,93 @@
-# Tuần 11 — Advanced RAG + đánh giá
+# Tuần 11: QLoRA fine-tuning thực tế trên 3070 Ti với Unsloth
 
-> Phase 2 — Applied. Thêm hybrid search, reranking, và đánh giá nghiêm túc; học observability.
+> Phase 2: Applied. Chuyển từ "from-scratch" sang tooling production: fine-tune một model 7B-8B thật bằng QLoRA 4-bit.
 
 ## Mục tiêu
 
-- Thêm **hybrid search** (BM25 + vector) và **reranker**.
-- Đánh giá định lượng với **RAGAS**; wire **tracing** (Langfuse/LangSmith).
+- Fine-tune model 7B-8B thật với **4-bit QLoRA** trên 3070 Ti (8GB).
+- Hiểu LoRA hyperparameters (r, α, target modules) trong thực tế.
 
 ## Nguồn học
 
-- **RAGAS** docs (context precision/recall, faithfulness, answer relevancy).
-- **LangSmith** + **Langfuse** (tracing, LLM-as-judge).
-- **BGE cross-encoder** reranker (mã nguồn mở).
-- Tùy chọn nâng cao: **GraphRAG** (Microsoft).
+- **Unsloth docs** (unsloth.ai/docs): Fine-tuning Guide, LoRA Hyperparameters Guide, Requirements table.
+- HF **PEFT** + **TRL** (`SFTTrainer`).
+- NVIDIA, "How to Fine-Tune LLMs on RTX GPUs With Unsloth."
 - Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — hybrid/RRF, cross-encoder rerank, RAGAS, bẫy LLM-judge, BM25 tiếng Việt.
-2. [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md) — hướng dẫn + code mẫu nâng cấp pipeline.
-3. [`03_ragas_report.md`](03_ragas_report.md) — báo cáo eval before/after (deliverable).
-4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): QLoRA/NF4, hyperparameters, quy trình 8GB, kỷ luật eval.
+2. [`02_qlora_finetune.py`](02_qlora_finetune.py): smoke test → full run (deliverable).
+3. [`03_eval_notes.md`](03_eval_notes.md): eval base vs fine-tuned trên held-out (deliverable).
+4. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-Nâng cấp pipeline Tuần 10: retrieval hybrid (BM25 + vector) + reranker; đo before/after bằng RAGAS; wire Langfuse/LangSmith.
+QLoRA fine-tune **Llama 3.1 8B** hoặc **Qwen** trên dataset instruction nhỏ (bắt đầu 500-1,000 mẫu). Export merged model + GGUF.
+
+## Cấu hình cho 8GB
+
+```
+load_in_4bit = True
+batch_size   = 1-2
+seq_len      ≤ 1024
+gradient_checkpointing = True
+r = 16, lora_alpha = 16
+target = tất cả attention + MLP projections
+```
+
+VRAM: 7B QLoRA ≈ 5GB, 8B ≈ 6GB (fits). 11B (~7.5GB) ở rìa; 14B (~8.5GB) vượt 8GB.
 
 ## Deliverable
 
-- Báo cáo eval RAGAS cho thấy **cải thiện relevancy đo được** nhờ reranking.
-- Pipeline đã được trace.
+Adapter 7B/8B đã fine-tune + **eval so base vs fine-tuned** trên held-out examples.
 
 ## Thời lượng
 
-~10–12 giờ.
+~10-12 giờ. Một run 1,000-5,000 mẫu: vài giờ → qua đêm trên 8GB.
 
 ## Phần cứng
 
-Local; cross-encoder reranker chạy ổn trên Mac/3070 Ti.
+- **3070 Ti** (chính). Hoặc **Colab free T4 (15GB)** làm phương án dễ hơn.
+- *Threshold:* nếu fine-tune > 24h hoặc OOM ở batch 1 → chuyển 4090/A100 thuê.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — giải thích được RRF bằng ví dụ số
-- [ ] Thêm BM25 retriever (rank_bm25) song song vector retriever
-- [ ] Kết hợp kết quả (EnsembleRetriever / reciprocal rank fusion)
-- [ ] Thêm reranker (BGE cross-encoder) trên top-N
-- [ ] Tạo eval set: ~20–30 cặp (câu hỏi, câu trả lời/ground-truth)
-- [ ] Đo RAGAS: context precision/recall, faithfulness, answer relevancy
-- [ ] So sánh baseline (Tuần 10) vs hybrid+rerank → bảng số
-- [ ] Wire Langfuse/LangSmith tracing → xem từng bước retrieval/generate
-- [ ] Viết `03_ragas_report.md`
+- [ ] Đọc `01_theory_notes.md`: giải thích được vì sao 8GB fine-tune được 8B
+- [ ] Cài Unsloth + dependencies (kiểm tra CUDA khớp)
+- [ ] Chọn base model (Llama 3.1 8B / Qwen2.5 7B) ở 4-bit
+- [ ] Chuẩn bị dataset 500-1,000 mẫu (gợi ý: dùng domain Finance Banking của bạn)
+- [ ] Cấu hình LoRA (r=16, α=16, target all proj) + SFTTrainer
+- [ ] Smoke test vài step → xác nhận không OOM, loss giảm
+- [ ] Chạy full run + lưu adapter
+- [ ] Merge adapter + export GGUF (để chạy Ollama/LM Studio ở Tuần 12)
+- [ ] Eval base vs fine-tuned trên held-out → ghi `03_eval_notes.md`
 
-## 🚀 Bổ sung nâng cao (đo lường cho đúng)
+## 🚀 Bổ sung nâng cao (quantization internals + cách eval)
 
-Tuần này bạn bắt đầu tin vào số, nên đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **H — đầy đủ**:
+Tuần này dùng QLoRA/NF4 ở mức "bật cờ". Hiểu sâu hơn trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B4**:
 
-- **LLM-as-judge có nhiều bẫy** đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. RAGAS dùng LLM để chấm faithfulness/relevancy → những bẫy này áp trực tiếp vào báo cáo của bạn.
-- **Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn** trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công một mẫu nhỏ.
-- **Perplexity phụ thuộc tokenizer**, `bits-per-byte` mới so chéo được — cần khi bạn so nhiều model backend khác nhau.
+- **NF4** (QLoRA): 4-bit "normal float", chỉ quantize base, train adapter LoRA ở bf16.
+- **GPTQ** (per-layer, Hessian) vs **AWQ** (bảo vệ kênh salient theo activation).
+- **GGUF** là *định dạng file* của llama.cpp (Q4_K_M, Q5_K_M, Q8_0…): thứ Ollama/LM Studio load, không phải thuật toán.
 
-> Nguyên tắc mang sang Phase 3: một pipeline có scorer tốt thì tự cải thiện; pipeline không có thì âm thầm trôi.
+> Quy tắc: 8-bit gần như không mất chất lượng; 4-bit là điểm ngọt local; perplexity tăng dần khi bit giảm.
+
+Deliverable tuần này là "eval base vs fine-tuned", nên đọc thêm mục **H**:
+
+- **Đừng tin một chỉ số duy nhất**: loss/perplexity giảm không tự động nghĩa là model hữu ích hơn trên việc bạn cần.
+- Nếu so hai model **khác tokenizer/backend**, dùng **bits-per-byte** thay perplexity thô.
+- Giữ một held-out set cố định để mọi lần fine-tune sau đều so được với lần này.
 
 ## 📦 Dữ liệu cho tuần này
 
-Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **1** (`YuITC/Vietnamese-Legal-Documents`, MIT — benchmark retrieval để đo retriever của bạn), mục **4** (các bộ chỉ-dùng-để-eval), mục **9** (benchmark tiếng Việt).
+Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md): mục **3** (dataset tiếng Anh license sạch), mục **2** (tiếng Việt), mục **7** (chọn base model), mục **8** (chiến lược song ngữ).
 
-> Không benchmark công khai nào đo được "model trả lời đúng quy định của bạn hay chưa" — tự xây eval set ~50–100 câu nghiệp vụ thật, mỗi câu kèm điều khoản dẫn nguồn.
+Gợi ý cho lần fine-tune đầu: trộn `Sujet-Finance-Instruct-177k` (Apache 2.0) + `duyet/vietnamese-legal-instruct` (CC BY 4.0), thêm `UTS2017_Bank` (Apache 2.0) nếu làm task phân loại. Base an toàn về pháp lý: **Qwen2.5-7B-Instruct** (Apache 2.0).
+
+> ⚠️ **Fine-tune ở tuần này là để dạy HÀNH VI/ĐỊNH DẠNG, không phải nhồi kiến thức quy định.** Kiến thức quy định đi qua RAG (Tuần 13-14) + KG (Tuần 17): đọc mục **0** của tài liệu dataset để hiểu vì sao. Và ⛔ chỉ dùng dataset license mở đã xác minh trong tài liệu dataset; tự cắt held-out split để eval trước khi train.
 
 ## File trong folder
 
@@ -75,8 +95,8 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: hybrid/RRF, rerank, RAGAS, LLM-judge |
-| 2 | `02_advanced_rag_notes.md` | Hướng dẫn hybrid + rerank + tracing (code mẫu) |
-| 3 | `03_ragas_report.md` | Template báo cáo eval before/after (deliverable) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: QLoRA/NF4, hyperparameters, kỷ luật eval |
+| 2 | `02_qlora_finetune.py` | Starter script Unsloth QLoRA (điền dataset + tinh chỉnh) |
+| 3 | `03_eval_notes.md` | Template eval base vs fine-tuned |
 | 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

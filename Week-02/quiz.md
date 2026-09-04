@@ -1,46 +1,79 @@
-# Tuần 2 — Quiz: Backprop từ đầu + mental model Transformer
+# Tuần 2, Quiz: Giải tích vector, xác suất, tối ưu hóa
 
-> Tự kiểm tra **trước** khi xem solution. Tổng **6** câu. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
-> _Sinh tự động từ `scripts/quiz_bank.json` — đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
+> Tự kiểm tra **trước** khi xem solution. Tổng **9** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
+> _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
 
-## Câu 1 (Tự luận)
+## Câu 1 (Trắc nghiệm)
 
-Trong micrograd, mỗi đối tượng Value lưu những gì và làm gì khi backward()?
+Với hàm f(x₁, x₂) = x₁²x₂ + x₁x₂³, gradient tại điểm (1, 2) bằng bao nhiêu?
 
-## Câu 2 (Trắc nghiệm)
+- **A.** [4, 13]
+- **B.** [12, 13]
+- **C.** [12, 7]
+- **D.** [5, 9]
 
-backward() duyệt đồ thị theo thứ tự nào?
+## Câu 2 (Tự luận)
 
-- **A.** Thứ tự ngẫu nhiên
-- **B.** Thứ tự topo NGƯỢC (từ output về input)
-- **C.** Theo thứ tự khởi tạo biến
-- **D.** Theo độ lớn của grad
+Hãy mô tả cách bạn kiểm tra một công thức gradient bằng số, và giải thích vì sao kỹ thuật này sẽ hữu ích ở Tuần 5 khi tự viết autograd.
 
-## Câu 3 (Tự luận)
+## Câu 3 (Trắc nghiệm)
 
-Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta phải thêm gì?
+Một bệnh có tỉ lệ 1% trong dân số. Xét nghiệm phát hiện đúng 95% người bệnh và báo dương tính giả ở 5% người khỏe. Một người nhận kết quả dương tính thì xác suất thực sự mắc bệnh gần với con số nào?
+
+- **A.** Khoảng 95%
+- **B.** Khoảng 50%
+- **C.** Khoảng 16%
+- **D.** Khoảng 1%
 
 ## Câu 4 (Trắc nghiệm)
 
-Đạo hàm của tanh(x) là gì (hay gặp khi tự code backward)?
+Luật số lớn nói gì về loss tính trên một batch trong training, và điều đó giải thích hiện tượng nào trên loss curve?
 
-- **A.** tanh(x)
-- **B.** 1 - tanh^2(x)
-- **C.** x(1-x)
-- **D.** e^x / (1+e^x)
+- **A.** Loss trên batch luôn bằng loss kỳ vọng, nên loss curve phải trơn
+- **B.** Loss trên batch là trung bình mẫu của loss kỳ vọng, có phương sai tỉ lệ với 1/n, nên batch nhỏ cho loss curve nhấp nhô hơn batch lớn
+- **C.** Loss trên batch không liên quan đến loss kỳ vọng vì dữ liệu không độc lập
+- **D.** Loss trên batch chỉ hội tụ khi learning rate giảm về 0
 
-## Câu 5 (Trắc nghiệm)
+## Câu 5 (Tự luận)
 
-Khi một biến được dùng ở NHIỀU nhánh của đồ thị, gradient của nó được xử lý thế nào?
+Vì sao cross-entropy loss được xem là negative log-likelihood, và vì sao người ta cực tiểu negative log-likelihood thay vì cực đại likelihood trực tiếp?
 
-- **A.** Lấy gradient lớn nhất
-- **B.** Cộng dồn (+=) gradient từ tất cả các nhánh
-- **C.** Ghi đè bằng gradient cuối cùng
-- **D.** Lấy trung bình
+## Câu 6 (Trắc nghiệm)
 
-## Câu 6 (Tự luận)
+Trên hàm f(x) = x² với đạo hàm 2x, chạy gradient descent từ x₀ = 5 với step size 1.1 thì điều gì xảy ra sau 20 bước, và vì sao?
 
-Bigram model trong makemore làm gì, và liên hệ thế nào với một mạng neural 1 lớp?
+- **A.** Hội tụ về 0 vì hàm lồi nên mọi step size đều được
+- **B.** Dao động quanh 0 với biên độ không đổi
+- **C.** Phân kỳ, vì mỗi bước nhân x với (1 − 2 × 1.1) = −1.2 nên trị tuyệt đối tăng theo cấp số nhân
+- **D.** Dừng ngay tại x = 5 vì gradient bằng 0
+
+## Câu 7 (Trắc nghiệm)
+
+Theo MacKay (ITILA eq. 2.45-2.46), relative entropy D_KL(P‖Q) luôn không âm và chỉ bằng 0 khi P = Q. Điều này nói gì về giá trị nhỏ nhất mà cross-entropy loss có thể đạt khi train một model?
+
+- **A.** Cross-entropy có thể xuống 0 với mọi dữ liệu nếu train đủ lâu
+- **B.** Cross-entropy nhỏ nhất bằng entropy của phân phối dữ liệu, đạt được khi phân phối model trùng phân phối thật, vì cross-entropy = entropy + KL
+- **C.** Cross-entropy không có đáy vì log không bị chặn
+- **D.** Cross-entropy nhỏ nhất bằng KL divergence
+
+---
+
+## Phần nâng cao
+
+> Các câu dưới đây đòi đọc mục tương ứng trong `Week-00/advanced_topics_vi.md` hoặc paper gốc. Làm sau khi xong phần cơ bản.
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Theo RoFormer (arXiv 2104.09864) và cách MML định nghĩa góc giữa hai vector, vì sao xoay cả query và key theo vị trí lại làm điểm attention chỉ phụ thuộc khoảng cách tương đối?
+
+- **A.** Vì phép xoay làm mọi vector có cùng độ dài
+- **B.** Vì tích vô hướng của hai vector đã xoay góc mθ và nθ chỉ phụ thuộc hiệu góc (m−n)θ, do phép xoay bảo toàn độ dài và góc tương đối giữa hai vector
+- **C.** Vì RoPE cộng vector vị trí vào embedding như GPT-2
+- **D.** Vì key không bị xoay, chỉ query bị xoay
+
+## Nâng cao 2 (Tự luận)
+
+MacKay và Murphy đều định nghĩa KL divergence. Vì sao KL không phải một metric, và điều đó có nghĩa gì khi PPO dùng KL(policy ‖ reference) làm ràng buộc?
 
 ---
 > 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

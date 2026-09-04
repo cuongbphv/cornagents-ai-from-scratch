@@ -1,53 +1,104 @@
-# Tuần 15 — Đáp án & Giải thích: Capstone + evaluation/observability
+# Tuần 15, Đáp án & Giải thích: Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Tự luận)
 
-Use case capstone khuyến nghị và 3 thành phần kỹ thuật của nó?
+Mô tả 'agent loop' cơ bản.
 
-**Trả lời mẫu:** Use case: spec-to-stories + automated review cho một feature Finance Banking (nghiệp vụ Finance Banking tổng quát). Ba thành phần: (1) RAG — grounding vào tài liệu domain; (2) Agents — workflow multi-agent (requirements → review → test) với HITL gate; (3) tùy chọn model fine-tuned local (Tuần 8/9) cho một sub-task phân loại nghiệp vụ hẹp. Gắn tracing và viết eval rubric.
+**Trả lời mẫu:** perceive (nhận input/trạng thái) → reason (LLM suy luận, quyết định bước tiếp) → chọn tool → execute tool → quan sát kết quả → lặp lại cho tới khi đạt mục tiêu, rồi trả về structured output. Khác với một lần gọi LLM, agent có vòng lặp nhiều bước có dùng công cụ và trạng thái.
 
-**Giải thích:** Đây là nơi hội tụ cả 3 phase của roadmap.
+**Giải thích:** Đây là khung chung của Claude Agent SDK và mọi agent framework.
 
 ## Câu 2 (Trắc nghiệm)
 
-Bộ ba metric đánh giá capstone agentic gồm?
+MCP (Model Context Protocol) là gì?
 
-- **A.** Loss, perplexity, BLEU
-- **B.** Success rate, human-override rate, groundedness ✅
-- **C.** FPS, latency, throughput
-- **D.** Precision, recall, F1 (chỉ vậy)
-
-**Đáp án: B**
-
-**Giải thích:** Success rate (hoàn thành đúng), human-override rate (tần suất người phải sửa — đo độ tin), groundedness (bám tài liệu nguồn — chống bịa).
-
-## Câu 3 (Tự luận)
-
-Vì sao chiến lược 'Claude làm brain + model 7B fine-tuned cho sub-task' lại hợp lý?
-
-**Trả lời mẫu:** Claude (model mạnh) làm bộ điều phối/suy luận chính cho các bước mở, cần năng lực rộng. Nhưng một sub-task hẹp, lặp lại nhiều (vd. phân loại văn bản nghiệp vụ thành các nhãn cố định) thì một model 7B fine-tuned local làm tốt với chi phí và độ trễ thấp hơn nhiều, lại chạy offline. Phối hợp tối ưu chi phí/độ trễ mà vẫn giữ chất lượng ở khâu khó.
-
-**Giải thích:** Hiểu internals Phase 1 giúp lập luận lựa chọn model này có cơ sở.
-
-## Câu 4 (Trắc nghiệm)
-
-'Groundedness' đo điều gì?
-
-- **A.** Tốc độ agent
-- **B.** Mức độ output bám vào/được hỗ trợ bởi tài liệu nguồn (chống bịa) ✅
-- **C.** Số agent dùng
-- **D.** Chi phí token
+- **A.** Một model ngôn ngữ
+- **B.** Một chuẩn mở để kết nối model với tool/nguồn dữ liệu qua server/client (GitHub, Postgres, Slack, filesystem...) ✅
+- **C.** Một thuật toán RL
+- **D.** Một định dạng file
 
 **Đáp án: B**
 
-**Giải thích:** Tương tự faithfulness trong RAGAS, áp cho output cuối của workflow — quan trọng trong domain tài chính.
+**Giải thích:** MCP tách 'bộ não' khỏi nguồn dữ liệu/tool, cho phép tái sử dụng các server tool chuẩn hoá.
 
-## Câu 5 (Tự luận)
+## Câu 3 (Trắc nghiệm)
 
-Viết retrospective 'nối về Phase 1' nghĩa là gì?
+Khác biệt chính giữa LangGraph và CrewAI?
 
-**Trả lời mẫu:** Sau khi ship capstone, nhìn lại và giải thích VÌ SAO các lựa chọn kỹ thuật hoạt động, dựa trên hiểu biết internals từ Phase 1: vì sao một model nhỏ fine-tuned đủ cho sub-task, vì sao context dài tốn KV cache, vì sao quantization 4-bit chấp nhận được, vì sao RAG cần grounding... Mục tiêu là khép vòng học: từ 'biết dùng' sang 'hiểu tại sao', biến cả roadmap thành kiến thức nền vững chứ không chỉ là làm theo công thức.
+- **A.** LangGraph chỉ cho vision, CrewAI cho text
+- **B.** LangGraph: graph có trạng thái, tường minh, auditable; CrewAI: crew theo vai (role) prototype nhanh ✅
+- **C.** Cả hai giống hệt nhau
+- **D.** CrewAI không hỗ trợ tool
 
-**Giải thích:** Đây là deliverable 03_retrospective.md — mục tiêu thật sự của toàn lộ trình.
+**Đáp án: B**
+
+**Giải thích:** LangGraph hợp workflow cần kiểm soát/audit (tài chính có quy định); CrewAI nhanh để dựng nhóm agent theo vai.
+
+## Câu 4 (Tự luận)
+
+Vì sao workflow tài chính có quy định nên ưu tiên LangGraph?
+
+**Trả lời mẫu:** Vì LangGraph cho phép định nghĩa trạng thái và luồng chuyển tiếp một cách tường minh, có thể kiểm tra/ghi vết (auditable) từng bước, và chèn các human-in-the-loop gate rõ ràng. Trong domain tài chính bị ràng buộc quy định, khả năng giải trình 'vì sao agent ra quyết định này' và kiểm soát chặt từng chuyển tiếp quan trọng hơn tốc độ prototype.
+
+**Giải thích:** CrewAI tiện cho thử nghiệm nhanh nhưng kém minh bạch hơn về luồng trạng thái.
+
+## Câu 5 (Trắc nghiệm)
+
+Human-in-the-loop (HITL) gate nghĩa là gì?
+
+- **A.** Agent chạy hoàn toàn tự động không cần người
+- **B.** Điểm dừng yêu cầu con người phê duyệt/sửa trước khi agent đi tiếp ✅
+- **C.** Một loại tool
+- **D.** Cách tính token
+
+**Đáp án: B**
+
+**Giải thích:** HITL gate đặt giữa các stage rủi ro để con người kiểm soát; thiết kế least-privilege + HITL ngay từ đầu.
+
+## Câu 6 (Trắc nghiệm)
+
+Mô hình 5 tầng engineering (docs/5-layers-multi-agent.jpg) xếp theo thứ tự nào, từ trong ra ngoài?
+
+- **A.** Prompt → Harness → Context → Graph → Loop
+- **B.** Prompt → Context → Harness → Loop → Graph ✅
+- **C.** Context → Prompt → Loop → Harness → Graph
+- **D.** Loop → Prompt → Context → Graph → Harness
+
+**Đáp án: B**
+
+**Giải thích:** Prompt (the message) → Context (the memory) → Harness (the machine: gather-act-verify) → Loop (the system: run-check-decide) → Graph (the organization: nhiều agent + shared memory). Mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó là engineering.
+
+## Câu 7 (Tự luận)
+
+Bốn điều kiện nào làm loop autoresearch của Karpathy chạy được, và vì sao thiếu một cái là loop hỏng?
+
+**Trả lời mẫu:** (1) Output verifiable, có metric đo được (val_bpb), không thì agent tối ưu thứ sai; (2) Action reversible, git reset về commit giữ lại được, thất bại không phá state; (3) Horizon ngắn, run ~5 phút cho feedback dày; (4) Environment bounded, repo giới hạn không gian hành động. Thiếu verify thì không biết giữ hay bỏ thay đổi; thiếu reversible thì một lỗi phá cả quá trình; horizon dài làm tín hiệu học thưa; environment mở làm không gian tìm kiếm nổ.
+
+**Giải thích:** Đây là checklist trước khi cho agent chạy tự động bất kỳ việc gì, kể cả trong CornAgents.AI.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Anthropic phân biệt workflow và agent thế nào, và khuyến nghị nào của họ về framework?
+
+- **A.** Workflow là agent chạy nhanh hơn; nên dùng framework nặng
+- **B.** Workflow là hệ trong đó LLM và tool được điều phối qua các đường code định trước; agent là hệ trong đó LLM tự điều khiển quy trình và cách dùng tool; các triển khai thành công nhất dùng các pattern đơn giản, ghép được, không dùng framework phức tạp ✅
+- **C.** Agent luôn tốt hơn workflow
+- **D.** Không có khác biệt
+
+**Đáp án: B**
+
+**Giải thích:** Trích 'Building Effective AI Agents': workflows là 'Systems where LLMs and tools are orchestrated through predefined code paths'; agents là 'Systems where LLMs dynamically direct their own processes and tool usage'.
+
+## Nâng cao 2 (Tự luận)
+
+Jurafsky và Martin nói khác biệt kỹ thuật giữa LLM thường và agent chỉ là gì? Điều đó gợi ý cách bạn nên nhìn tool call trong log của Claude Agent SDK ra sao?
+
+**Trả lời mẫu:** SLP3 mục 1.8 (trang 24): agent là LLM có thể hành động bằng cách gọi chương trình khác, và 'The technical difference is only that the set of actions in the world are added to the set of possible tokens to generate'. Vậy tool call trong log là một token đặc biệt được sinh ra rồi được harness thực thi; kết quả tool quay lại context như input không đáng tin, theo paper Instruction Hierarchy trong kệ paper.
+
+**Giải thích:** Cách nhìn này nối thẳng Tuần 15 về Tuần 7: vẫn là token prediction.

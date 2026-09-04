@@ -1,84 +1,91 @@
-# Tuần 15 — Capstone + evaluation/observability
+# Tuần 15: Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP
 
-> Phase 3 — SDLC / CornAgents.AI (tuần cuối). Ship một workflow CornAgents.AI hoàn chỉnh, domain-relevant, và đánh giá nó.
+> Phase 3: SDLC / CornAgents.AI. Hiểu agent loop, tools, subagents, MCP; nắm mô hình 5 tầng engineering; build loop đầu tiên kiểu Karpathy; chọn lớp orchestration.
 
 ## Mục tiêu
 
-Ship **một** workflow CornAgents.AI end-to-end, polished, gắn domain, và đánh giá.
+- Nắm **mô hình 5 tầng**: Prompt → Context → Harness → Loop → Graph engineering (xem `docs/5-layers-multi-agent.jpg`): mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó mới là engineering.
+- Hiểu **agent loop**, tools, subagents, **MCP**.
+- Build **loop có đo lường đầu tiên** (kiểu ratchet loop của Karpathy autoresearch): generate → evaluate → revise → stopping rule.
+- Chọn **orchestration layer** cho CornAgents.AI.
 
 ## Nguồn học
 
-- **Langfuse/LangSmith** (tracing + eval agent).
-- **promptfoo** hoặc LLM-as-judge (chất lượng output).
-- `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` — mục VII (Evaluation and Quality: metrics theo layer, complexity budget) + Table VI (Production Checklist).
-- Hiểu biết Phase 1–2 để chọn model: Claude làm "brain"; model 7B fine-tuned cho sub-task hẹp (vd. một tác vụ phân loại nghiệp vụ hẹp).
-- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md).
+- **Claude Agent SDK** docs (code.claude.com/docs/en/agent-sdk) + "Building agents with the Claude Agent SDK".
+- **Model Context Protocol** docs (200+ servers: GitHub, Postgres, Slack, Jira).
+- `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`: mục II (Karpathy's Loop: autoresearch) và VI.A-B (Day 1: build loop, Day 2: add tools).
+- `docs/5-layers-multi-agent.jpg`: bản đồ 5 tầng engineering.
+- **LangGraph** + **CrewAI** docs (bạn đang cân nhắc cả hai); AutoGen là lựa chọn thay thế.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — bản đồ lắp ghép, complexity budget, 3 metric, rubric.
-2. [`02_eval_rubric.md`](02_eval_rubric.md) — viết rubric TRƯỚC khi chạy demo (deliverable).
-3. [`03_retrospective.md`](03_retrospective.md) — retrospective nối về Phase 1 (deliverable).
-4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): agent loop, MCP, 5 tầng + bảng chẩn đoán, reflective loop.
+2. [`02_minimal_agent.py`](02_minimal_agent.py): build single agent + nối 1 MCP server (deliverable).
+3. [`03_cornagents_architecture.md`](03_cornagents_architecture.md): sơ đồ kiến trúc + quyết định stack (deliverable).
+4. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-Chọn stage SDLC giá trị nhất cho bối cảnh của bạn — **khuyến nghị: spec-to-stories + automated review cho một feature Finance Banking** (chọn nghiệp vụ bạn thạo, giữ ở mức tổng quát). Kết hợp **RAG** (grounding trực tiếp) + **knowledge graph Tuần 14** (shared memory + fact-check multi-hop) + **agents** (workflow) + tùy chọn model fine-tuned. Instrument tracing; viết eval rubric; đo success rate, human-override rate, groundedness.
-
-Khai báo **complexity budget** trước khi chạy: max model calls, max sub-agents, max tokens/chi phí, max retries — hết budget thì trả artifact tốt nhất hiện có + lý do dừng, không giấu partial failure sau một câu trả lời trôi chảy.
+1. Build một agent tối thiểu bằng Claude Agent SDK: đọc repo, chạy một tool, trả output có cấu trúc; kết nối **một MCP server** (vd. GitHub hoặc filesystem).
+2. Build **reflective loop** (Day 1 của build path): lấy một LLM call có output đánh giá được → thêm evaluator với tiêu chí tường minh, bước revise, stopping rule (max rounds + budget), lưu mọi artifact. Vì sao loop của Karpathy chạy được: *output verifiable, action reversible, horizon ngắn, environment bounded*.
+3. Quyết định stack CornAgents.AI.
 
 ## Deliverable
 
-- Capstone CornAgents.AI demo được.
-- Báo cáo evaluation.
-- Retrospective viết tay nối ngược về Phase 1 internals (bạn hiểu *vì sao* nó hoạt động).
+- Một single agent + kết nối MCP hoạt động.
+- Một reflective loop chạy được (generate → evaluate → revise, có stopping rule).
+- Sơ đồ kiến trúc CornAgents.AI 1 trang → `03_cornagents_architecture.md`.
 
 ## Thời lượng
 
-~12–15 giờ.
+~12 giờ.
 
 ## Phần cứng
 
-Local cho sub-model fine-tuned; API cho agent brain.
+Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude.
 
-## Thước đo "hệ thống đáng tin" (từ docs)
+> **Lưu ý metering:** từ 15/06/2026, headless Agent SDK trên Pro/Max rút từ pool token tuần riêng, automation nặng có thể cần API credits.
 
-> *"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."*
+## CornAgents.AI là gì (định vị)
 
-Khi câu này đúng với capstone của bạn, loops/swarms/graphs là cơ chế engineering compose được; khi sai, thêm agent chỉ tăng độ mờ đục.
+"CornAgents.AI" là **khái niệm riêng của bạn**, không phải một sản phẩm có sẵn phải mua. Hãy coi CornAgents.AI là framework agentic-SDLC cá nhân, build trên **Claude Agent SDK + MCP + LangGraph/CrewAI**, gắn với domain Finance Banking / BA của bạn.
+
+## Kiến thức lõi: 5 tầng engineering
+
+| Tầng | Là gì | Unit of work |
+|---|---|---|
+| 1. Prompt engineering | The message, role, instructions, examples, format | một input |
+| 2. Context engineering | The memory, curate cái gì ở trong window | cái ở trong window |
+| 3. Harness engineering | The machine, gather → act (tools/subagents) → verify | một pass của máy |
+| 4. Loop engineering | The system, run → check (budget, max iters, no-progress) → decide | một run |
+| 5. Graph engineering | The organization, nhiều agent + shared memory (Tuần 17) | cả tổ chức agent |
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — khai báo complexity budget bằng số trước khi chạy
-- [ ] Chốt 1 use case Finance Banking (spec-to-stories + review)
-- [ ] Ghép RAG (Tuần 10–11) + agents (Tuần 13) + knowledge graph (Tuần 14) thành 1 luồng
-- [ ] (Tùy chọn) cắm model fine-tuned (Tuần 8/9) cho sub-task hẹp
-- [ ] Khai báo complexity budget (calls, tokens, cost, retries) trước khi chạy
-- [ ] Instrument tracing (Langfuse/LangSmith)
-- [ ] Viết eval rubric → `02_eval_rubric.md`
-- [ ] Đo: success rate, human-override rate, groundedness
-- [ ] Kiểm tra câu "every important output can be traced..." với demo của bạn
-- [ ] Demo end-to-end (script hoặc video ngắn)
-- [ ] Viết `03_retrospective.md` (nối về Phase 1: vì sao nó hoạt động)
+- [ ] Đọc `01_theory_notes.md`: vẽ lại được bảng chẩn đoán theo tầng
+- [ ] Xem `docs/5-layers-multi-agent.jpg`: tự vẽ lại 5 tầng bằng lời mình
+- [ ] Đọc Claude Agent SDK docs, hiểu agent loop + tool use
+- [ ] Đọc MCP docs, hiểu server/client, transport
+- [ ] Build single agent: đọc repo → chạy 1 tool → output có cấu trúc
+- [ ] Kết nối 1 MCP server (filesystem hoặc GitHub)
+- [ ] Build reflective loop: gen → eval (tiêu chí tường minh) → revise → stop rule
+- [ ] Hiểu 4 điều kiện làm loop của Karpathy chạy được (verifiable/reversible/short/bounded)
+- [ ] So sánh LangGraph vs CrewAI cho nhu cầu của bạn
+- [ ] Chọn stack + lý do (regulated finance → ưu tiên LangGraph: stateful, auditable)
+- [ ] Vẽ `03_cornagents_architecture.md` (sơ đồ + tool boundaries + HITL gates)
 
-## 🚀 Bổ sung nâng cao (kỷ luật trước khi "ship")
+## 🚀 Bổ sung nâng cao (5 tầng + ratchet loop)
 
-Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I5** (và ôn lại **H**, **I4**):
+Tuần này phần "nâng cao" **chính là nội dung tuần**, nên đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I1-I2** song song:
 
-- **I5 · Complexity budget** — khai báo *trước* khi chạy: max calls, max sub-agents, max concurrent workers, max wall-clock, max tokens/chi phí, max retries, và bằng chứng tối thiểu để được finalize. Hết budget → trả artifact tốt nhất + issue chưa xử lý + **lý do dừng**; không giấu partial failure sau một câu trả lời trôi chảy.
-- **I5 · Metric bị game** — ratchet chỉ cải thiện thứ nó *thấy được*: có thể giảm loss mà tăng chi phí inference hoặc overfit chính eval set. Giữ ràng buộc phụ.
-- **H · Cạm bẫy LLM-as-judge** — áp trực tiếp vào `02_eval_rubric.md` của bạn.
-- **I5 · Thước đo cuối**: *"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."* Tự kiểm câu này với capstone — đúng thì kiến trúc của bạn compose được; sai thì thêm agent chỉ tăng độ mờ đục.
+- **I1 · Năm tầng engineering**: Prompt → Context → Harness → Loop → Graph, kèm cách **chẩn đoán theo tầng**: output sai format = tầng 1; model không biết thứ cần biết = tầng 2; không ai kiểm kết quả = tầng 3; chạy mãi không dừng = tầng 4; agent lặp việc nhau = tầng 5.
+- **I2 · Ratchet loop + `program.md`**: 4 điều kiện làm loop chạy được (verifiable / reversible / horizon ngắn / environment bounded) và ý tưởng "programming the program" bằng ngôn ngữ tự nhiên.
+- Cũng ở I2: **commit DAG ≠ knowledge graph**: đừng gộp hai thứ này (work lineage vs domain knowledge).
 
-> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục VII–IX + Table VI (Production Checklist).
-
-## 📦 Dữ liệu cho tuần này
-
-Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **4** (bộ eval, chú ý license non-commercial), mục **9** (benchmark), mục **10** (dòng Tuần 15).
-
-Metric bắt buộc có: **groundedness** — mọi câu trả lời có dẫn được về điều khoản/tài liệu nguồn hay không. Trong domain có quy định, đây là chỉ số quan trọng hơn cả success rate.
+> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục II & VI, [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg).
 
 ## File trong folder
 
@@ -86,10 +93,8 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: lắp ghép, budget, metric, rubric |
-| 2 | `02_eval_rubric.md` | Template rubric + metrics (deliverable) |
-| 3 | `03_retrospective.md` | Template retrospective nối về internals (deliverable) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: agent loop, MCP, 5 tầng, reflective loop |
+| 2 | `02_minimal_agent.py` | Starter single agent + MCP (pseudocode/cấu trúc) |
+| 3 | `03_cornagents_architecture.md` | Template sơ đồ kiến trúc CornAgents.AI (deliverable) |
 | 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
-
-> 🎓 Đây là mục tiêu thật của cả roadmap. Nếu trễ tiến độ, ưu tiên bảo vệ Tuần 2–5 (core from-scratch) và Tuần 12–15 (mục tiêu agentic-SDLC).

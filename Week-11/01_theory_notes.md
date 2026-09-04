@@ -1,90 +1,91 @@
-# Lý thuyết Tuần 11 — Hybrid search, reranking, RAGAS, tracing
+# Lý thuyết Tuần 11: QLoRA: fine-tune model 7B-8B thật trên 8GB VRAM
 
-> Đọc trước khi nâng cấp pipeline theo [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md). Ví dụ số kiểm chứng 2026-08-11; nguồn cuối file. Cần baseline Tuần 10 đã chạy.
+> Đọc trước khi chạy [`02_qlora_finetune.py`](02_qlora_finetune.py). Số học kiểm chứng 2026-08-11; nguồn cuối file. Cần nắm LoRA (Tuần 9).
 
 ---
 
-## 1. Vì sao vector search một mình không đủ
+## 1. Vì sao 8GB không chứa nổi fine-tune thường: và QLoRA lách thế nào
 
-Hai chế độ thất bại **bù nhau**:
+Số học byte thuần (tự kiểm được): model 8B tham số ở fp16/bf16 = 8B × 2 byte = **16 GB chỉ riêng trọng số**: gấp đôi VRAM 3070 Ti, chưa tính gradient + optimizer state (AdamW: thêm ~2 giá trị moment/tham số train được, Tuần 8-9). QLoRA (Dettmers et al., arXiv 2305.14314) cắt cả ba khoản:
 
-- **Vector (dense) trượt term chính xác**: câu hỏi chứa mã văn bản `"39/2016/TT-NHNN"` — embedding không bảo đảm chuỗi ký hiệu này "gần" đúng chunk chứa nó về cosine.
-- **BM25 (sparse/lexical) trượt diễn đạt khác**: hỏi "vay vốn mua nhà" không match chunk viết "cấp tín dụng phục vụ nhu cầu nhà ở" — không trùng từ, BM25 mù.
+| Thành phần | Full FT 8B | QLoRA 8B |
+|-----------|-----------|----------|
+| Trọng số base | 16 GB (bf16) | ~4 GB (4-bit: 8B × 0.5 byte, chưa tính overhead) |
+| Gradient | mọi tham số | chỉ adapter LoRA (~0.5-1%, bảng Tuần 9) |
+| Optimizer state | mọi tham số × 2 | chỉ adapter × 2 |
 
-**Hybrid = chạy cả hai rồi trộn kết quả.** BM25 là hàm chấm điểm họ TF-IDF: điểm cao khi term của query xuất hiện nhiều trong document, hiếm trong corpus, có điều chỉnh độ dài document.
+Con số thực tế trong [README.md](README.md) (theo bảng requirements của Unsloth): 7B ≈ 5GB, 8B ≈ 6GB, khớp bậc độ lớn với số học trên cộng overhead activation/cache.
 
-## 2. Reciprocal Rank Fusion — trộn hai bảng xếp hạng không cần chỉnh trọng số
+## 2. Ba kỹ thuật trong paper QLoRA: biết để đọc log không hoang mang
 
-```
-RRF(doc) = Σ_retriever 1 / (k + rank_doc)        k = 60 (mặc định phổ biến)
-```
+1. **NF4 (4-bit NormalFloat)**: 16 mức lượng tử đặt theo phân vị của phân phối chuẩn, paper lập luận đây là lựa chọn tối ưu thông tin cho trọng số phân phối ~chuẩn. Chỉ **base model** bị quantize; adapter LoRA vẫn bf16 và là thứ duy nhất được train.
+2. **Double quantization**: quantize cả các hằng số quantization → tiết kiệm thêm ~0.4 bit/tham số (số của paper).
+3. **Paged optimizers**: đẩy optimizer state sang RAM khi VRAM căng, cứu các cú spike.
 
-Chỉ dùng **thứ hạng**, không dùng điểm thô — nên trộn được hai hệ điểm khác thang (BM25 score vs cosine). Ví dụ kiểm chứng 2026-08-11, k=60:
+Điểm bản chất cần nhớ: **gradient không chảy vào trọng số 4-bit**: forward dùng base dequantize từng lớp, backward chỉ cập nhật adapter. Vì thế chất lượng phụ thuộc adapter có đủ dung lượng học (r, target modules) hay không.
 
-| Doc | Hạng BM25 | Hạng vector | RRF |
-|-----|-----------|-------------|-----|
-| A | 1 | 8 | 0.031099 |
-| B | 3 | 2 | **0.032002** ← thắng |
+## 3. LoRA hyperparameters trong thực tế
 
-Bài học nằm trong ví dụ: doc B **không đứng đầu bảng nào** nhưng thắng vì tốt đều ở cả hai — RRF thưởng sự đồng thuận giữa hai retriever, đúng cái hybrid cần.
+Config 8GB trong README (`r=16, α=16, target = toàn bộ attention + MLP projections`) đọc bằng lời:
 
-## 3. Cross-encoder reranking — chậm mà chuẩn, nên chỉ chấm chung kết
+- **r**: dung lượng học của adapter. r=16 trên ma trận 4096×4096 = 131,072 tham số (0.78%, kiểm chứng Tuần 9). Task hẹp: r=8-16 thường đủ; r to hơn = học được nhiều hơn nhưng dễ overfit dataset nhỏ + tốn VRAM.
+- **α**: hệ số scale `α/r` (Tuần 9). Quy ước phổ biến: α = r hoặc α = 2r; giữ cố định khi thí nghiệm để chỉ xoay một núm.
+- **target modules**: gắn adapter vào đâu. "Tất cả projections" (q,k,v,o + gate/up/down) là khuyến nghị của Unsloth docs; gắn ít hơn → nhẹ hơn nhưng học kém hơn.
+- **Kỷ luật thí nghiệm:** đổi MỘT tham số mỗi lần, giữ seed + dataset + held-out cố định, ghi số vào nhật ký.
 
-- **Bi-encoder** (retrieval): embed query và document **riêng rẽ** → so cosine. Nhanh (document embed trước từ lúc index), nhưng hai bên không "đọc" nhau.
-- **Cross-encoder** (rerank): nhét `(query, document)` **vào cùng một lượt** qua model → điểm liên quan. Chuẩn hơn hẳn vì attention chạy chéo giữa query và document (bạn hiểu vì sao — Tuần 3), nhưng phải chạy model cho TỪNG cặp → không thể chấm cả corpus.
-- Kiến trúc chuẩn: **retrieve rẻ lấy top-20..50 → cross-encoder chấm lại → lấy top-3..5 đưa vào prompt.** BGE reranker (mã mở) chạy ổn trên máy local.
+## 4. Quy trình chuẩn 8GB: thứ tự chống lãng phí
 
-## 4. RAGAS — tách "lỗi tìm" khỏi "lỗi trả lời"
+1. **Smoke test trước** (vài chục step): không OOM + loss giảm → mới chạy full. OOM ở batch 1 + seq 1024 → giảm seq trước, rồi mới nghĩ tới thuê máy (ngưỡng trong README: >24h hoặc OOM batch 1 → 4090/A100).
+2. Theo dõi `torch.cuda.max_memory_allocated()`: ghi số VRAM đỉnh làm bằng chứng.
+3. Lưu adapter (vài chục MB) riêng khỏi base, đây là artifact chính.
+4. Merge + export **GGUF** khi cần chạy Ollama/LM Studio (Tuần 12). GGUF là **định dạng file** của llama.cpp, không phải thuật toán quantize (mục nâng cao B4).
 
-Bốn metric, chia đúng hai nửa pipeline:
+## 5. Eval base vs fine-tuned: không có số thì coi như chưa làm
 
-| Metric | Đo cái gì | Lỗi ở đâu khi thấp |
-|--------|-----------|---------------------|
-| Context precision | context lấy về có liên quan không | retrieval |
-| Context recall | có lấy đủ thông tin cần không | retrieval |
-| Faithfulness | câu trả lời có bám context không | generation (bịa) |
-| Answer relevancy | có trả lời đúng câu hỏi không | generation |
+- Cắt **held-out set trước khi train**, không bao giờ trộn vào train.
+- So sánh cùng prompt, cùng sampling (temperature 0 khi so nghiêm túc, tái lập được).
+- Loss/perplexity giảm ≠ hữu ích hơn (mục nâng cao H): kèm đánh giá tay trên 10-20 mẫu.
+- So model khác tokenizer → bits-per-byte thay perplexity (Tuần 8, mục 8).
+- Ghi vào [`03_eval_notes.md`](03_eval_notes.md), giữ held-out này cho mọi lần fine-tune sau.
 
-Đọc kết quả theo cặp: faithfulness thấp + context tốt = model bịa → hạ temperature, siết prompt; context recall thấp = lỗi tìm → sửa retriever, đừng đổi model. Eval set ~20–30 cặp (câu hỏi, ground truth) như README — **so before/after cùng eval set** mới thành bảng số có nghĩa.
+## 6. Tiếng Việt trong tuần này
 
-Định nghĩa gốc của 4 metric nằm trong paper RAGAS (PDF trong repo: [`../docs/papers/2309.15217_ragas-rag-evaluation.pdf`](../docs/papers/2309.15217_ragas-rag-evaluation.pdf)) — 8 trang, đọc được trong một buổi. Còn nếu muốn xem người khác đã ablate các tổ hợp module (chunking, rerank, hybrid...) ra sao trước khi tự thí nghiệm: Wang et al. 2024, *Searching for Best Practices in RAG* ([`../docs/papers/2407.01219_rag-best-practices.pdf`](../docs/papers/2407.01219_rag-best-practices.pdf)) — họ "investigate existing RAG approaches and their potential combinations" và đề xuất các chiến lược cân bằng chất lượng/chi phí.
+- **Đo tokenizer của base model trên tiếng Việt TRƯỚC khi chọn base**: dùng đúng phương pháp Tuần 6 mục 1.3 (đếm token/từ trên 5-10 câu nghiệp vụ thật). Fertility cao → cùng seq_len 1024 chứa ít nội dung Việt hơn, cùng dataset tốn nhiều compute hơn. Vài dòng code tránh được quyết định sai đắt nhất tuần.
+- Dataset tiếng Việt license sạch đã vet sẵn trong [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) (mục 2, 3, 8): README tuần này gợi ý trộn cụ thể. ⛔ Không thêm nguồn ngoài danh sách đã vet.
+- **Fine-tune dạy hành vi/định dạng, không nhồi kiến thức quy định** (nguyên tắc đã chốt trong README): với văn bản pháp luật VN thay đổi liên tục, kiến thức đi qua RAG (Tuần 13-14); đừng đánh giá model fine-tuned bằng câu hỏi tra cứu điều khoản.
+- Eval held-out nên có **cả câu tiếng Việt lẫn tiếng Anh**: làm nền cho bài kiểm tra catastrophic forgetting ở Tuần 12. Chọn LoRA/QLoRA vốn đã nghiêng về phía giữ song ngữ: Biderman et al. 2024 (PDF trong repo: [`../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf`](../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf)) đo được LoRA "substantially underperforms full finetuning" trong domain đích nhưng "better maintains the base model's performance on tasks outside the target domain", học ít hơn, quên cũng ít hơn. Trade-off này đúng là thứ bạn muốn khi base model gánh cả hai thứ tiếng.
 
-## 5. Bẫy LLM-as-judge — RAGAS chấm bằng LLM nên dính đủ
-
-Zheng et al. (arXiv 2306.05685) ghi nhận các thiên vị của LLM judge: **thiên vị độ dài** (chuộng câu trả lời dài), **thiên vị vị trí** (chuộng phương án đứng trước khi so cặp), **tự khen model cùng họ**. Áp vào tuần này:
-
-- Điểm RAGAS tăng ≠ chắc chắn tốt hơn — kiểm tay 5–10 mẫu mỗi lần đo, nhất là các mẫu điểm cao bất thường.
-- Giữ judge model **cố định** giữa before/after — đổi judge giữa chừng là vô hiệu phép so sánh.
-- Đừng tin một chỉ số duy nhất (mục nâng cao H) — bảng số + đọc tay đi cùng nhau.
-
-Mức độ đáng ngại có số đo hẳn hoi: *Judging the Judges* (Bavaresco et al. 2024, PDF trong repo: [`../docs/papers/2406.12624_judging-the-judges.pdf`](../docs/papers/2406.12624_judging-the-judges.pdf)) cho 13 judge model chấm cùng bộ bài mà con người đồng thuận cao, và thấy ngay cả judge tốt nhất vẫn "quite far behind inter-human agreement", điểm số lệch tới 5 điểm so với người chấm, kèm "a tendency toward leniency". Điểm an ủi: model nhỏ (thậm chí metric lexical) vẫn **xếp hạng** tương đối ổn dù điểm tuyệt đối kém — nên dùng judge để so sánh A/B thì đáng tin hơn là đọc điểm tuyệt đối.
-
-## 6. Tracing — nhìn thấy từng bước thay vì đoán
-
-Langfuse/LangSmith ghi lại mỗi request: query → chunks lấy về (điểm số) → prompt cuối → câu trả lời → latency/token. Giá trị thật: khi một câu trả lời sai, mở trace ra **biết ngay lỗi ở khâu nào** — retrieval lấy sai chunk hay generation bịa trên chunk đúng. Không có trace, mọi debug RAG là đoán mò.
-
-## 7. Tiếng Việt trong tuần này
-
-- **BM25 với tiếng Việt cần nghĩ về tách từ.** Tiếng Việt viết rời từng âm tiết: tokenize theo khoảng trắng biến "ngân hàng" thành 2 term `ngân` + `hàng` — match nhầm với "hàng hóa", "hàng không". Hai hướng xử lý: (a) word segmentation trước khi index BM25 (thư viện tách từ tiếng Việt — kiểm tra license trước khi thêm vào repo theo chính sách CLAUDE.md); (b) chấp nhận âm tiết + dựa vào **cụm từ trong query** và vế vector của hybrid bù lại. [Suy luận] Với corpus văn bản pháp luật nhiều thuật ngữ cố định, (a) thường cải thiện precision — nhưng đây là giả thuyết để BẠN kiểm bằng eval set, không phải kết luận.
-- **Nhớ NFC trước khi index BM25** (Tuần 10 mục 6): `"tín"` NFC và NFD là hai term khác nhau — corpus trộn hai dạng làm BM25 "mất" document một cách âm thầm.
-- **Eval set phải là câu hỏi tiếng Việt nghiệp vụ thật** (README: tự xây 50–100 câu kèm điều khoản nguồn — không benchmark công khai nào thay được). Ground truth dẫn về số Điều/Khoản cụ thể.
-- **Judge chấm văn bản tiếng Việt**: chọn judge model đọc tiếng Việt tốt và giữ cố định; [Suy luận] các thiên vị ở mục 5 được nghiên cứu chủ yếu trên tiếng Anh — mức độ trên tiếng Việt chưa rõ, càng thêm lý do kiểm tay một mẫu nhỏ.
-
-## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
-| Zheng et al. 2023 — Judging LLM-as-a-Judge | https://arxiv.org/abs/2306.05685 | 5 |
-| explodinggradients/ragas (Apache 2.0) | https://github.com/explodinggradients/ragas | 4 |
-| Es et al. 2023 — paper RAGAS (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2309.15217 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 4 |
-| Wang et al. 2024 — Searching for Best Practices in RAG (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2407.01219 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 4 |
-| Bavaresco et al. 2024 — Judging the Judges (CC0, kiểm 2026-08-12) | https://arxiv.org/abs/2406.12624 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 5 |
-
-(Trang docs.ragas.io trả HTTP 429 tại thời điểm kiểm tra 2026-08-11 — dùng repo GitHub ở trên làm cửa vào. BGE reranker, Langfuse/LangSmith: link trong README nguồn học.)
+| Dettmers et al. 2023, QLoRA (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2305.14314, PDF local: [`../docs/papers/2305.14314_qlora-efficient-finetuning.pdf`](../docs/papers/2305.14314_qlora-efficient-finetuning.pdf) | 1, 2 |
+| Biderman et al. 2024, LoRA Learns Less and Forgets Less (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.09673, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 6 |
+| Unsloth docs | https://unsloth.ai/docs | 3, 4 |
+| HF PEFT docs | https://huggingface.co/docs/peft | 3 |
+| Hu et al. 2021, LoRA | https://arxiv.org/abs/2106.09685 | 3 |
 
 ## Sau khi đọc xong
 
-1. Thêm BM25 (nhớ NFC) → trộn RRF → thêm BGE reranker, theo [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md).
-2. Xây eval set tiếng Việt ~20–30 câu kèm điều khoản nguồn.
-3. Đo RAGAS before/after, kiểm tay 5–10 mẫu, wire tracing.
-4. Viết [`03_ragas_report.md`](03_ragas_report.md) — bảng số + nhận xét đọc tay; làm [`quiz.md`](quiz.md).
+1. Đo fertility tokenizer của 2 base ứng viên trên câu nghiệp vụ VN → chọn base.
+2. Chuẩn bị dataset theo README + cắt held-out.
+3. Smoke test → full run trong [`02_qlora_finetune.py`](02_qlora_finetune.py); ghi VRAM đỉnh + loss.
+4. Eval vào [`03_eval_notes.md`](03_eval_notes.md); export GGUF cho Tuần 12; làm [`quiz.md`](quiz.md).
+
+## 8. Vì sao quantization 4-bit chạy được, và inference hiệu quả nhìn từ hệ thống
+
+Cờ `load_in_4bit` của Unsloth gói hai ý tưởng riêng: quantization cho base model và adapter cho phần học thêm. Mục này giải thích nửa quantization bằng nguồn giáo trình, rồi đặt nó vào bức tranh inference hiệu quả.
+
+**Quantization theo Fleuret.** *The Little Book of Deep Learning* mục 8.2 (trang 154) bắt đầu từ một quan sát về phần cứng: train hay sinh nhiều luồng song song thì tận dụng được GPU lớn, nhưng chạy LLM cho một người dùng là single-stream inference, "bounded by memory size and speed far more than by computation". Tham số, activation và gradient thường được mã hóa 32 hay 16 bit; độ chính xác đó cần cho training để các thay đổi nhỏ tích lũy được. Nhưng khi inference, vì activation là tổng của nhiều số hạng, sai số do quantization được **triệt tiêu một phần nhờ hiệu ứng trung bình**, và điều này càng đúng với kiến trúc lớn: model quantize xuống 6 hay 4 bit mỗi tham số "exhibit remarkable performance". Ngoài giảm bộ nhớ, quantization còn tăng tốc inference đáng kể. Từ đó sinh ra các phần mềm post-training quantization để chạy model có sẵn trên phần cứng tiêu dùng, ví dụ llama.cpp, thứ bạn sẽ dùng ở Tuần 12 qua GGUF.
+
+Đọc đoạn này xong, hai câu hỏi thực hành trở nên rõ: vì sao QLoRA quantize **base model đã đóng băng** xuống 4-bit nhưng vẫn giữ adapter LoRA ở độ chính xác cao hơn (adapter là phần đang được train, cần tích lũy thay đổi nhỏ, đúng lý do Fleuret nêu cho độ chính xác khi training), và vì sao mất mát chất lượng khi quantize thường nhỏ hơn trực giác (hiệu ứng trung bình trên activation). Chi tiết NF4 và double quantization nằm ở paper QLoRA trong kệ paper và mục nâng cao B4.
+
+**Inference hiệu quả có hai trục.** Xiao và Zhu (*Foundations of LLMs* mục 5.2, trang 222) chia các cải tiến inference thành hai loại: giảm bộ nhớ và tăng tốc, với quantization và pruning là công cụ cho cả hai. Hai kỹ thuật hệ thống khác trong cùng mục đáng biết khi bạn tự serve model ở Tuần 12: caching (mục 5.2.1, trang 223), từ cache mức chuỗi (lưu cặp query và response hay gặp trong một key-value store) đến cache prefix KV (lưu KV cache của các tiền tố đã xử lý để không prefill lại); và batching (mục 5.2.2), gom nhiều chuỗi vào một forward pass để GPU luôn bận. [Suy luận] Trên máy cá nhân với một người dùng, batching ít tác dụng vì hiếm khi có nhiều request cùng lúc, còn quantization và prefix caching là hai đòn bẩy chính. Khi ghi VRAM đỉnh và tốc độ vào `03_eval_notes.md`, hãy ghi rõ bit-width và có dùng cache hay không, vì hai yếu tố đó đổi số đo nhiều hơn mọi thứ khác.
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **Quantization và adapter là hai nửa của QLoRA.** Fleuret mục 8.2 Quantization (trang 154) và 8.3 Adapters (trang 155) trình bày hai kỹ thuật cạnh nhau trong cùng chương về giới hạn compute; QLoRA ghép cả hai.
+- **Inference hiệu quả.** Xiao và Zhu, *Foundations of LLMs* mục 5.2 (trang 222): tối ưu inference gồm hai loại, "reducing memory requirements and accelerating the system", với quantization và pruning là công cụ. Đọc để đặt cờ 4-bit của Unsloth vào bức tranh chung.
+- **Code tham chiếu mở.** Notebook `chapter12/Chapter 12 - Fine-tuning Generation Models.ipynb` trong repo Hands-On LLM (Apache-2.0) làm SFT và preference tuning bằng TRL, đối chiếu với `02_qlora_finetune.py`.

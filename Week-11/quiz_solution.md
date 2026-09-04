@@ -1,71 +1,96 @@
-# Tuần 11 — Đáp án & Giải thích: Advanced RAG + đánh giá (RAGAS)
+# Tuần 11, Đáp án & Giải thích: QLoRA fine-tuning thực tế (Unsloth)
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
-Hybrid retrieval kết hợp BM25 và vector search; chúng thường được trộn bằng kỹ thuật nào?
+QLoRA = ?
 
-- **A.** Lấy trung bình embedding
-- **B.** Reciprocal Rank Fusion (RRF) — hợp nhất thứ hạng từ hai bộ retrieve ✅
-- **C.** Nối kết quả ngẫu nhiên
-- **D.** Chỉ lấy BM25
+- **A.** LoRA chạy trên nhiều GPU
+- **B.** Quantize base model xuống 4-bit (NF4, đóng băng) + chỉ train adapter LoRA ở bf16 ✅
+- **C.** Lượng tử hoá cả adapter xuống 4-bit
+- **D.** LoRA cho mô hình vision
 
 **Đáp án: B**
 
-**Giải thích:** BM25 (lexical) bắt từ khoá chính xác; vector (semantic) bắt ý nghĩa; RRF hợp nhất để bù điểm yếu của nhau.
+**Giải thích:** QLoRA nén base xuống NF4 4-bit để giảm VRAM, gradient chỉ chảy qua adapter LoRA → fine-tune 7B vừa ~5GB.
 
-## Câu 2 (Tự luận)
+## Câu 2 (Trắc nghiệm)
 
-Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?
+Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?
 
-**Trả lời mẫu:** Bi-encoder mã hoá query và document RIÊNG thành vector rồi so cosine — nhanh, scale tốt, dùng để retrieve top-N từ kho lớn. Cross-encoder đưa CẢ cặp (query, document) qua model cùng lúc → chấm điểm liên quan chính xác hơn nhưng chậm, không scale cho toàn kho. Quy trình: bi-encoder lấy top-N (vd. 50), rồi cross-encoder rerank lại để chọn top-k tinh (vd. 5).
+- **A.** ~2GB
+- **B.** ~5GB ✅
+- **C.** ~12GB
+- **D.** ~24GB
 
-**Giải thích:** BGE cross-encoder (mã nguồn mở) là lựa chọn phổ biến.
+**Đáp án: B**
 
-## Câu 3 (Trắc nghiệm)
+**Giải thích:** ~5GB (8B ≈ 6GB) → vừa thoải mái trên 3070 Ti 8GB. 14B ≈ 8.5GB thì vượt 8GB.
 
-Trong RAGAS, 'faithfulness' đo điều gì?
+## Câu 3 (Tự luận)
 
-- **A.** Câu trả lời có bám/được hỗ trợ bởi context retrieve hay không (chống bịa) ✅
-- **B.** Tốc độ trả lời
-- **C.** Độ dài câu trả lời
-- **D.** Số token dùng
+Liệt kê config QLoRA hợp lý cho GPU 8GB.
 
-**Đáp án: A**
+**Trả lời mẫu:** load_in_4bit=True; batch_size 1-2; sequence length ≤ 1024; gradient_checkpointing=True; LoRA r=16, lora_alpha=16; target tất cả projection của attention + MLP. Nếu vẫn sát giới hạn: giảm seq len, tăng gradient accumulation, hoặc dùng Colab T4 15GB.
 
-**Giải thích:** Faithfulness kiểm tra các khẳng định trong câu trả lời có truy được về context không → thước đo chống hallucination.
+**Giải thích:** Threshold: nếu OOM ở batch 1 hoặc run >24h → chuyển 4090/A100 thuê.
 
 ## Câu 4 (Trắc nghiệm)
 
-'Context precision' và 'context recall' trong RAGAS đánh giá khâu nào?
+[Nâng cao] NF4 (trong QLoRA) là gì?
 
-- **A.** Khâu generate
-- **B.** Chất lượng RETRIEVAL — đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không ✅
-- **C.** Tốc độ embedding
-- **D.** Chi phí API
-
-**Đáp án: B**
-
-**Giải thích:** Hai chỉ số này tách bạch lỗi do retrieval kém với lỗi do generation kém.
-
-## Câu 5 (Tự luận)
-
-Vì sao cần eval set + cẩn trọng với LLM-as-judge?
-
-**Trả lời mẫu:** Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.
-
-**Giải thích:** Đo lường tốt là điều phân biệt 'nghịch' với 'kỹ thuật'.
-
-## Câu 6 (Trắc nghiệm)
-
-Langfuse/LangSmith dùng để làm gì?
-
-- **A.** Train embedding
-- **B.** Tracing/observability: ghi lại từng bước retrieve → generate, chạy eval, LLM-as-judge ✅
-- **C.** Lưu vector
-- **D.** Lượng tử hoá model
+- **A.** Một định dạng file model
+- **B.** Kiểu lượng tử hoá 4-bit 'normal float', phân bố các mức tối ưu cho trọng số gần Gaussian ✅
+- **C.** Một optimizer
+- **D.** Một loại attention
 
 **Đáp án: B**
 
-**Giải thích:** Tracing giúp gỡ lỗi pipeline (đoạn nào retrieve sai, prompt nào hỏng) và đo chất lượng có hệ thống.
+**Giải thích:** NF4 đặt các mức lượng tử theo phân vị của phân phối chuẩn → ít sai số hơn int4 đều cho trọng số ~Gaussian.
+
+## Câu 5 (Trắc nghiệm)
+
+[Nâng cao] GGUF là gì?
+
+- **A.** Một thuật toán lượng tử hoá mới
+- **B.** Một ĐỊNH DẠNG FILE của llama.cpp (chứa weight + metadata, các k-quant như Q4_K_M) mà Ollama/LM Studio load ✅
+- **C.** Một benchmark
+- **D.** Một kiểu attention
+
+**Đáp án: B**
+
+**Giải thích:** GGUF là định dạng đóng gói, không phải thuật toán; nhầm lẫn này rất phổ biến. Tuần 12 sẽ load GGUF qua Ollama.
+
+## Câu 6 (Tự luận)
+
+Khi nào nên ngừng fine-tune local và chuyển lên cloud (4090/A100)?
+
+**Trả lời mẫu:** Khi một lần fine-tune dự kiến chạy >24h ở local, hoặc khi OOM ngay cả ở batch size 1 (sau khi đã bật 4-bit, gradient checkpointing, giảm seq len). Lúc đó thuê RTX 4090/A100 sẽ rẻ hơn nhiều về thời gian.
+
+**Giải thích:** Đây là 'ngưỡng kích hoạt cloud' của roadmap; verify bằng smoke test ngắn trước khi cam kết run dài.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+AWQ (arXiv 2306.00978) bảo vệ khoảng 1% trọng số 'salient'. Theo paper, tín hiệu nào cho biết kênh nào là salient, và vì sao họ không dùng mixed precision?
+
+- **A.** Độ lớn của trọng số; mixed precision quá đắt để tính
+- **B.** Phân phối activation, không phải trọng số; thay vì trộn độ chính xác (khó tối ưu trên phần cứng) họ nhân scale các kênh salient bằng một phép biến đổi tương đương ✅
+- **C.** Gradient khi fine-tune
+- **D.** Entropy của token
+
+**Đáp án: B**
+
+**Giải thích:** Abstract AWQ: 'To identify salient weight channels, we should refer to the activation distribution, not weights' và 'To avoid the hardware-inefficient mix-precision quantization, we mathematically derive that scaling up the salient channels can reduce the quantization error'.
+
+## Nâng cao 2 (Tự luận)
+
+QLoRA quantize base model xuống 4-bit nhưng vẫn train được. Hãy nêu ba thành phần paper đặt tên và giải thích vì sao adapter không bị quantize.
+
+**Trả lời mẫu:** Ba thành phần: NF4, kiểu dữ liệu 4-bit 'information theoretically optimal for normally distributed weights'; double quantization, quantize cả các hằng số quantization; paged optimizers để xử lý đỉnh bộ nhớ (arXiv 2305.14314, abstract). Gradient được lan ngược qua base đã đóng băng và quantize vào adapter LoRA; adapter là phần đang học, cần tích lũy thay đổi nhỏ nên giữ ở độ chính xác cao hơn, đúng lý do Fleuret nêu cho training (Little Book mục 8.2).
+
+**Giải thích:** Kết quả paper báo: fine-tune model 65B trên một GPU 48GB mà giữ hiệu năng full 16-bit.

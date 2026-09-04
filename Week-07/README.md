@@ -1,71 +1,80 @@
-# Tuần 7 — Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
+# Tuần 7: Lắp ráp & chạy mô hình GPT
 
-> Phase 1 — Deep Internals (tuần cuối phase). Hiểu pipeline alignment ở mức khái niệm và chạy ít nhất **một stage** from scratch. (Tách từ Tuần 6 cũ để lộ trình bớt dồn.)
+> Phase 1: Deep Internals. Ghép mọi mảnh thành kiến trúc GPT-2 hoàn chỉnh và sinh text.
 
 ## Mục tiêu
 
-- Hiểu pipeline alignment: **SFT → reward model → PPO/DPO → GRPO** (khái niệm).
-- Chạy **một alignment stage** từ đầu (khuyến nghị bắt đầu với **SFT hoặc DPO**).
-- Phân biệt được SFT vs DPO vs GRPO và biết khi nào dùng cái nào.
+- Build đầy đủ kiến trúc **GPT-2**: layer norm, GELU FFN, residual/shortcut, transformer block.
+- Sinh text (ban đầu từ model chưa train).
 
 ## Nguồn học
 
-- **FareedKhan-dev/train-llm-from-scratch** `src/post_training/` — SFT/RM/PPO/DPO/GRPO bằng PyTorch thuần trên dataset thật (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
-- Paper DPO (arXiv 2305.18290), InstructGPT/RLHF (arXiv 2203.02155), DeepSeekMath/GRPO (arXiv 2402.03300).
+- `karpathy/nanoGPT`: `model.py` (kiến trúc GPT-2 đầy đủ) + hàm `from_pretrained` (load weights GPT-2).
+- Paper GPT-2 "Language Models are Unsupervised Multitask Learners"; paper Layer Normalization (arXiv 1607.06450), GELU (arXiv 1606.08415).
+- Karpathy, **nanoGPT** (`github.com/karpathy/nanoGPT`) làm tham chiếu chéo.
 - Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — pipeline alignment, loss RM/DPO/GRPO với ví dụ số.
-2. [`02_alignment_notes.md`](02_alignment_notes.md) — viết so sánh SFT vs DPO vs GRPO bằng lời mình (deliverable).
-3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): LayerNorm, GELU, FFN, residual, đếm tham số 124M.
+2. [`02_gpt_model.py`](02_gpt_model.py): TỰ lắp ráp GPTModel (deliverable).
+3. [`03_load_weights_notes.md`](03_load_weights_notes.md): load trọng số GPT-2, sinh text mạch lạc.
+4. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-1. Đọc FareedKhan `src/post_training/` — hiểu cấu trúc SFT/RM/DPO.
-2. Chạy **một alignment stage** scaled-down (SFT hoặc DPO) trên dataset nhỏ.
-3. Viết ghi chú phân biệt SFT vs DPO vs GRPO bằng lời mình.
+- Khởi tạo config **124M**.
+- **Load trọng số GPT-2 pretrained của OpenAI** (tham chiếu cách `nanoGPT` làm trong `from_pretrained`) để xác nhận kiến trúc đúng.
+- Sinh text.
 
 ## Deliverable
 
-- Log/checkpoint của **một stage alignment** đã chạy.
-- Ghi chú phân biệt **SFT vs DPO vs GRPO** → `02_alignment_notes.md`.
+Mô hình GPT của bạn sinh **text mạch lạc** từ trọng số GPT-2 đã load.
 
 ## Thời lượng
 
-~10–12 giờ.
+~10-12 giờ.
 
 ## Phần cứng
 
-- 3070 Ti cho stage scaled-down (model nhỏ).
-- Cloud nếu đẩy lên base lớn hơn hoặc full PPO/GRPO (box dev FareedKhan dùng 2×H100 DDP + bf16 — chạy scaled-down hoặc thuê).
-
-> **Nếu thiếu thời gian (Phase 1):** nén Tuần 7 còn *hiểu khái niệm* + một lần chạy DPO; hoãn chiều sâu reasoning/GRPO sang sau roadmap.
+3070 Ti (inference 124M nằm gọn trong 8GB).
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — tự tính lại được các ví dụ loss trong đó
-- [ ] Vẽ lại pipeline alignment: Pretrain → (Midtrain) → SFT → RM → PPO/DPO → GRPO/RLVR
-- [ ] Đọc FareedKhan `src/post_training/` — hiểu cấu trúc SFT/RM/DPO
-- [ ] Hiểu loss của Reward Model (log-sigmoid của hiệu score)
-- [ ] Hiểu vì sao DPO bỏ được RM riêng + dạng loss DPO
-- [ ] Hiểu GRPO: group-relative advantage, vì sao hợp RLVR (toán/code)
-- [ ] Chạy MỘT stage alignment (SFT hoặc DPO) scaled-down
-- [ ] Viết `02_alignment_notes.md`: SFT vs DPO vs GRPO
-- [ ] So phản hồi model trước/sau stage đã chạy → ghi ví dụ
+- [ ] Đọc `01_theory_notes.md`: chạy lại được mọi snippet trong đó
+- [ ] Code `LayerNorm` từ đầu (hiểu mean/var, scale γ + shift β)
+- [ ] Code `GELU` activation
+- [ ] Code `FeedForward` (Linear → GELU → Linear, mở rộng 4×)
+- [ ] Ghép `MultiHeadAttention` (Tuần 6) vào `TransformerBlock` + residual + pre-LN
+- [ ] Lắp `GPTModel`: token emb + pos emb → N blocks → final LN → out head
+- [ ] Verify số tham số ≈ 124M
+- [ ] Load trọng số GPT-2 OpenAI, map đúng tên layer
+- [ ] Sinh text mạch lạc → xác nhận kiến trúc đúng
+- [ ] Claude review phần load weights (dễ sai mapping)
 
-## 🚀 Bổ sung nâng cao (pipeline alignment đầy đủ)
+## Config GPT-2 small (124M)
 
-Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G**:
+```
+vocab_size      = 50257
+context_length  = 1024
+emb_dim         = 768
+n_heads         = 12
+n_layers        = 12
+drop_rate       = 0.1
+qkv_bias        = True   # GPT-2 dùng bias ở QKV
+```
 
-- Pipeline đầy đủ: `Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR`.
-- **Midtrain** (nanochat) — bước *không có* trong pipeline GPT-2 kinh điển: dạy format hội thoại, special tokens, tool use.
-- **GRPO/RLVR** — bỏ critic, chuẩn hoá reward theo nhóm sample; **RLVR** = reward kiểm chứng được (toán đúng/sai, test pass) → nền reasoning model.
-- **Tool-use RL** (nanochat) — model học gọi Python để tính/đếm, reward khi kết quả đúng.
+## 🚀 Bổ sung nâng cao (GPT-2 → kiến trúc hiện đại)
 
-> Nguồn: FareedKhan `src/post_training/` (SFT→RM→PPO→DPO→GRPO pure PyTorch); paper DPO/GRPO; nanochat `chat_sft.py`, `chat_rl.py`.
+Sau khi lắp xong GPT-2, đối chiếu với Llama 3/Qwen3 trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md):
+
+- **A2 RMSNorm** (thay LayerNorm, bỏ mean & bias), **A3 SwiGLU FFN** (gated, thay GELU-4×), **bỏ bias** ở Linear.
+- **A7 MoE**: thay 1 FFN dày bằng nhiều expert + router top-k (Qwen3-MoE, gpt-oss).
+- **B1 KV cache** + **B2 Sampling** (temperature/top-k/**top-p**): cho phần sinh text.
+
+> Bài tập hay: fork model GPT-2 của bạn, thay LayerNorm→RMSNorm và GELU-FFN→SwiGLU, so số tham số. Nguồn: paper RMSNorm (arXiv 1910.07467) + GLU Variants/SwiGLU (arXiv 2002.05202); implementation Llama/Qwen trong HF `transformers`; nanochat `gpt.py`.
 
 ## File trong folder
 
@@ -73,7 +82,8 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: pipeline alignment, RM/DPO/GRPO |
-| 2 | `02_alignment_notes.md` | Template so sánh SFT/DPO/GRPO (deliverable) |
-| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: LayerNorm, GELU, FFN, residual, param count |
+| 2 | `02_gpt_model.py` | Skeleton LayerNorm/GELU/FFN/Block/GPTModel (TODO) |
+| 3 | `03_load_weights_notes.md` | Hướng dẫn + checklist load trọng số GPT-2 |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

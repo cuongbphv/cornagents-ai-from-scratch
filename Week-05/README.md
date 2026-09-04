@@ -1,93 +1,84 @@
-# Tuần 5 — Pretraining: training loop + một lần chạy GPT-2 thật (cloud)
+# Tuần 5: Backprop từ đầu + mô hình tư duy về Transformer
 
-> Phase 1 — Deep Internals. Tuần giá trị cao. Hiểu vòng lặp pretraining, rồi thực sự pretrain một model nhỏ.
+> Phase 1: Deep Internals. Đây là một trong **những tuần giá trị nhất** (cùng Tuần 6-8). Mục tiêu: thực sự hiểu backpropagation bằng cách tự xây, và dựng mô hình tư duy (mental model) về transformer/attention **trước khi** code chúng ở Tuần 6.
+>
+> **Nối từ các tuần trước.** Chain rule và kiểm gradient bằng sai phân bạn đã làm ở Tuần 2; gradient viết tay cho logistic regression ở Tuần 3; `loss.backward()` ở Tuần 4. Tuần này bạn tự viết chính cái `backward()` đó. Nếu Tuần 2 mục A còn mơ hồ, đọc lại trước khi mở `02_micrograd.py`.
 
 ## Mục tiêu
 
-- Hiểu **pretraining loop**, cross-entropy/perplexity, **LR scheduling**, checkpointing.
-- Thực sự **pretrain** một model nhỏ.
+- Hiểu **backprop** ở mức bản chất: tự build một autograd engine nhỏ (micrograd).
+- Nắm **mental model** của transformer & attention trước khi đụng code.
+- Hiểu vì sao attention là **permutation-equivariant** và cần **positional info**.
 
 ## Nguồn học
 
-- `karpathy/nanoGPT` — `train.py` (gradient clipping, LR warmup+decay, weight decay, mixed precision, grad accumulation đều có trong đó).
-- Karpathy — **llm.c "Reproduce GPT-2 124M"** (Discussion #481).
-- HF **Ultra-Scale Playbook** (gradient accumulation / parallelism).
-- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
+- Repo mở `karpathy/micrograd`: đọc code + README rồi **tự build lại** autograd + backprop.
+- Repo mở `karpathy/makemore`: bigram → MLP (theo paper Bengio 2003, "A Neural Probabilistic Language Model").
+- *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu): mental model về transformer.
+- Paper gốc, **"Attention Is All You Need"** (arXiv 1706.03762).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — loop, LR schedule, clipping, mixed precision, accumulation, checkpoint.
-2. [`02_train_loop.py`](02_train_loop.py) — TỰ code pretraining loop, smoke test local.
-3. [`03_cloud_run_notes.md`](03_cloud_run_notes.md) — quy trình thuê GPU + chạy thật.
-4. [`04_loss_analysis.md`](04_loss_analysis.md) — write-up so sánh loss curve (deliverable).
-5. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): đọc lý thuyết backprop + mental model transformer trước.
+2. [`02_micrograd.py`](02_micrograd.py): TỰ build autograd engine (deliverable chính).
+3. [`03_check_grad.py`](03_check_grad.py): đối chiếu gradient với PyTorch, khớp mới đạt.
+4. [`04_makemore_notes.md`](04_makemore_notes.md): làm bigram → MLP, ghi NLL đo được.
+5. [`05_attention_writeup.md`](05_attention_writeup.md): viết giải thích permutation-equivariance (deliverable 2).
+6. [`quiz.md`](quiz.md): làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
-1. Train **local** trên một text nhỏ thuộc public domain (vd. một truyện ngắn từ Project Gutenberg) → validate vòng lặp trên 3070 Ti.
-2. Sau đó chạy **pretraining GPT-2-small thật trên CLOUD** với FineWeb / FineWeb-Edu.
+- Đọc code repo micrograd rồi **tự build lại** (giá trị scalar + autograd + backward).
+- Bắt đầu **makemore**: bigram model → MLP.
 
-## Deliverable
+## Deliverables
 
-Checkpoint base-model nhỏ + write-up **so sánh loss curve** của bạn với GPT-2 gốc.
+1. Repo **micrograd** của riêng bạn → `02_micrograd.py` (+ test gradient khớp với PyTorch).
+2. Bài viết (Claude review) giải thích **vì sao attention permutation-equivariant và cần positional encoding** → `05_attention_writeup.md`.
 
 ## Thời lượng
 
-~12–15 giờ (chưa kể thời gian train không cần ngồi canh).
+~12-15 giờ.
 
-## Phần cứng & chi phí (quan trọng)
+## Phần cứng
 
-- **Local 3070 Ti**: chỉ để validate loop + model tí hon. 8GB → micro-batch 1–2, seq len 1024, gradient accumulation ~16–64 để đạt effective batch ~0.5M token (Karpathy target ~524,288 tokens/update).
-- **Cloud cho lần chạy thật**:
-  - RunPod RTX 4090 từ **$0.34/hr** (Community) — chạy vài giờ.
-  - Karpathy llm.c: Lambda 8×A100 (~$14/hr/node), ~90 phút ≈ **$20** (Discussion #481).
-- **Caveat**: ước lượng thời gian cho 3070 Ti là extrapolation, KHÔNG phải benchmark đo thật — chạy **smoke test ngắn** trước khi commit chạy dài. *Trigger lên cloud:* khi run local dự kiến > ~24h.
-
-> ⚠️ Giá cloud biến động (marketplace). Kiểm tra lại tại thời điểm deploy. Từ VN truy cập được; lưu ý phương thức thanh toán (thẻ quốc tế) + latency.
+3070 Ti / Mac, CPU hay GPU đều ổn (workload nhẹ).
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] Code training loop: batch → logits → cross-entropy loss → backward → step
-- [ ] Thêm train/val split + đánh giá loss định kỳ
-- [ ] Thêm LR warmup + cosine decay
-- [ ] Thêm gradient clipping + mixed precision (autocast) + grad accumulation
-- [ ] Thêm checkpointing (lưu/khôi phục optimizer + model + step)
-- [ ] Smoke test local trên text public-domain nhỏ — xác nhận loss giảm
-- [ ] Chọn cloud provider + chuẩn bị dataset (FineWeb-Edu sample)
-- [ ] Chạy pretrain thật trên cloud → lưu checkpoint
-- [ ] Vẽ loss curve, so với GPT-2 gốc (~3.5) — viết `04_loss_analysis.md`
+- [ ] Đọc `01_theory_notes.md`: chạy lại được mọi snippet trong đó
+- [ ] Đọc code repo `karpathy/micrograd` + tự code lại
+- [ ] Tự viết `02_micrograd.py`: class `Value` với `+`, `*`, `tanh/relu`, `backward()`
+- [ ] Kiểm micrograd bằng sai phân trung tâm của Tuần 2 (không cần PyTorch) trên một biểu thức nhỏ
+- [ ] Kiểm tra gradient khớp PyTorch (chạy `03_check_grad.py`)
+- [ ] Đọc repo `karpathy/makemore`: bigram → MLP
+- [ ] Tự code bigram model (đếm + neural net 1 layer); nhận ra NLL ở đây là loss logistic regression của Tuần 3 mở rộng lên 27 lớp
+- [ ] Mở rộng makemore lên MLP (theo Bengio 2003)
+- [ ] Đọc The Annotated Transformer (phần encoder/attention) để dựng mental model
+- [ ] Viết `05_attention_writeup.md` bằng lời mình → nhờ Claude review
+- [ ] Tự kiểm tra: vẽ được computation graph + giải thích backward bằng chain rule
 
-## Mẹo bộ nhớ 8GB (nếu thử local)
+## 🚀 Bổ sung nâng cao
 
-```
-PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-```
-+ gradient checkpointing, micro-batch nhỏ, seq len ≤1024.
+**Tuần này cũng KHÔNG có mục nâng cao** (xem bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md)). Tự tay viết micrograd và dựng mental model transformer đã đủ nặng, chia trí lúc này là phản tác dụng.
 
-## 🚀 Bổ sung nâng cao (training dynamics + scale)
+Ngay tuần sau (Tuần 6) bạn sẽ mở một loạt mục **A1-A6, C, E** để so sánh attention GPT-2 với Llama 3/Qwen3.
 
-Pretraining là nơi nhiều thủ thuật "ăn tiền". Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md):
+## File trong folder này
 
-- **D Training dynamics** — các can thiệp trong `nanoGPT/train.py`: gradient clipping, **dropout=0 khi pretrain 1-epoch**, weight decay, weight tying, mixed precision; và mục noise/variance: nhiều "cải thiện" nằm trong nhiễu — phải chạy nhiều seed.
-- **D1 Optimizer** — AdamW vs **Muon** (nanochat dùng cho ma trận 2D, hội tụ nhanh hơn).
-- **D2** — bf16/fp16(GradScaler)/**fp8**, quản lý dtype tường minh kiểu nanochat.
-- **F Parallelism** — **DDP** (torchrun trong nanoGPT/llm.c), TP/PP/ZeRO/FSDP, **MFU**.
-- **H Eval** — dùng **bits-per-byte** (so sánh được giữa tokenizer) thay vì loss thô khi so với GPT-2; **CORE/DCLM**.
-
-> Nguồn: `nanoGPT/train.py`; HF *Ultra-Scale Playbook*; nanochat `optim.py`, `loss_eval.py`, `core_eval.py`.
-
-## File trong folder
-
-Số ở đầu tên file = thứ tự học.
+Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: loop, schedule, precision, checkpoint |
-| 2 | `02_train_loop.py` | Skeleton pretraining loop (TODO) |
-| 3 | `03_cloud_run_notes.md` | Quy trình thuê GPU + chạy cloud + checklist chi phí |
-| 4 | `04_loss_analysis.md` | Template write-up so sánh loss curve (deliverable) |
-| 5 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: autograd engine, makemore, mental model transformer |
+| 2 | `02_micrograd.py` | Skeleton để TỰ build autograd engine (có TODO) |
+| 3 | `03_check_grad.py` | So sánh gradient micrograd của bạn với PyTorch |
+| 4 | `04_makemore_notes.md` | Khung ghi chú + TODO cho bigram → MLP |
+| 5 | `05_attention_writeup.md` | Template để viết giải thích permutation-equivariance |
+| 6 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+
+> Nhắc lại tiêu chí: nếu chưa giải thích được cho Claude bằng lời của mình → chưa học xong. Tuần này đặc biệt cần đi chậm và tự tay làm.

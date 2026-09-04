@@ -1,81 +1,87 @@
-# Tuần 2 — Backprop từ đầu + mô hình tư duy về Transformer
+# Tuần 2: Giải tích vector, xác suất, tối ưu hóa
 
-> Phase 1 — Deep Internals. Đây là một trong **những tuần giá trị nhất** (cùng Tuần 3–5). Mục tiêu: thực sự hiểu backpropagation bằng cách tự xây, và dựng mô hình tư duy (mental model) về transformer/attention **trước khi** code chúng ở Tuần 3.
+> Phase 0: Nền tảng toán và ML. Ba mảnh toán còn lại mà mọi training loop đều đứng trên: đạo hàm nhiều biến và chain rule (để có backprop), xác suất (để hiểu loss là kỳ vọng và batch là mẫu), và gradient descent (để hiểu vì sao learning rate quyết định hội tụ hay nổ).
 
 ## Mục tiêu
 
-- Hiểu **backprop** ở mức bản chất: tự build một autograd engine nhỏ (micrograd).
-- Nắm **mental model** của transformer & attention trước khi đụng code.
-- Hiểu vì sao attention là **permutation-equivariant** và cần **positional info**.
+- Tính được gradient của một hàm nhiều biến bằng tay và kiểm lại bằng sai phân số.
+- Phát biểu được chain rule dạng ma trận (Jacobian) và chỉ ra nó là toàn bộ ý tưởng của backprop.
+- Dùng đúng ba tiên đề xác suất, sum rule, product rule, và công thức Bayes trên một bài toán đếm được.
+- Giải thích được luật số lớn và định lý giới hạn trung tâm bằng mô phỏng, và nối chúng sang câu "loss trên batch là ước lượng của loss kỳ vọng".
+- Chỉ ra cross-entropy là negative log-likelihood, tức MLE.
+- Tự cài gradient descent, thấy tận mắt điểm khởi đầu và step size quyết định kết quả.
 
 ## Nguồn học
 
-- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
-- Repo mở `karpathy/micrograd` — đọc code + README rồi **tự build lại** autograd + backprop.
-- Repo mở `karpathy/makemore` — bigram → MLP (theo paper Bengio 2003, "A Neural Probabilistic Language Model").
-- *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu) — mental model về transformer.
-- Paper gốc — **"Attention Is All You Need"** (arXiv 1706.03762).
+Chi tiết chương và số trang in ở [`../docs/books/README.md`](../docs/books/README.md), mục Tuần 2. Tóm tắt:
+
+- *Mathematics for Machine Learning*: chương 5 Vector Calculus, chương 6 Probability and Distributions, chương 7 Continuous Optimization.
+- *Elementary Probability for Applications* (Rick Durrett): mục 1.1.1 tiên đề, 4.4 luật số lớn, 4.5 định lý giới hạn trung tâm, 5.3 công thức Bayes.
+- *Machine Learning cơ bản* (Vũ Hữu Tiệp): chương 2 Giải tích ma trận, chương 3 Ôn tập xác suất, chương 4 MLE và MAP, chương 12 Gradient descent.
+- *Deep Learning cơ bản* (Nguyễn Thanh Tuấn): mục 3.3 gradient descent, cách giải thích trực quan.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md). Mọi ví dụ số đã chạy kiểm chứng bằng NumPy 2.5.0 ngày 2026-09-04.
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — đọc lý thuyết backprop + mental model transformer trước.
-2. [`02_micrograd.py`](02_micrograd.py) — TỰ build autograd engine (deliverable chính).
-3. [`03_check_grad.py`](03_check_grad.py) — đối chiếu gradient với PyTorch, khớp mới đạt.
-4. [`04_makemore_notes.md`](04_makemore_notes.md) — làm bigram → MLP, ghi NLL đo được.
-5. [`05_attention_writeup.md`](05_attention_writeup.md) — viết giải thích permutation-equivariance (deliverable 2).
-6. [`quiz.md`](quiz.md) — làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): đọc theo ba phần, giải tích, xác suất, tối ưu.
+2. [`02_calculus_probability_lab.py`](02_calculus_probability_lab.py): bảy thí nghiệm, đoán trước rồi chạy.
+3. [`03_gradient_descent.py`](03_gradient_descent.py): tự điền đạo hàm và bước cập nhật (deliverable chính).
+4. [`04_cheat_sheet.md`](04_cheat_sheet.md): cheat sheet một trang bạn tự viết (deliverable).
+5. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
-- Đọc code repo micrograd rồi **tự build lại** (giá trị scalar + autograd + backward).
-- Bắt đầu **makemore**: bigram model → MLP.
+1. Điền hai chỗ `TODO` trong `03_gradient_descent.py`, chạy, và trả lời hai câu hỏi trong docstring: điểm khởi đầu nào rơi vào cực tiểu thấp hơn, và step size nào làm phân kỳ.
+2. Viết một hàm `numerical_gradient` của riêng bạn (không nhìn lab), rồi dùng nó kiểm tra gradient của hàm f(x₁, x₂) = x₁² x₂ + x₁ x₂³ tại một điểm bạn chọn.
+3. Tự làm bài xét nghiệm y tế bằng công thức Bayes với con số bạn tự đặt, và giải thích vì sao kết quả nhỏ hơn trực giác.
 
 ## Deliverables
 
-1. Repo **micrograd** của riêng bạn → `02_micrograd.py` (+ test gradient khớp với PyTorch).
-2. Bài viết (Claude review) giải thích **vì sao attention permutation-equivariant và cần positional encoding** → `05_attention_writeup.md`.
+1. `03_gradient_descent.py` chạy được, kèm output và câu trả lời hai câu hỏi.
+2. `04_cheat_sheet.md` một trang, bốn mục: gradient và chain rule, tiên đề và Bayes, luật số lớn và CLT, MLE và gradient descent.
 
 ## Thời lượng
 
-~12–15 giờ.
+Khoảng 12 đến 14 giờ. Phần xác suất thường tốn nhiều thời gian hơn bạn nghĩ.
 
 ## Phần cứng
 
-3070 Ti / Mac — CPU hay GPU đều ổn (workload nhẹ).
+Bất kỳ máy nào chạy được Python và NumPy.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] Đọc code repo `karpathy/micrograd` + tự code lại
-- [ ] Tự viết `02_micrograd.py`: class `Value` với `+`, `*`, `tanh/relu`, `backward()`
-- [ ] Kiểm tra gradient khớp PyTorch (chạy `03_check_grad.py`)
-- [ ] Đọc repo `karpathy/makemore`: bigram → MLP
-- [ ] Tự code bigram model (đếm + neural net 1 layer)
-- [ ] Mở rộng makemore lên MLP (theo Bengio 2003)
-- [ ] Đọc The Annotated Transformer (phần encoder/attention) để dựng mental model
-- [ ] Viết `05_attention_writeup.md` bằng lời mình → nhờ Claude review
-- [ ] Tự kiểm tra: vẽ được computation graph + giải thích backward bằng chain rule
+- [ ] Đọc `01_theory_notes.md` phần A (đạo hàm, gradient, chain rule, Jacobian)
+- [ ] Đọc MML 5.2 và 5.3; đọc Vũ Hữu Tiệp 2.6 về kiểm tra đạo hàm
+- [ ] Chạy `gradcheck`, `chain`, `jacobian` trong lab, hiểu vì sao sai lệch cỡ 1e-9
+- [ ] Đọc `01_theory_notes.md` phần B (tiên đề, biến ngẫu nhiên, Bayes, luật số lớn, CLT)
+- [ ] Đọc Durrett 1.1.1, 4.4, 4.5, 5.3; đọc MML Table 6.1 để phân biệt pmf, pdf, cdf
+- [ ] Chạy `lln`, `clt`, `bayes` trong lab, tự làm lại bài Bayes với số của bạn
+- [ ] Đọc `01_theory_notes.md` phần C (MLE, gradient descent, step size, convex)
+- [ ] Đọc MML 7.1 và Vũ Hữu Tiệp chương 12
+- [ ] Chạy `mle` trong lab; hiểu vì sao NLL tại nghiệm MLE nhỏ hơn tại điểm khác
+- [ ] Điền `TODO` trong `03_gradient_descent.py` và trả lời hai câu hỏi trong docstring
+- [ ] Viết `04_cheat_sheet.md` bằng lời của mình
+- [ ] Tự kiểm tra: giải thích cho Claude vì sao cross-entropy là negative log-likelihood
 
-## 🚀 Bổ sung nâng cao
+## Cách dùng Claude làm bạn học (Tuần 2)
 
-**Tuần này cũng KHÔNG có mục nâng cao** (xem bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md)). Tự tay viết micrograd và dựng mental model transformer đã đủ nặng — chia trí lúc này là phản tác dụng.
+- Dán bài xét nghiệm y tế bạn tự đặt số và nhờ Claude kiểm tra từng bước Bayes, rồi nhờ đặt một bài khác để bạn giải.
+- Sau khi điền `03_gradient_descent.py`, dán code và nhờ Claude chỉ ra chỗ có thể sai dấu hoặc sai step size.
+- Nhờ Claude cho một hàm hai biến mới, bạn tính gradient bằng tay rồi kiểm bằng hàm sai phân của bạn.
 
-Ngay tuần sau (Tuần 3) bạn sẽ mở một loạt mục **A1–A6, C, E** để so sánh attention GPT-2 với Llama 3/Qwen3.
+## Bổ sung nâng cao
+
+Tuần này cố ý không có mục nâng cao. Nếu bạn muốn đọc định nghĩa xác suất theo độ đo, mở *Probability: Theory and Examples* (Durrett) chương 1, nhưng lộ trình này không cần đến mức đó.
 
 ## File trong folder này
 
-Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
-
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: autograd engine, makemore, mental model transformer |
-| 2 | `02_micrograd.py` | Skeleton để TỰ build autograd engine (có TODO) |
-| 3 | `03_check_grad.py` | So sánh gradient micrograd của bạn với PyTorch |
-| 4 | `04_makemore_notes.md` | Khung ghi chú + TODO cho bigram → MLP |
-| 5 | `05_attention_writeup.md` | Template để viết giải thích permutation-equivariance |
-| 6 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
-
-> Nhắc lại tiêu chí: nếu chưa giải thích được cho Claude bằng lời của mình → chưa học xong. Tuần này đặc biệt cần đi chậm và tự tay làm.
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: gradient, chain rule, tiên đề xác suất, Bayes, LLN, CLT, MLE, gradient descent |
+| 2 | `02_calculus_probability_lab.py` | Bảy thí nghiệm NumPy có dẫn trang sách |
+| 3 | `03_gradient_descent.py` | Skeleton gradient descent, bạn tự điền (deliverable) |
+| 4 | `04_cheat_sheet.md` | Cheat sheet một trang bạn tự viết (deliverable) |
+| 5 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

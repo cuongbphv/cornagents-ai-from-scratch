@@ -1,92 +1,99 @@
-# Tuần 5 — Đáp án & Giải thích: Pretraining: training loop + 1 lần chạy GPT-2 thật
+# Tuần 5, Đáp án & Giải thích: Backprop từ đầu + mental model Transformer
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
-## Câu 1 (Trắc nghiệm)
+## Câu 1 (Tự luận)
 
-Quan hệ giữa cross-entropy loss L và perplexity (PPL)?
+Trong micrograd, mỗi đối tượng Value lưu những gì và làm gì khi backward()?
 
-- **A.** PPL = L^2
-- **B.** PPL = e^L ✅
-- **C.** PPL = log(L)
-- **D.** PPL = 1/L
+**Trả lời mẫu:** Mỗi Value lưu: data (giá trị forward), grad (đạo hàm của output cuối theo nó, khởi tạo 0), và một hàm _backward() biết cách đẩy gradient về các 'cha' của nó. Forward dựng đồ thị; backward() sắp xếp topo các node, set grad của output = 1, rồi gọi _backward() theo thứ tự ngược để nhân dồn chain rule.
 
-**Đáp án: B**
+**Giải thích:** Đây là lõi của mọi autograd engine (kể cả PyTorch), chỉ khác quy mô.
 
-**Giải thích:** PPL = e^L. Trực giác: perplexity ~ số lựa chọn 'trung bình' model còn phân vân; thấp hơn = dự đoán chắc hơn.
+## Câu 2 (Trắc nghiệm)
 
-## Câu 2 (Tự luận)
+backward() duyệt đồ thị theo thứ tự nào?
 
-Gradient accumulation là gì và vì sao quan trọng với GPU 8GB?
-
-**Trả lời mẫu:** Thay vì cập nhật trọng số sau mỗi micro-batch nhỏ, ta cộng dồn gradient qua N micro-batch rồi mới step một lần → mô phỏng một 'effective batch' lớn (micro_batch × N) mà không cần chứa toàn bộ batch lớn trong VRAM. Với 3070 Ti 8GB chỉ vừa batch 1-2, gradient accumulation là cách đạt effective batch ~0.5M token/update kiểu Karpathy mà vẫn không OOM.
-
-**Giải thích:** Xem cách nanoGPT/train.py implement gradient_accumulation_steps.
-
-## Câu 3 (Trắc nghiệm)
-
-Lịch learning rate điển hình khi pretrain LLM là gì?
-
-- **A.** Giữ LR cố định suốt
-- **B.** Warmup tuyến tính tăng dần → rồi cosine decay giảm dần ✅
-- **C.** Tăng dần đều tới cuối
-- **D.** Giảm rồi tăng (chữ V)
+- **A.** Thứ tự ngẫu nhiên
+- **B.** Thứ tự topo NGƯỢC (từ output về input) ✅
+- **C.** Theo thứ tự khởi tạo biến
+- **D.** Theo độ lớn của grad
 
 **Đáp án: B**
 
-**Giải thích:** Warmup tránh sốc gradient lúc đầu (trọng số ngẫu nhiên); cosine decay giúp hội tụ mượt về cuối.
+**Giải thích:** Phải xử lý một node sau khi đã cộng xong mọi gradient đến từ các node phía sau nó → duyệt topo ngược.
 
-## Câu 4 (Tự luận)
+## Câu 3 (Tự luận)
 
-[Nâng cao] Vì sao các repo pretraining hiện đại (vd. nanoGPT config mặc định) đặt dropout = 0?
+Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta phải thêm gì?
 
-**Trả lời mẫu:** Dropout là regularizer chống overfit, hữu ích khi fine-tune trên data nhỏ; nhưng pretraining chạy ~1 epoch trên lượng data khổng lồ thì gần như không overfit, nên dropout chỉ làm 'nhiễu' quá trình học. Vì vậy pretraining hiện đại thường bỏ dropout (nanoGPT để dropout=0.0 cho pretrain, gợi ý 0.1+ khi fine-tune).
+**Trả lời mẫu:** Score giữa token i và j chỉ là q_i·k_j, không chứa thông tin vị trí; W_Q, W_K, W_V dùng chung cho mọi vị trí. Nếu hoán vị thứ tự token đầu vào, đầu ra hoán vị y hệt, model không phân biệt 'chó cắn người' với 'người cắn chó'. Vì vậy phải thêm positional encoding (absolute learned ở GPT-2, hoặc RoPE ở model hiện đại) để đưa thông tin thứ tự vào.
 
-**Giải thích:** Bài học: kỹ thuật 'tốt' phụ thuộc bối cảnh (data lớn 1-epoch vs data nhỏ nhiều epoch).
+**Giải thích:** Đây là lý do tồn tại của positional embedding, không có nó, transformer mù thứ tự.
+
+## Câu 4 (Trắc nghiệm)
+
+Đạo hàm của tanh(x) là gì (hay gặp khi tự code backward)?
+
+- **A.** tanh(x)
+- **B.** 1 - tanh^2(x) ✅
+- **C.** x(1-x)
+- **D.** e^x / (1+e^x)
+
+**Đáp án: B**
+
+**Giải thích:** tanh'(x) = 1 - tanh^2(x). Tự viết local gradient cho tanh/relu/exp là bài tập cốt lõi của micrograd.
 
 ## Câu 5 (Trắc nghiệm)
 
-[Nâng cao] Vì sao 'bits-per-byte' (bpb) tốt hơn perplexity khi so sánh các model có tokenizer khác nhau?
+Khi một biến được dùng ở NHIỀU nhánh của đồ thị, gradient của nó được xử lý thế nào?
 
-- **A.** bpb chạy nhanh hơn
-- **B.** bpb chuẩn hoá loss về mức byte nên không phụ thuộc vocab/tokenizer → so sánh chéo được ✅
-- **C.** bpb luôn nhỏ hơn perplexity
-- **D.** bpb không cần dữ liệu validation
-
-**Đáp án: B**
-
-**Giải thích:** Perplexity phụ thuộc cách chia token; bpb quy về byte → công bằng giữa các tokenizer. nanochat dùng val_bpb làm chỉ số chính.
-
-## Câu 6 (Trắc nghiệm)
-
-[Nâng cao] Optimizer Muon (nanochat) áp dụng cho loại tham số nào?
-
-- **A.** Mọi tham số, thay hẳn AdamW
-- **B.** Các ma trận trọng số 2D (orthogonalize update bằng Newton-Schulz); embedding/head vẫn dùng AdamW ✅
-- **C.** Chỉ embedding
-- **D.** Chỉ bias
+- **A.** Lấy gradient lớn nhất
+- **B.** Cộng dồn (+=) gradient từ tất cả các nhánh ✅
+- **C.** Ghi đè bằng gradient cuối cùng
+- **D.** Lấy trung bình
 
 **Đáp án: B**
 
-**Giải thích:** Muon orthogonalize bản cập nhật cho ma trận 2D → hội tụ pretraining nhanh hơn; là một yếu tố giúp nanochat 'speedrun' GPT-2.
+**Giải thích:** Theo quy tắc tổng của chain rule, gradient từ các đường khác nhau phải CỘNG dồn. Quên += (dùng =) là bug micrograd kinh điển.
 
-## Câu 7 (Trắc nghiệm)
+## Câu 6 (Tự luận)
 
-Mixed precision (bf16) lợi gì khi train?
+Bigram model trong makemore làm gì, và liên hệ thế nào với một mạng neural 1 lớp?
 
-- **A.** Tăng độ chính xác số học tuyệt đối
-- **B.** Giảm VRAM và tăng tốc tính toán với mất chất lượng không đáng kể ✅
-- **C.** Loại bỏ nhu cầu gradient
-- **D.** Làm loss luôn giảm
+**Trả lời mẫu:** Bigram dự đoán ký tự tiếp theo chỉ dựa trên ký tự hiện tại. Bản 'đếm' xây ma trận tần suất (c_i → c_{i+1}) rồi chuẩn hoá thành xác suất. Bản neural tương đương: one-hot ký tự đầu vào @ một ma trận trọng số → logits → softmax; train bằng cross-entropy sẽ hội tụ về cùng phân phối với bản đếm. Đây là cầu nối từ thống kê đếm sang học bằng gradient.
+
+**Giải thích:** Karpathy dùng bigram để cho thấy 'neural net' chỉ là cách tổng quát hoá của đếm tần suất.
+
+## Câu 7 (Tự luận)
+
+Bạn vừa điền xong _backward cho các phép trong micrograd nhưng chưa muốn phụ thuộc PyTorch để kiểm. Hãy mô tả cách dùng sai phân trung tâm của Tuần 2 để kiểm gradient của một Value, và nói vì sao nên kiểm bằng cách này trước khi chạy 03_check_grad.py.
+
+**Trả lời mẫu:** Dựng biểu thức f từ các Value, gọi f.backward() để có a.grad. Rồi nhúc nhích a.data thêm ε (khoảng 1e-6), tính lại f thành f_plus; trừ ε, tính f_minus; so (f_plus − f_minus) / 2ε với a.grad, lệch dưới khoảng 1e-6 là khớp. Làm trước để tách hai nguồn lỗi: nếu sai phân khớp mà PyTorch lệch thì lỗi nằm ở cách gọi PyTorch trong 03_check_grad.py, còn nếu sai phân đã lệch thì lỗi nằm trong _backward của bạn.
+
+**Giải thích:** Sai phân trung tâm là công cụ kiểm độc lập duy nhất không cần thư viện. Kỹ năng này dùng lại mỗi khi bạn tự viết một phép đạo hàm, kể cả ở Tuần 6 khi viết attention.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Backward của micrograd duyệt đồ thị theo thứ tự topo đảo ngược. Vì sao thứ tự này là bắt buộc, không chỉ là tiện?
+
+- **A.** Vì Python yêu cầu duyệt tập hợp theo thứ tự
+- **B.** Vì khi một node phát gradient xuống toán hạng, gradient của chính nó phải đã được cộng đủ từ mọi nhánh phía trên; thứ tự topo đảo ngược bảo toàn điều đó ✅
+- **C.** Vì thứ tự topo giúp giảm bộ nhớ
+- **D.** Vì tanh chỉ khả vi theo thứ tự đó
 
 **Đáp án: B**
 
-**Giải thích:** bf16 dùng nửa bộ nhớ, tận dụng tensor core; bf16 có dải mũ rộng nên ổn định hơn fp16 (fp16 cần GradScaler).
+**Giải thích:** Đây là chain rule trên đồ thị (MML mục 5.6, trang 159; UDL mục 7.4, trang 103). Nếu một node có fan-out và bạn duyệt sai thứ tự, nó sẽ phát gradient chưa đầy đủ xuống dưới.
 
-## Câu 8 (Tự luận)
+## Nâng cao 2 (Tự luận)
 
-[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào?
+Weight tying trong nanoGPT gán wte.weight = lm_head.weight. Hãy giải thích ảnh hưởng lên số tham số và lên gradient của ma trận embedding.
 
-**Trả lời mẫu:** DDP nhân bản toàn bộ model lên mỗi GPU; mỗi GPU xử lý một phần khác nhau của batch (data parallel), tính gradient cục bộ, rồi all-reduce (cộng và chia trung bình) gradient qua tất cả GPU trước khi mỗi bản sao cùng step. Kết quả tương đương train với batch lớn hơn N lần. Đây là cách nanoGPT/llm.c train trên node 8×A100 qua torchrun.
+**Trả lời mẫu:** Số tham số giảm đúng bằng vocab_size × d vì chỉ còn một ma trận; khi đếm tham số GPT-2 124M ở Tuần 7 không được đếm hai lần. Về gradient, ma trận này nhận gradient từ hai đường: đường embedding (input) và đường unembedding (logits), và autograd cộng dồn hai phần đó, đúng cơ chế += của micrograd với node dùng ở nhiều nhánh.
 
-**Giải thích:** DDP là mức song song đầu tiên cần biết; TP/PP/FSDP cho model không vừa 1 GPU.
+**Giải thích:** Dòng code kiểm trên repo karpathy/nanoGPT ngày 2026-09-04: self.transformer.wte.weight = self.lm_head.weight.

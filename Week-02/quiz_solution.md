@@ -1,66 +1,109 @@
-# Tuần 2 — Đáp án & Giải thích: Backprop từ đầu + mental model Transformer
+# Tuần 2, Đáp án & Giải thích: Giải tích vector, xác suất, tối ưu hóa
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
-## Câu 1 (Tự luận)
+## Câu 1 (Trắc nghiệm)
 
-Trong micrograd, mỗi đối tượng Value lưu những gì và làm gì khi backward()?
+Với hàm f(x₁, x₂) = x₁²x₂ + x₁x₂³, gradient tại điểm (1, 2) bằng bao nhiêu?
 
-**Trả lời mẫu:** Mỗi Value lưu: data (giá trị forward), grad (đạo hàm của output cuối theo nó, khởi tạo 0), và một hàm _backward() biết cách đẩy gradient về các 'cha' của nó. Forward dựng đồ thị; backward() sắp xếp topo các node, set grad của output = 1, rồi gọi _backward() theo thứ tự ngược để nhân dồn chain rule.
-
-**Giải thích:** Đây là lõi của mọi autograd engine (kể cả PyTorch), chỉ khác quy mô.
-
-## Câu 2 (Trắc nghiệm)
-
-backward() duyệt đồ thị theo thứ tự nào?
-
-- **A.** Thứ tự ngẫu nhiên
-- **B.** Thứ tự topo NGƯỢC (từ output về input) ✅
-- **C.** Theo thứ tự khởi tạo biến
-- **D.** Theo độ lớn của grad
+- **A.** [4, 13]
+- **B.** [12, 13] ✅
+- **C.** [12, 7]
+- **D.** [5, 9]
 
 **Đáp án: B**
 
-**Giải thích:** Phải xử lý một node sau khi đã cộng xong mọi gradient đến từ các node phía sau nó → duyệt topo ngược.
+**Giải thích:** Đạo hàm riêng theo x₁ là 2x₁x₂ + x₂³ = 4 + 8 = 12; theo x₂ là x₁² + 3x₁x₂² = 1 + 12 = 13 (MML Example 5.7, trang 147). Lab gradcheck xác nhận bằng sai phân với sai lệch cỡ 1e-9.
 
-## Câu 3 (Tự luận)
+## Câu 2 (Tự luận)
 
-Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta phải thêm gì?
+Hãy mô tả cách bạn kiểm tra một công thức gradient bằng số, và giải thích vì sao kỹ thuật này sẽ hữu ích ở Tuần 5 khi tự viết autograd.
 
-**Trả lời mẫu:** Score giữa token i và j chỉ là q_i·k_j, không chứa thông tin vị trí; W_Q, W_K, W_V dùng chung cho mọi vị trí. Nếu hoán vị thứ tự token đầu vào, đầu ra hoán vị y hệt — model không phân biệt 'chó cắn người' với 'người cắn chó'. Vì vậy phải thêm positional encoding (absolute learned ở GPT-2, hoặc RoPE ở model hiện đại) để đưa thông tin thứ tự vào.
+**Trả lời mẫu:** Dùng sai phân trung tâm: với từng chiều i, tính (f(x + εeᵢ) − f(x − εeᵢ)) / 2ε với ε khoảng 1e-6, rồi so với gradient giải tích; sai lệch cỡ 1e-8 trở xuống là khớp (Vũ Hữu Tiệp mục 2.6, trang 36). Ở Tuần 5, micrograd tự tính gradient qua chain rule; cách kiểm độc lập duy nhất là so với sai phân số hoặc với PyTorch.
 
-**Giải thích:** Đây là lý do tồn tại của positional embedding — không có nó, transformer mù thứ tự.
+**Giải thích:** Đây là công cụ debug rẻ nhất cho mọi phép đạo hàm bạn tự viết, kể cả khi đã dùng PyTorch.
+
+## Câu 3 (Trắc nghiệm)
+
+Một bệnh có tỉ lệ 1% trong dân số. Xét nghiệm phát hiện đúng 95% người bệnh và báo dương tính giả ở 5% người khỏe. Một người nhận kết quả dương tính thì xác suất thực sự mắc bệnh gần với con số nào?
+
+- **A.** Khoảng 95%
+- **B.** Khoảng 50%
+- **C.** Khoảng 16% ✅
+- **D.** Khoảng 1%
+
+**Đáp án: C**
+
+**Giải thích:** Theo công thức Bayes (Durrett EP4A mục 5.3, trang 118): P(bệnh | dương) = 0.95 × 0.01 / (0.95 × 0.01 + 0.05 × 0.99) ≈ 0.161. Số người khỏe bị dương tính giả đông hơn số người bệnh dương tính thật, nên kết quả nhỏ hơn trực giác rất nhiều.
 
 ## Câu 4 (Trắc nghiệm)
 
-Đạo hàm của tanh(x) là gì (hay gặp khi tự code backward)?
+Luật số lớn nói gì về loss tính trên một batch trong training, và điều đó giải thích hiện tượng nào trên loss curve?
 
-- **A.** tanh(x)
-- **B.** 1 - tanh^2(x) ✅
-- **C.** x(1-x)
-- **D.** e^x / (1+e^x)
-
-**Đáp án: B**
-
-**Giải thích:** tanh'(x) = 1 - tanh^2(x). Tự viết local gradient cho tanh/relu/exp là bài tập cốt lõi của micrograd.
-
-## Câu 5 (Trắc nghiệm)
-
-Khi một biến được dùng ở NHIỀU nhánh của đồ thị, gradient của nó được xử lý thế nào?
-
-- **A.** Lấy gradient lớn nhất
-- **B.** Cộng dồn (+=) gradient từ tất cả các nhánh ✅
-- **C.** Ghi đè bằng gradient cuối cùng
-- **D.** Lấy trung bình
+- **A.** Loss trên batch luôn bằng loss kỳ vọng, nên loss curve phải trơn
+- **B.** Loss trên batch là trung bình mẫu của loss kỳ vọng, có phương sai tỉ lệ với 1/n, nên batch nhỏ cho loss curve nhấp nhô hơn batch lớn ✅
+- **C.** Loss trên batch không liên quan đến loss kỳ vọng vì dữ liệu không độc lập
+- **D.** Loss trên batch chỉ hội tụ khi learning rate giảm về 0
 
 **Đáp án: B**
 
-**Giải thích:** Theo quy tắc tổng của chain rule, gradient từ các đường khác nhau phải CỘNG dồn. Quên += (dùng =) là bug micrograd kinh điển.
+**Giải thích:** Trung bình mẫu X̄ₙ có kỳ vọng μ và phương sai σ²/n, và tiến về μ khi n lớn (Durrett EP4A Theorem 4.7, trang 93). Loss của một batch là đúng trung bình mẫu như vậy, nên kích thước batch điều khiển độ nhiễu của ước lượng.
 
-## Câu 6 (Tự luận)
+## Câu 5 (Tự luận)
 
-Bigram model trong makemore làm gì, và liên hệ thế nào với một mạng neural 1 lớp?
+Vì sao cross-entropy loss được xem là negative log-likelihood, và vì sao người ta cực tiểu negative log-likelihood thay vì cực đại likelihood trực tiếp?
 
-**Trả lời mẫu:** Bigram dự đoán ký tự tiếp theo chỉ dựa trên ký tự hiện tại. Bản 'đếm' xây ma trận tần suất (c_i → c_{i+1}) rồi chuẩn hoá thành xác suất. Bản neural tương đương: one-hot ký tự đầu vào @ một ma trận trọng số → logits → softmax; train bằng cross-entropy sẽ hội tụ về cùng phân phối với bản đếm. Đây là cầu nối từ thống kê đếm sang học bằng gradient.
+**Trả lời mẫu:** Maximum likelihood tìm tham số làm xác suất quan sát được dữ liệu lớn nhất (Vũ Hữu Tiệp mục 4.2, trang 53). Với phân phối categorical trên các lớp hoặc token, log-likelihood của nhãn đúng là log của xác suất model gán cho nhãn đó; đổi dấu và lấy trung bình ta được cross-entropy. Lấy log biến tích của nhiều mẫu thành tổng, dễ tính và ổn định số, còn đổi dấu chỉ để dùng thuật toán cực tiểu hóa; vị trí cực trị không đổi vì log đơn điệu tăng.
 
-**Giải thích:** Karpathy dùng bigram để cho thấy 'neural net' chỉ là cách tổng quát hoá của đếm tần suất.
+**Giải thích:** MML mục 9.2.1 (trang 293) nhắc thêm rằng likelihood không phải phân phối xác suất theo tham số θ; nó chỉ là một hàm của θ mà ta tối ưu.
+
+## Câu 6 (Trắc nghiệm)
+
+Trên hàm f(x) = x² với đạo hàm 2x, chạy gradient descent từ x₀ = 5 với step size 1.1 thì điều gì xảy ra sau 20 bước, và vì sao?
+
+- **A.** Hội tụ về 0 vì hàm lồi nên mọi step size đều được
+- **B.** Dao động quanh 0 với biên độ không đổi
+- **C.** Phân kỳ, vì mỗi bước nhân x với (1 − 2 × 1.1) = −1.2 nên trị tuyệt đối tăng theo cấp số nhân ✅
+- **D.** Dừng ngay tại x = 5 vì gradient bằng 0
+
+**Đáp án: C**
+
+**Giải thích:** Bước cập nhật x ← x − γ·2x = (1 − 2γ)x. Với γ = 1.1, hệ số là −1.2, trị tuyệt đối lớn hơn 1 nên |x| tăng mỗi bước. MML mục 7.1 (trang 227-228) bàn đúng chuyện step size quá lớn thì phân kỳ, quá nhỏ thì chậm; skeleton 03_gradient_descent.py cho bạn thấy tận mắt.
+
+## Câu 7 (Trắc nghiệm)
+
+Theo MacKay (ITILA eq. 2.45-2.46), relative entropy D_KL(P‖Q) luôn không âm và chỉ bằng 0 khi P = Q. Điều này nói gì về giá trị nhỏ nhất mà cross-entropy loss có thể đạt khi train một model?
+
+- **A.** Cross-entropy có thể xuống 0 với mọi dữ liệu nếu train đủ lâu
+- **B.** Cross-entropy nhỏ nhất bằng entropy của phân phối dữ liệu, đạt được khi phân phối model trùng phân phối thật, vì cross-entropy = entropy + KL ✅
+- **C.** Cross-entropy không có đáy vì log không bị chặn
+- **D.** Cross-entropy nhỏ nhất bằng KL divergence
+
+**Đáp án: B**
+
+**Giải thích:** Cross-entropy H(P, Q) = H(P) + D_KL(P‖Q). Vì KL ≥ 0 với đẳng thức khi P = Q (bất đẳng thức Gibbs, MacKay trang 34), đáy của loss là entropy của dữ liệu, không phải 0. Dữ liệu có nhiễu thì loss tốt nhất vẫn dương.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Theo RoFormer (arXiv 2104.09864) và cách MML định nghĩa góc giữa hai vector, vì sao xoay cả query và key theo vị trí lại làm điểm attention chỉ phụ thuộc khoảng cách tương đối?
+
+- **A.** Vì phép xoay làm mọi vector có cùng độ dài
+- **B.** Vì tích vô hướng của hai vector đã xoay góc mθ và nθ chỉ phụ thuộc hiệu góc (m−n)θ, do phép xoay bảo toàn độ dài và góc tương đối giữa hai vector ✅
+- **C.** Vì RoPE cộng vector vị trí vào embedding như GPT-2
+- **D.** Vì key không bị xoay, chỉ query bị xoay
+
+**Đáp án: B**
+
+**Giải thích:** Đây là hình học Tuần 1 mục 4 (cos góc = inner product chia tích độ dài) áp lên cặp chiều được xoay. RoFormer viết RoPE 'encodes the absolute position with a rotation matrix and meanwhile incorporates the explicit relative position dependency in self-attention formulation' (abstract).
+
+## Nâng cao 2 (Tự luận)
+
+MacKay và Murphy đều định nghĩa KL divergence. Vì sao KL không phải một metric, và điều đó có nghĩa gì khi PPO dùng KL(policy ‖ reference) làm ràng buộc?
+
+**Trả lời mẫu:** KL(P‖Q) không đối xứng và không thỏa bất đẳng thức tam giác, nên chỉ là divergence, không phải metric (Murphy PML1 mục 6.2, trang 213; MacKay eq. 2.45, trang 34). Trong RLHF, chiều KL(π_θ ‖ π_ref) phạt policy đặt xác suất cao vào chỗ reference đặt xác suất thấp; đổi chiều sẽ phạt điều khác, nên khi đọc code alignment ở Tuần 10 phải nhìn rõ chiều nào được dùng.
+
+**Giải thích:** Bất đẳng thức Gibbs KL ≥ 0 với đẳng thức khi hai phân phối trùng nhau là lý do KL dùng được như 'khoảng cách' dù không đối xứng.

@@ -1,79 +1,109 @@
-# Tuần 13 — Đáp án & Giải thích: Map LLM vào SDLC; build agent graph CornAgents.AI
+# Tuần 13, Đáp án & Giải thích: Xây dựng RAG pipeline end-to-end
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
-## Câu 1 (Tự luận)
+## Câu 1 (Trắc nghiệm)
 
-Cho ví dụ map agent ↔ stage SDLC (ít nhất 3 agent).
+Thứ tự đúng của một pipeline RAG cơ bản?
 
-**Trả lời mẫu:** Requirements Analyst agent: biến feature request Finance Banking thành user story + acceptance criteria, grounded bởi RAG (Tuần 10-11) trên tài liệu nghiệp vụ nội bộ. Code Review agent: đọc diff/PR, flag bug/security/style. Test-Generation agent: từ story/code sinh test case. Có thể thêm Design và Docs agent. Mỗi agent có I/O contract rõ ràng và nối thành graph.
-
-**Giải thích:** Requirements Analyst tận dụng đúng thế mạnh BA của bạn.
-
-## Câu 2 (Trắc nghiệm)
-
-Nguyên tắc 'least-privilege' cho agent nghĩa là gì?
-
-- **A.** Mỗi agent được mọi quyền để linh hoạt
-- **B.** Mỗi agent chỉ được cấp quyền/tool tối thiểu cần cho nhiệm vụ của nó ✅
-- **C.** Chỉ một agent có quyền
-- **D.** Không agent nào dùng tool
+- **A.** Generate → retrieve → embed → chunk
+- **B.** Load → chunk → embed → vector store → retrieve top-k → generate ✅
+- **C.** Embed → generate → chunk → store
+- **D.** Retrieve → generate → embed
 
 **Đáp án: B**
 
-**Giải thích:** Giới hạn quyền giảm rủi ro khi agent lỗi/bị lạm dụng — đặc biệt quan trọng với hệ thống tài chính.
+**Giải thích:** Load tài liệu → cắt chunk → embed → lưu vector store → khi hỏi: embed query, retrieve top-k, ghép context vào prompt → generate.
 
-## Câu 3 (Tự luận)
+## Câu 2 (Tự luận)
 
-Requirements Analyst agent dùng RAG để làm gì?
+Vì sao khi chunking cần 'overlap' giữa các đoạn?
 
-**Trả lời mẫu:** Dùng RAG để 'grounding' việc sinh user story/acceptance criteria vào tài liệu nguồn thật — ví dụ quy định nghiệp vụ và spec nội bộ — thay vì bịa. Khi nhận một feature request, agent retrieve các quy định/định nghĩa liên quan, đưa vào context, rồi sinh story bám đúng ràng buộc nghiệp vụ và có thể trích dẫn nguồn.
+**Trả lời mẫu:** Overlap (vd. ~100 ký tự/token) giữ phần đầu/cuối câu liền mạch giữa hai chunk, tránh cắt đứt một ý/định nghĩa ngay ranh giới chunk khiến retrieval bỏ sót ngữ cảnh cần thiết. Với chunk ~800 và overlap ~100, một thông tin nằm ở mép vẫn xuất hiện trọn trong ít nhất một chunk.
 
-**Giải thích:** Đây là điểm nối Phase 2 (RAG) vào Phase 3 (agents).
+**Giải thích:** Chunk quá nhỏ mất ngữ cảnh; quá lớn loãng tín hiệu retrieval. Overlap là cân bằng.
+
+## Câu 3 (Trắc nghiệm)
+
+Retrieval trong RAG thường xếp hạng tài liệu bằng độ đo nào?
+
+- **A.** Khoảng cách Hamming
+- **B.** Cosine similarity giữa embedding của query và document ✅
+- **C.** Số ký tự trùng
+- **D.** Thứ tự alphabet
+
+**Đáp án: B**
+
+**Giải thích:** sim(q,d) = (q·d)/(|q||d|). Tài liệu có embedding gần (cosine cao) với query được lấy ra trước.
 
 ## Câu 4 (Trắc nghiệm)
 
-Trong workflow multi-agent có quy định, human approval gate nên đặt ở đâu?
+Chroma đóng vai trò gì trong pipeline?
 
-- **A.** Không cần
-- **B.** Giữa các stage quan trọng (vd. trước khi chốt requirement, trước khi merge) để người duyệt ✅
-- **C.** Chỉ ở cuối cùng
-- **D.** Chỉ ở đầu
-
-**Đáp án: B**
-
-**Giải thích:** Đặt gate giữa các stage cho phép bắt lỗi sớm và giữ con người kiểm soát các quyết định rủi ro.
-
-## Câu 5 (Trắc nghiệm)
-
-Vì sao cần 'I/O contract' rõ ràng giữa các agent?
-
-- **A.** Để agent chạy nhanh hơn
-- **B.** Để output của agent này là input có cấu trúc, dự đoán được cho agent kế — dễ ghép graph, test và audit ✅
-- **C.** Để giảm token
-- **D.** Để mã hoá dữ liệu
+- **A.** Mô hình sinh text
+- **B.** Vector store (lưu & truy vấn nearest-neighbor các embedding): tốt cho dev ✅
+- **C.** Tokenizer
+- **D.** Reranker
 
 **Đáp án: B**
 
-**Giải thích:** Contract (schema state trong LangGraph) làm hệ thống mô-đun và kiểm thử được từng mắt xích.
+**Giải thích:** Chroma là vector DB nhẹ cho dev; production có thể chuyển pgvector/Qdrant/Weaviate.
+
+## Câu 5 (Tự luận)
+
+Vì sao RAG giúp giảm hallucination so với hỏi LLM trực tiếp?
+
+**Trả lời mẫu:** RAG 'grounding' câu trả lời vào các đoạn tài liệu thật được retrieve và đưa vào prompt, nên model trả lời dựa trên bằng chứng cụ thể thay vì chỉ dựa vào trí nhớ tham số (dễ bịa). Ngoài ra có thể trích dẫn nguồn để kiểm chứng. Nó cũng cập nhật được kiến thức mới mà không cần train lại.
+
+**Giải thích:** Anchor của roadmap: corpus là tài liệu nghiệp vụ Finance Banking của bạn.
 
 ## Câu 6 (Trắc nghiệm)
 
-Ghép đúng 5 workflow patterns của Anthropic với mô tả?
+Embedding model làm gì?
 
-- **A.** Prompt Chaining = nhiều model bỏ phiếu; Routing = chạy tuần tự
-- **B.** Prompt Chaining = các bước cố định nối tiếp; Routing = phân loại input rồi gửi tới prompt/model chuyên biệt; Parallelization = các call độc lập chạy song song; Orchestrator–Workers = model trung tâm phân rã & giao việc; Evaluator–Optimizer = một bên sinh, một bên chấm theo tiêu chí, lặp ✅
-- **C.** Orchestrator–Workers = không có model trung tâm; Evaluator–Optimizer = chỉ chạy 1 lần
-- **D.** Cả 5 pattern đều cần knowledge graph
+- **A.** Sinh câu trả lời cuối
+- **B.** Biến văn bản thành vector số nắm bắt ngữ nghĩa, để so sánh tương đồng ✅
+- **C.** Cắt tài liệu thành chunk
+- **D.** Lượng tử hoá model
 
 **Đáp án: B**
 
-**Giải thích:** Lời khuyên gốc của Anthropic: 'simple, composable patterns rather than complex frameworks' — chọn pattern theo bài toán, đừng bê nguyên framework nặng.
+**Giải thích:** Embedding (BGE/e5/nomic...) ánh xạ text → vector; văn bản gần nghĩa → vector gần nhau.
 
-## Câu 7 (Tự luận)
+## Câu 7 (Trắc nghiệm)
 
-'Artifact contract' giữa các agent là gì và vì sao reviewer nên trả 'criterion-level defects' thay vì 'looks good'?
+Jurafsky và Martin gọi khiếm khuyết cốt lõi của tf-idf và BM25 là 'vocabulary mismatch problem'. Khiếm khuyết đó là gì và dense retrieval giải quyết ra sao?
 
-**Trả lời mẫu:** Artifact contract = mỗi handoff giữa hai agent là một artifact có schema rõ (user story JSON, defect list, test file) thay vì đoạn văn tự do — giúp validate tự động, test từng mắt xích, và audit. Reviewer trả defect theo từng tiêu chí (đúng/sai ở tiêu chí nào, bằng chứng gì) vì 'looks good' không cho downstream agent hay con người thông tin hành động được; defect có cấu trúc thì gate được (đếm, chặn, escalate) và đo được chất lượng review theo thời gian.
+- **A.** tf-idf và BM25 quá chậm với corpus lớn; dense retrieval nhanh hơn nhờ GPU
+- **B.** tf-idf và BM25 chỉ hoạt động khi query và tài liệu dùng chung đúng từ, nên người hỏi phải đoán từ người viết đã dùng; dense embedding xử lý được từ đồng nghĩa vì so nghĩa thay vì so chuỗi ký tự ✅
+- **C.** tf-idf và BM25 không chấm được tài liệu dài; dense retrieval cắt chunk
+- **D.** tf-idf và BM25 cần nhãn huấn luyện; dense retrieval thì không
 
-**Giải thích:** Từ mục VI.D của Karpathy-Loop PDF: 'Every handoff should be an artifact contract. A reviewer returns criterion-level defects, not looks-good.'
+**Đáp án: B**
+
+**Giải thích:** SLP3 mục 11.3 trang 264: 'they work only if there is exact overlap of words between the query and document'. Vì thế Tuần 14 dùng cả hai trong hybrid search: BM25 bắt từ khóa chính xác, dense bắt đồng nghĩa.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Jurafsky và Martin gọi khiếm khuyết của tf-idf và BM25 là 'vocabulary mismatch problem'. Trong hybrid search ở Tuần 14, vì sao vẫn giữ BM25 dù đã có dense retrieval?
+
+- **A.** Vì BM25 nhanh hơn nên thay được embedding
+- **B.** Vì dense bắt đồng nghĩa nhưng có thể trượt các chuỗi cần khớp chính xác như số hiệu văn bản hay mã điều khoản, thứ BM25 làm tốt; hai nhánh bù khuyết cho nhau rồi gộp bằng RRF ✅
+- **C.** Vì embedding không chạy được trên CPU
+- **D.** Vì RAGAS bắt buộc dùng BM25
+
+**Đáp án: B**
+
+**Giải thích:** SLP3 mục 11.3 (trang 264) nêu khiếm khuyết của sparse; phần lý giải vì sao vẫn giữ BM25 là suy luận thực hành của người viết cho corpus pháp lý.
+
+## Nâng cao 2 (Tự luận)
+
+Theo SLP3, RAG có hai thành phần chính và ba mục tiêu. Hãy nêu chúng và chỉ ra mục tiêu nào trùng với lý do repo chọn RAG cho kiến thức quy định.
+
+**Trả lời mẫu:** Hai thành phần: retriever và generator (đôi khi gọi reader). Ba mục tiêu: giảm hallucination bằng tập tài liệu đáng tin, sinh text đúng về dữ liệu riêng như tài liệu nội bộ hay pháp lý, và xử lý kiến thức thay đổi theo thời gian (SLP3 mục 11.4, trang 267). Cả ba trùng với lý do của repo: văn bản pháp luật thay đổi, cần dẫn nguồn, và không được bịa.
+
+**Giải thích:** Paper 'Does Fine-Tuning on New Knowledge Encourage Hallucinations?' trong kệ paper là bằng chứng thực nghiệm cho việc không nhét kiến thức quy định vào trọng số.

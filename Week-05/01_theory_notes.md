@@ -1,86 +1,157 @@
-# Lý thuyết Tuần 5 — Pretraining: loop, schedule, precision, checkpoint
+# Lý thuyết Tuần 5: Backprop từ đầu + mental model Transformer
 
-> Đọc trước khi điền TODO trong [`02_train_loop.py`](02_train_loop.py). Số liệu kiểm chứng bằng PyTorch 2.5.1 ngày 2026-08-11; nguồn cuối file. Cần nắm training loop 5 bước (Tuần 1) và GPT model (Tuần 4).
+> Đọc file này trước khi tự build [`02_micrograd.py`](02_micrograd.py). Mọi ví dụ số đã chạy kiểm chứng bằng PyTorch 2.5.1 ngày 2026-08-11 (tự chạy lại từng snippet). Nguồn dẫn ở cuối file, tất cả đã xác minh truy cập được cùng ngày.
+>
+> **Bạn đến đây với gì.** Tuần 2 bạn đã tính gradient bằng tay, kiểm bằng sai phân trung tâm (mục A2) và phát biểu chain rule (mục A3); Tuần 3 bạn tự viết hàm `grad` cho logistic regression; Tuần 4 bạn để `loss.backward()` làm việc đó. Tuần này bạn mở hộp đen `backward()` ra và tự viết nó. Không có toán mới, chỉ có kỹ thuật tổ chức chain rule thành một đồ thị.
 
 ---
 
-## 1. Pretraining loop = loop Tuần 1 + dữ liệu ở quy mô khác
+## 1. Autograd engine: backprop không có gì huyền bí
 
-Bài toán duy nhất: **đoán token kế tiếp**. Với batch `(B, T)`, model cho logits `(B, T, V)`; cross-entropy tính trên **mọi vị trí** cùng lúc (mỗi vị trí i có nhãn là token i+1 — sliding window Tuần 3). Không cần nhãn tay — "nhãn" chính là văn bản.
+### 1.1 Computation graph
+
+Mọi biểu thức là một **đồ thị**: node = giá trị, cạnh = phép toán. Ví dụ `f = (a*b + c).tanh() * d`:
+
+```
+a ─┐
+   ×──┐
+b ─┘  +──tanh──┐
+c ────┘        ×── f
+d ─────────────┘
+```
+
+Forward đi xuôi tính giá trị. **Backward đi ngược, mỗi node nhân "grad từ trên rơi xuống" với đạo hàm cục bộ của phép toán tạo ra nó** (chain rule, học ở Tuần 2 mục A3, ôn ở Tuần 4 mục 2.2) rồi đẩy tiếp xuống toán hạng.
+
+### 1.2 Node `Value` cần đúng 4 thứ
+
+Đây là toàn bộ thiết kế của micrograd (và về bản chất, của `torch.autograd`):
+
+| Trường | Vai trò |
+|--------|---------|
+| `data` | giá trị số (forward) |
+| `grad` | `∂output_cuối/∂self`, khởi tạo 0 |
+| `_backward` | closure: cộng grad vào các toán hạng tạo ra node này |
+| `_prev` | các node cha trực tiếp (để duyệt ngược) |
+
+### 1.3 Đạo hàm cục bộ của từng phép: chỉ cần thuộc bảng này
+
+Với `out` là kết quả và `g = out.grad` (grad từ trên rơi xuống):
+
+| Phép | Forward | `_backward` (cộng dồn vào grad) |
+|------|---------|------------------------------|
+| `out = a + b` | `a.data + b.data` | `a.grad += 1·g`; `b.grad += 1·g`: phép cộng **phát** grad nguyên vẹn |
+| `out = a * b` | `a.data * b.data` | `a.grad += b.data·g`; `b.grad += a.data·g`: grad chéo qua toán hạng kia |
+| `out = tanh(a)` | `tanh(a.data)` | `a.grad += (1 − out.data²)·g` |
+| `out = relu(a)` | `max(0, a.data)` | `a.grad += (1 if a.data > 0 else 0)·g` |
+
+Kiểm chứng `tanh` bằng PyTorch (đã chạy 2026-08-11): tại `x = 0.5`, `tanh(x) = 0.4621`, autograd cho grad `0.7864`, đúng bằng `1 − 0.4621² = 0.7864`.
+
+### 1.4 Vì sao là `+=` chứ không phải `=`: bug kinh điển nhất
+
+Một node có thể được **dùng nhiều lần** (fan-out). Ví dụ `f = a * a`: node `a` xuất hiện ở cả hai toán hạng, mỗi nhánh đóng góp một phần đạo hàm, phải **cộng dồn**:
 
 ```python
-logits = model(xb)                                    # (B, T, V)
-loss = F.cross_entropy(logits.flatten(0, 1), yb.flatten())
+a = torch.tensor(3., requires_grad=True)
+f = a * a
+f.backward()
+a.grad    # 6.0 = a + a, hai nhánh cộng lại, không phải 3.0
 ```
 
-**Perplexity** = `exp(loss)`: loss 3.5 → PPL ≈ 33.1 ("phân vân giữa ~33 lựa chọn"); loss 0 → PPL 1 (kiểm chứng 2026-08-11). Mốc so sánh trong README: GPT-2 gốc loss ~3.5 trên miền dữ liệu tương đương.
+Nếu `_backward` của bạn dùng `=`, biểu thức có node tái sử dụng sẽ ra grad sai **một cách im lặng**. Đây cũng chính là lý do PyTorch cộng dồn grad và bắt bạn `zero_grad()` mỗi step (Tuần 4, mục 2.3).
 
-## 2. Train/val split — biết mình đang học hay đang thuộc lòng
+MML nói cùng ý ở mục 5.6 (trang 159): backpropagation là trường hợp riêng của automatic differentiation, và autodiff chỉ là chain rule áp dụng có kỷ luật trên đồ thị tính toán.
 
-Cắt corpus thành train/val (ví dụ 90/10), đo val loss định kỳ. Train loss giảm mà val loss tăng = memorize. Lưu ý pretrain 1-epoch trên corpus lớn hầu như không kịp overfit — đó là lý do nanoGPT để dropout 0 khi pretrain (mục nâng cao D).
+### 1.5 `backward()` toàn cục = topological sort + chain rule
 
-## 3. LR schedule — warmup + cosine decay
+1. Duyệt DFS từ node output, xếp mọi node theo **topological order** (con đứng sau cha).
+2. Đặt `output.grad = 1.0` (vì `∂f/∂f = 1`).
+3. Đi **ngược** danh sách topo, gọi `_backward()` của từng node.
+
+Thứ tự topo bảo đảm khi một node phát grad xuống thì grad của chính nó đã được cộng đủ từ mọi nhánh phía trên. Sau khi điền xong TODO trong [`02_micrograd.py`](02_micrograd.py), kiểm hai lớp. Lớp một, không cần PyTorch: dùng đúng hàm sai phân trung tâm bạn viết ở Tuần 2 (mục A2) trên biểu thức bằng `Value`, nhúc nhích `a.data` một lượng ε và so với `a.grad`. Lớp hai: chạy [`03_check_grad.py`](03_check_grad.py): script so sánh grad của bạn với `torch.autograd` trên cùng biểu thức, khớp tới `1e-5` mới đạt. Kiểm bằng sai phân trước để khi PyTorch báo lệch, bạn biết lỗi nằm ở micrograd hay ở cách mình gọi PyTorch.
+
+---
+
+## 2. makemore: bigram → neural net → MLP
+
+Bài toán: sinh tên người từng ký tự một, tức một **language model tối giản**, cùng bản chất với GPT (Tuần 7-8) chỉ khác quy mô.
+
+### 2.1 Bigram đếm (không học gì cả)
+
+`P(ký_tự_kế | ký_tự_hiện_tại)`: đếm ma trận `N (27×27)` (26 chữ + token `.` đầu/cuối), chuẩn hóa từng hàng thành xác suất. Đánh giá bằng **NLL trung bình** = chính là cross-entropy Tuần 4: `−mean(log P(ký_tự_đúng))`. Đây là negative log-likelihood của Tuần 2 mục B6, giờ áp cho phân phối categorical trên 27 ký tự thay cho Gaussian; và cũng là loss bạn đã tự viết cho logistic regression ở Tuần 3, chỉ đổi Bernoulli thành categorical. Dùng NLL chứ không dùng accuracy vì ta chấm cả **độ tự tin** của phân phối, không chỉ đoán trúng/trượt.
+
+### 2.2 Bigram neural net: cùng model, học bằng gradient
+
+Thay bảng đếm bằng ma trận trọng số `W (27×27)`:
 
 ```
-it < warmup:  lr = max_lr · (it+1)/warmup            (tăng tuyến tính)
-sau đó:       lr = min_lr + 0.5·(1+cos(π·tiến_độ))·(max_lr − min_lr)
+one_hot(ký_tự) @ W → logits → softmax → P → NLL → backward → cập nhật W
 ```
 
-Giá trị kiểm chứng với `max_lr=6e-4, min_lr=6e-5, warmup=100, max_it=1000`: it=0 → 6.0e-6; it=100 → 6.0e-4 (đỉnh); it=550 → 3.3e-4 (lưng chừng cosine); it=1000 → 6.0e-5 (đáy). [Suy luận] Warmup giúp tránh bước cập nhật quá lớn khi các thống kê moment của AdamW chưa ổn định ở những step đầu — lập luận phổ biến, hiệu quả cụ thể phải nhìn loss curve của chính bạn.
+Nhận xét then chốt: `one_hot(i) @ W` **chính là lấy hàng i của W**: phép "tra bảng embedding" chẳng qua là matmul với one-hot. Đây là ánh xạ tuyến tính của Tuần 1 mục 1 áp lên vector cơ sở chuẩn: ảnh của eᵢ qua W là hàng i. Train hội tụ thì `W` tiến về đúng `log(N)` của phiên bản đếm, hai cách nhìn của cùng một model.
 
-## 4. Gradient clipping — cầu chì chống loss spike
+### 2.3 MLP theo Bengio 2003: thêm ngữ cảnh, thêm embedding
 
-Chặn **norm toàn cục** của gradient về ngưỡng (thường 1.0), giữ nguyên hướng:
+Bigram chỉ nhìn 1 ký tự trước. Paper "A Neural Probabilistic Language Model" (Bengio et al., JMLR 2003, link cuối file) đưa ra khung mà mọi LM hiện đại vẫn theo:
+
+1. Mỗi ký tự → **embedding vector** (bảng tra `C (27×d)`, học được).
+2. Ghép embedding của `k` ký tự ngữ cảnh → MLP → logits 27 lớp.
+3. Vẫn cross-entropy + gradient descent.
+
+Ghi kết quả NLL đo được của từng phiên bản vào [`04_makemore_notes.md`](04_makemore_notes.md): số phải là số bạn tự đo, kèm ngày.
+
+---
+
+## 3. Mental model Transformer: dựng TRƯỚC khi code (Tuần 6)
+
+### 3.1 Bức tranh một câu
+
+Transformer xử lý chuỗi vector token **song song**. Mỗi layer, từng token "hỏi" mọi token khác (attention) rồi tự biến đổi (MLP). Attention trả lời: *"tôi nên trộn thông tin của những token nào, mỗi token bao nhiêu?"*, trọng số trộn tính từ dot product query·key (góc giữa hai vector, Tuần 1 mục 4; ôn ở Tuần 4 mục 1.1), qua softmax (Tuần 4 mục 3.1).
+
+### 3.2 Permutation-equivariance: attention "mù" thứ tự
+
+`W_Q, W_K, W_V` **dùng chung cho mọi vị trí**, và score `qᵢ·kⱼ` không chứa i, j. Hệ quả: **hoán vị token đầu vào thì output bị hoán vị đúng theo cách đó** (equivariant): model không hề biết token nào đứng trước token nào.
+
+Kiểm chứng bằng code (đã chạy 2026-08-11, `atol=1e-6`):
 
 ```python
-torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+def attn(x):                                   # self-attention tối giản
+    return torch.softmax(x @ x.T, dim=-1) @ x
+
+X = torch.randn(5, 8)
+perm = torch.tensor([2, 0, 4, 1, 3])
+torch.allclose(attn(X[perm]), attn(X)[perm])   # True, hoán vị input = hoán vị output
 ```
 
-Kiểm chứng: gradient `[30, 40]` (norm 50) sau clip thành `[0.6, 0.8]` (norm 1.0) — cùng hướng, ngắn lại. Gọi **sau** `backward()`, **trước** `step()`.
+Phân biệt với **permutation-invariant** (sum, mean: đổi thứ tự input, output *không đổi*). Attention là equivariant, không phải invariant.
 
-## 5. Mixed precision — vì sao bf16 là mặc định thời nay
+### 3.3 Vì thế cần positional information
 
-Số đo từ `torch.finfo` (kiểm chứng 2026-08-11):
+"Chó cắn người" ≠ "người cắn chó", nhưng với attention thuần hai chuỗi này chỉ là hoán vị của nhau. Giải pháp: **tiêm thông tin vị trí vào input**: GPT-2 cộng positional embedding học được vào token embedding (bạn sẽ code ở Tuần 6); các model mới dùng RoPE (Tuần 6, mục nâng cao A1). Viết lại toàn bộ lập luận mục 3 này bằng lời mình vào [`05_attention_writeup.md`](05_attention_writeup.md): đó là deliverable thứ hai của tuần.
 
-| dtype | max | eps (độ mịn) |
-|-------|-----|--------------|
-| float16 | 65,504 | 9.8e-4 |
-| bfloat16 | 3.39e38 | 7.8e-3 |
+---
 
-- **fp16**: mịn hơn nhưng max chỉ 65,504 → dễ overflow → cần **GradScaler**.
-- **bf16**: range bằng fp32 → không cần scaler, code đơn giản hơn; đổi lại kém mịn. GPU Ampere (3070 Ti) trở lên hỗ trợ bf16.
+## 4. Nguồn chính thức (đã xác minh truy cập được ngày 2026-08-11)
 
-```python
-with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-    logits = model(xb); loss = ...
-```
-
-## 6. Gradient accumulation — batch to trên VRAM nhỏ
-
-Effective batch (token/update) = `micro_batch × seq_len × accum_steps`. Mục tiêu README ~524,288 token/update: với micro-batch 1 × seq 1024 → cần **512** accum steps; micro-batch 2 → 256 (số học, tự kiểm). Cách làm: cộng dồn `loss/accum_steps` qua `backward()` nhiều lần, `step()` + `zero_grad()` mỗi `accum_steps` lần — chính là tận dụng tính chất grad **cộng dồn** đã học ở Tuần 2.
-
-## 7. Checkpointing — không mất công train vì một lần rớt điện/cloud
-
-Lưu đủ 3 thứ mới resume đúng: `model.state_dict()`, `optimizer.state_dict()` (AdamW mang 2 giá trị moment cho MỖI tham số — thiếu nó resume sẽ khựng), và `step` (để LR schedule tiếp đúng chỗ). Lưu định kỳ + giữ bản `best_val`. Nguyên tắc chạy cloud: **smoke test local vài trăm step xác nhận loss giảm rồi mới thuê máy** — xem [`03_cloud_run_notes.md`](03_cloud_run_notes.md).
-
-## 8. Tiếng Việt trong tuần này
-
-- **Model chỉ biết ngôn ngữ có trong corpus pretrain.** FineWeb/FineWeb-Edu trong task tuần này thiên tiếng Anh — model bạn pretrain ra sẽ không đọc được tiếng Việt, và đó là kỳ vọng đúng. Nhân tiện, paper FineWeb (PDF trong repo, xem bảng Nguồn) đáng một buổi đọc: FineWeb là "a 15-trillion token dataset derived from 96 Common Crawl snapshots", FineWeb-Edu là subset giáo dục 1.3T token, và các tác giả tài liệu hóa từng quyết định lọc/dedup của mình — muốn biết một corpus web-scale được "nấu" ra sao thì hiếm chỗ nào kể kỹ hơn. Muốn có khả năng tiếng Việt phải có corpus Việt trong pretrain (hoặc dùng base đa ngôn ngữ rồi fine-tune — hướng của Tuần 8–9; nguồn corpus VN license sạch: xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
-- **Ngân sách token lệch theo ngôn ngữ:** cùng 1 GB văn bản, tiếng Việt sinh ra nhiều token hơn tiếng Anh với tokenizer thiên Anh (fertility đo ở Tuần 3) → "1B token" tiếng Việt chứa **ít nội dung hơn** 1B token tiếng Anh. Khi đọc bất kỳ báo cáo pretrain đa ngôn ngữ nào, hỏi ngay: token đếm bằng tokenizer nào?
-- **So sánh chéo ngôn ngữ/tokenizer thì bỏ perplexity, dùng bits-per-byte** (mục nâng cao H): PPL phụ thuộc tokenizer — cùng một văn bản, tokenizer khác nhau cho PPL khác nhau dù model "giỏi" như nhau; bits-per-byte chuẩn hóa theo byte nên so được.
-
-## 9. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
-
-| Nguồn | URL | Dùng cho mục |
-|-------|-----|--------------|
-| karpathy/nanoGPT (`train.py`, MIT) | https://github.com/karpathy/nanoGPT | 3, 4, 5, 6 |
-| Penedo et al. 2024 — The FineWeb Datasets (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2406.17557 — PDF local: [`../docs/papers/2406.17557_fineweb-datasets.pdf`](../docs/papers/2406.17557_fineweb-datasets.pdf) | 8 |
-
-(llm.c Discussion #481 và HF Ultra-Scale Playbook: link trong README nguồn học — nội dung chi phí/thời gian trong đó là **ảnh chụp thời điểm viết**, kiểm tra lại giá trước khi thuê máy.)
+| Nguồn | URL | License / loại | Dùng cho mục |
+|-------|-----|----------------|--------------|
+| karpathy/micrograd | https://github.com/karpathy/micrograd | MIT | 1 |
+| karpathy/makemore | https://github.com/karpathy/makemore | MIT | 2 |
+| Bengio et al. 2003, A Neural Probabilistic Language Model | https://www.jmlr.org/papers/v3/bengio03a.html | JMLR truy cập mở | 2.3 |
+| The Annotated Transformer (Harvard NLP) | https://nlp.seas.harvard.edu/annotated-transformer/ | web mở | 3 |
+| Vaswani et al. 2017, Attention Is All You Need | https://arxiv.org/abs/1706.03762 | arXiv mở | 3 |
 
 ## Sau khi đọc xong
 
-1. Điền TODO trong [`02_train_loop.py`](02_train_loop.py): loss → split/eval → schedule → clip → autocast → accumulation → checkpoint (đúng thứ tự đó, chạy được từng tầng rồi mới thêm tầng sau).
-2. Smoke test local trên text public-domain nhỏ — bằng chứng: loss giảm qua các step, ghi số vào nhật ký.
-3. Chuẩn bị cloud run theo [`03_cloud_run_notes.md`](03_cloud_run_notes.md); train thật; viết [`04_loss_analysis.md`](04_loss_analysis.md) so với GPT-2.
-4. Làm [`quiz.md`](quiz.md); mục nâng cao D/F/H đọc sau khi loop chạy được.
+1. Tự điền TODO trong [`02_micrograd.py`](02_micrograd.py): dùng bảng đạo hàm mục 1.3, nhớ `+=`.
+2. Chạy [`03_check_grad.py`](03_check_grad.py) đối chiếu PyTorch, khớp `1e-5` mới đạt.
+3. Làm makemore theo [`04_makemore_notes.md`](04_makemore_notes.md), ghi NLL đo được.
+4. Viết [`05_attention_writeup.md`](05_attention_writeup.md) bằng lời mình, nhờ Claude review.
+5. Làm [`quiz.md`](quiz.md), đối chiếu [`quiz_solution.md`](quiz_solution.md).
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **Backprop trình bày bằng hình.** Prince, UDL mục 7.4 Backpropagation algorithm (trang 103): mỗi đạo hàm ∂ℓ/∂β_k và ∂ℓ/∂ω_k được tính bằng cách nhân ∂ℓ/∂f_k với ∂f_k/∂β_k hoặc ∂f_k/∂ω_k, đúng bảng đạo hàm cục bộ ở mục 1.3. Mục 7.5 (trang 107) về khởi tạo tham số là thứ bạn sẽ cần ở Tuần 8.
+- **Backprop bằng bốn phương trình.** Nielsen, *Neural Networks and Deep Learning* chương 2 (HTML, CC BY-NC 3.0) viết backprop thành bốn phương trình ma trận; đối chiếu chúng với `_backward` của từng phép trong micrograd là bài tập tốt sau khi `03_check_grad.py` đã khớp.
+- **Bản kinh điển.** Bishop, PRML mục 5.3 Error Backpropagation; Goodfellow mục 6.5 Back-Propagation and Other Differentiation Algorithms (HTML). Cả hai đều là chain rule trên đồ thị, cùng nội dung với mục 1 ở trên.

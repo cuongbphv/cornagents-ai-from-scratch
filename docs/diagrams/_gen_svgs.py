@@ -146,35 +146,37 @@ def gen_pipeline() -> None:
 
 
 def gen_phases() -> None:
-    w, h = 960, 300
-    parts = [head(w, h, "Three phases", "15 weeks across three phases")]
-    parts.append(f'<text x="32" y="40" {font(20, 700)}>Ba phase · 15 tuần</text>')
+    w, h = 1000, 300
+    parts = [head(w, h, "Four phases", "18 weeks across four phases")]
+    parts.append(f'<text x="32" y="40" {font(20, 700)}>Bốn phase · 18 tuần</text>')
     parts.append(
         f'<text x="32" y="62" {font(12, 500, C["muted"])}>'
-        "Deep Internals → RAG &amp; Fine-Tuning → Agentic SDLC</text>"
+        "Nền tảng toán &amp; ML → Deep Internals → RAG &amp; Fine-Tuning → Agentic SDLC</text>"
     )
+    card_w, gap = 226, 16
     phases = [
-        (32, C["model"], "Phase 1", "Deep Internals", "Tuần 1–7", ["Build &amp; pretrain", "GPT-2-class from scratch"]),
-        (336, C["data"], "Phase 2", "RAG &amp; Fine-Tuning", "Tuần 8–11", ["QLoRA, local serve", "RAG + RAGAS"]),
-        (640, C["agent"], "Phase 3", "Agentic SDLC", "Tuần 12–15", ["CornAgents.AI", "agents + knowledge graph"]),
+        (32, C["align"], "Phase 0", "Nền tảng toán &amp; ML", "Tuần 1-3", ["Linear algebra, xác suất,", "tối ưu, lý thuyết học"]),
+        (32 + (card_w + gap), C["model"], "Phase 1", "Deep Internals", "Tuần 4-10", ["Build &amp; pretrain", "GPT-2-class from scratch"]),
+        (32 + 2 * (card_w + gap), C["data"], "Phase 2", "RAG &amp; Fine-Tuning", "Tuần 11-14", ["QLoRA, local serve", "RAG + RAGAS"]),
+        (32 + 3 * (card_w + gap), C["agent"], "Phase 3", "Agentic SDLC", "Tuần 15-18", ["CornAgents.AI", "agents + knowledge graph"]),
     ]
     for i, (x, col, p, title, weeks, body) in enumerate(phases):
         parts.append("<g>")
         parts.append(
-            f'<rect x="{x}" y="84" width="288" height="176" rx="18" fill="{C["card"]}" '
+            f'<rect x="{x}" y="84" width="{card_w}" height="176" rx="18" fill="{C["card"]}" '
             f'stroke="{col}" stroke-width="2.5" filter="url(#soft)"/>'
         )
-        parts.append(f'<rect x="{x}" y="84" width="288" height="44" rx="18" fill="{col}"/>')
-        parts.append(f'<rect x="{x}" y="110" width="288" height="18" fill="{col}"/>')
+        parts.append(f'<rect x="{x}" y="84" width="{card_w}" height="44" rx="18" fill="{col}"/>')
+        parts.append(f'<rect x="{x}" y="110" width="{card_w}" height="18" fill="{col}"/>')
         parts.append(f'<circle cx="{x + 28}" cy="106" r="14" fill="#fff" opacity="0.95"/>')
-        parts.append(f'<text x="{x + 28}" y="111" text-anchor="middle" {font(13, 700, col)}>{i + 1}</text>')
+        parts.append(f'<text x="{x + 28}" y="111" text-anchor="middle" {font(13, 700, col)}>{i}</text>')
         parts.append(f'<text x="{x + 52}" y="111" {font(15, 700, "#fff")}>{p}</text>')
         parts.append(f'<text x="{x + 24}" y="156" {font(15, 700)}>{title}</text>')
         parts.append(f'<text x="{x + 24}" y="180" {font(12, 600, C["muted"])}>{weeks}</text>')
         for j, line in enumerate(body):
             parts.append(f'<text x="{x + 24}" y="{208 + j * 20}" {font(13, 500)}>{line}</text>')
         parts.append(
-            f'<rect x="{x - 2}" y="82" width="292" height="180" rx="20" fill="none" '
+            f'<rect x="{x - 2}" y="82" width="{card_w + 4}" height="180" rx="20" fill="none" '
             f'stroke="{col}" stroke-width="2" opacity="0">'
         )
         parts.append(
@@ -182,7 +184,7 @@ def gen_phases() -> None:
             f'begin="{r(i * 0.45, 2)}s" repeatCount="indefinite"/>'
         )
         parts.append("</rect></g>")
-    for x, col in ((320, C["data"]), (624, C["agent"])):
+    for x, col in ((32 + card_w, C["model"]), (32 + card_w + (card_w + gap), C["data"]), (32 + card_w + 2 * (card_w + gap), C["agent"])):
         parts.append(
             f'<path d="M{x} 172 H{x + 16}" stroke="{C["line"]}" stroke-width="2.5" '
             'marker-end="url(#arrowHead)"/>'
@@ -242,7 +244,7 @@ def gen_alignment() -> None:
         ("GRPO", C["agent"]),
     ]
     parts = [head(w, h, "Alignment flow", "SFT to GRPO")]
-    parts.append(f'<text x="32" y="40" {font(20, 700)}>Alignment · Tuần 7</text>')
+    parts.append(f'<text x="32" y="40" {font(20, 700)}>Alignment · Tuần 10</text>')
     parts.append(
         f'<text x="32" y="62" {font(12, 500, C["muted"])}>'
         "Neo FareedKhan-style pipeline, scaled-down để học</text>"
@@ -281,15 +283,16 @@ def gen_alignment() -> None:
 
 
 def gen_pipeline_weeks() -> None:
-    w, h = 960, 388
+    w, h = 960, 426
     rows = [
-        (C["data"], "Data / Token / Model", "W1–W4"),
-        (C["train"], "Pretrain", "W5"),
-        (C["align"], "Align (SFT → RM → DPO/PPO → GRPO)", "W6–W7"),
-        (C["eval"], "Eval / Serve", "W5, W8–W9"),
-        (C["rag"], "RAG", "W10–W11"),
-        (C["agent"], "Agent", "W12–W13"),
-        (C["graph"], "Graph", "W14–W15"),
+        (C["align"], "Nền tảng toán &amp; ML", "W1-W3"),
+        (C["data"], "Data / Token / Model", "W4-W7"),
+        (C["train"], "Pretrain", "W8"),
+        (C["align"], "Align (SFT → RM → DPO/PPO → GRPO)", "W9-W10"),
+        (C["eval"], "Eval / Serve", "W8, W11-W12"),
+        (C["rag"], "RAG", "W13-W14"),
+        (C["agent"], "Agent", "W15-W16"),
+        (C["graph"], "Graph", "W17-W18"),
     ]
     parts = [head(w, h, "Pipeline mapped to weeks", "Stages mapped to curriculum weeks")]
     parts.append(f'<text x="32" y="40" {font(20, 700)}>Map pipeline ↔ tuần</text>')
@@ -367,7 +370,7 @@ def gen_cloud() -> None:
     )
     parts.append(f'<text x="150" y="222" text-anchor="middle" {font(11, 700, C["eval"])}>Không</text>')
     parts.append(f'<text x="610" y="222" text-anchor="middle" {font(11, 700, C["align"])}>Có</text>')
-    # Outcomes — clear padding from bottom edge
+    # Outcomes, clear padding from bottom edge
     parts.append(
         f'<rect x="40" y="276" width="160" height="36" rx="12" fill="{C["eval"]}" filter="url(#soft)"/>'
     )

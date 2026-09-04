@@ -1,72 +1,106 @@
-# Lý thuyết Tuần 9 — MLX trên Mac + local inference stack
+# Lý thuyết Tuần 9: Fine-tuning: classification, instruction, LoRA
 
-> Đọc trước khi chạy các lệnh trong [`02_mlx_commands.md`](02_mlx_commands.md). Tuần này chạy trên Mac — các số liệu không kiểm chứng được từ máy Windows này đều ghi rõ; nguồn cuối file (xác minh 2026-08-11).
+> Đọc trước khi điền TODO trong [`02_instruction_finetune.py`](02_instruction_finetune.py). Số liệu kiểm chứng ngày 2026-08-11; nguồn cuối file. Cần nắm GPT model (Tuần 7) + training loop (Tuần 8).
 
 ---
 
-## 1. Unified memory — vì sao Mac 24GB "chứa" được model mà 8GB VRAM không chứa nổi
+## 1. Fine-tuning khác pretraining ở đâu
 
-Kiến trúc Apple Silicon: CPU và GPU **dùng chung một vùng RAM** — không có "VRAM rời". Hệ quả bằng số học byte (tự kiểm): model 13B ở 4-bit ≈ 6.5 GB trọng số + working memory fine-tune → nằm trong 24 GB unified, nhưng vượt xa 8 GB của 3070 Ti. Trade-off: băng thông/throughput thấp hơn GPU rời — README ước "~2–4× chậm hơn NVIDIA"; [Chưa xác minh] con số này với chính hai máy của bạn — đo thật ở mục 4 chính là deliverable.
+Cùng một loop 5 bước, khác 3 thứ: **khởi điểm** (trọng số pretrained, không phải random), **dữ liệu** (nhỏ, có chủ đích), **mục tiêu** (dạy hành vi/miền cụ thể thay vì đoán token trên mọi thứ). LR nhỏ hơn pretrain nhiều (thường 1e-5-1e-4): đi bước to là phá kiến thức nền.
 
-## 2. MLX fine-tune flow — 3 lệnh, cùng bản chất với Tuần 8
+📄 **Fine-tune dạy hành vi, không phải chỗ nhồi kiến thức mới**: nay có đối chứng thực nghiệm: Gekhman et al. 2024 (PDF trong repo: [`../docs/papers/2405.05904_finetuning-new-knowledge-hallucinations.pdf`](../docs/papers/2405.05904_finetuning-new-knowledge-hallucinations.pdf)) báo cáo mẫu chứa kiến thức mới được "learned significantly slower than those consistent with the model's knowledge", và khi cuối cùng cũng học được thì "linearly increase the model's tendency to hallucinate". Đây là bằng chứng trực tiếp cho nguyên tắc xương sống của repo: kiến thức quy định để ở RAG/KG (Tuần 13-17), fine-tune để dạy hành vi/định dạng.
 
-`mlx-lm` (repo `ml-explore/mlx-lm`, MIT — xác minh 2026-08-11, có tài liệu LoRA riêng `mlx_lm/LORA.md`):
+## 2. Classification fine-tuning: thay đầu, giữ thân
+
+- Thay head `(d → vocab)` bằng head `(d → n_classes)`: với spam: `nn.Linear(768, 2)`.
+- Model đọc cả chuỗi, lấy biểu diễn ở **token cuối** (causal attention nên token cuối là chỗ duy nhất "đã nhìn" toàn chuỗi) → head → cross-entropy trên nhãn lớp.
+- Có thể freeze phần lớn thân, chỉ train head + vài block cuối, nhanh và ít quên; trade-off tự đo bằng accuracy val.
+- Đo **accuracy trên train/val/test riêng biệt**: quen kỷ luật này trước khi sang Tuần 11.
+
+## 3. Instruction fine-tuning: dạy model "nghe lời"
+
+Format mỗi mẫu theo template cố định (Alpaca-style):
 
 ```
-1. Tải model MLX-format:   HF repo mlx-community/<model>
-2. LoRA train:             mlx_lm.lora --model <m> --train --data <d> --iters 500
-3. Fuse adapter:           mlx_lm.fuse --model <m> --adapter-path <a>
+Below is an instruction that describes a task...
+
+### Instruction:
+{instruction}
+
+### Input:
+{input}          ← có thể trống
+
+### Response:
+{output}
 ```
 
-Khái niệm không có gì mới — vẫn là LoRA Tuần 6 (adapter hạng thấp, base đóng băng), chỉ đổi framework + phần cứng. Data format của `mlx_lm.lora` là JSONL — xem ví dụ trong [`02_mlx_commands.md`](02_mlx_commands.md). "Fuse" = "merge" của Tuần 6: `W' = W + (α/r)BA`.
+Hai điểm bản chất:
+1. **Template phải nhất quán tuyệt đối** giữa train và inference, model học phân phối văn bản, lệch một dấu xuống dòng cũng là phân phối khác.
+2. **Masking phần prompt**: chỉ tính loss trên token phần Response (gán nhãn `-100` cho phần trước, `F.cross_entropy` có `ignore_index=-100` mặc định). Không mask thì model tốn dung lượng học "viết lại đề bài".
+   - 📄 Nuance từ paper *Instruction Modelling* (arXiv [2405.14394](https://arxiv.org/abs/2405.14394), abstract tra 2026-08-12): mask response-only là mặc định tốt, nhưng nhóm tác giả báo cáo tính loss **cả trên phần instruction** lại có lợi ở hai điều kiện, "datasets with lengthy instructions paired with brief outputs" và khi có ít mẫu train; họ quy lợi ích cho "reduced overfitting". Bài tuần này cứ mask chuẩn; nhớ ngoại lệ này khi dataset của bạn rơi đúng hai điều kiện đó.
 
-## 3. Local inference stack — GGUF, Ollama, LM Studio
+Đây chính là bước **SFT** trong pipeline alignment mà Tuần 10 mở rộng: `Pretrain → SFT → RM → PPO/DPO`.
 
-- **GGUF** = định dạng file model của llama.cpp (nhắc lần 3 trong roadmap vì hay nhầm): một file chứa trọng số đã quantize (Q4_K_M, Q5_K_M, Q8_0…) + metadata + tokenizer. **Không phải thuật toán** — cùng một model có nhiều bản GGUF ở mức bit khác nhau.
-- **Ollama**: serve model local qua API; `Modelfile` khai báo GGUF nguồn + template chat + tham số. Đây là backend generate cho RAG Tuần 10.
-- **LM Studio**: GUI chạy cả GGUF lẫn MLX — tiện so sánh nhanh hai format trên cùng máy Mac.
-- Quy tắc chọn mức quantize (mục nâng cao B4): 8-bit gần như không mất chất lượng, 4-bit là điểm ngọt local; bit càng thấp perplexity càng tăng — nghi ngờ chất lượng thì thử lại ở Q8_0 trước khi đổ lỗi cho model.
+## 4. LoRA: fine-tune bằng 2% tham số
 
-## 4. Đo tốc độ Mac vs 3070 Ti — làm cho ra số, đừng cảm nhận
+Ý tưởng (Hu et al., arXiv 2106.09685): thay vì cập nhật cả ma trận `W (d×d)`, học phần **delta hạng thấp**:
 
-Protocol tối thiểu (điền kết quả vào [`03_hardware_decision.md`](03_hardware_decision.md)):
+```
+h = W·x + (α/r) · B·A·x        A: (r×d), B: (d×r), r ≪ d
+```
 
-1. Cùng model, cùng mức quantize (vd. cùng file GGUF Q4_K_M), cùng prompt, cùng `max_tokens`.
-2. Chạy ≥3 lần mỗi máy, bỏ lần đầu (warmup/load), lấy trung bình **tokens/giây** (Ollama in sẵn `eval rate`).
-3. Ghi kèm: nhiệt/throttling nếu có, RAM/VRAM chiếm dụng, ngày đo.
+- `B` khởi tạo **0** → lúc bắt đầu `BA = 0`, model y hệt base, train từ điểm an toàn.
+- `W` đóng băng; chỉ `A, B` nhận gradient.
+- Inference có thể **merge**: `W' = W + (α/r)BA` → không thêm latency.
 
-Kết quả bảng này + trải nghiệm fine-tune là căn cứ viết bảng quyết định Mac vs 3070 Ti vs cloud — không chép ước lượng của người khác.
+Đếm tham số (kiểm chứng số học 2026-08-11):
 
-## 5. Kiểm tra catastrophic forgetting — bắt buộc với model song ngữ
+| Ma trận gốc | Full FT | LoRA r=8 | LoRA r=16 |
+|-------------|---------|----------|-----------|
+| 768×768 (GPT-2) | 589,824 | 12,288 (**2.08%**) | 24,576 (4.17%) |
+| 4096×4096 (cỡ 7B) | 16,777,216 | · | 131,072 (**0.78%**) |
 
-Fine-tune lệch về một thứ tiếng có thể làm suy giảm khả năng thứ tiếng kia. Đừng tranh luận lý thuyết — **đo**:
+**Vì sao VRAM giảm mạnh hơn cả tỷ lệ trên:** AdamW giữ 2 giá trị moment cho **mỗi tham số được train** (Tuần 8 mục 7). LoRA cắt số tham số train được ~50-100× → cắt luôn optimizer state tương ứng, thường là phần ăn VRAM lớn nhất khi full FT.
 
-1. Trước khi fine-tune: chốt bộ 10 prompt cố định (5 tiếng Việt + 5 tiếng Anh, có cả nghiệp vụ lẫn thường thức), sinh và lưu output của base.
-2. Sau fine-tune: chạy đúng 10 prompt đó (temperature 0), so từng cặp.
-3. Suy giảm rõ ở tiếng Anh → giảm tỷ lệ data một chiều, trộn thêm data tiếng Anh (chiến lược mục 8 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)), train lại.
+So sánh full FT vs LoRA cho deliverable: cùng dataset + cùng số step, ghi 3 cột, tham số train được, VRAM đỉnh (`torch.cuda.max_memory_allocated()`), chất lượng trên vài prompt cố định.
 
-Bộ 10 prompt này giữ cố định vĩnh viễn — nó là "bài kiểm tra sức khỏe song ngữ" cho mọi model sau này của dự án.
+## 5. Tiếng Việt trong tuần này
 
-Bài kiểm tra này có chỗ dựa từ paper chứ không phải lo xa: Biderman et al. 2024 (PDF trong repo: [`../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf`](../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf)) đo được full fine-tuning quên kiến thức ngoài domain đích nhiều hơn hẳn LoRA — tức là mức quên **phụ thuộc cách bạn fine-tune**, và chỉ có đo mới biết mình đang ở đâu trên trade-off đó. LoRA của MLX ở mục 2 nằm ở phía "quên ít" của phổ này, nhưng số của máy bạn vẫn phải tự đo.
+- **Model học phân phối nó nhìn thấy:** instruction data toàn tiếng Anh thì đừng kỳ vọng model trả lời tiếng Việt tử tế. Muốn hành vi song ngữ → trộn data hai thứ tiếng (chiến lược trộn: mục 8 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
+- **Template và ngôn ngữ instruction phải nhất quán cả lúc eval:** nếu train template tiếng Anh + output tiếng Việt, thì lúc test cũng đúng cấu trúc đó; đổi kiểu giữa chừng là tự làm hỏng phép so sánh của mình.
+- GPT-2 124M của bạn pretrain trên tiếng Anh, bài instruction-FT tuần này nên làm bằng tiếng Anh cho khớp base; fine-tune tiếng Việt thật để dành cho Tuần 11 với base đa ngôn ngữ.
 
-## 6. Tiếng Việt trong tuần này
-
-- Mục 5 chính là nội dung tiếng Việt trọng tâm của tuần: **giữ được song ngữ sau fine-tune là một deliverable đo được**, không phải cảm nhận.
-- Khi viết `Modelfile` cho Ollama: **template chat phải khớp đúng template lúc fine-tune** (bài học Tuần 6 mục 3) — sai template, model tiếng Việt trả lời lẫn tiếng Anh hoặc lặp vô hạn là triệu chứng kinh điển. [Suy luận] — dựa trên cơ chế model học phân phối template; gặp triệu chứng thì kiểm template đầu tiên.
-- Kiểm tra sanity encoding: prompt có dấu tiếng Việt qua API Ollama phải ra text có dấu chuẩn NFC (Tuần 10 sẽ dùng nghiêm túc — thấy mojibake thì soi encoding client trước khi nghi model).
-
-## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 6. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
-| ml-explore/mlx-lm (MIT, có LORA.md) | https://github.com/ml-explore/mlx-lm | 2 |
-| Biderman et al. 2024 — LoRA Learns Less and Forgets Less (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.09673 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 5 |
-
-(Ollama, LM Studio, llama.cpp/GGUF: link trong README nguồn học — công cụ cài trên máy, tự xác minh version lúc cài. Các con số tốc độ trong tuần này do BẠN đo, không có số tham khảo nào đáng tin hơn máy của chính bạn.)
+| Hu et al. 2021, LoRA | https://arxiv.org/abs/2106.09685 | 4 |
+| Ouyang et al. 2022, InstructGPT | https://arxiv.org/abs/2203.02155 | 3 |
+| HF PEFT docs | https://huggingface.co/docs/peft | 4 |
+| Gekhman et al. 2024, FT trên kiến thức mới & hallucination (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.05904, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
+| Shi et al. 2024, Instruction Modelling (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2405.14394 | 3 |
 
 ## Sau khi đọc xong
 
-1. Cài `mlx-lm` trên Mac, chạy flow 3 lệnh (mục 2) theo [`02_mlx_commands.md`](02_mlx_commands.md).
-2. Chốt bộ 10 prompt song ngữ TRƯỚC khi fine-tune (mục 5).
-3. Dựng Ollama + LM Studio, đo tốc độ hai máy theo protocol mục 4.
-4. Viết [`03_hardware_decision.md`](03_hardware_decision.md) từ số đo thật; làm [`quiz.md`](quiz.md).
+1. Làm classification FT trước (đơn giản hơn, quen tay), rồi instruction FT trong [`02_instruction_finetune.py`](02_instruction_finetune.py).
+2. Áp LoRA, điền bảng so sánh full FT vs LoRA (3 cột ở mục 4): số tự đo, kèm ngày.
+3. Chat thử với mini-model, lưu vài ví dụ vào nhật ký.
+4. Làm [`quiz.md`](quiz.md); phần sơ đồ pipeline ở mục nâng cao đọc lướt, Tuần 10 học kỹ.
+
+## 7. Instruction tuning và PEFT nhìn từ giáo trình
+
+Hai mục dưới đây đặt việc bạn làm trong `02_instruction_finetune.py` vào khung mà sách giáo khoa dùng, để khi đọc paper hay docs của PEFT bạn không lạc thuật ngữ.
+
+**Instruction tuning là supervised learning với cùng objective.** Jurafsky và Martin định nghĩa instruction tuning là lấy một base LLM đã pretrain và train nó theo các cặp instruction và response cho nhiều tác vụ, "from machine translation to meal planning" (SLP3 mục 8.1, trang 210). Điểm họ nhấn: model không chỉ học các tác vụ đó mà còn "engages in a form of meta-learning", tức cải thiện khả năng làm theo hướng dẫn nói chung. Về kỹ thuật, "the training corpus of instructions is simply treated as additional training data, and the gradient-based updates are generated using cross-entropy loss as in the original model training". Vậy thứ đổi so với Tuần 8 là dữ liệu và cách mask loss (chỉ tính loss trên phần response, mục 3 ở trên), không phải hàm loss hay optimizer. [Suy luận] Nếu loss instruction tuning bắt đầu ở mức thấp hơn loss pretraining, cách giải thích hợp lý là model đã biết ngôn ngữ và chỉ đang học định dạng và hành vi; tự kiểm bằng cách ghi loss ở step 0 của cả hai lần chạy.
+
+**PEFT là bài toán rộng hơn instruction tuning.** SLP3 mục 8.2 (trang 213) đặt instruction tuning làm trường hợp riêng của nhu cầu chung: thích nghi model đã pretrain sang một tác vụ, một domain, hay một ngôn ngữ mới, ví dụ text pháp lý hay y tế, hoặc một ngôn ngữ ít dữ liệu. Fleuret gọi họ kỹ thuật này là adapters: thêm các thành phần có ít tham số vào kiến trúc đã pretrain và **đóng băng toàn bộ tham số gốc** (Houlsby et al. 2019), và "The current dominant method is the Low-Rank Adaptation (LoRA), which adds low-rank corrections to some of the model's weight matrices" (*Little Book* mục 8.3, trang 155). SLP3 ghi LoRA thường áp lên các ma trận của attention, W_Q, W_K, W_V và W_O, và "Many variants of LoRA exist" (trang 215).
+
+**Bảng so sánh full FT và LoRA nên đo gì.** Mục 4 ở trên yêu cầu bạn điền bảng ba cột bằng số tự đo. Từ hai nguồn trên, ba đại lượng đáng đo là: số tham số trainable (LoRA hạng r trên bốn ma trận attention so với toàn bộ), VRAM đỉnh khi train (đóng băng tham số gốc thì không cần lưu optimizer state cho chúng), và mức quên kiến thức cũ, đo bằng loss trên một mẫu text pretraining giữ lại trước và sau fine-tune. Paper "LoRA Learns Less and Forgets Less" trong kệ paper đo đúng trade-off thứ ba ở quy mô 7B; bảng của bạn là phiên bản tí hon của thí nghiệm đó, đủ để tự thấy xu hướng.
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **Instruction tuning là gì.** SLP3 mục 8.1 (trang 210): "Instruction tuning is a form of supervised learning where the training data consists of instructions and we continue training the model on them using the same language modeling objective used to train the original model." Đây là câu trả lời ngắn cho câu hỏi "instruction FT khác pretraining chỗ nào": khác dữ liệu, không khác objective.
+- **PEFT trong bối cảnh.** SLP3 mục 8.2 Parameter Efficient Fine Tuning (trang 213) đặt instruction tuning làm trường hợp riêng của nhu cầu adapt model sang task, domain hay ngôn ngữ mới. Fleuret mục 8.3 Adapters (trang 155): "The current dominant method is the Low-Rank Adaptation (LoRA), which adds low-rank corrections to some of the model's weight matrices", đúng ΔW = BA của mục 4 ở trên và trực giác SVD của Tuần 1 mục 7.
+- **Code tham chiếu mở.** Notebook `chapter11/Chapter 11 - Fine-Tuning BERT.ipynb` trong repo Hands-On LLM (Apache-2.0) fine-tune model biểu diễn cho phân loại, đối chiếu với phần classification FT của tuần.

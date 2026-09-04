@@ -1,46 +1,79 @@
-# Tuần 7 — Quiz: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
+# Tuần 7, Quiz: Lắp ráp & chạy mô hình GPT
 
-> Tự kiểm tra **trước** khi xem solution. Tổng **6** câu. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
-> _Sinh tự động từ `scripts/quiz_bank.json` — đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
+> Tự kiểm tra **trước** khi xem solution. Tổng **9** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
+> _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
 
-## Câu 1 (Tự luận)
+## Câu 1 (Trắc nghiệm)
 
-Phân biệt SFT, DPO và GRPO.
+LayerNorm trong transformer chuẩn hoá theo chiều nào?
 
-## Câu 2 (Trắc nghiệm)
+- **A.** Theo chiều batch (như BatchNorm)
+- **B.** Theo chiều feature/embedding của từng token (last dim)
+- **C.** Theo chiều sequence
+- **D.** Theo toàn bộ tensor
 
-Reward Model (RM) trong RLHF học để làm gì?
+## Câu 2 (Tự luận)
 
-- **A.** Sinh phản hồi cuối cùng cho người dùng
-- **B.** Chấm điểm/so sánh mức ưu tiên giữa các output để hướng dẫn RL
-- **C.** Tokenize dữ liệu
-- **D.** Lưu KV cache
+Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp train mạng sâu?
 
 ## Câu 3 (Trắc nghiệm)
 
-So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
+Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên khoảng mấy lần d_model?
 
-- **A.** Bỏ dữ liệu ưu tiên (preference)
-- **B.** Bỏ việc train reward model riêng và vòng lặp PPO — tối ưu thẳng từ cặp ưu tiên
-- **C.** Bỏ model tham chiếu (reference)
-- **D.** Bỏ tokenizer
+- **A.** 2 lần
+- **B.** 4 lần
+- **C.** 8 lần
+- **D.** Không mở rộng
 
-## Câu 4 (Tự luận)
+## Câu 4 (Trắc nghiệm)
 
-[Nâng cao] RLVR (Reinforcement Learning from Verifiable Rewards) là gì, vì sao hợp với reasoning?
+GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n_heads=12)?
 
-## Câu 5 (Trắc nghiệm)
+- **A.** ~50M
+- **B.** ~124M
+- **C.** ~350M
+- **D.** ~1.5B
 
-[Nâng cao] Bước 'midtrain' (nanochat) nằm ở đâu trong pipeline?
+## Câu 5 (Tự luận)
 
-- **A.** Trước pretrain
-- **B.** Giữa pretrain và SFT — dạy format hội thoại, special tokens, tool use
-- **C.** Sau GRPO
-- **D.** Thay thế SFT
+[Nâng cao] RMSNorm khác LayerNorm ở điểm nào, vì sao model hiện đại chuộng nó?
 
-## Câu 6 (Tự luận)
+## Câu 6 (Trắc nghiệm)
 
-Trong RLHF/DPO, thành phần KL divergence (hoặc reference policy) đóng vai trò gì?
+[Nâng cao] SwiGLU FFN của Llama/Qwen thay thế phần nào của GPT-2?
+
+- **A.** Thay attention
+- **B.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn
+- **C.** Thay LayerNorm
+- **D.** Thay positional embedding
+
+## Câu 7 (Trắc nghiệm)
+
+[Nâng cao] Trong một lớp Mixture-of-Experts (MoE), 'router' làm gì?
+
+- **A.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert
+- **B.** Định tuyến gradient ngược
+- **C.** Chọn GPU để chạy
+- **D.** Sắp xếp token theo độ dài
+
+---
+
+## Phần nâng cao
+
+> Các câu dưới đây đòi đọc mục tương ứng trong `Week-00/advanced_topics_vi.md` hoặc paper gốc. Làm sau khi xong phần cơ bản.
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Top-p (nucleus) sampling khác top-k ở điểm nào theo Jurafsky và Martin, và vì sao điểm đó quan trọng khi ngữ cảnh đổi?
+
+- **A.** Top-p luôn chọn nhiều token hơn top-k
+- **B.** Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh
+- **C.** Top-p chỉ dùng khi temperature bằng 1
+- **D.** Top-p là greedy với p = 1
+
+## Nâng cao 2 (Tự luận)
+
+Vì sao khi kiểm tra kiến trúc GPT bằng cách load trọng số GPT-2 rồi sinh text, nên bắt đầu bằng greedy decoding thay vì sampling?
 
 ---
 > 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

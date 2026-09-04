@@ -1,17 +1,312 @@
 {
   "meta": {
-    "title": "Quiz Bank — LLM From Scratch",
+    "title": "Quiz Bank, LLM From Scratch",
     "language": "vi",
     "version": "2.0",
-    "note": "Nguồn chân lý cho quiz từng tuần. Chạy scripts/generate_quiz.py để sinh Week-XX/quiz.md, Week-XX/quiz_solution.md và report/assets/js/quiz-data.js. type=mcq dùng choices+answer(index từ 0); type=open dùng answer(văn bản mẫu). Toán viết dạng plain-text cho dễ bảo trì."
+    "note": "Nguồn chân lý cho quiz từng tuần (18 tuần). Chạy scripts/generate_quiz.py để sinh Week-XX/quiz.md, Week-XX/quiz_solution.md và report/assets/js/quiz-data.js. type=mcq dùng choices+answer(index từ 0); type=open dùng answer(văn bản mẫu). Toán viết dạng plain-text cho dễ bảo trì. Trường level='advanced' đánh dấu câu nâng cao, sinh vào mục riêng cuối quiz."
   },
   "weeks": [
     {
       "week": 1,
-      "title": "Toán nền tảng + PyTorch",
+      "title": "Đại số tuyến tính và hình học giải tích",
       "questions": [
         {
           "id": "w1q1",
+          "type": "mcq",
+          "q": "Khi nhân hai ma trận A có chiều (m, k) và B có chiều (k, n), kết quả A @ B có chiều nào, và điều kiện nào phải thỏa để phép nhân hợp lệ?",
+          "choices": [
+            "Kết quả có chiều (k, k); chỉ cần A và B cùng số phần tử",
+            "Kết quả có chiều (m, n); chiều trong k của A phải khớp với chiều đầu của B",
+            "Kết quả có chiều (n, m); hai ma trận phải vuông",
+            "Kết quả có chiều (m, k); B phải khả nghịch"
+          ],
+          "answer": 1,
+          "explain": "Phần tử (i, j) của tích là dot product của hàng i trong A với cột j trong B, nên hai chiều trong phải bằng nhau và hai chiều ngoài quyết định chiều kết quả (MML công thức 2.13, trang 22)."
+        },
+        {
+          "id": "w1q2",
+          "type": "mcq",
+          "q": "Vì sao phép nhân ma trận nói chung không giao hoán, tức là A @ B thường khác B @ A?",
+          "choices": [
+            "Vì máy tính làm tròn số theo thứ tự khác nhau",
+            "Vì mỗi ma trận là một ánh xạ tuyến tính, và hợp hai ánh xạ phụ thuộc thứ tự thực hiện, ví dụ xoay rồi kéo dãn khác kéo dãn rồi xoay",
+            "Vì chỉ ma trận vuông mới nhân được theo cả hai chiều",
+            "Vì định thức của tích thay đổi theo thứ tự"
+          ],
+          "answer": 1,
+          "explain": "MML mục 2.7 (trang 48) nhìn ma trận như ánh xạ tuyến tính. Thí nghiệm matmul trong lab: xoay 90 độ rồi kéo dãn trục x đưa [1, 0] thành [0, 1], còn kéo dãn trước rồi xoay đưa nó thành [0, 2]."
+        },
+        {
+          "id": "w1q3",
+          "type": "open",
+          "q": "Hãy giải thích bằng lời của bạn vì sao dot product giữa hai vector đo được mức độ cùng hướng của chúng, và nêu hai chỗ trong lộ trình sẽ dùng lại ý này.",
+          "answer": "Với inner product là dot product, cos của góc giữa x và y bằng x·y chia cho tích hai độ dài (MML Example 3.6, trang 77). Khi hai vector cùng hướng, cos gần 1 và dot product lớn; khi vuông góc, dot product bằng 0 (MML Definition 3.7). Lộ trình dùng lại ở điểm attention q·k của Tuần 6 và ở cosine similarity giữa embedding câu hỏi và đoạn văn trong RAG của Tuần 13.",
+          "explain": "Đây là công thức hình học duy nhất mà cả attention và retrieval đều đứng trên. Hiểu nó một lần ở đây thì hai tuần kia chỉ còn là lắp ráp."
+        },
+        {
+          "id": "w1q4",
+          "type": "mcq",
+          "q": "Ba vector v1 = [1, 0, 1], v2 = [0, 1, 1] và v3 = v1 + v2 được xếp thành cột của một ma trận 3×3. Hạng của ma trận đó là bao nhiêu và vì sao?",
+          "choices": [
+            "Hạng bằng 3 vì ma trận có 3 cột",
+            "Hạng bằng 2 vì v3 là tổ hợp tuyến tính của v1 và v2, nên ba vector chỉ trải ra một mặt phẳng",
+            "Hạng bằng 1 vì cả ba vector đều có phần tử cuối bằng 1 hoặc 2",
+            "Không xác định được nếu chưa tính định thức"
+          ],
+          "answer": 1,
+          "explain": "Hạng là số cột độc lập tuyến tính tối đa (MML mục 2.6, trang 47). Vì v3 phụ thuộc vào hai vector đầu, chỉ còn hai cột độc lập. Định thức của ma trận này bằng 0 nên nó không khả nghịch."
+        },
+        {
+          "id": "w1q5",
+          "type": "mcq",
+          "q": "Khi giải hệ A x = b vô nghiệm bằng least squares, công thức x̂ = (AᵀA)⁻¹Aᵀb cho ra điều gì, và ta kiểm tra kết quả bằng cách nào?",
+          "choices": [
+            "Cho ra nghiệm chính xác của hệ; kiểm bằng cách thay vào thấy A x̂ = b",
+            "Cho ra hệ số của phép chiếu trực giao b lên không gian cột của A; kiểm bằng cách xem phần dư b − A x̂ có trực giao với mọi cột của A không",
+            "Cho ra nghịch đảo của A; kiểm bằng cách nhân A với kết quả",
+            "Cho ra vector riêng của AᵀA; kiểm bằng định thức"
+          ],
+          "answer": 1,
+          "explain": "Phép chiếu trực giao (MML mục 3.8, trang 81) cho điểm gần b nhất trong không gian cột của A. Trong lab, Aᵀ(b − A x̂) bằng 0 chính là phép kiểm này. Linear regression ở Tuần 3 là đúng phép chiếu này."
+        },
+        {
+          "id": "w1q6",
+          "type": "open",
+          "q": "Một ma trận 6×5 có giá trị kỳ dị xấp xỉ [4.98, 2.17, 0.02, 0.02, 0.005]. Bạn kết luận gì về hạng hiệu dụng của nó, và điều này liên quan thế nào đến LoRA ở Tuần 9 và Tuần 11?",
+          "answer": "Hai giá trị kỳ dị đầu lớn, ba giá trị sau gần bằng 0, nên ma trận có hạng hiệu dụng 2: giữ hai thành phần đầu là được xấp xỉ hạng 2 gần như không mất thông tin, theo định lý Eckart-Young (MML Theorem 4.25, trang 131). LoRA đặt giả thuyết rằng ma trận hiệu chỉnh ΔW khi fine-tune cũng có hạng hiệu dụng thấp, nên chỉ cần học tích B·A với hạng r nhỏ.",
+          "explain": "SVD cho biết một ma trận thực sự có bao nhiêu chiều đáng kể. Đó là câu trả lời cho câu hỏi 'rank r = 8 có đủ không' mà bạn sẽ gặp khi cấu hình QLoRA."
+        },
+        {
+          "id": "w1adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Định lý Eckart–Young (MML Theorem 4.25) nói gì về xấp xỉ hạng k của một ma trận, và điều đó được LoRA khai thác thế nào?",
+          "choices": [
+            "Mọi ma trận đều có hạng bằng số cột, nên không thể xấp xỉ hạng thấp",
+            "Giữ k giá trị kỳ dị lớn nhất của SVD cho xấp xỉ hạng k tốt nhất theo chuẩn Frobenius và chuẩn phổ; LoRA đặt cược rằng ma trận hiệu chỉnh khi fine-tune có hạng hiệu dụng thấp nên chỉ cần học tích B·A hạng r",
+            "Xấp xỉ hạng thấp chỉ đúng với ma trận đối xứng",
+            "Eckart–Young chỉ áp dụng cho ma trận vuông"
+          ],
+          "answer": 1,
+          "explain": "MML mục 4.6 (Theorem 4.25, trang 131) phát biểu Eckart–Young. DeepSeek-V2 dùng cùng ý cho KV cache (MLA, arXiv 2405.04434), nên đây là ý toán học xuất hiện ba lần trong lộ trình."
+        },
+        {
+          "id": "w1adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Vì sao ma trận Gram AᵀA luôn nửa xác định dương, và tính chất này xuất hiện ở đâu trong công thức phép chiếu least squares?",
+          "answer": "Với mọi x, xᵀAᵀAx = (Ax)ᵀ(Ax) = ‖Ax‖² ≥ 0, đó là định nghĩa nửa xác định dương (Vũ Hữu Tiệp mục 1.13, trang 24). Trong phép chiếu x̂ = (AᵀA)⁻¹Aᵀb, ta cần AᵀA khả nghịch, tức xác định dương chặt; điều đó xảy ra khi các cột của A độc lập tuyến tính (MML mục 3.8, trang 81).",
+          "explain": "Khi các cột phụ thuộc tuyến tính, AᵀA suy biến và phải dùng pseudo-inverse hoặc regularization; đây là gốc của ridge regression."
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "title": "Giải tích vector, xác suất, tối ưu hóa",
+      "questions": [
+        {
+          "id": "w2q1",
+          "type": "mcq",
+          "q": "Với hàm f(x₁, x₂) = x₁²x₂ + x₁x₂³, gradient tại điểm (1, 2) bằng bao nhiêu?",
+          "choices": [
+            "[4, 13]",
+            "[12, 13]",
+            "[12, 7]",
+            "[5, 9]"
+          ],
+          "answer": 1,
+          "explain": "Đạo hàm riêng theo x₁ là 2x₁x₂ + x₂³ = 4 + 8 = 12; theo x₂ là x₁² + 3x₁x₂² = 1 + 12 = 13 (MML Example 5.7, trang 147). Lab gradcheck xác nhận bằng sai phân với sai lệch cỡ 1e-9."
+        },
+        {
+          "id": "w2q2",
+          "type": "open",
+          "q": "Hãy mô tả cách bạn kiểm tra một công thức gradient bằng số, và giải thích vì sao kỹ thuật này sẽ hữu ích ở Tuần 5 khi tự viết autograd.",
+          "answer": "Dùng sai phân trung tâm: với từng chiều i, tính (f(x + εeᵢ) − f(x − εeᵢ)) / 2ε với ε khoảng 1e-6, rồi so với gradient giải tích; sai lệch cỡ 1e-8 trở xuống là khớp (Vũ Hữu Tiệp mục 2.6, trang 36). Ở Tuần 5, micrograd tự tính gradient qua chain rule; cách kiểm độc lập duy nhất là so với sai phân số hoặc với PyTorch.",
+          "explain": "Đây là công cụ debug rẻ nhất cho mọi phép đạo hàm bạn tự viết, kể cả khi đã dùng PyTorch."
+        },
+        {
+          "id": "w2q3",
+          "type": "mcq",
+          "q": "Một bệnh có tỉ lệ 1% trong dân số. Xét nghiệm phát hiện đúng 95% người bệnh và báo dương tính giả ở 5% người khỏe. Một người nhận kết quả dương tính thì xác suất thực sự mắc bệnh gần với con số nào?",
+          "choices": [
+            "Khoảng 95%",
+            "Khoảng 50%",
+            "Khoảng 16%",
+            "Khoảng 1%"
+          ],
+          "answer": 2,
+          "explain": "Theo công thức Bayes (Durrett EP4A mục 5.3, trang 118): P(bệnh | dương) = 0.95 × 0.01 / (0.95 × 0.01 + 0.05 × 0.99) ≈ 0.161. Số người khỏe bị dương tính giả đông hơn số người bệnh dương tính thật, nên kết quả nhỏ hơn trực giác rất nhiều."
+        },
+        {
+          "id": "w2q4",
+          "type": "mcq",
+          "q": "Luật số lớn nói gì về loss tính trên một batch trong training, và điều đó giải thích hiện tượng nào trên loss curve?",
+          "choices": [
+            "Loss trên batch luôn bằng loss kỳ vọng, nên loss curve phải trơn",
+            "Loss trên batch là trung bình mẫu của loss kỳ vọng, có phương sai tỉ lệ với 1/n, nên batch nhỏ cho loss curve nhấp nhô hơn batch lớn",
+            "Loss trên batch không liên quan đến loss kỳ vọng vì dữ liệu không độc lập",
+            "Loss trên batch chỉ hội tụ khi learning rate giảm về 0"
+          ],
+          "answer": 1,
+          "explain": "Trung bình mẫu X̄ₙ có kỳ vọng μ và phương sai σ²/n, và tiến về μ khi n lớn (Durrett EP4A Theorem 4.7, trang 93). Loss của một batch là đúng trung bình mẫu như vậy, nên kích thước batch điều khiển độ nhiễu của ước lượng."
+        },
+        {
+          "id": "w2q5",
+          "type": "open",
+          "q": "Vì sao cross-entropy loss được xem là negative log-likelihood, và vì sao người ta cực tiểu negative log-likelihood thay vì cực đại likelihood trực tiếp?",
+          "answer": "Maximum likelihood tìm tham số làm xác suất quan sát được dữ liệu lớn nhất (Vũ Hữu Tiệp mục 4.2, trang 53). Với phân phối categorical trên các lớp hoặc token, log-likelihood của nhãn đúng là log của xác suất model gán cho nhãn đó; đổi dấu và lấy trung bình ta được cross-entropy. Lấy log biến tích của nhiều mẫu thành tổng, dễ tính và ổn định số, còn đổi dấu chỉ để dùng thuật toán cực tiểu hóa; vị trí cực trị không đổi vì log đơn điệu tăng.",
+          "explain": "MML mục 9.2.1 (trang 293) nhắc thêm rằng likelihood không phải phân phối xác suất theo tham số θ; nó chỉ là một hàm của θ mà ta tối ưu."
+        },
+        {
+          "id": "w2q6",
+          "type": "mcq",
+          "q": "Trên hàm f(x) = x² với đạo hàm 2x, chạy gradient descent từ x₀ = 5 với step size 1.1 thì điều gì xảy ra sau 20 bước, và vì sao?",
+          "choices": [
+            "Hội tụ về 0 vì hàm lồi nên mọi step size đều được",
+            "Dao động quanh 0 với biên độ không đổi",
+            "Phân kỳ, vì mỗi bước nhân x với (1 − 2 × 1.1) = −1.2 nên trị tuyệt đối tăng theo cấp số nhân",
+            "Dừng ngay tại x = 5 vì gradient bằng 0"
+          ],
+          "answer": 2,
+          "explain": "Bước cập nhật x ← x − γ·2x = (1 − 2γ)x. Với γ = 1.1, hệ số là −1.2, trị tuyệt đối lớn hơn 1 nên |x| tăng mỗi bước. MML mục 7.1 (trang 227-228) bàn đúng chuyện step size quá lớn thì phân kỳ, quá nhỏ thì chậm; skeleton 03_gradient_descent.py cho bạn thấy tận mắt."
+        },
+        {
+          "id": "w2q7",
+          "type": "mcq",
+          "q": "Theo MacKay (ITILA eq. 2.45-2.46), relative entropy D_KL(P‖Q) luôn không âm và chỉ bằng 0 khi P = Q. Điều này nói gì về giá trị nhỏ nhất mà cross-entropy loss có thể đạt khi train một model?",
+          "choices": [
+            "Cross-entropy có thể xuống 0 với mọi dữ liệu nếu train đủ lâu",
+            "Cross-entropy nhỏ nhất bằng entropy của phân phối dữ liệu, đạt được khi phân phối model trùng phân phối thật, vì cross-entropy = entropy + KL",
+            "Cross-entropy không có đáy vì log không bị chặn",
+            "Cross-entropy nhỏ nhất bằng KL divergence"
+          ],
+          "answer": 1,
+          "explain": "Cross-entropy H(P, Q) = H(P) + D_KL(P‖Q). Vì KL ≥ 0 với đẳng thức khi P = Q (bất đẳng thức Gibbs, MacKay trang 34), đáy của loss là entropy của dữ liệu, không phải 0. Dữ liệu có nhiễu thì loss tốt nhất vẫn dương."
+        },
+        {
+          "id": "w2adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Theo RoFormer (arXiv 2104.09864) và cách MML định nghĩa góc giữa hai vector, vì sao xoay cả query và key theo vị trí lại làm điểm attention chỉ phụ thuộc khoảng cách tương đối?",
+          "choices": [
+            "Vì phép xoay làm mọi vector có cùng độ dài",
+            "Vì tích vô hướng của hai vector đã xoay góc mθ và nθ chỉ phụ thuộc hiệu góc (m−n)θ, do phép xoay bảo toàn độ dài và góc tương đối giữa hai vector",
+            "Vì RoPE cộng vector vị trí vào embedding như GPT-2",
+            "Vì key không bị xoay, chỉ query bị xoay"
+          ],
+          "answer": 1,
+          "explain": "Đây là hình học Tuần 1 mục 4 (cos góc = inner product chia tích độ dài) áp lên cặp chiều được xoay. RoFormer viết RoPE 'encodes the absolute position with a rotation matrix and meanwhile incorporates the explicit relative position dependency in self-attention formulation' (abstract)."
+        },
+        {
+          "id": "w2adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "MacKay và Murphy đều định nghĩa KL divergence. Vì sao KL không phải một metric, và điều đó có nghĩa gì khi PPO dùng KL(policy ‖ reference) làm ràng buộc?",
+          "answer": "KL(P‖Q) không đối xứng và không thỏa bất đẳng thức tam giác, nên chỉ là divergence, không phải metric (Murphy PML1 mục 6.2, trang 213; MacKay eq. 2.45, trang 34). Trong RLHF, chiều KL(π_θ ‖ π_ref) phạt policy đặt xác suất cao vào chỗ reference đặt xác suất thấp; đổi chiều sẽ phạt điều khác, nên khi đọc code alignment ở Tuần 10 phải nhìn rõ chiều nào được dùng.",
+          "explain": "Bất đẳng thức Gibbs KL ≥ 0 với đẳng thức khi hai phân phối trùng nhau là lý do KL dùng được như 'khoảng cách' dù không đối xứng."
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "title": "Nền tảng ML và lý thuyết học",
+      "questions": [
+        {
+          "id": "w3q1",
+          "type": "mcq",
+          "q": "Trong khung học thống kê của Shalev-Shwartz và Ben-David, learner được biết gì và không được biết gì?",
+          "choices": [
+            "Biết phân phối D và hàm nhãn f, chỉ không biết tập test",
+            "Biết training data S gồm các cặp (x, y); không biết phân phối D sinh ra x và hàm gán nhãn f",
+            "Biết phân phối D nhưng không biết training data",
+            "Biết mọi thứ trừ kích thước mẫu m"
+          ],
+          "answer": 1,
+          "explain": "UML mục 2.1 (trang 33) và câu ở trang 35: learner 'mù' với D và f, cách duy nhất tương tác với thế giới là qua training set. Vì thế lỗi thật L_D(h) không tính được, chỉ tính được lỗi trên mẫu."
+        },
+        {
+          "id": "w3q2",
+          "type": "mcq",
+          "q": "Empirical Risk Minimization trên toàn bộ các hàm có thể có thì dẫn đến hậu quả gì, và lý thuyết đề xuất cách khắc phục nào?",
+          "choices": [
+            "Dẫn đến underfitting; khắc phục bằng cách tăng learning rate",
+            "Dẫn đến overfitting vì một hàm nhớ hết mẫu có lỗi mẫu bằng 0 nhưng lỗi thật cao; khắc phục bằng cách giới hạn trước lớp giả thuyết H, gọi là inductive bias",
+            "Không có hậu quả gì nếu dữ liệu đủ sạch",
+            "Dẫn đến chi phí tính toán cao; khắc phục bằng GPU"
+          ],
+          "answer": 1,
+          "explain": "UML mục 2.2 định nghĩa empirical risk (eq. 2.2, trang 35) và mục 2.3 (trang 36) đưa ra ERM với inductive bias. Lab 02_erm_lab.py cho thấy đa thức bậc cao có train loss thấp nhất nhưng validation loss lớn."
+        },
+        {
+          "id": "w3q3",
+          "type": "open",
+          "q": "Hãy viết công thức tách lỗi của giả thuyết ERM thành approximation error và estimation error, rồi giải thích mỗi thành phần phụ thuộc vào điều gì.",
+          "answer": "L_D(h_S) = ε_app + ε_est, với ε_app = min over h in H của L_D(h) và ε_est = L_D(h_S) − ε_app (UML eq. 5.7, trang 64). Approximation error là lỗi nhỏ nhất đạt được trong lớp H, không phụ thuộc kích thước mẫu, chỉ phụ thuộc H; mở rộng H làm nó giảm. Estimation error là phần trả giá vì chỉ có mẫu hữu hạn; H càng lớn thì phần này càng dễ lớn. Cách nói bias và variance là phiên bản trực giác của cùng trade-off.",
+          "explain": "Đây là khung để đọc mọi loss curve về sau: train loss giảm mà validation loss tăng nghĩa là estimation error đang thắng."
+        },
+        {
+          "id": "w3q4",
+          "type": "mcq",
+          "q": "Trong định nghĩa PAC learnability, hai tham số ε và δ lần lượt mang ý nghĩa gì?",
+          "choices": [
+            "ε là learning rate, δ là kích thước batch",
+            "ε là độ chính xác cho phép của giả thuyết trả về (phần 'approximately correct'), δ là xác suất thất bại được chấp nhận (phần 'probably')",
+            "ε là số mẫu, δ là số chiều của dữ liệu",
+            "ε là lỗi trên training set, δ là lỗi trên test set"
+          ],
+          "answer": 1,
+          "explain": "UML Definition 3.1 (trang 43): với m ≥ m_H(ε, δ) mẫu i.i.d., thuật toán trả về h có lỗi thật không quá ε với xác suất ít nhất 1 − δ. Hai xấp xỉ này là không tránh được vì mẫu hữu hạn và ngẫu nhiên."
+        },
+        {
+          "id": "w3q5",
+          "type": "mcq",
+          "q": "Điều gì tuyệt đối không được làm với validation data, và vì sao?",
+          "choices": [
+            "Không được vẽ đồ thị trên validation data vì tốn thời gian",
+            "Không được dùng validation data để ước lượng hay chọn tham số model, vì khi đó ước lượng lỗi trên nó không còn độc lập và không còn là ước lượng không chệch của lỗi thật",
+            "Không được chia validation data ngẫu nhiên vì làm mất thứ tự thời gian",
+            "Không được để validation data nhỏ hơn 50% dữ liệu"
+          ],
+          "answer": 1,
+          "explain": "Shalizi mục 3.4 (trang 81): 'we absolutely, positively, cannot use any of the validation data in estimating the model.' UML mục 11.2 (trang 146) chỉ ra bound từ validation set độc lập chính xác hơn bound VC, nhưng chỉ khi nó thật sự độc lập."
+        },
+        {
+          "id": "w3q6",
+          "type": "open",
+          "q": "Logistic regression khác linear regression ở những điểm nào về đầu ra, hàm loss và cách giải, và vì sao có thể gọi nó là mạng neural một lớp?",
+          "answer": "Linear regression trả về số thực, dùng squared loss, và có nghiệm đóng bằng phép chiếu trực giao (MML Example 8.1, trang 259). Logistic regression đưa đầu ra qua sigmoid để thành xác suất trong (0, 1), dùng negative log-likelihood của Bernoulli tức binary cross-entropy, và không có nghiệm đóng nên phải dùng gradient descent với gradient Xᵀ(p − y)/n (Vũ Hữu Tiệp chương 14, trang 165). Nó là một lớp tuyến tính nối với một hàm kích hoạt phi tuyến và một loss, đúng cấu trúc tối giản của một mạng neural.",
+          "explain": "Tuần 4 viết lại đúng model này bằng nn.Linear và F.binary_cross_entropy trong PyTorch, rồi chồng thêm lớp để thành MLP."
+        },
+        {
+          "id": "w3adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Shalev-Shwartz và Ben-David tách lỗi của giả thuyết ERM thành ε_app + ε_est. Khi bạn tăng hạng r của LoRA ở Tuần 11, thành phần nào của phân tích này có xu hướng thay đổi theo hướng nào?",
+          "choices": [
+            "Cả hai đều giảm vì model mạnh hơn",
+            "ε_app giảm vì lớp giả thuyết rộng hơn, còn ε_est có xu hướng tăng vì mẫu hữu hạn phải ước lượng nhiều tham số hơn",
+            "Chỉ ε_est giảm",
+            "Không thành phần nào đổi vì LoRA không đổi lớp giả thuyết"
+          ],
+          "answer": 1,
+          "explain": "UML mục 5.2 (trang 64): approximation error chỉ phụ thuộc H, estimation error là giá của mẫu hữu hạn. Tăng r mở rộng H. Kết quả thực nghiệm phụ thuộc dữ liệu; đây là khung để đọc, không phải dự đoán chắc."
+        },
+        {
+          "id": "w3adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Tại sao Shalev-Shwartz và Ben-David nói bound ước lượng từ validation set độc lập chính xác hơn bound từ VC-dimension, và cái giá của cách đó là gì?",
+          "answer": "Bound VC phụ thuộc VC-dimension d và kích thước mẫu m, còn bound từ validation set chỉ phụ thuộc kích thước m_v của validation set với sai số cỡ căn(log(2/δ)/(2m_v)), không phụ thuộc độ phức tạp của lớp giả thuyết (UML mục 11.2, trang 146-147). Cái giá là cần thêm mẫu độc lập ngoài mẫu đã dùng để train, và tuyệt đối không dùng validation data để ước lượng model (Shalizi mục 3.4, trang 81).",
+          "explain": "Đây là lý do mọi tuần eval về sau đều đòi held-out set riêng, kể cả eval set RAGAS ở Tuần 14."
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "title": "PyTorch core: từ NumPy sang tensor, autograd, training loop",
+      "questions": [
+        {
+          "id": "w4q1",
           "type": "mcq",
           "q": "Một nn.Linear(in, out) thực chất tính gì?",
           "choices": [
@@ -24,7 +319,7 @@
           "explain": "PyTorch lưu weight shape (out, in), nên forward là y = x @ W^T + b. Đây là khối tuyến tính cơ bản lặp lại khắp transformer."
         },
         {
-          "id": "w1q2",
+          "id": "w4q2",
           "type": "mcq",
           "q": "Mục đích chính của softmax là gì?",
           "choices": [
@@ -37,19 +332,19 @@
           "explain": "softmax(z)_i = e^{z_i} / sum_j e^{z_j}: mũ hoá làm mọi giá trị dương, chia tổng làm chúng cộng lại bằng 1 → phân phối xác suất trên các lớp/token."
         },
         {
-          "id": "w1q3",
+          "id": "w4q3",
           "type": "open",
           "q": "Chain rule liên quan thế nào tới backpropagation?",
           "answer": "Backprop = áp dụng chain rule lan ngược qua đồ thị tính toán. Đạo hàm của loss theo một tham số ở lớp sâu = tích các đạo hàm cục bộ dọc đường đi: dL/dw = dL/dg · dg/dw. Mỗi lớp chỉ cần biết đạo hàm cục bộ của nó và nhận gradient từ lớp sau, nhân vào, rồi truyền tiếp về trước.",
           "explain": "Đây là toàn bộ ý tưởng của autograd: lưu đồ thị forward, rồi nhân dồn đạo hàm cục bộ theo chiều ngược lại."
         },
         {
-          "id": "w1q4",
+          "id": "w4q4",
           "type": "mcq",
           "q": "Cross-entropy loss L_CE = -sum_i y_i log(y_hat_i) đo điều gì?",
           "choices": [
             "Khoảng cách Euclid giữa dự đoán và nhãn",
-            "Độ 'bất ngờ' của phân phối dự đoán so với nhãn thật — phạt nặng khi gán xác suất thấp cho lớp đúng",
+            "Độ 'bất ngờ' của phân phối dự đoán so với nhãn thật, phạt nặng khi gán xác suất thấp cho lớp đúng",
             "Số token dự đoán sai",
             "Phương sai của logits"
           ],
@@ -57,53 +352,82 @@
           "explain": "Với nhãn one-hot, L_CE = -log(xác suất gán cho lớp đúng). Gán xác suất gần 1 cho lớp đúng → loss ~0; gần 0 → loss rất lớn."
         },
         {
-          "id": "w1q5",
+          "id": "w4q5",
           "type": "mcq",
           "q": "Cộng tensor shape (B, 1, D) với (1, T, D) bằng broadcasting cho ra shape nào?",
           "choices": [
             "(B, T, D)",
             "(B, 1, D)",
-            "Lỗi — không broadcast được",
+            "Lỗi, không broadcast được",
             "(B, T, 1)"
           ],
           "answer": 0,
           "explain": "Broadcasting căn phải các chiều; chiều bằng 1 được 'kéo dài'. (B,1,D) và (1,T,D) → (B,T,D). Hiểu broadcasting là chìa khoá đọc code attention."
         },
         {
-          "id": "w1q6",
+          "id": "w4q6",
           "type": "open",
           "q": "torch.no_grad() và requires_grad khác nhau thế nào, dùng khi nào?",
-          "answer": "requires_grad=True đánh dấu một tensor cần theo dõi để tính gradient (tham số train được). torch.no_grad() là context tắt việc xây đồ thị autograd cho mọi phép tính bên trong — dùng khi inference/đánh giá hoặc cập nhật tham số thủ công, để tiết kiệm bộ nhớ và tránh tính gradient thừa.",
+          "answer": "requires_grad=True đánh dấu một tensor cần theo dõi để tính gradient (tham số train được). torch.no_grad() là context tắt việc xây đồ thị autograd cho mọi phép tính bên trong, dùng khi inference/đánh giá hoặc cập nhật tham số thủ công, để tiết kiệm bộ nhớ và tránh tính gradient thừa.",
           "explain": "Quên no_grad() khi eval/generate là lỗi VRAM phổ biến, nhất là trên card 8GB."
         },
         {
-          "id": "w1q7",
+          "id": "w4q7",
           "type": "mcq",
           "q": "Dot product giữa hai vector đo điều gì (ý nghĩa cho attention)?",
           "choices": [
             "Luôn là khoảng cách giữa hai điểm",
-            "Độ 'cùng hướng' / tương đồng — lớn khi hai vector cùng hướng",
+            "Độ 'cùng hướng' / tương đồng, lớn khi hai vector cùng hướng",
             "Góc tuyệt đối tính bằng độ",
             "Tổng bình phương các phần tử"
           ],
           "answer": 1,
           "explain": "a·b = |a||b|cosθ. Trong attention, query·key chính là điểm tương đồng dùng để quyết định token nào 'chú ý' tới token nào."
+        },
+        {
+          "id": "w4q8",
+          "type": "open",
+          "q": "Ở Tuần 3 bạn viết logistic regression bằng NumPy với hàm grad tự tính và kiểm bằng sai phân. Khi viết lại bằng PyTorch, dòng nào thay cho hàm grad, dòng nào thay cho phép cập nhật w -= lr * grad, và vì sao xuất hiện thêm bước zero_grad() mà vòng lặp NumPy không cần?",
+          "answer": "loss.backward() thay cho hàm grad: autograd áp chain rule ngược trên đồ thị tính toán và điền vào .grad của từng tham số. optimizer.step() thay cho w -= lr * grad, với lr là step size. Bước zero_grad() cần vì PyTorch cộng dồn gradient vào .grad qua các lần backward (thiết kế phục vụ gradient accumulation); vòng lặp NumPy tính gradient mới mỗi lần nên không có gì để xóa. Cách kiểm bằng sai phân của Tuần 2 vẫn dùng được để đối chiếu .grad.",
+          "explain": "Đây là toàn bộ 'phần mới' của Tuần 4: đổi công cụ, không đổi toán. Nếu bạn chỉ ra được ba dòng này thì đã nối xong Phase 0 với PyTorch."
+        },
+        {
+          "id": "w4adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "nanoGPT đặt dropout = 0.0 cho pretraining với comment 'for pretraining 0 is good, for finetuning try 0.1+'. Khung nào của Tuần 3 giải thích lựa chọn này?",
+          "choices": [
+            "Dropout làm chậm GPU nên bỏ khi có nhiều dữ liệu",
+            "Pretraining chạy trên dữ liệu rất lớn, thường dưới một epoch, nên estimation error nhỏ và regularization kiểu dropout ít cần; fine-tune trên dữ liệu nhỏ dễ overfit nên cần regularization hơn",
+            "Dropout chỉ hoạt động với LayerNorm",
+            "Dropout không tương thích với bf16"
+          ],
+          "answer": 1,
+          "explain": "Giá trị đọc từ nanoGPT/train.py ngày 2026-09-04. Lý giải theo error decomposition của UML mục 5.2 là suy luận của người viết dựa trên khung lý thuyết, không phải kết luận trong code."
+        },
+        {
+          "id": "w4adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Vì sao PyTorch cộng dồn gradient vào .grad thay vì ghi đè, và kỹ thuật nào trong nanoGPT dựa trực tiếp vào hành vi đó?",
+          "answer": "Cộng dồn cho phép gọi backward nhiều lần trên nhiều micro-batch rồi mới step một lần, tức gradient accumulation; nanoGPT có gradient_accumulation_steps = 5 * 8 với comment 'used to simulate larger batch sizes'. Hệ quả là mỗi lần bắt đầu tích lũy phải zero_grad, còn micrograd Tuần 5 cũng phải dùng += trong _backward vì một node có thể được dùng ở nhiều nhánh.",
+          "explain": "Trên card 8GB, gradient accumulation là cách duy nhất đạt effective batch lớn; hiểu cơ chế cộng dồn giúp tránh lỗi quên zero_grad."
         }
       ]
     },
     {
-      "week": 2,
+      "week": 5,
       "title": "Backprop từ đầu + mental model Transformer",
       "questions": [
         {
-          "id": "w2q1",
+          "id": "w5q1",
           "type": "open",
           "q": "Trong micrograd, mỗi đối tượng Value lưu những gì và làm gì khi backward()?",
           "answer": "Mỗi Value lưu: data (giá trị forward), grad (đạo hàm của output cuối theo nó, khởi tạo 0), và một hàm _backward() biết cách đẩy gradient về các 'cha' của nó. Forward dựng đồ thị; backward() sắp xếp topo các node, set grad của output = 1, rồi gọi _backward() theo thứ tự ngược để nhân dồn chain rule.",
           "explain": "Đây là lõi của mọi autograd engine (kể cả PyTorch), chỉ khác quy mô."
         },
         {
-          "id": "w2q2",
+          "id": "w5q2",
           "type": "mcq",
           "q": "backward() duyệt đồ thị theo thứ tự nào?",
           "choices": [
@@ -116,14 +440,14 @@
           "explain": "Phải xử lý một node sau khi đã cộng xong mọi gradient đến từ các node phía sau nó → duyệt topo ngược."
         },
         {
-          "id": "w2q3",
+          "id": "w5q3",
           "type": "open",
           "q": "Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta phải thêm gì?",
-          "answer": "Score giữa token i và j chỉ là q_i·k_j, không chứa thông tin vị trí; W_Q, W_K, W_V dùng chung cho mọi vị trí. Nếu hoán vị thứ tự token đầu vào, đầu ra hoán vị y hệt — model không phân biệt 'chó cắn người' với 'người cắn chó'. Vì vậy phải thêm positional encoding (absolute learned ở GPT-2, hoặc RoPE ở model hiện đại) để đưa thông tin thứ tự vào.",
-          "explain": "Đây là lý do tồn tại của positional embedding — không có nó, transformer mù thứ tự."
+          "answer": "Score giữa token i và j chỉ là q_i·k_j, không chứa thông tin vị trí; W_Q, W_K, W_V dùng chung cho mọi vị trí. Nếu hoán vị thứ tự token đầu vào, đầu ra hoán vị y hệt, model không phân biệt 'chó cắn người' với 'người cắn chó'. Vì vậy phải thêm positional encoding (absolute learned ở GPT-2, hoặc RoPE ở model hiện đại) để đưa thông tin thứ tự vào.",
+          "explain": "Đây là lý do tồn tại của positional embedding, không có nó, transformer mù thứ tự."
         },
         {
-          "id": "w2q4",
+          "id": "w5q4",
           "type": "mcq",
           "q": "Đạo hàm của tanh(x) là gì (hay gặp khi tự code backward)?",
           "choices": [
@@ -136,7 +460,7 @@
           "explain": "tanh'(x) = 1 - tanh^2(x). Tự viết local gradient cho tanh/relu/exp là bài tập cốt lõi của micrograd."
         },
         {
-          "id": "w2q5",
+          "id": "w5q5",
           "type": "mcq",
           "q": "Khi một biến được dùng ở NHIỀU nhánh của đồ thị, gradient của nó được xử lý thế nào?",
           "choices": [
@@ -149,20 +473,49 @@
           "explain": "Theo quy tắc tổng của chain rule, gradient từ các đường khác nhau phải CỘNG dồn. Quên += (dùng =) là bug micrograd kinh điển."
         },
         {
-          "id": "w2q6",
+          "id": "w5q6",
           "type": "open",
           "q": "Bigram model trong makemore làm gì, và liên hệ thế nào với một mạng neural 1 lớp?",
           "answer": "Bigram dự đoán ký tự tiếp theo chỉ dựa trên ký tự hiện tại. Bản 'đếm' xây ma trận tần suất (c_i → c_{i+1}) rồi chuẩn hoá thành xác suất. Bản neural tương đương: one-hot ký tự đầu vào @ một ma trận trọng số → logits → softmax; train bằng cross-entropy sẽ hội tụ về cùng phân phối với bản đếm. Đây là cầu nối từ thống kê đếm sang học bằng gradient.",
           "explain": "Karpathy dùng bigram để cho thấy 'neural net' chỉ là cách tổng quát hoá của đếm tần suất."
+        },
+        {
+          "id": "w5q7",
+          "type": "open",
+          "q": "Bạn vừa điền xong _backward cho các phép trong micrograd nhưng chưa muốn phụ thuộc PyTorch để kiểm. Hãy mô tả cách dùng sai phân trung tâm của Tuần 2 để kiểm gradient của một Value, và nói vì sao nên kiểm bằng cách này trước khi chạy 03_check_grad.py.",
+          "answer": "Dựng biểu thức f từ các Value, gọi f.backward() để có a.grad. Rồi nhúc nhích a.data thêm ε (khoảng 1e-6), tính lại f thành f_plus; trừ ε, tính f_minus; so (f_plus − f_minus) / 2ε với a.grad, lệch dưới khoảng 1e-6 là khớp. Làm trước để tách hai nguồn lỗi: nếu sai phân khớp mà PyTorch lệch thì lỗi nằm ở cách gọi PyTorch trong 03_check_grad.py, còn nếu sai phân đã lệch thì lỗi nằm trong _backward của bạn.",
+          "explain": "Sai phân trung tâm là công cụ kiểm độc lập duy nhất không cần thư viện. Kỹ năng này dùng lại mỗi khi bạn tự viết một phép đạo hàm, kể cả ở Tuần 6 khi viết attention."
+        },
+        {
+          "id": "w5adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Backward của micrograd duyệt đồ thị theo thứ tự topo đảo ngược. Vì sao thứ tự này là bắt buộc, không chỉ là tiện?",
+          "choices": [
+            "Vì Python yêu cầu duyệt tập hợp theo thứ tự",
+            "Vì khi một node phát gradient xuống toán hạng, gradient của chính nó phải đã được cộng đủ từ mọi nhánh phía trên; thứ tự topo đảo ngược bảo toàn điều đó",
+            "Vì thứ tự topo giúp giảm bộ nhớ",
+            "Vì tanh chỉ khả vi theo thứ tự đó"
+          ],
+          "answer": 1,
+          "explain": "Đây là chain rule trên đồ thị (MML mục 5.6, trang 159; UDL mục 7.4, trang 103). Nếu một node có fan-out và bạn duyệt sai thứ tự, nó sẽ phát gradient chưa đầy đủ xuống dưới."
+        },
+        {
+          "id": "w5adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Weight tying trong nanoGPT gán wte.weight = lm_head.weight. Hãy giải thích ảnh hưởng lên số tham số và lên gradient của ma trận embedding.",
+          "answer": "Số tham số giảm đúng bằng vocab_size × d vì chỉ còn một ma trận; khi đếm tham số GPT-2 124M ở Tuần 7 không được đếm hai lần. Về gradient, ma trận này nhận gradient từ hai đường: đường embedding (input) và đường unembedding (logits), và autograd cộng dồn hai phần đó, đúng cơ chế += của micrograd với node dùng ở nhiều nhánh.",
+          "explain": "Dòng code kiểm trên repo karpathy/nanoGPT ngày 2026-09-04: self.transformer.wte.weight = self.lm_head.weight."
         }
       ]
     },
     {
-      "week": 3,
+      "week": 6,
       "title": "Tokenization, embeddings, attention từ đầu",
       "questions": [
         {
-          "id": "w3q1",
+          "id": "w6q1",
           "type": "mcq",
           "q": "Vì sao trong scaled dot-product attention ta chia cho sqrt(d_k)?",
           "choices": [
@@ -175,14 +528,14 @@
           "explain": "Dot product của hai vector d_k chiều có phương sai ~d_k; không chia, score quá lớn đẩy softmax về one-hot → gradient ~0, khó học."
         },
         {
-          "id": "w3q2",
+          "id": "w6q2",
           "type": "open",
           "q": "Causal mask làm gì và cài đặt thế nào?",
-          "answer": "Causal (masked) attention đảm bảo token chỉ 'nhìn' về quá khứ, không thấy token tương lai — bắt buộc cho mô hình tự hồi quy. Cài đặt: đặt phần tam giác TRÊN của ma trận score = -vô cực (hoặc -1e9) TRƯỚC khi softmax; sau softmax các vị trí đó thành ~0, nên token i không attend tới token j>i.",
+          "answer": "Causal (masked) attention làm cho token chỉ 'nhìn' về quá khứ, không thấy token tương lai, bắt buộc cho mô hình tự hồi quy. Cài đặt: đặt phần tam giác TRÊN của ma trận score = -vô cực (hoặc -1e9) TRƯỚC khi softmax; sau softmax các vị trí đó thành ~0, nên token i không attend tới token j>i.",
           "explain": "Nếu để token thấy tương lai, model 'gian lận' lúc train và vô dụng lúc generate."
         },
         {
-          "id": "w3q3",
+          "id": "w6q3",
           "type": "mcq",
           "q": "Token embedding và positional embedding được kết hợp thế nào trong GPT-2?",
           "choices": [
@@ -195,7 +548,7 @@
           "explain": "GPT-2 cộng token embedding và positional embedding (cùng shape) → một vector vừa mang nghĩa token vừa mang vị trí."
         },
         {
-          "id": "w3q4",
+          "id": "w6q4",
           "type": "mcq",
           "q": "Ma trận attention scores (trước khi nhân V) có shape nào với input (batch, seq, d)?",
           "choices": [
@@ -208,14 +561,14 @@
           "explain": "Score[i,j] = q_i·k_j cho mọi cặp token → (batch, seq, seq). Chính shape (seq×seq) này gây độ phức tạp O(n^2)."
         },
         {
-          "id": "w3q5",
+          "id": "w6q5",
           "type": "open",
           "q": "[Nâng cao] RoPE khác với positional embedding tuyệt đối của GPT-2 thế nào?",
           "answer": "GPT-2 CỘNG một vector vị trí học được vào embedding. RoPE thay vào đó XOAY các cặp chiều của Q và K một góc tỉ lệ với vị trí token, áp dụng ngay trong attention (không lên V). Hệ quả: tích q_m·k_n chỉ phụ thuộc khoảng cách tương đối (m-n), không phụ thuộc vị trí tuyệt đối → tổng quát hoá tốt hơn ra ngoài độ dài đã train và là nền cho mở rộng context (NTK/YaRN). Llama 3, Qwen3 dùng RoPE.",
           "explain": "Xem mục A1 trong advanced_topics_vi.md."
         },
         {
-          "id": "w3q6",
+          "id": "w6q6",
           "type": "mcq",
           "q": "[Nâng cao] Mục đích chính của Grouped-Query Attention (GQA) so với Multi-Head Attention?",
           "choices": [
@@ -228,7 +581,7 @@
           "explain": "GQA gom head thành nhóm dùng chung K,V → KV cache nhỏ hơn → sinh text dài rẻ hơn về bộ nhớ; trung dung giữa MHA và MQA."
         },
         {
-          "id": "w3q7",
+          "id": "w6q7",
           "type": "mcq",
           "q": "[Nâng cao] Độ phức tạp bộ nhớ/tính toán của self-attention thường (full) theo độ dài seq n là?",
           "choices": [
@@ -239,15 +592,44 @@
           ],
           "answer": 2,
           "explain": "Ma trận score n×n → O(n^2). Đây là động lực cho sliding-window, MLA, và FlashAttention (tiling, không vật chất hoá ma trận n×n)."
+        },
+        {
+          "id": "w6q8",
+          "type": "open",
+          "q": "Jurafsky và Martin (SLP3 mục 2.4) nói từ và morpheme có nghĩa ổn định nhưng khó định nghĩa hình thức, còn ký tự thì dễ định nghĩa nhưng quá nhỏ. BPE giải quyết mâu thuẫn này bằng cách nào, và vì sao việc chuẩn hóa đơn vị token lại cần cho perplexity?",
+          "answer": "BPE học đơn vị token từ dữ liệu bằng cách gộp dần các cặp ký tự hay đi cùng nhau, nên đơn vị thu được thường cỡ morpheme hoặc từ với từ phổ biến, và rơi về ký tự với từ hiếm. Chuẩn hóa đơn vị cần vì perplexity tính trên mỗi token, chuẩn hóa theo độ dài chuỗi; hai model tokenize khác nhau thì số token khác nhau và perplexity không so được với nhau.",
+          "explain": "SLP3 trang 42 nói rõ tokenization là để 'different algorithms and systems can agree on simple questions' như độ dài văn bản, và perplexity 'assume that all texts have a fixed' đơn vị. Đây là lý do mục H nâng cao đề xuất bits per byte để so model khác tokenizer."
+        },
+        {
+          "id": "w6adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "GQA (arXiv 2305.13245) là gì, và vì sao nó làm giảm KV cache nhưng không làm giảm số phép nhân trong QKᵀ?",
+          "choices": [
+            "GQA giảm số query head",
+            "GQA chia query head thành g nhóm cùng chia sẻ một cặp K, V; cache chỉ lưu n_kv_head cặp nên nhỏ hơn, nhưng mỗi query head vẫn tính điểm với toàn bộ K của nhóm nên số phép nhân điểm attention không đổi",
+            "GQA bỏ hẳn value",
+            "GQA chỉ áp dụng khi train, không khi inference"
+          ],
+          "answer": 1,
+          "explain": "Paper mô tả GQA là 'an interpolation between multi-head and multi-query attention with single key and value heads per subgroup of query heads'. Llama 3 dùng 8 KV head (arXiv 2407.21783 mục 3.2)."
+        },
+        {
+          "id": "w6adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "FlashAttention được gọi là exact attention. Nó thay đổi điều gì và không thay đổi điều gì so với cách bạn cài attention ở tuần này?",
+          "answer": "Nó không đổi kết quả toán học: cùng softmax(QKᵀ/√d)V. Nó đổi cách dùng bộ nhớ: chia Q, K, V thành khối (tiling), tính softmax theo kiểu streaming trong SRAM của GPU, không vật chất hóa ma trận n×n trong HBM, nên giảm số lần đọc ghi bộ nhớ (Dao et al., arXiv 2205.14135, abstract: 'an IO-aware exact attention algorithm that uses tiling'). Trong PyTorch, F.scaled_dot_product_attention chọn backend flash khi đủ điều kiện.",
+          "explain": "Kiểm bằng cách so output attention thủ công của bạn với F.scaled_dot_product_attention trên cùng input, sai lệch phải ở mức sai số số học."
         }
       ]
     },
     {
-      "week": 4,
+      "week": 7,
       "title": "Lắp ráp & chạy mô hình GPT",
       "questions": [
         {
-          "id": "w4q1",
+          "id": "w7q1",
           "type": "mcq",
           "q": "LayerNorm trong transformer chuẩn hoá theo chiều nào?",
           "choices": [
@@ -260,14 +642,14 @@
           "explain": "LayerNorm chuẩn hoá theo feature của mỗi token độc lập (không phụ thuộc batch) → ổn định, hợp với độ dài chuỗi thay đổi."
         },
         {
-          "id": "w4q2",
+          "id": "w7q2",
           "type": "open",
           "q": "Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp train mạng sâu?",
           "answer": "Residual tạo một 'đường cao tốc' để gradient chảy thẳng về các lớp đầu mà không bị nhân nhỏ dần qua nhiều lớp (chống vanishing gradient). Đặt LayerNorm TRƯỚC sublayer (pre-LN) giữ đầu vào mỗi sublayer ở thang đo ổn định, làm việc xếp chồng hàng chục block ổn định hơn so với post-LN. Nhờ vậy có thể train transformer rất sâu.",
           "explain": "Ngoài vai trò shortcut gradient, residual còn cho phép mỗi block tinh chỉnh dần biểu diễn (residual stream)."
         },
         {
-          "id": "w4q3",
+          "id": "w7q3",
           "type": "mcq",
           "q": "Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên khoảng mấy lần d_model?",
           "choices": [
@@ -280,7 +662,7 @@
           "explain": "FFN: Linear(d → 4d) → GELU → Linear(4d → d). Hệ số 4× là chuẩn của GPT-2."
         },
         {
-          "id": "w4q4",
+          "id": "w7q4",
           "type": "mcq",
           "q": "GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n_heads=12)?",
           "choices": [
@@ -293,14 +675,14 @@
           "explain": "~124M. Verify số tham số là cách kiểm tra nhanh kiến trúc đã ghép đúng."
         },
         {
-          "id": "w4q5",
+          "id": "w7q5",
           "type": "open",
           "q": "[Nâng cao] RMSNorm khác LayerNorm ở điểm nào, vì sao model hiện đại chuộng nó?",
           "answer": "RMSNorm bỏ bước trừ mean và bỏ bias β; chỉ chia cho căn của trung bình bình phương rồi nhân γ: x / sqrt(mean(x^2) + eps) · γ. Ít phép tính hơn LayerNorm nhưng ổn định tương đương, nên Llama/Qwen dùng để rẻ và nhanh hơn ở quy mô lớn.",
           "explain": "Xem mục A2 trong advanced_topics_vi.md."
         },
         {
-          "id": "w4q6",
+          "id": "w7q6",
           "type": "mcq",
           "q": "[Nâng cao] SwiGLU FFN của Llama/Qwen thay thế phần nào của GPT-2?",
           "choices": [
@@ -313,7 +695,7 @@
           "explain": "SwiGLU = (SiLU(x W_gate) ⊙ x W_up) W_down; có 3 ma trận nên giảm chiều ẩn để giữ số tham số tương đương."
         },
         {
-          "id": "w4q7",
+          "id": "w7q7",
           "type": "mcq",
           "q": "[Nâng cao] Trong một lớp Mixture-of-Experts (MoE), 'router' làm gì?",
           "choices": [
@@ -324,15 +706,37 @@
           ],
           "answer": 0,
           "explain": "Router gán mỗi token cho top-k experts → tổng tham số lớn nhưng tham số active mỗi token nhỏ; cần lo load balancing. Qwen3-MoE, gpt-oss, DeepSeek dùng MoE."
+        },
+        {
+          "id": "w7adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Top-p (nucleus) sampling khác top-k ở điểm nào theo Jurafsky và Martin, và vì sao điểm đó quan trọng khi ngữ cảnh đổi?",
+          "choices": [
+            "Top-p luôn chọn nhiều token hơn top-k",
+            "Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh",
+            "Top-p chỉ dùng khi temperature bằng 1",
+            "Top-p là greedy với p = 1"
+          ],
+          "answer": 1,
+          "explain": "SLP3 mục 7.6.4 (trang 200): k cố định là điểm yếu vì có ngữ cảnh 10 token đầu chiếm gần hết khối xác suất, có ngữ cảnh phân phối phẳng."
+        },
+        {
+          "id": "w7adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Vì sao khi kiểm tra kiến trúc GPT bằng cách load trọng số GPT-2 rồi sinh text, nên bắt đầu bằng greedy decoding thay vì sampling?",
+          "answer": "Greedy loại bỏ biến ngẫu nhiên của sampling: nếu output vô nghĩa ở greedy thì lỗi nhiều khả năng nằm ở kiến trúc hoặc mapping trọng số, không ở tham số sampling. Đây là suy luận thực hành của người viết, dựa trên việc greedy là hàm xác định của logits (SLP3 mục 7.6, trang 196).",
+          "explain": "Sau khi greedy ra text mạch lạc, mới bật temperature và top-p để so phong cách."
         }
       ]
     },
     {
-      "week": 5,
+      "week": 8,
       "title": "Pretraining: training loop + 1 lần chạy GPT-2 thật",
       "questions": [
         {
-          "id": "w5q1",
+          "id": "w8q1",
           "type": "mcq",
           "q": "Quan hệ giữa cross-entropy loss L và perplexity (PPL)?",
           "choices": [
@@ -345,14 +749,14 @@
           "explain": "PPL = e^L. Trực giác: perplexity ~ số lựa chọn 'trung bình' model còn phân vân; thấp hơn = dự đoán chắc hơn."
         },
         {
-          "id": "w5q2",
+          "id": "w8q2",
           "type": "open",
           "q": "Gradient accumulation là gì và vì sao quan trọng với GPU 8GB?",
           "answer": "Thay vì cập nhật trọng số sau mỗi micro-batch nhỏ, ta cộng dồn gradient qua N micro-batch rồi mới step một lần → mô phỏng một 'effective batch' lớn (micro_batch × N) mà không cần chứa toàn bộ batch lớn trong VRAM. Với 3070 Ti 8GB chỉ vừa batch 1-2, gradient accumulation là cách đạt effective batch ~0.5M token/update kiểu Karpathy mà vẫn không OOM.",
           "explain": "Xem cách nanoGPT/train.py implement gradient_accumulation_steps."
         },
         {
-          "id": "w5q3",
+          "id": "w8q3",
           "type": "mcq",
           "q": "Lịch learning rate điển hình khi pretrain LLM là gì?",
           "choices": [
@@ -365,14 +769,14 @@
           "explain": "Warmup tránh sốc gradient lúc đầu (trọng số ngẫu nhiên); cosine decay giúp hội tụ mượt về cuối."
         },
         {
-          "id": "w5q4",
+          "id": "w8q4",
           "type": "open",
           "q": "[Nâng cao] Vì sao các repo pretraining hiện đại (vd. nanoGPT config mặc định) đặt dropout = 0?",
           "answer": "Dropout là regularizer chống overfit, hữu ích khi fine-tune trên data nhỏ; nhưng pretraining chạy ~1 epoch trên lượng data khổng lồ thì gần như không overfit, nên dropout chỉ làm 'nhiễu' quá trình học. Vì vậy pretraining hiện đại thường bỏ dropout (nanoGPT để dropout=0.0 cho pretrain, gợi ý 0.1+ khi fine-tune).",
           "explain": "Bài học: kỹ thuật 'tốt' phụ thuộc bối cảnh (data lớn 1-epoch vs data nhỏ nhiều epoch)."
         },
         {
-          "id": "w5q5",
+          "id": "w8q5",
           "type": "mcq",
           "q": "[Nâng cao] Vì sao 'bits-per-byte' (bpb) tốt hơn perplexity khi so sánh các model có tokenizer khác nhau?",
           "choices": [
@@ -385,7 +789,7 @@
           "explain": "Perplexity phụ thuộc cách chia token; bpb quy về byte → công bằng giữa các tokenizer. nanochat dùng val_bpb làm chỉ số chính."
         },
         {
-          "id": "w5q6",
+          "id": "w8q6",
           "type": "mcq",
           "q": "[Nâng cao] Optimizer Muon (nanochat) áp dụng cho loại tham số nào?",
           "choices": [
@@ -398,7 +802,7 @@
           "explain": "Muon orthogonalize bản cập nhật cho ma trận 2D → hội tụ pretraining nhanh hơn; là một yếu tố giúp nanochat 'speedrun' GPT-2."
         },
         {
-          "id": "w5q7",
+          "id": "w8q7",
           "type": "mcq",
           "q": "Mixed precision (bf16) lợi gì khi train?",
           "choices": [
@@ -411,20 +815,55 @@
           "explain": "bf16 dùng nửa bộ nhớ, tận dụng tensor core; bf16 có dải mũ rộng nên ổn định hơn fp16 (fp16 cần GradScaler)."
         },
         {
-          "id": "w5q8",
+          "id": "w8q8",
           "type": "open",
           "q": "[Nâng cao] DistributedDataParallel (DDP) hoạt động thế nào?",
           "answer": "DDP nhân bản toàn bộ model lên mỗi GPU; mỗi GPU xử lý một phần khác nhau của batch (data parallel), tính gradient cục bộ, rồi all-reduce (cộng và chia trung bình) gradient qua tất cả GPU trước khi mỗi bản sao cùng step. Kết quả tương đương train với batch lớn hơn N lần. Đây là cách nanoGPT/llm.c train trên node 8×A100 qua torchrun.",
           "explain": "DDP là mức song song đầu tiên cần biết; TP/PP/FSDP cho model không vừa 1 GPU."
+        },
+        {
+          "id": "w8q9",
+          "type": "mcq",
+          "q": "Vì sao Jurafsky và Martin (SLP3 mục 3.3) không dùng xác suất thô của tập test để đánh giá language model mà dùng perplexity?",
+          "choices": [
+            "Vì xác suất thô luôn bằng 1 với model đủ lớn",
+            "Vì xác suất của tập test giảm khi văn bản dài hơn, nên cần một số đo tính trên mỗi token, chuẩn hóa theo độ dài, để so được giữa các văn bản khác độ dài",
+            "Vì perplexity tính nhanh hơn xác suất",
+            "Vì xác suất thô chỉ định nghĩa được cho n-gram, không cho LLM"
+          ],
+          "answer": 1,
+          "explain": "SLP3 trang 76: 'the probability of a test set gets smaller the longer the text. It's useful to have a metric that is per-word, normalized by length'. Perplexity là exp của cross-entropy trung bình trên token, đúng công thức ở mục lý thuyết của tuần."
+        },
+        {
+          "id": "w8adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Vì sao nanochat báo val_bpb (bits per byte) trên leaderboard thay cho loss thô, theo lập luận của SLP3 về perplexity?",
+          "choices": [
+            "Vì bpb luôn nhỏ hơn loss",
+            "Vì perplexity và loss tính trên token nên phụ thuộc tokenizer; chia lượng thông tin cho số byte thay cho số token cho phép so sánh chéo các model có vocab khác nhau",
+            "Vì GPU tính byte nhanh hơn token",
+            "Vì bpb là metric của MMLU"
+          ],
+          "answer": 1,
+          "explain": "SLP3 mục 3.3 và 3.7 nối perplexity với cross-entropy và entropy tính bằng bit; leaderboard nanochat đọc ngày 2026-09-04 có cột val_bpb và CORE, GPT-2 gốc CORE 0.2565."
+        },
+        {
+          "id": "w8adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Xiao và Zhu mô tả đường cong scaling law có ba pha theo lượng dữ liệu (Hestness et al. 2017). Ba pha đó là gì và lần pretrain 124M của bạn nằm ở đâu?",
+          "answer": "Khi dữ liệu còn ít, hiệu năng cải thiện chậm; sau đó vào pha cải thiện nhanh theo dạng power-law; cuối cùng chậm lại khi thêm dữ liệu không còn tăng nhiều (FoLLM mục 2.2.4, trang 63). Lần chạy 124M trên một mẫu FineWeb-Edu nằm ở quy mô rất nhỏ so với các model trong paper; mục tiêu của nó là hiểu cơ chế và đọc loss curve, không phải đuổi số.",
+          "explain": "Fleuret mục 3.7 (trang 51) nói cùng ý và dẫn Kaplan et al. 2020; hai paper Scaling Laws và Chinchilla trong kệ paper là nguồn gốc con số."
         }
       ]
     },
     {
-      "week": 6,
+      "week": 9,
       "title": "Instruction fine-tuning (classification + instruction-following + LoRA)",
       "questions": [
         {
-          "id": "w6q1",
+          "id": "w9q1",
           "type": "mcq",
           "q": "Ý tưởng cốt lõi của LoRA?",
           "choices": [
@@ -434,10 +873,10 @@
             "Cắt tỉa (prune) trọng số nhỏ"
           ],
           "answer": 1,
-          "explain": "LoRA chỉ train BA (ít tham số) thay vì toàn bộ W → tiết kiệm VRAM lớn, là nền của QLoRA (Tuần 8)."
+          "explain": "LoRA chỉ train BA (ít tham số) thay vì toàn bộ W → tiết kiệm VRAM lớn, là nền của QLoRA (Tuần 11)."
         },
         {
-          "id": "w6q2",
+          "id": "w9q2",
           "type": "mcq",
           "q": "Để fine-tune GPT cho classification, thay đổi kiến trúc nào là cốt lõi?",
           "choices": [
@@ -450,40 +889,62 @@
           "explain": "Classification không cần dự đoán token: thay head 50257 chiều bằng Linear ra num_classes (vd. spam/ham), dùng hidden state của token cuối. Đóng băng phần lớn model giúp train nhanh, ít overfit."
         },
         {
-          "id": "w6q3",
+          "id": "w9q3",
           "type": "open",
           "q": "Trong instruction fine-tuning, vì sao thường mask phần prompt/instruction khỏi loss (chỉ tính loss trên phần response)?",
-          "answer": "Mục tiêu là dạy model SINH phản hồi tốt, không phải học thuộc lại đề bài. Nếu tính loss trên cả instruction, gradient bị pha loãng bởi việc dự đoán lại phần text đã cho sẵn — model tối ưu cho việc lặp lại prompt thay vì chất lượng response. Mask (đặt label = -100 trong PyTorch) các token thuộc prompt để cross-entropy chỉ chấm phần model phải tự sinh.",
+          "answer": "Mục tiêu là dạy model SINH phản hồi tốt, không phải học thuộc lại đề bài. Nếu tính loss trên cả instruction, gradient bị pha loãng bởi việc dự đoán lại phần text đã cho sẵn, model tối ưu cho việc lặp lại prompt thay vì chất lượng response. Mask (đặt label = -100 trong PyTorch) các token thuộc prompt để cross-entropy chỉ chấm phần model phải tự sinh.",
           "explain": "Đây là chi tiết dễ bỏ sót khi tự viết collate function cho instruction dataset."
         },
         {
-          "id": "w6q4",
+          "id": "w9q4",
           "type": "mcq",
           "q": "Instruction fine-tuning khác pretraining ở điểm nào về DỮ LIỆU và MỤC TIÊU?",
           "choices": [
             "Khác thuật toán tối ưu hoàn toàn (không dùng cross-entropy)",
-            "Pretraining: text thô, học dự đoán token kế; instruction FT: cặp (instruction, response) có cấu trúc, học làm theo yêu cầu — cùng loss cross-entropy nhưng phân phối dữ liệu và hành vi đích khác",
+            "Pretraining: text thô, học dự đoán token kế; instruction FT: cặp (instruction, response) có cấu trúc, học làm theo yêu cầu, cùng loss cross-entropy nhưng phân phối dữ liệu và hành vi đích khác",
             "Instruction FT không cần gradient",
             "Pretraining chỉ dùng cho model nhỏ"
           ],
           "answer": 1,
           "explain": "Cơ chế học giống nhau (next-token prediction); thứ thay đổi là dữ liệu (template Alpaca-style) và hành vi mà ta muốn model hội tụ về (làm theo instruction thay vì tiếp tục văn bản)."
+        },
+        {
+          "id": "w9adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Shazeer (arXiv 2002.05202) thay FFN 'Linear rồi GELU' bằng SwiGLU có ba ma trận. Ông giữ số tham số không đổi bằng cách nào, và điều này giải thích con số nào trong config Mistral 7B?",
+          "choices": [
+            "Bỏ ma trận output",
+            "Giảm số đơn vị ẩn d_ff; Mistral 7B có hidden_dim 14336 với d = 4096, tức 3,5d thay cho 4d",
+            "Dùng bias để bù",
+            "Chia sẻ trọng số giữa hai ma trận gate và up"
+          ],
+          "answer": 1,
+          "explain": "Shazeer mục 3: 'we reduce the number of hidden units d_ff'. Mistral 7B Table 1 (arXiv 2310.06825)."
+        },
+        {
+          "id": "w9adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Jurafsky và Martin nói instruction tuning là supervised learning với cùng objective language modeling. Vậy khác biệt kỹ thuật duy nhất so với pretraining ở Tuần 8 nằm ở đâu, và hệ quả lên cách tính loss là gì?",
+          "answer": "Khác ở dữ liệu (cặp instruction và response) và ở việc mask loss: chỉ tính cross-entropy trên phần response để model học sinh phản hồi, không học lặp lại đề bài; trong PyTorch đặt label -100 cho token prompt. Hàm loss, optimizer và cấu trúc training loop giữ nguyên (SLP3 mục 8.1, trang 210).",
+          "explain": "Paper 'Instruction Tuning With Loss Over Instructions' trong kệ paper thử ngược điều này và tìm thấy hai ngoại lệ đáng nhớ."
         }
       ]
     },
     {
-      "week": 7,
+      "week": 10,
       "title": "Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO",
       "questions": [
         {
-          "id": "w7q1",
+          "id": "w10q1",
           "type": "open",
           "q": "Phân biệt SFT, DPO và GRPO.",
           "answer": "SFT (Supervised Fine-Tuning): học bắt chước các phản hồi tốt bằng cross-entropy trên cặp (prompt, response chuẩn). DPO (Direct Preference Optimization): tối ưu trực tiếp từ cặp (chosen, rejected) bằng một loss dạng logistic, BỎ QUA reward model và PPO → đơn giản, ổn định. GRPO (Group Relative Policy Optimization): RL bỏ critic, lấy nhiều sample cho cùng prompt và chuẩn hoá reward theo nhóm; hợp với reward kiểm chứng được (RLVR) → nền của reasoning models.",
           "explain": "Thứ tự thường gặp: SFT → (RM) → DPO hoặc PPO → GRPO. Xem mục G advanced_topics_vi.md."
         },
         {
-          "id": "w7q2",
+          "id": "w10q2",
           "type": "mcq",
           "q": "Reward Model (RM) trong RLHF học để làm gì?",
           "choices": [
@@ -496,12 +957,12 @@
           "explain": "RM học từ nhãn ưu tiên của con người, xuất ra điểm scalar; PPO dùng điểm này làm reward. FareedKhan implement RM from scratch."
         },
         {
-          "id": "w7q3",
+          "id": "w10q3",
           "type": "mcq",
           "q": "So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?",
           "choices": [
             "Bỏ dữ liệu ưu tiên (preference)",
-            "Bỏ việc train reward model riêng và vòng lặp PPO — tối ưu thẳng từ cặp ưu tiên",
+            "Bỏ việc train reward model riêng và vòng lặp PPO, tối ưu thẳng từ cặp ưu tiên",
             "Bỏ model tham chiếu (reference)",
             "Bỏ tokenizer"
           ],
@@ -509,19 +970,19 @@
           "explain": "DPO biến bài toán RLHF thành một loss phân loại trực tiếp trên cặp (chosen, rejected), vẫn dùng policy tham chiếu nhưng không cần RM/PPO."
         },
         {
-          "id": "w7q4",
+          "id": "w10q4",
           "type": "open",
           "q": "[Nâng cao] RLVR (Reinforcement Learning from Verifiable Rewards) là gì, vì sao hợp với reasoning?",
           "answer": "RLVR dùng reward KIỂM CHỨNG ĐƯỢC một cách khách quan: đáp án toán đúng/sai, unit test code pass/fail, thay vì điểm chủ quan từ reward model. Vì tín hiệu thưởng chính xác và không bị 'hack', model có thể tự khám phá chuỗi suy luận (chain-of-thought) dẫn tới đáp án đúng. Đây là cơ chế đứng sau các reasoning model kiểu o1/R1; thường kết hợp với GRPO.",
           "explain": "Xem nanochat chat_rl.py (tasks gsm8k, spellingbee) và paper DeepSeekMath/GRPO (arXiv 2402.03300)."
         },
         {
-          "id": "w7q5",
+          "id": "w10q5",
           "type": "mcq",
           "q": "[Nâng cao] Bước 'midtrain' (nanochat) nằm ở đâu trong pipeline?",
           "choices": [
             "Trước pretrain",
-            "Giữa pretrain và SFT — dạy format hội thoại, special tokens, tool use",
+            "Giữa pretrain và SFT, dạy format hội thoại, special tokens, tool use",
             "Sau GRPO",
             "Thay thế SFT"
           ],
@@ -529,20 +990,49 @@
           "explain": "Midtrain là khái niệm KHÔNG có trong pipeline GPT-2 kinh điển; nó chuẩn bị base model cho giai đoạn chat/SFT."
         },
         {
-          "id": "w7q6",
+          "id": "w10q6",
           "type": "open",
           "q": "Trong RLHF/DPO, thành phần KL divergence (hoặc reference policy) đóng vai trò gì?",
           "answer": "Nó giữ policy mới không trôi quá xa khỏi model tham chiếu (thường là bản SFT). Không có ràng buộc này, RL có thể 'hack' reward: sinh văn bản kỳ dị đạt điểm cao từ reward model nhưng mất khả năng ngôn ngữ chung (reward hacking / catastrophic drift). Trong PPO nó là phạt KL trong reward; trong DPO nó nằm ngay trong loss qua tỉ số log-prob với pi_ref và hệ số beta.",
-          "explain": "Đây là lý do mọi công thức DPO đều chứa pi_theta/pi_ref — không phải chi tiết trang trí."
+          "explain": "Đây là lý do mọi công thức DPO đều chứa pi_theta/pi_ref, không phải chi tiết trang trí."
+        },
+        {
+          "id": "w10q7",
+          "type": "open",
+          "q": "Jurafsky và Martin viết rằng các phương pháp alignment bằng dữ liệu ưu tiên hiện nay đứng trên khung reinforcement learning của Sutton và Barto. Hãy đặt tên từng thành phần của khung đó (agent, environment, action, reward, policy) vào bài toán alignment một LLM.",
+          "answer": "Policy là chính LLM với tham số θ; action là token được sinh ở mỗi bước, hoặc cả chuỗi trả lời; state là prompt cộng các token đã sinh; environment là thứ trả về reward, ở đây là reward model học từ cặp ưu tiên của người; reward của cả chuỗi là hàm của reward từng bước. Mục tiêu là tối đa reward kỳ vọng, đồng thời giữ KL với model tham chiếu để policy không trôi xa.",
+          "explain": "SLP3 mục 8.4 trang 219 mô tả đúng khung này và dẫn Sutton và Barto 1998. Sutton và Barto 13.1 cho softmax policy trên preference h(s, a, θ), chính là softmax trên logits của LLM; PPO và GRPO là hậu duệ của REINFORCE ở mục 13.3."
+        },
+        {
+          "id": "w10adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "GRPO (DeepSeekMath, arXiv 2402.03300) khác PPO ở điểm cốt lõi nào?",
+          "choices": [
+            "GRPO không cần reward",
+            "GRPO bỏ critic (value network), ước lượng baseline từ điểm của một nhóm output sinh cho cùng prompt",
+            "GRPO không dùng KL",
+            "GRPO chỉ dùng cho code"
+          ],
+          "answer": 1,
+          "explain": "Trích paper: 'GRPO foregoes the critic model, instead estimating the baseline from group scores, significantly reducing training resources'."
+        },
+        {
+          "id": "w10adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Hãy nối softmax policy của Sutton và Barto (eq. 13.2) với logits của LLM, và chỉ ra vì sao alignment bằng RL không cần thêm lớp nào mới vào model.",
+          "answer": "Sutton và Barto tham số hóa policy cho action rời rạc bằng preference h(s, a, θ) rồi lấy softmax: π(a|s, θ) = e^{h(s,a,θ)} / Σ_b e^{h(s,b,θ)} (mục 13.1, trang 322). Với LLM, h chính là logit của từng token trong vocab và softmax là lớp output có sẵn; state là prompt cộng token đã sinh, action là token kế. Vì thế RLHF chỉ đổi hàm mục tiêu và cách lấy reward, không đổi kiến trúc.",
+          "explain": "SLP3 mục 8.4 (trang 219) khẳng định các phương pháp alignment hiện nay đứng trên khung RL của Sutton và Barto."
         }
       ]
     },
     {
-      "week": 8,
+      "week": 11,
       "title": "QLoRA fine-tuning thực tế (Unsloth)",
       "questions": [
         {
-          "id": "w8q1",
+          "id": "w11q1",
           "type": "mcq",
           "q": "QLoRA = ?",
           "choices": [
@@ -555,7 +1045,7 @@
           "explain": "QLoRA nén base xuống NF4 4-bit để giảm VRAM, gradient chỉ chảy qua adapter LoRA → fine-tune 7B vừa ~5GB."
         },
         {
-          "id": "w8q2",
+          "id": "w11q2",
           "type": "mcq",
           "q": "Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?",
           "choices": [
@@ -568,14 +1058,14 @@
           "explain": "~5GB (8B ≈ 6GB) → vừa thoải mái trên 3070 Ti 8GB. 14B ≈ 8.5GB thì vượt 8GB."
         },
         {
-          "id": "w8q3",
+          "id": "w11q3",
           "type": "open",
           "q": "Liệt kê config QLoRA hợp lý cho GPU 8GB.",
           "answer": "load_in_4bit=True; batch_size 1-2; sequence length ≤ 1024; gradient_checkpointing=True; LoRA r=16, lora_alpha=16; target tất cả projection của attention + MLP. Nếu vẫn sát giới hạn: giảm seq len, tăng gradient accumulation, hoặc dùng Colab T4 15GB.",
           "explain": "Threshold: nếu OOM ở batch 1 hoặc run >24h → chuyển 4090/A100 thuê."
         },
         {
-          "id": "w8q4",
+          "id": "w11q4",
           "type": "mcq",
           "q": "[Nâng cao] NF4 (trong QLoRA) là gì?",
           "choices": [
@@ -588,7 +1078,7 @@
           "explain": "NF4 đặt các mức lượng tử theo phân vị của phân phối chuẩn → ít sai số hơn int4 đều cho trọng số ~Gaussian."
         },
         {
-          "id": "w8q5",
+          "id": "w11q5",
           "type": "mcq",
           "q": "[Nâng cao] GGUF là gì?",
           "choices": [
@@ -598,23 +1088,45 @@
             "Một kiểu attention"
           ],
           "answer": 1,
-          "explain": "GGUF là định dạng đóng gói, không phải thuật toán; nhầm lẫn này rất phổ biến. Tuần 9 sẽ load GGUF qua Ollama."
+          "explain": "GGUF là định dạng đóng gói, không phải thuật toán; nhầm lẫn này rất phổ biến. Tuần 12 sẽ load GGUF qua Ollama."
         },
         {
-          "id": "w8q6",
+          "id": "w11q6",
           "type": "open",
           "q": "Khi nào nên ngừng fine-tune local và chuyển lên cloud (4090/A100)?",
           "answer": "Khi một lần fine-tune dự kiến chạy >24h ở local, hoặc khi OOM ngay cả ở batch size 1 (sau khi đã bật 4-bit, gradient checkpointing, giảm seq len). Lúc đó thuê RTX 4090/A100 sẽ rẻ hơn nhiều về thời gian.",
           "explain": "Đây là 'ngưỡng kích hoạt cloud' của roadmap; verify bằng smoke test ngắn trước khi cam kết run dài."
+        },
+        {
+          "id": "w11adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "AWQ (arXiv 2306.00978) bảo vệ khoảng 1% trọng số 'salient'. Theo paper, tín hiệu nào cho biết kênh nào là salient, và vì sao họ không dùng mixed precision?",
+          "choices": [
+            "Độ lớn của trọng số; mixed precision quá đắt để tính",
+            "Phân phối activation, không phải trọng số; thay vì trộn độ chính xác (khó tối ưu trên phần cứng) họ nhân scale các kênh salient bằng một phép biến đổi tương đương",
+            "Gradient khi fine-tune",
+            "Entropy của token"
+          ],
+          "answer": 1,
+          "explain": "Abstract AWQ: 'To identify salient weight channels, we should refer to the activation distribution, not weights' và 'To avoid the hardware-inefficient mix-precision quantization, we mathematically derive that scaling up the salient channels can reduce the quantization error'."
+        },
+        {
+          "id": "w11adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "QLoRA quantize base model xuống 4-bit nhưng vẫn train được. Hãy nêu ba thành phần paper đặt tên và giải thích vì sao adapter không bị quantize.",
+          "answer": "Ba thành phần: NF4, kiểu dữ liệu 4-bit 'information theoretically optimal for normally distributed weights'; double quantization, quantize cả các hằng số quantization; paged optimizers để xử lý đỉnh bộ nhớ (arXiv 2305.14314, abstract). Gradient được lan ngược qua base đã đóng băng và quantize vào adapter LoRA; adapter là phần đang học, cần tích lũy thay đổi nhỏ nên giữ ở độ chính xác cao hơn, đúng lý do Fleuret nêu cho training (Little Book mục 8.2).",
+          "explain": "Kết quả paper báo: fine-tune model 65B trên một GPU 48GB mà giữ hiệu năng full 16-bit."
         }
       ]
     },
     {
-      "week": 9,
+      "week": 12,
       "title": "Fine-tuning Mac/MLX + local inference stack",
       "questions": [
         {
-          "id": "w9q1",
+          "id": "w12q1",
           "type": "mcq",
           "q": "Vì sao MacBook 24GB có thể fine-tune model lớn hơn RTX 3070 Ti 8GB?",
           "choices": [
@@ -627,19 +1139,19 @@
           "explain": "Unified memory là lợi thế của Apple Silicon: dung lượng lớn hơn VRAM rời 8GB, dù thông lượng thấp hơn NVIDIA."
         },
         {
-          "id": "w9q2",
+          "id": "w12q2",
           "type": "open",
           "q": "Mô tả luồng fine-tune → phục vụ bằng MLX trên Mac.",
           "answer": "1) mlx_lm.lora --model ... --train --data ... --iters 500 để train adapter LoRA. 2) mlx_lm.fuse --model ... --adapter-path ... để gộp adapter vào base. 3) Phục vụ qua Ollama (tạo Modelfile) hoặc LM Studio (load GGUF/MLX) để chat. Với 24GB có thể LoRA/QLoRA tới ~13-14B.",
           "explain": "Mac dùng định dạng MLX (mlx-community/...); Ollama/LM Studio là lớp serving."
         },
         {
-          "id": "w9q3",
+          "id": "w12q3",
           "type": "mcq",
           "q": "Ollama và LM Studio đóng vai trò gì?",
           "choices": [
             "Train model from scratch",
-            "Lớp inference/serving local — tải, quản lý và chat với model (GGUF/MLX) qua API/GUI",
+            "Lớp inference/serving local, tải, quản lý và chat với model (GGUF/MLX) qua API/GUI",
             "Vector database cho RAG",
             "Tokenizer"
           ],
@@ -647,20 +1159,42 @@
           "explain": "Chúng giúp chạy model local dễ dàng; Ollama có API kiểu OpenAI tiện cắm vào RAG/agents."
         },
         {
-          "id": "w9q4",
+          "id": "w12q4",
           "type": "open",
           "q": "Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.",
           "answer": "3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.",
           "explain": "Đây là nội dung deliverable 03_hardware_decision.md."
+        },
+        {
+          "id": "w12adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Rolling buffer cache của Mistral 7B hoạt động thế nào và cho tiết kiệm bao nhiêu theo paper?",
+          "choices": [
+            "Cache lưu toàn bộ K, V nhưng nén 8 bit",
+            "Cache có kích thước cố định W; cặp K, V ở bước i ghi vào ô i mod W nên khi i vượt W cache ghi đè và không lớn thêm; ở chuỗi 32k paper báo giảm 8 lần bộ nhớ cache mà không ảnh hưởng chất lượng",
+            "Cache chỉ giữ token đầu tiên",
+            "Cache lưu trên CPU"
+          ],
+          "answer": 1,
+          "explain": "Mistral 7B mục 2 (arXiv 2310.06825), Rolling Buffer Cache. FoLLM mục 2.3.3.1 gọi cùng ý là fixed-size KV cache."
+        },
+        {
+          "id": "w12adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Khi đo tốc độ inference trên Mac và trên 3070 Ti, vì sao nên tách tốc độ prefill và tốc độ decode thay vì báo một con số tokens mỗi giây?",
+          "answer": "Inference gồm hai pha (FoLLM mục 5.1.2, trang 207): prefill xử lý cả prompt trong một lượt nên gom nhiều token vào một lần nhân ma trận, còn decode sinh từng token và mỗi bước đọc lại toàn bộ trọng số và KV cache, bị giới hạn bởi băng thông bộ nhớ (Fleuret mục 8.2; Leviathan et al. mục 1). Hai pha có nút thắt khác nhau nên một con số gộp che mất việc máy nào mạnh ở pha nào; prompt dài với câu trả lời ngắn và ngược lại cho cảm giác rất khác.",
+          "explain": "Ghi tách hai số cho mỗi máy vào 03_hardware_decision.md."
         }
       ]
     },
     {
-      "week": 10,
+      "week": 13,
       "title": "Xây dựng RAG pipeline end-to-end",
       "questions": [
         {
-          "id": "w10q1",
+          "id": "w13q1",
           "type": "mcq",
           "q": "Thứ tự đúng của một pipeline RAG cơ bản?",
           "choices": [
@@ -673,14 +1207,14 @@
           "explain": "Load tài liệu → cắt chunk → embed → lưu vector store → khi hỏi: embed query, retrieve top-k, ghép context vào prompt → generate."
         },
         {
-          "id": "w10q2",
+          "id": "w13q2",
           "type": "open",
           "q": "Vì sao khi chunking cần 'overlap' giữa các đoạn?",
           "answer": "Overlap (vd. ~100 ký tự/token) giữ phần đầu/cuối câu liền mạch giữa hai chunk, tránh cắt đứt một ý/định nghĩa ngay ranh giới chunk khiến retrieval bỏ sót ngữ cảnh cần thiết. Với chunk ~800 và overlap ~100, một thông tin nằm ở mép vẫn xuất hiện trọn trong ít nhất một chunk.",
           "explain": "Chunk quá nhỏ mất ngữ cảnh; quá lớn loãng tín hiệu retrieval. Overlap là cân bằng."
         },
         {
-          "id": "w10q3",
+          "id": "w13q3",
           "type": "mcq",
           "q": "Retrieval trong RAG thường xếp hạng tài liệu bằng độ đo nào?",
           "choices": [
@@ -693,12 +1227,12 @@
           "explain": "sim(q,d) = (q·d)/(|q||d|). Tài liệu có embedding gần (cosine cao) với query được lấy ra trước."
         },
         {
-          "id": "w10q4",
+          "id": "w13q4",
           "type": "mcq",
           "q": "Chroma đóng vai trò gì trong pipeline?",
           "choices": [
             "Mô hình sinh text",
-            "Vector store (lưu & truy vấn nearest-neighbor các embedding) — tốt cho dev",
+            "Vector store (lưu & truy vấn nearest-neighbor các embedding): tốt cho dev",
             "Tokenizer",
             "Reranker"
           ],
@@ -706,14 +1240,14 @@
           "explain": "Chroma là vector DB nhẹ cho dev; production có thể chuyển pgvector/Qdrant/Weaviate."
         },
         {
-          "id": "w10q5",
+          "id": "w13q5",
           "type": "open",
           "q": "Vì sao RAG giúp giảm hallucination so với hỏi LLM trực tiếp?",
           "answer": "RAG 'grounding' câu trả lời vào các đoạn tài liệu thật được retrieve và đưa vào prompt, nên model trả lời dựa trên bằng chứng cụ thể thay vì chỉ dựa vào trí nhớ tham số (dễ bịa). Ngoài ra có thể trích dẫn nguồn để kiểm chứng. Nó cũng cập nhật được kiến thức mới mà không cần train lại.",
           "explain": "Anchor của roadmap: corpus là tài liệu nghiệp vụ Finance Banking của bạn."
         },
         {
-          "id": "w10q6",
+          "id": "w13q6",
           "type": "mcq",
           "q": "Embedding model làm gì?",
           "choices": [
@@ -724,20 +1258,55 @@
           ],
           "answer": 1,
           "explain": "Embedding (BGE/e5/nomic...) ánh xạ text → vector; văn bản gần nghĩa → vector gần nhau."
+        },
+        {
+          "id": "w13q7",
+          "type": "mcq",
+          "q": "Jurafsky và Martin gọi khiếm khuyết cốt lõi của tf-idf và BM25 là 'vocabulary mismatch problem'. Khiếm khuyết đó là gì và dense retrieval giải quyết ra sao?",
+          "choices": [
+            "tf-idf và BM25 quá chậm với corpus lớn; dense retrieval nhanh hơn nhờ GPU",
+            "tf-idf và BM25 chỉ hoạt động khi query và tài liệu dùng chung đúng từ, nên người hỏi phải đoán từ người viết đã dùng; dense embedding xử lý được từ đồng nghĩa vì so nghĩa thay vì so chuỗi ký tự",
+            "tf-idf và BM25 không chấm được tài liệu dài; dense retrieval cắt chunk",
+            "tf-idf và BM25 cần nhãn huấn luyện; dense retrieval thì không"
+          ],
+          "answer": 1,
+          "explain": "SLP3 mục 11.3 trang 264: 'they work only if there is exact overlap of words between the query and document'. Vì thế Tuần 14 dùng cả hai trong hybrid search: BM25 bắt từ khóa chính xác, dense bắt đồng nghĩa."
+        },
+        {
+          "id": "w13adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Jurafsky và Martin gọi khiếm khuyết của tf-idf và BM25 là 'vocabulary mismatch problem'. Trong hybrid search ở Tuần 14, vì sao vẫn giữ BM25 dù đã có dense retrieval?",
+          "choices": [
+            "Vì BM25 nhanh hơn nên thay được embedding",
+            "Vì dense bắt đồng nghĩa nhưng có thể trượt các chuỗi cần khớp chính xác như số hiệu văn bản hay mã điều khoản, thứ BM25 làm tốt; hai nhánh bù khuyết cho nhau rồi gộp bằng RRF",
+            "Vì embedding không chạy được trên CPU",
+            "Vì RAGAS bắt buộc dùng BM25"
+          ],
+          "answer": 1,
+          "explain": "SLP3 mục 11.3 (trang 264) nêu khiếm khuyết của sparse; phần lý giải vì sao vẫn giữ BM25 là suy luận thực hành của người viết cho corpus pháp lý."
+        },
+        {
+          "id": "w13adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Theo SLP3, RAG có hai thành phần chính và ba mục tiêu. Hãy nêu chúng và chỉ ra mục tiêu nào trùng với lý do repo chọn RAG cho kiến thức quy định.",
+          "answer": "Hai thành phần: retriever và generator (đôi khi gọi reader). Ba mục tiêu: giảm hallucination bằng tập tài liệu đáng tin, sinh text đúng về dữ liệu riêng như tài liệu nội bộ hay pháp lý, và xử lý kiến thức thay đổi theo thời gian (SLP3 mục 11.4, trang 267). Cả ba trùng với lý do của repo: văn bản pháp luật thay đổi, cần dẫn nguồn, và không được bịa.",
+          "explain": "Paper 'Does Fine-Tuning on New Knowledge Encourage Hallucinations?' trong kệ paper là bằng chứng thực nghiệm cho việc không nhét kiến thức quy định vào trọng số."
         }
       ]
     },
     {
-      "week": 11,
+      "week": 14,
       "title": "Advanced RAG + đánh giá (RAGAS)",
       "questions": [
         {
-          "id": "w11q1",
+          "id": "w14q1",
           "type": "mcq",
           "q": "Hybrid retrieval kết hợp BM25 và vector search; chúng thường được trộn bằng kỹ thuật nào?",
           "choices": [
             "Lấy trung bình embedding",
-            "Reciprocal Rank Fusion (RRF) — hợp nhất thứ hạng từ hai bộ retrieve",
+            "Reciprocal Rank Fusion (RRF): hợp nhất thứ hạng từ hai bộ retrieve",
             "Nối kết quả ngẫu nhiên",
             "Chỉ lấy BM25"
           ],
@@ -745,14 +1314,14 @@
           "explain": "BM25 (lexical) bắt từ khoá chính xác; vector (semantic) bắt ý nghĩa; RRF hợp nhất để bù điểm yếu của nhau."
         },
         {
-          "id": "w11q2",
+          "id": "w14q2",
           "type": "open",
           "q": "Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?",
-          "answer": "Bi-encoder mã hoá query và document RIÊNG thành vector rồi so cosine — nhanh, scale tốt, dùng để retrieve top-N từ kho lớn. Cross-encoder đưa CẢ cặp (query, document) qua model cùng lúc → chấm điểm liên quan chính xác hơn nhưng chậm, không scale cho toàn kho. Quy trình: bi-encoder lấy top-N (vd. 50), rồi cross-encoder rerank lại để chọn top-k tinh (vd. 5).",
+          "answer": "Bi-encoder mã hoá query và document RIÊNG thành vector rồi so cosine, nhanh, scale tốt, dùng để retrieve top-N từ kho lớn. Cross-encoder đưa CẢ cặp (query, document) qua model cùng lúc → chấm điểm liên quan chính xác hơn nhưng chậm, không scale cho toàn kho. Quy trình: bi-encoder lấy top-N (vd. 50), rồi cross-encoder rerank lại để chọn top-k tinh (vd. 5).",
           "explain": "BGE cross-encoder (mã nguồn mở) là lựa chọn phổ biến."
         },
         {
-          "id": "w11q3",
+          "id": "w14q3",
           "type": "mcq",
           "q": "Trong RAGAS, 'faithfulness' đo điều gì?",
           "choices": [
@@ -765,12 +1334,12 @@
           "explain": "Faithfulness kiểm tra các khẳng định trong câu trả lời có truy được về context không → thước đo chống hallucination."
         },
         {
-          "id": "w11q4",
+          "id": "w14q4",
           "type": "mcq",
           "q": "'Context precision' và 'context recall' trong RAGAS đánh giá khâu nào?",
           "choices": [
             "Khâu generate",
-            "Chất lượng RETRIEVAL — đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không",
+            "Chất lượng RETRIEVAL, đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không",
             "Tốc độ embedding",
             "Chi phí API"
           ],
@@ -778,14 +1347,14 @@
           "explain": "Hai chỉ số này tách bạch lỗi do retrieval kém với lỗi do generation kém."
         },
         {
-          "id": "w11q5",
+          "id": "w14q5",
           "type": "open",
           "q": "Vì sao cần eval set + cẩn trọng với LLM-as-judge?",
           "answer": "Cần một eval set (cặp câu hỏi + ground-truth) để đo before/after một cách định lượng thay vì cảm tính. LLM-as-judge (dùng một LLM mạnh chấm output) tiện nhưng nhiều bẫy đã được ghi nhận trong nghiên cứu (arXiv 2306.05685): thiên vị độ dài, thiên vị vị trí, tự khen model cùng họ. Loss thấp hơn KHÔNG tự động nghĩa là hữu ích hơn trong thực tế → đừng tin một chỉ số duy nhất; kết hợp metric tự động + kiểm tra thủ công.",
           "explain": "Đo lường tốt là điều phân biệt 'nghịch' với 'kỹ thuật'."
         },
         {
-          "id": "w11q6",
+          "id": "w14q6",
           "type": "mcq",
           "q": "Langfuse/LangSmith dùng để làm gì?",
           "choices": [
@@ -796,22 +1365,51 @@
           ],
           "answer": 1,
           "explain": "Tracing giúp gỡ lỗi pipeline (đoạn nào retrieve sai, prompt nào hỏng) và đo chất lượng có hệ thống."
+        },
+        {
+          "id": "w14q7",
+          "type": "open",
+          "q": "Theo IR-book mục 11.4.3, BM25 được thiết kế để mô hình xác suất nhạy với hai đại lượng nào mà mô hình nhị phân độc lập bỏ qua, và điều đó liên quan gì đến cách bạn chunk tài liệu ở Tuần 13?",
+          "answer": "Hai đại lượng là tần suất từ trong tài liệu (term frequency) và độ dài tài liệu (document length); BM25 chuẩn hóa điểm theo độ dài bằng tham số b và bão hòa tần suất bằng tham số k₁. Chunk dài ngắn không đều sẽ bị chuẩn hóa độ dài kéo điểm lên xuống, nên khi dùng BM25 trong hybrid search cần chunk tương đối đều hoặc hiểu rõ ảnh hưởng của b.",
+          "explain": "IR-book trang 232 nói BM25 'sensitive to these quantities while not introducing too many additional parameters'. Hiểu hai tham số này giúp bạn không coi rank_bm25 là hộp đen khi đo lại RAGAS."
+        },
+        {
+          "id": "w14adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Zheng et al. (arXiv 2306.05685) nêu những thiên vị nào của LLM-as-judge, và bạn kiểm position bias bằng cách nào trong rubric RAGAS?",
+          "choices": [
+            "Chỉ có thiên vị độ dài; kiểm bằng cách cắt câu trả lời",
+            "Position bias, verbosity bias, self-enhancement bias, và limited reasoning ability; kiểm position bias bằng cách đảo thứ tự hai câu trả lời và xem phán quyết có đổi không",
+            "Chỉ có self-enhancement; kiểm bằng dùng model khác",
+            "Không có thiên vị nào đáng kể vì agreement trên 80%"
+          ],
+          "answer": 1,
+          "explain": "Abstract của paper liệt kê bốn hạn chế và báo judge mạnh đạt 'over 80% agreement' với người. Hai điều cùng đúng: dùng được, nhưng phải kiểm."
+        },
+        {
+          "id": "w14adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "IR-book nói precision-recall curve của kết quả xếp hạng có hình răng cưa. Vì sao, và context precision của RAGAS liên quan thế nào?",
+          "answer": "Với kết quả xếp hạng, precision và recall tính trên top-k; khi tài liệu thứ k+1 không liên quan thì recall giữ nguyên còn precision giảm, khi liên quan thì cả hai tăng, nên đường cong nhảy lên xuống (IR-book mục 8.4, trang 158). Context precision của RAGAS là phiên bản dùng LLM phán liên quan của precision trên top-k, nên nó kế thừa cả định nghĩa lẫn cách đọc răng cưa này khi bạn đổi k.",
+          "explain": "Khi so baseline với hybrid và rerank, giữ cùng k để hai số đo so được với nhau."
         }
       ]
     },
     {
-      "week": 12,
+      "week": 15,
       "title": "Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP",
       "questions": [
         {
-          "id": "w12q1",
+          "id": "w15q1",
           "type": "open",
           "q": "Mô tả 'agent loop' cơ bản.",
           "answer": "perceive (nhận input/trạng thái) → reason (LLM suy luận, quyết định bước tiếp) → chọn tool → execute tool → quan sát kết quả → lặp lại cho tới khi đạt mục tiêu, rồi trả về structured output. Khác với một lần gọi LLM, agent có vòng lặp nhiều bước có dùng công cụ và trạng thái.",
           "explain": "Đây là khung chung của Claude Agent SDK và mọi agent framework."
         },
         {
-          "id": "w12q2",
+          "id": "w15q2",
           "type": "mcq",
           "q": "MCP (Model Context Protocol) là gì?",
           "choices": [
@@ -824,7 +1422,7 @@
           "explain": "MCP tách 'bộ não' khỏi nguồn dữ liệu/tool, cho phép tái sử dụng các server tool chuẩn hoá."
         },
         {
-          "id": "w12q3",
+          "id": "w15q3",
           "type": "mcq",
           "q": "Khác biệt chính giữa LangGraph và CrewAI?",
           "choices": [
@@ -837,14 +1435,14 @@
           "explain": "LangGraph hợp workflow cần kiểm soát/audit (tài chính có quy định); CrewAI nhanh để dựng nhóm agent theo vai."
         },
         {
-          "id": "w12q4",
+          "id": "w15q4",
           "type": "open",
           "q": "Vì sao workflow tài chính có quy định nên ưu tiên LangGraph?",
           "answer": "Vì LangGraph cho phép định nghĩa trạng thái và luồng chuyển tiếp một cách tường minh, có thể kiểm tra/ghi vết (auditable) từng bước, và chèn các human-in-the-loop gate rõ ràng. Trong domain tài chính bị ràng buộc quy định, khả năng giải trình 'vì sao agent ra quyết định này' và kiểm soát chặt từng chuyển tiếp quan trọng hơn tốc độ prototype.",
           "explain": "CrewAI tiện cho thử nghiệm nhanh nhưng kém minh bạch hơn về luồng trạng thái."
         },
         {
-          "id": "w12q5",
+          "id": "w15q5",
           "type": "mcq",
           "q": "Human-in-the-loop (HITL) gate nghĩa là gì?",
           "choices": [
@@ -857,7 +1455,7 @@
           "explain": "HITL gate đặt giữa các stage rủi ro để con người kiểm soát; thiết kế least-privilege + HITL ngay từ đầu."
         },
         {
-          "id": "w12q6",
+          "id": "w15q6",
           "type": "mcq",
           "q": "Mô hình 5 tầng engineering (docs/5-layers-multi-agent.jpg) xếp theo thứ tự nào, từ trong ra ngoài?",
           "choices": [
@@ -870,27 +1468,49 @@
           "explain": "Prompt (the message) → Context (the memory) → Harness (the machine: gather-act-verify) → Loop (the system: run-check-decide) → Graph (the organization: nhiều agent + shared memory). Mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó là engineering."
         },
         {
-          "id": "w12q7",
+          "id": "w15q7",
           "type": "open",
           "q": "Bốn điều kiện nào làm loop autoresearch của Karpathy chạy được, và vì sao thiếu một cái là loop hỏng?",
-          "answer": "(1) Output verifiable — có metric đo được (val_bpb), không thì agent tối ưu thứ sai; (2) Action reversible — git reset về commit giữ lại được, thất bại không phá state; (3) Horizon ngắn — run ~5 phút cho feedback dày; (4) Environment bounded — repo giới hạn không gian hành động. Thiếu verify thì không biết giữ hay bỏ thay đổi; thiếu reversible thì một lỗi phá cả quá trình; horizon dài làm tín hiệu học thưa; environment mở làm không gian tìm kiếm nổ.",
-          "explain": "Đây là checklist trước khi cho agent chạy tự động bất kỳ việc gì — kể cả trong CornAgents.AI."
+          "answer": "(1) Output verifiable, có metric đo được (val_bpb), không thì agent tối ưu thứ sai; (2) Action reversible, git reset về commit giữ lại được, thất bại không phá state; (3) Horizon ngắn, run ~5 phút cho feedback dày; (4) Environment bounded, repo giới hạn không gian hành động. Thiếu verify thì không biết giữ hay bỏ thay đổi; thiếu reversible thì một lỗi phá cả quá trình; horizon dài làm tín hiệu học thưa; environment mở làm không gian tìm kiếm nổ.",
+          "explain": "Đây là checklist trước khi cho agent chạy tự động bất kỳ việc gì, kể cả trong CornAgents.AI."
+        },
+        {
+          "id": "w15adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Anthropic phân biệt workflow và agent thế nào, và khuyến nghị nào của họ về framework?",
+          "choices": [
+            "Workflow là agent chạy nhanh hơn; nên dùng framework nặng",
+            "Workflow là hệ trong đó LLM và tool được điều phối qua các đường code định trước; agent là hệ trong đó LLM tự điều khiển quy trình và cách dùng tool; các triển khai thành công nhất dùng các pattern đơn giản, ghép được, không dùng framework phức tạp",
+            "Agent luôn tốt hơn workflow",
+            "Không có khác biệt"
+          ],
+          "answer": 1,
+          "explain": "Trích 'Building Effective AI Agents': workflows là 'Systems where LLMs and tools are orchestrated through predefined code paths'; agents là 'Systems where LLMs dynamically direct their own processes and tool usage'."
+        },
+        {
+          "id": "w15adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Jurafsky và Martin nói khác biệt kỹ thuật giữa LLM thường và agent chỉ là gì? Điều đó gợi ý cách bạn nên nhìn tool call trong log của Claude Agent SDK ra sao?",
+          "answer": "SLP3 mục 1.8 (trang 24): agent là LLM có thể hành động bằng cách gọi chương trình khác, và 'The technical difference is only that the set of actions in the world are added to the set of possible tokens to generate'. Vậy tool call trong log là một token đặc biệt được sinh ra rồi được harness thực thi; kết quả tool quay lại context như input không đáng tin, theo paper Instruction Hierarchy trong kệ paper.",
+          "explain": "Cách nhìn này nối thẳng Tuần 15 về Tuần 7: vẫn là token prediction."
         }
       ]
     },
     {
-      "week": 13,
+      "week": 16,
       "title": "Map LLM vào SDLC; build agent graph CornAgents.AI",
       "questions": [
         {
-          "id": "w13q1",
+          "id": "w16q1",
           "type": "open",
           "q": "Cho ví dụ map agent ↔ stage SDLC (ít nhất 3 agent).",
-          "answer": "Requirements Analyst agent: biến feature request Finance Banking thành user story + acceptance criteria, grounded bởi RAG (Tuần 10-11) trên tài liệu nghiệp vụ nội bộ. Code Review agent: đọc diff/PR, flag bug/security/style. Test-Generation agent: từ story/code sinh test case. Có thể thêm Design và Docs agent. Mỗi agent có I/O contract rõ ràng và nối thành graph.",
+          "answer": "Requirements Analyst agent: biến feature request Finance Banking thành user story + acceptance criteria, grounded bởi RAG (Tuần 13-14) trên tài liệu nghiệp vụ nội bộ. Code Review agent: đọc diff/PR, flag bug/security/style. Test-Generation agent: từ story/code sinh test case. Có thể thêm Design và Docs agent. Mỗi agent có I/O contract rõ ràng và nối thành graph.",
           "explain": "Requirements Analyst tận dụng đúng thế mạnh BA của bạn."
         },
         {
-          "id": "w13q2",
+          "id": "w16q2",
           "type": "mcq",
           "q": "Nguyên tắc 'least-privilege' cho agent nghĩa là gì?",
           "choices": [
@@ -900,17 +1520,17 @@
             "Không agent nào dùng tool"
           ],
           "answer": 1,
-          "explain": "Giới hạn quyền giảm rủi ro khi agent lỗi/bị lạm dụng — đặc biệt quan trọng với hệ thống tài chính."
+          "explain": "Giới hạn quyền giảm rủi ro khi agent lỗi/bị lạm dụng, đặc biệt quan trọng với hệ thống tài chính."
         },
         {
-          "id": "w13q3",
+          "id": "w16q3",
           "type": "open",
           "q": "Requirements Analyst agent dùng RAG để làm gì?",
-          "answer": "Dùng RAG để 'grounding' việc sinh user story/acceptance criteria vào tài liệu nguồn thật — ví dụ quy định nghiệp vụ và spec nội bộ — thay vì bịa. Khi nhận một feature request, agent retrieve các quy định/định nghĩa liên quan, đưa vào context, rồi sinh story bám đúng ràng buộc nghiệp vụ và có thể trích dẫn nguồn.",
+          "answer": "Dùng RAG để 'grounding' việc sinh user story/acceptance criteria vào tài liệu nguồn thật, ví dụ quy định nghiệp vụ và spec nội bộ, thay vì bịa. Khi nhận một feature request, agent retrieve các quy định/định nghĩa liên quan, đưa vào context, rồi sinh story bám đúng ràng buộc nghiệp vụ và có thể trích dẫn nguồn.",
           "explain": "Đây là điểm nối Phase 2 (RAG) vào Phase 3 (agents)."
         },
         {
-          "id": "w13q4",
+          "id": "w16q4",
           "type": "mcq",
           "q": "Trong workflow multi-agent có quy định, human approval gate nên đặt ở đâu?",
           "choices": [
@@ -923,12 +1543,12 @@
           "explain": "Đặt gate giữa các stage cho phép bắt lỗi sớm và giữ con người kiểm soát các quyết định rủi ro."
         },
         {
-          "id": "w13q5",
+          "id": "w16q5",
           "type": "mcq",
           "q": "Vì sao cần 'I/O contract' rõ ràng giữa các agent?",
           "choices": [
             "Để agent chạy nhanh hơn",
-            "Để output của agent này là input có cấu trúc, dự đoán được cho agent kế — dễ ghép graph, test và audit",
+            "Để output của agent này là input có cấu trúc, dự đoán được cho agent kế, dễ ghép graph, test và audit",
             "Để giảm token",
             "Để mã hoá dữ liệu"
           ],
@@ -936,33 +1556,55 @@
           "explain": "Contract (schema state trong LangGraph) làm hệ thống mô-đun và kiểm thử được từng mắt xích."
         },
         {
-          "id": "w13q6",
+          "id": "w16q6",
           "type": "mcq",
           "q": "Ghép đúng 5 workflow patterns của Anthropic với mô tả?",
           "choices": [
             "Prompt Chaining = nhiều model bỏ phiếu; Routing = chạy tuần tự",
-            "Prompt Chaining = các bước cố định nối tiếp; Routing = phân loại input rồi gửi tới prompt/model chuyên biệt; Parallelization = các call độc lập chạy song song; Orchestrator–Workers = model trung tâm phân rã & giao việc; Evaluator–Optimizer = một bên sinh, một bên chấm theo tiêu chí, lặp",
-            "Orchestrator–Workers = không có model trung tâm; Evaluator–Optimizer = chỉ chạy 1 lần",
+            "Prompt Chaining = các bước cố định nối tiếp; Routing = phân loại input rồi gửi tới prompt/model chuyên biệt; Parallelization = các call độc lập chạy song song; Orchestrator-Workers = model trung tâm phân rã & giao việc; Evaluator-Optimizer = một bên sinh, một bên chấm theo tiêu chí, lặp",
+            "Orchestrator-Workers = không có model trung tâm; Evaluator-Optimizer = chỉ chạy 1 lần",
             "Cả 5 pattern đều cần knowledge graph"
           ],
           "answer": 1,
-          "explain": "Lời khuyên gốc của Anthropic: 'simple, composable patterns rather than complex frameworks' — chọn pattern theo bài toán, đừng bê nguyên framework nặng."
+          "explain": "Lời khuyên gốc của Anthropic: 'simple, composable patterns rather than complex frameworks', chọn pattern theo bài toán, đừng bê nguyên framework nặng."
         },
         {
-          "id": "w13q7",
+          "id": "w16q7",
           "type": "open",
           "q": "'Artifact contract' giữa các agent là gì và vì sao reviewer nên trả 'criterion-level defects' thay vì 'looks good'?",
-          "answer": "Artifact contract = mỗi handoff giữa hai agent là một artifact có schema rõ (user story JSON, defect list, test file) thay vì đoạn văn tự do — giúp validate tự động, test từng mắt xích, và audit. Reviewer trả defect theo từng tiêu chí (đúng/sai ở tiêu chí nào, bằng chứng gì) vì 'looks good' không cho downstream agent hay con người thông tin hành động được; defect có cấu trúc thì gate được (đếm, chặn, escalate) và đo được chất lượng review theo thời gian.",
+          "answer": "Artifact contract = mỗi handoff giữa hai agent là một artifact có schema rõ (user story JSON, defect list, test file) thay vì đoạn văn tự do, giúp validate tự động, test từng mắt xích, và audit. Reviewer trả defect theo từng tiêu chí (đúng/sai ở tiêu chí nào, bằng chứng gì) vì 'looks good' không cho downstream agent hay con người thông tin hành động được; defect có cấu trúc thì gate được (đếm, chặn, escalate) và đo được chất lượng review theo thời gian.",
           "explain": "Từ mục VI.D của Karpathy-Loop PDF: 'Every handoff should be an artifact contract. A reviewer returns criterion-level defects, not looks-good.'"
+        },
+        {
+          "id": "w16adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Anthropic báo hệ đa agent thắng single agent 90,2% trên eval nội bộ nhưng tốn khoảng 15 lần token so với chat. Con số này dẫn tới nguyên tắc thiết kế nào?",
+          "choices": [
+            "Luôn dùng đa agent vì thắng lớn",
+            "Chỉ tách vai khi bài toán có nhiều hướng độc lập và chuyên môn hóa thêm tín hiệu; định nghĩa reducer trước khi fan-out; đặt budget token trước vì token usage giải thích phần lớn phương sai hiệu năng",
+            "Không bao giờ dùng đa agent vì quá đắt",
+            "Chỉ dùng đa agent cho code"
+          ],
+          "answer": 1,
+          "explain": "Nguồn: 'How we built our multi-agent research system' (anthropic.com/engineering, đọc 2026-09-04): 'outperformed single-agent Claude Opus 4 by 90.2%', 'about 15× more tokens than chats', 'token usage by itself explains 80% of the variance'."
+        },
+        {
+          "id": "w16adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Xiao và Zhu đặt chain of thought và decomposition vào khung problem decomposition và nhắc System 1, System 2 của Kahneman. Hãy nối khung này với pattern orchestrator-workers và evaluator-optimizer.",
+          "answer": "Decomposition chia bài lớn thành bài con đơn giản hơn (FoLLM mục 3.2.2, trang 117); orchestrator-workers là decomposition được thể chế hóa ở mức hệ thống: một model chia việc, worker giải, kết quả gộp lại. Self-refinement (FoLLM mục 3.2.3, trang 124) để model tự sửa output; evaluator-optimizer tách vai chấm ra một agent riêng có tiêu chí viết sẵn. System 2 của Kahneman là cách nói cho chế độ suy luận chậm mà cả hai kỹ thuật đều kéo LLM vào.",
+          "explain": "Khi điền 03_agent_design.md, ghi cho mỗi agent nó là hiện thân của ý tưởng nào; không ghi được thì có thể không cần agent đó."
         }
       ]
     },
     {
-      "week": 14,
+      "week": 17,
       "title": "Graph Engineering: Knowledge Graph làm shared memory cho multi-agent",
       "questions": [
         {
-          "id": "w14q1",
+          "id": "w17q1",
           "type": "mcq",
           "q": "Bốn stage của knowledge graph pipeline (Anthropic Playbook) theo đúng thứ tự?",
           "choices": [
@@ -975,27 +1617,27 @@
           "explain": "Mỗi stage là một prompt/model call: Haiku extract entities+relations theo Pydantic schema; Sonnet resolve surface forms; NetworkX MultiDiGraph lắp graph với provenance; Sonnet trả lời trên subgraph đã serialize."
         },
         {
-          "id": "w14q2",
+          "id": "w17q2",
           "type": "open",
           "q": "RAG và Knowledge Graph khác nhau thế nào, khi nào cần cái nào?",
-          "answer": "RAG retrieve chunk theo tương đồng ngữ nghĩa với câu hỏi — tốt cho câu hỏi single-hop (đáp án nằm trong một đoạn). Nó thất bại với multi-hop: khi đáp án phải NỐI facts từ nhiều tài liệu không giống nhau về mặt lexical/semantic. Knowledge graph biến entity chung thành node tường minh có edge sang cả hai tài liệu — graph traversal tìm ra kết nối bất kể surface form. Hai cách bổ trợ: RAG rẻ cho direct retrieval, KG cho structural reasoning; thực tế dùng cùng nhau.",
+          "answer": "RAG retrieve chunk theo tương đồng ngữ nghĩa với câu hỏi, tốt cho câu hỏi single-hop (đáp án nằm trong một đoạn). Nó thất bại với multi-hop: khi đáp án phải NỐI facts từ nhiều tài liệu không giống nhau về mặt lexical/semantic. Knowledge graph biến entity chung thành node tường minh có edge sang cả hai tài liệu, graph traversal tìm ra kết nối bất kể surface form. Hai cách bổ trợ: RAG rẻ cho direct retrieval, KG cho structural reasoning; thực tế dùng cùng nhau.",
           "explain": "Quy tắc: cần CHAIN facts xuyên nguồn / SHARE structured state / GROUND phán xét → graph. Chỉ cần retrieve/classify → RAG hoặc đơn giản hơn là đủ."
         },
         {
-          "id": "w14q3",
+          "id": "w17q3",
           "type": "mcq",
           "q": "Vì sao extraction prompt yêu cầu viết 'one-sentence description grounded in this document' cho mỗi entity?",
           "choices": [
             "Để hiển thị đẹp trong UI",
-            "Description là tín hiệu ngữ nghĩa cho stage RESOLUTION — thiếu nó resolver chỉ thấy tên và phải đoán; 'Armstrong — phi hành gia' và 'Armstrong — nghệ sĩ jazz' trùng tên nhưng không được merge",
+            "Description là tín hiệu ngữ nghĩa cho stage RESOLUTION, thiếu nó resolver chỉ thấy tên và phải đoán; 'Armstrong, phi hành gia' và 'Armstrong, nghệ sĩ jazz' trùng tên nhưng không được merge",
             "Để giảm token",
             "Để thay thế cho embeddings"
           ],
           "answer": 1,
-          "explain": "Description không phải metadata mà là input hạng nhất cho resolution — nó thay thứ mà trained classifier phải học từ labeled data theo domain."
+          "explain": "Description không phải metadata mà là input hạng nhất cho resolution, nó thay thứ mà trained classifier phải học từ labeled data theo domain."
         },
         {
-          "id": "w14q4",
+          "id": "w17q4",
           "type": "mcq",
           "q": "Vì sao với knowledge graph, PRECISION của extraction thường quan trọng hơn RECALL?",
           "choices": [
@@ -1005,50 +1647,72 @@
             "Vì Haiku không thể đạt recall cao"
           ],
           "answer": 1,
-          "explain": "Kết quả trên Apollo corpus: precision 1.00, recall 0.38–0.55 — extractor bảo thủ là trade-off ĐÚNG cho production; evaluation harness giúp bạn chỉnh trade-off này có chủ đích."
+          "explain": "Kết quả trên Apollo corpus: precision 1.00, recall 0.38-0.55, extractor bảo thủ là trade-off ĐÚNG cho production; evaluation harness giúp bạn chỉnh trade-off này có chủ đích."
         },
         {
-          "id": "w14q5",
+          "id": "w17q5",
           "type": "open",
           "q": "Nêu 3 vai trò của knowledge graph trong kiến trúc multi-agent (theo Playbook).",
-          "answer": "(1) Shared memory cho orchestrator–workers: worker đọc/ghi graph trực tiếp thay vì đẩy summary qua context window của orchestrator — window của orchestrator không phình theo số worker. (2) Grounding layer cho evaluator–optimizer: evaluator kiểm tra từng claim theo edge có provenance ('triple X không tồn tại; graph chứa Y từ document Z') — fact-check thay vì cảm giác. (3) Persistent world model cho loop chạy dài: context window bị flush thì graph vẫn còn — 'the agent forgets, the graph does not'.",
+          "answer": "(1) Shared memory cho orchestrator-workers: worker đọc/ghi graph trực tiếp thay vì đẩy summary qua context window của orchestrator, window của orchestrator không phình theo số worker. (2) Grounding layer cho evaluator-optimizer: evaluator kiểm tra từng claim theo edge có provenance ('triple X không tồn tại; graph chứa Y từ document Z'): fact-check thay vì cảm giác. (3) Persistent world model cho loop chạy dài: context window bị flush thì graph vẫn còn, 'the agent forgets, the graph does not'.",
           "explain": "Đây là 3 chỗ cắm graph vào CornAgents.AI: workers ghi, evaluator check, loop qua đêm không mất trí nhớ."
         },
         {
-          "id": "w14q6",
+          "id": "w17q6",
           "type": "mcq",
           "q": "'Grounded answer' khác 'ungrounded answer' thế nào khi query graph?",
           "choices": [
             "Grounded chạy nhanh hơn",
-            "Grounded bị ràng buộc 'answer using ONLY the graph, cite edges' — trả lời truy vết được về triples có provenance và nói rõ graph KHÔNG chứa gì; ungrounded dựa vào pretraining nên nghe hợp lý nhưng trên private corpus thì không kiểm chứng được",
+            "Grounded bị ràng buộc 'answer using ONLY the graph, cite edges', trả lời truy vết được về triples có provenance và nói rõ graph KHÔNG chứa gì; ungrounded dựa vào pretraining nên nghe hợp lý nhưng trên private corpus thì không kiểm chứng được",
             "Ungrounded luôn sai",
             "Grounded không cần model"
           ],
           "answer": 1,
-          "explain": "Trên corpus riêng (tài liệu Finance Banking nội bộ) model không có kiến thức pretraining — chỉ grounded answer là dùng được, và citation kiểm tra được bằng string matching."
+          "explain": "Trên corpus riêng (tài liệu Finance Banking nội bộ) model không có kiến thức pretraining, chỉ grounded answer là dùng được, và citation kiểm tra được bằng string matching."
         },
         {
-          "id": "w14q7",
+          "id": "w17q7",
           "type": "open",
           "q": "Evaluation feedback loop của KG pipeline hoạt động thế nào và vì sao nó 'cùng hình dạng' với ratchet loop của Karpathy autoresearch?",
-          "answer": "Lập gold set (entities/relations tự label từ 2+ tài liệu đại diện) → chạy extraction → scorer đo precision/recall/F1 → đổi extraction prompt/schema → chạy lại → giữ thay đổi nếu F1 tăng, revert nếu giảm. Cùng hình dạng với autoresearch: act (extract) → observe (score) → learn (tune prompt) → repeat; chỉ khác artifact được tối ưu không phải train.py mà là prompt/ontology/resolution policy — 'graph autoresearch'. Không có harness này, không biết thay đổi prompt làm chất lượng tốt lên hay tệ đi, và drift theo corpus không ai bắt được.",
+          "answer": "Lập gold set (entities/relations tự label từ 2+ tài liệu đại diện) → chạy extraction → scorer đo precision/recall/F1 → đổi extraction prompt/schema → chạy lại → giữ thay đổi nếu F1 tăng, revert nếu giảm. Cùng hình dạng với autoresearch: act (extract) → observe (score) → learn (tune prompt) → repeat; chỉ khác artifact được tối ưu không phải train.py mà là prompt/ontology/resolution policy, 'graph autoresearch'. Không có harness này, không biết thay đổi prompt làm chất lượng tốt lên hay tệ đi, và drift theo corpus không ai bắt được.",
           "explain": "Trí tuệ của loop nằm ở chất lượng environmental feedback, không nằm trong model."
+        },
+        {
+          "id": "w17adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "Playbook Graph Engineering dùng blocking trước resolution. Blocking là gì và nguyên tắc chung nào nó minh họa?",
+          "choices": [
+            "Chặn model không được đọc tài liệu dài",
+            "Gom ứng viên bằng tín hiệu rẻ (trùng token tên, Jaccard, quy tắc) thành block 50-100 rồi chỉ để model phân xử trong block; nguyên tắc: model cho phần cần phán xét, logic tất định cho phần còn lại",
+            "Xóa mọi thực thể xuất hiện một lần",
+            "Chia tài liệu thành chunk cố định 512 token"
+          ],
+          "answer": 1,
+          "explain": "Playbook (docs/Graph-Engineering-Athropic-Playbook.pdf) ghi pipeline 'works unchanged on blocks of 50–100' và mô tả 'blocking plus expensive LLM arbitration within blocks'."
+        },
+        {
+          "id": "w17adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Ma và Tang định nghĩa ma trận kề A ∈ {0,1}^{N×N}. Vì sao knowledge graph của bạn không biểu diễn được bằng một ma trận như vậy, và hệ quả lên precision ở bước extraction là gì?",
+          "answer": "KG có cạnh có hướng và nhiều loại quan hệ, nên mỗi loại quan hệ cần một ma trận kề riêng, tức một tensor N×N×R; đây là suy luận từ Definition 2.2 (Deep Learning on Graphs, trang 18), sách chương 2 chỉ xét đồ thị đơn. Vì truy vấn k-hop là chuỗi phép nhân trên các ma trận này, một entry sai lan qua mọi bước, nên Playbook và ghi chú Tuần 17 đặt precision cao hơn recall ở extraction.",
+          "explain": "Playbook cũng nhắc precision 1.00 chưa chắc tốt: 'Perfect precision (1.00) means the extractor is conservative'."
         }
       ]
     },
     {
-      "week": 15,
+      "week": 18,
       "title": "Capstone + evaluation/observability",
       "questions": [
         {
-          "id": "w15q1",
+          "id": "w18q1",
           "type": "open",
           "q": "Use case capstone khuyến nghị và 3 thành phần kỹ thuật của nó?",
-          "answer": "Use case: spec-to-stories + automated review cho một feature Finance Banking (nghiệp vụ Finance Banking tổng quát). Ba thành phần: (1) RAG — grounding vào tài liệu domain; (2) Agents — workflow multi-agent (requirements → review → test) với HITL gate; (3) tùy chọn model fine-tuned local (Tuần 8/9) cho một sub-task phân loại nghiệp vụ hẹp. Gắn tracing và viết eval rubric.",
+          "answer": "Use case: spec-to-stories + automated review cho một feature Finance Banking (nghiệp vụ Finance Banking tổng quát). Ba thành phần: (1) RAG, grounding vào tài liệu domain; (2) Agents, workflow multi-agent (requirements → review → test) với HITL gate; (3) tùy chọn model fine-tuned local (Tuần 11/12) cho một sub-task phân loại nghiệp vụ hẹp. Gắn tracing và viết eval rubric.",
           "explain": "Đây là nơi hội tụ cả 3 phase của roadmap."
         },
         {
-          "id": "w15q2",
+          "id": "w18q2",
           "type": "mcq",
           "q": "Bộ ba metric đánh giá capstone agentic gồm?",
           "choices": [
@@ -1058,17 +1722,17 @@
             "Precision, recall, F1 (chỉ vậy)"
           ],
           "answer": 1,
-          "explain": "Success rate (hoàn thành đúng), human-override rate (tần suất người phải sửa — đo độ tin), groundedness (bám tài liệu nguồn — chống bịa)."
+          "explain": "Success rate (hoàn thành đúng), human-override rate (tần suất người phải sửa, đo độ tin), groundedness (bám tài liệu nguồn, chống bịa)."
         },
         {
-          "id": "w15q3",
+          "id": "w18q3",
           "type": "open",
           "q": "Vì sao chiến lược 'Claude làm brain + model 7B fine-tuned cho sub-task' lại hợp lý?",
           "answer": "Claude (model mạnh) làm bộ điều phối/suy luận chính cho các bước mở, cần năng lực rộng. Nhưng một sub-task hẹp, lặp lại nhiều (vd. phân loại văn bản nghiệp vụ thành các nhãn cố định) thì một model 7B fine-tuned local làm tốt với chi phí và độ trễ thấp hơn nhiều, lại chạy offline. Phối hợp tối ưu chi phí/độ trễ mà vẫn giữ chất lượng ở khâu khó.",
           "explain": "Hiểu internals Phase 1 giúp lập luận lựa chọn model này có cơ sở."
         },
         {
-          "id": "w15q4",
+          "id": "w18q4",
           "type": "mcq",
           "q": "'Groundedness' đo điều gì?",
           "choices": [
@@ -1078,14 +1742,36 @@
             "Chi phí token"
           ],
           "answer": 1,
-          "explain": "Tương tự faithfulness trong RAGAS, áp cho output cuối của workflow — quan trọng trong domain tài chính."
+          "explain": "Tương tự faithfulness trong RAGAS, áp cho output cuối của workflow, quan trọng trong domain tài chính."
         },
         {
-          "id": "w15q5",
+          "id": "w18q5",
           "type": "open",
           "q": "Viết retrospective 'nối về Phase 1' nghĩa là gì?",
           "answer": "Sau khi ship capstone, nhìn lại và giải thích VÌ SAO các lựa chọn kỹ thuật hoạt động, dựa trên hiểu biết internals từ Phase 1: vì sao một model nhỏ fine-tuned đủ cho sub-task, vì sao context dài tốn KV cache, vì sao quantization 4-bit chấp nhận được, vì sao RAG cần grounding... Mục tiêu là khép vòng học: từ 'biết dùng' sang 'hiểu tại sao', biến cả roadmap thành kiến thức nền vững chứ không chỉ là làm theo công thức.",
-          "explain": "Đây là deliverable 03_retrospective.md — mục tiêu thật sự của toàn lộ trình."
+          "explain": "Đây là deliverable 03_retrospective.md, mục tiêu thật sự của toàn lộ trình."
+        },
+        {
+          "id": "w18adv1",
+          "type": "mcq",
+          "level": "advanced",
+          "q": "PDF Karpathy-Loop yêu cầu khai báo complexity budget trước mỗi run và làm gì khi hết budget?",
+          "choices": [
+            "Chạy tiếp đến khi xong",
+            "Trả artifact tốt nhất hiện có kèm danh sách việc chưa xử lý và lý do dừng; không che partial failure sau một câu trả lời trôi chảy",
+            "Tự động tăng budget",
+            "Xóa artifact và báo lỗi"
+          ],
+          "answer": 1,
+          "explain": "Budget gồm số lần gọi model, sub-agent, worker song song, thời gian, token, chi phí, retry, và bằng chứng tối thiểu để kết thúc (PDF mục VII). Metric bị game là rủi ro đi kèm: loop chỉ cải thiện thứ nó thấy."
+        },
+        {
+          "id": "w18adv2",
+          "type": "open",
+          "level": "advanced",
+          "q": "Hãy nối ba metric capstone (success rate, human-override rate, groundedness) với các số đo trong giáo trình: accuracy trên test set chưa thấy, exact match, token F1, precision.",
+          "answer": "Success rate là accuracy trên một benchmark tự dựng với đáp án có dẫn điều khoản, đòi test set chưa thấy như SLP3 mục 1.9 (trang 25); các tiêu chí đúng sai là exact match, tiêu chí nội dung gần token F1 (SLP3 mục 11.6, trang 271). Groundedness là precision ở mức claim: trong các claim đưa ra, bao nhiêu claim dẫn được về một điều khoản hay một cạnh có provenance (IR-book mục 8.3). Human-override rate là số đo vận hành không có tương ứng trực tiếp trong các sách đã đọc, nhưng rẻ và trung thực nhất với người dùng nghiệp vụ.",
+          "explain": "Rubric nên có ít nhất một tiêu chí thuộc nhóm độ bền: đưa feature request mơ hồ và kiểm xem workflow dừng hỏi lại hay bịa (FoLLM mục 5.1.4, trang 221)."
         }
       ]
     }

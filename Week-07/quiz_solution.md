@@ -1,66 +1,109 @@
-# Tuần 7 — Đáp án & Giải thích: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
+# Tuần 7, Đáp án & Giải thích: Lắp ráp & chạy mô hình GPT
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
-## Câu 1 (Tự luận)
+## Câu 1 (Trắc nghiệm)
 
-Phân biệt SFT, DPO và GRPO.
+LayerNorm trong transformer chuẩn hoá theo chiều nào?
 
-**Trả lời mẫu:** SFT (Supervised Fine-Tuning): học bắt chước các phản hồi tốt bằng cross-entropy trên cặp (prompt, response chuẩn). DPO (Direct Preference Optimization): tối ưu trực tiếp từ cặp (chosen, rejected) bằng một loss dạng logistic, BỎ QUA reward model và PPO → đơn giản, ổn định. GRPO (Group Relative Policy Optimization): RL bỏ critic, lấy nhiều sample cho cùng prompt và chuẩn hoá reward theo nhóm; hợp với reward kiểm chứng được (RLVR) → nền của reasoning models.
-
-**Giải thích:** Thứ tự thường gặp: SFT → (RM) → DPO hoặc PPO → GRPO. Xem mục G advanced_topics_vi.md.
-
-## Câu 2 (Trắc nghiệm)
-
-Reward Model (RM) trong RLHF học để làm gì?
-
-- **A.** Sinh phản hồi cuối cùng cho người dùng
-- **B.** Chấm điểm/so sánh mức ưu tiên giữa các output để hướng dẫn RL ✅
-- **C.** Tokenize dữ liệu
-- **D.** Lưu KV cache
+- **A.** Theo chiều batch (như BatchNorm)
+- **B.** Theo chiều feature/embedding của từng token (last dim) ✅
+- **C.** Theo chiều sequence
+- **D.** Theo toàn bộ tensor
 
 **Đáp án: B**
 
-**Giải thích:** RM học từ nhãn ưu tiên của con người, xuất ra điểm scalar; PPO dùng điểm này làm reward. FareedKhan implement RM from scratch.
+**Giải thích:** LayerNorm chuẩn hoá theo feature của mỗi token độc lập (không phụ thuộc batch) → ổn định, hợp với độ dài chuỗi thay đổi.
+
+## Câu 2 (Tự luận)
+
+Pre-LN + residual: x = x + Sublayer(LN(x)). Vì sao thiết kế này giúp train mạng sâu?
+
+**Trả lời mẫu:** Residual tạo một 'đường cao tốc' để gradient chảy thẳng về các lớp đầu mà không bị nhân nhỏ dần qua nhiều lớp (chống vanishing gradient). Đặt LayerNorm TRƯỚC sublayer (pre-LN) giữ đầu vào mỗi sublayer ở thang đo ổn định, làm việc xếp chồng hàng chục block ổn định hơn so với post-LN. Nhờ vậy có thể train transformer rất sâu.
+
+**Giải thích:** Ngoài vai trò shortcut gradient, residual còn cho phép mỗi block tinh chỉnh dần biểu diễn (residual stream).
 
 ## Câu 3 (Trắc nghiệm)
 
-So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
+Feed-forward network (FFN) trong block GPT-2 mở rộng chiều ẩn lên khoảng mấy lần d_model?
 
-- **A.** Bỏ dữ liệu ưu tiên (preference)
-- **B.** Bỏ việc train reward model riêng và vòng lặp PPO — tối ưu thẳng từ cặp ưu tiên ✅
-- **C.** Bỏ model tham chiếu (reference)
-- **D.** Bỏ tokenizer
-
-**Đáp án: B**
-
-**Giải thích:** DPO biến bài toán RLHF thành một loss phân loại trực tiếp trên cặp (chosen, rejected), vẫn dùng policy tham chiếu nhưng không cần RM/PPO.
-
-## Câu 4 (Tự luận)
-
-[Nâng cao] RLVR (Reinforcement Learning from Verifiable Rewards) là gì, vì sao hợp với reasoning?
-
-**Trả lời mẫu:** RLVR dùng reward KIỂM CHỨNG ĐƯỢC một cách khách quan: đáp án toán đúng/sai, unit test code pass/fail, thay vì điểm chủ quan từ reward model. Vì tín hiệu thưởng chính xác và không bị 'hack', model có thể tự khám phá chuỗi suy luận (chain-of-thought) dẫn tới đáp án đúng. Đây là cơ chế đứng sau các reasoning model kiểu o1/R1; thường kết hợp với GRPO.
-
-**Giải thích:** Xem nanochat chat_rl.py (tasks gsm8k, spellingbee) và paper DeepSeekMath/GRPO (arXiv 2402.03300).
-
-## Câu 5 (Trắc nghiệm)
-
-[Nâng cao] Bước 'midtrain' (nanochat) nằm ở đâu trong pipeline?
-
-- **A.** Trước pretrain
-- **B.** Giữa pretrain và SFT — dạy format hội thoại, special tokens, tool use ✅
-- **C.** Sau GRPO
-- **D.** Thay thế SFT
+- **A.** 2 lần
+- **B.** 4 lần ✅
+- **C.** 8 lần
+- **D.** Không mở rộng
 
 **Đáp án: B**
 
-**Giải thích:** Midtrain là khái niệm KHÔNG có trong pipeline GPT-2 kinh điển; nó chuẩn bị base model cho giai đoạn chat/SFT.
+**Giải thích:** FFN: Linear(d → 4d) → GELU → Linear(4d → d). Hệ số 4× là chuẩn của GPT-2.
 
-## Câu 6 (Tự luận)
+## Câu 4 (Trắc nghiệm)
 
-Trong RLHF/DPO, thành phần KL divergence (hoặc reference policy) đóng vai trò gì?
+GPT-2 small có khoảng bao nhiêu tham số (với emb_dim=768, n_layers=12, n_heads=12)?
 
-**Trả lời mẫu:** Nó giữ policy mới không trôi quá xa khỏi model tham chiếu (thường là bản SFT). Không có ràng buộc này, RL có thể 'hack' reward: sinh văn bản kỳ dị đạt điểm cao từ reward model nhưng mất khả năng ngôn ngữ chung (reward hacking / catastrophic drift). Trong PPO nó là phạt KL trong reward; trong DPO nó nằm ngay trong loss qua tỉ số log-prob với pi_ref và hệ số beta.
+- **A.** ~50M
+- **B.** ~124M ✅
+- **C.** ~350M
+- **D.** ~1.5B
 
-**Giải thích:** Đây là lý do mọi công thức DPO đều chứa pi_theta/pi_ref — không phải chi tiết trang trí.
+**Đáp án: B**
+
+**Giải thích:** ~124M. Verify số tham số là cách kiểm tra nhanh kiến trúc đã ghép đúng.
+
+## Câu 5 (Tự luận)
+
+[Nâng cao] RMSNorm khác LayerNorm ở điểm nào, vì sao model hiện đại chuộng nó?
+
+**Trả lời mẫu:** RMSNorm bỏ bước trừ mean và bỏ bias β; chỉ chia cho căn của trung bình bình phương rồi nhân γ: x / sqrt(mean(x^2) + eps) · γ. Ít phép tính hơn LayerNorm nhưng ổn định tương đương, nên Llama/Qwen dùng để rẻ và nhanh hơn ở quy mô lớn.
+
+**Giải thích:** Xem mục A2 trong advanced_topics_vi.md.
+
+## Câu 6 (Trắc nghiệm)
+
+[Nâng cao] SwiGLU FFN của Llama/Qwen thay thế phần nào của GPT-2?
+
+- **A.** Thay attention
+- **B.** Thay FFN GELU-4× bằng một FFN có cổng (gated) dùng SiLU, ~2/3·4d chiều ẩn ✅
+- **C.** Thay LayerNorm
+- **D.** Thay positional embedding
+
+**Đáp án: B**
+
+**Giải thích:** SwiGLU = (SiLU(x W_gate) ⊙ x W_up) W_down; có 3 ma trận nên giảm chiều ẩn để giữ số tham số tương đương.
+
+## Câu 7 (Trắc nghiệm)
+
+[Nâng cao] Trong một lớp Mixture-of-Experts (MoE), 'router' làm gì?
+
+- **A.** Chọn top-k expert (FFN con) cho mỗi token, chỉ kích hoạt số ít expert ✅
+- **B.** Định tuyến gradient ngược
+- **C.** Chọn GPU để chạy
+- **D.** Sắp xếp token theo độ dài
+
+**Đáp án: A**
+
+**Giải thích:** Router gán mỗi token cho top-k experts → tổng tham số lớn nhưng tham số active mỗi token nhỏ; cần lo load balancing. Qwen3-MoE, gpt-oss, DeepSeek dùng MoE.
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Top-p (nucleus) sampling khác top-k ở điểm nào theo Jurafsky và Martin, và vì sao điểm đó quan trọng khi ngữ cảnh đổi?
+
+- **A.** Top-p luôn chọn nhiều token hơn top-k
+- **B.** Top-k giữ k token cố định còn top-p giữ tập nhỏ nhất chiếm p khối xác suất, nên số ứng viên tự co giãn theo hình dạng phân phối trong từng ngữ cảnh ✅
+- **C.** Top-p chỉ dùng khi temperature bằng 1
+- **D.** Top-p là greedy với p = 1
+
+**Đáp án: B**
+
+**Giải thích:** SLP3 mục 7.6.4 (trang 200): k cố định là điểm yếu vì có ngữ cảnh 10 token đầu chiếm gần hết khối xác suất, có ngữ cảnh phân phối phẳng.
+
+## Nâng cao 2 (Tự luận)
+
+Vì sao khi kiểm tra kiến trúc GPT bằng cách load trọng số GPT-2 rồi sinh text, nên bắt đầu bằng greedy decoding thay vì sampling?
+
+**Trả lời mẫu:** Greedy loại bỏ biến ngẫu nhiên của sampling: nếu output vô nghĩa ở greedy thì lỗi nhiều khả năng nằm ở kiến trúc hoặc mapping trọng số, không ở tham số sampling. Đây là suy luận thực hành của người viết, dựa trên việc greedy là hàm xác định của logits (SLP3 mục 7.6, trang 196).
+
+**Giải thích:** Sau khi greedy ra text mạch lạc, mới bật temperature và top-p để so phong cách.

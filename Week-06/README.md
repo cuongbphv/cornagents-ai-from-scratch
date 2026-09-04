@@ -1,77 +1,83 @@
-# Tuần 6 — Instruction fine-tuning (classification + instruction-following + LoRA)
+# Tuần 6: Tokenization, embeddings, attention từ đầu
 
-> Phase 1 — Deep Internals. Fine-tune cho classification & instruction-following. (Alignment được tách riêng sang Tuần 7 để giảm tải.)
+> Phase 1: Deep Internals. **Đây là điểm cốt lõi về khái niệm, đi chậm.** Tự tay code toàn bộ stack attention.
 
 ## Mục tiêu
 
-- Fine-tune cho **classification** (ch.6) và **instruction-following** (ch.7).
-- Hiểu và áp dụng **LoRA** (Appendix E) — so sánh với full fine-tuning.
+- Hiểu & code **BPE / data loading**, **token + positional embeddings**.
+- Tự code **self-attention → causal attention → multi-head**, từng bước bằng tay.
 
 ## Nguồn học
 
-- Paper LoRA (arXiv 2106.09685); paper InstructGPT (arXiv 2203.02155); HF PEFT docs (huggingface.co/docs/peft); `FareedKhan-dev/train-llm-from-scratch` phần SFT.
-- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
+- Paper BPE, "Neural Machine Translation of Rare Words with Subword Units" (arXiv 1508.07909); repo mở `openai/tiktoken`, `karpathy/minbpe`.
+- Code attention trong `karpathy/nanoGPT` (`model.py`): tham chiếu chính khi tự code self → causal → multi-head.
+- **The Annotated Transformer** (Harvard NLP, nlp.seas.harvard.edu).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — classification FT, instruction FT + masking, LoRA.
-2. [`02_instruction_finetune.py`](02_instruction_finetune.py) — TỰ code format dataset + fine-tune loop (deliverable).
-3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): BPE, embeddings, attention 4 bậc: đọc + chạy lại snippet trước khi code.
+2. [`02_multihead_attention.py`](02_multihead_attention.py): TỰ code self → causal → multi-head (deliverable).
+3. [`03_test_attention.py`](03_test_attention.py): pass cả 3 test (2 shape + 1 causal).
+4. [`quiz.md`](quiz.md): làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
-1. Fine-tune classifier (ch.6): dataset spam, sửa head phân loại, đo accuracy.
-2. Instruction-fine-tune model của bạn (hoặc một pretrained nhỏ) theo ch.7 với Alpaca-style template.
-3. Áp dụng LoRA và so sánh full FT vs LoRA (tham số train được, VRAM, chất lượng).
+Tự code đầy đủ attention stack (self → causal → multi-head); **verify shape** đối chiếu `nanoGPT/model.py`.
 
 ## Deliverable
 
-- Một **instruction-following mini-model** chat được.
-- Ghi chú so sánh **full FT vs LoRA** (thêm vào cuối `02_instruction_finetune.py` hoặc file note riêng).
+`02_multihead_attention.py` tự viết, **pass shape test** (`03_test_attention.py`) + ghi chú Claude review.
 
 ## Thời lượng
 
-~10–12 giờ.
+~12-15 giờ (crux khái niệm, đi chậm).
 
 ## Phần cứng
 
-- 3070 Ti là đủ cho ch.6–7 (model nhỏ, LoRA).
+3070 Ti.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — chạy lại được mọi snippet trong đó
-- [ ] ch.6: chuẩn bị dataset classification (spam) + sửa head phân loại
-- [ ] ch.6: fine-tune classifier, đo accuracy train/val/test
-- [ ] ch.7: format instruction dataset (Alpaca-style prompt template)
-- [ ] ch.7: instruction fine-tune + sinh phản hồi
-- [ ] Áp dụng LoRA (Appendix E) — so sánh full FT vs LoRA
-- [ ] Chat thử với mini-model → ghi vài ví dụ
+- [ ] Đọc `01_theory_notes.md`: chạy lại được mọi snippet trong đó
+- [ ] Đọc ch.2: BPE (dùng `tiktoken`), data loader, sliding window
+- [ ] Hiểu token embedding vs positional embedding (cộng vào nhau)
+- [ ] Code **simplified self-attention** (không trainable): hiểu context vector
+- [ ] Code **scaled dot-product attention** với `W_Q, W_K, W_V` trainable
+- [ ] Thêm **causal mask** (tam giác trên = -inf) + dropout
+- [ ] Mở rộng lên **multi-head** (chia/d_out hoặc stack head)
+- [ ] Chạy `03_test_attention.py` → tất cả shape đúng
+- [ ] Dán code cho Claude review so với nanoGPT
 
-## 🚀 Bổ sung nâng cao (định vị trong pipeline lớn)
+## Mốc shape cần nhớ
 
-Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G — chỉ phần sơ đồ pipeline** (đừng đọc hết, phần còn lại là của Tuần 7):
+- Input embeddings: `(batch, seq_len, d_in)`
+- Q/K/V: `(batch, seq_len, d_out)`
+- Attention scores: `(batch, seq_len, seq_len)`
+- Multi-head: `(batch, num_heads, seq_len, head_dim)` → gộp lại `(batch, seq_len, d_out)`
 
-```
-Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR
-                       ↑
-              instruction fine-tuning bạn làm tuần này ≈ bước SFT
-```
+## 🚀 Bổ sung nâng cao (sau khi nắm attention GPT-2)
 
-Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeline lớn, và **Midtrain** (khái niệm nanochat, không có trong pipeline GPT-2 kinh điển) chen vào trước SFT để dạy format hội thoại + special tokens + tool use.
+GPT-2 dùng **absolute positional embedding + MHA**. Các model hiện đại (Llama 3, Qwen3, DeepSeek) đổi gần hết. Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md), mục:
 
-> ➡️ Tuần 7 sẽ đọc mục **G** đầy đủ (RM, PPO, DPO, GRPO/RLVR).
+- **A1 RoPE**: xoay Q,K theo vị trí (thay vì cộng), score chỉ phụ thuộc khoảng cách tương đối.
+- **A4 GQA/MQA** + **A5 MLA**: chia sẻ/nén K,V để **giảm KV cache**.
+- **C1-C2**: vì sao attention là `O(n²)` và **FlashAttention** giải quyết bằng tiling (không vật chất hoá ma trận n×n).
+- **B1 KV cache**: bắt buộc hiểu cho inference.
+- **E**: tự **train BPE tokenizer** (nanochat `tok_train.py`) thay vì chỉ dùng tiktoken, đặc biệt cần cho dữ liệu tiếng Việt: xem số liệu đo fertility VI vs EN ở [`01_theory_notes.md`](01_theory_notes.md) mục 1.3 (BPE `gpt2` tốn ~5.6× token cho câu tiếng Việt so với câu tiếng Anh tương đương, đo 2026-08-11).
+
+> Nguồn từ-đầu: paper mở, GQA (arXiv 2305.13245), MLA/DeepSeek-V2 (arXiv 2405.04434), Sliding Window/Mistral 7B (arXiv 2310.06825), FlashAttention (arXiv 2205.14135).
 
 ## File trong folder
 
-Số ở đầu tên file = thứ tự học.
+Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong tuần" ở trên).
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: classification/instruction FT, LoRA |
-| 2 | `02_instruction_finetune.py` | Skeleton format dataset + fine-tune loop (TODO) |
-| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
-
-> ➡️ Tiếp theo: **Tuần 7** đi sâu pipeline alignment (SFT → RM → DPO/PPO → GRPO).
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: BPE, embeddings, attention 4 bậc |
+| 2 | `02_multihead_attention.py` | Skeleton self/causal/multi-head attention (TODO) |
+| 3 | `03_test_attention.py` | Kiểm tra shape + tính causal các bước attention |
+| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

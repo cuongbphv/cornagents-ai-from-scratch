@@ -1,79 +1,70 @@
-# Tuần 12 — Đáp án & Giải thích: Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP
+# Tuần 12, Đáp án & Giải thích: Fine-tuning Mac/MLX + local inference stack
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
-## Câu 1 (Tự luận)
+## Câu 1 (Trắc nghiệm)
 
-Mô tả 'agent loop' cơ bản.
+Vì sao MacBook 24GB có thể fine-tune model lớn hơn RTX 3070 Ti 8GB?
 
-**Trả lời mẫu:** perceive (nhận input/trạng thái) → reason (LLM suy luận, quyết định bước tiếp) → chọn tool → execute tool → quan sát kết quả → lặp lại cho tới khi đạt mục tiêu, rồi trả về structured output. Khác với một lần gọi LLM, agent có vòng lặp nhiều bước có dùng công cụ và trạng thái.
-
-**Giải thích:** Đây là khung chung của Claude Agent SDK và mọi agent framework.
-
-## Câu 2 (Trắc nghiệm)
-
-MCP (Model Context Protocol) là gì?
-
-- **A.** Một model ngôn ngữ
-- **B.** Một chuẩn mở để kết nối model với tool/nguồn dữ liệu qua server/client (GitHub, Postgres, Slack, filesystem...) ✅
-- **C.** Một thuật toán RL
-- **D.** Một định dạng file
+- **A.** CPU Mac nhanh hơn GPU
+- **B.** Unified memory 24GB dùng chung cho cả 'GPU', cho phép chứa model 13-14B (đổi lại chậm hơn ~2-4×) ✅
+- **C.** MLX nén model xuống 1-bit
+- **D.** Mac có nhiều GPU hơn
 
 **Đáp án: B**
 
-**Giải thích:** MCP tách 'bộ não' khỏi nguồn dữ liệu/tool, cho phép tái sử dụng các server tool chuẩn hoá.
+**Giải thích:** Unified memory là lợi thế của Apple Silicon: dung lượng lớn hơn VRAM rời 8GB, dù thông lượng thấp hơn NVIDIA.
+
+## Câu 2 (Tự luận)
+
+Mô tả luồng fine-tune → phục vụ bằng MLX trên Mac.
+
+**Trả lời mẫu:** 1) mlx_lm.lora --model ... --train --data ... --iters 500 để train adapter LoRA. 2) mlx_lm.fuse --model ... --adapter-path ... để gộp adapter vào base. 3) Phục vụ qua Ollama (tạo Modelfile) hoặc LM Studio (load GGUF/MLX) để chat. Với 24GB có thể LoRA/QLoRA tới ~13-14B.
+
+**Giải thích:** Mac dùng định dạng MLX (mlx-community/...); Ollama/LM Studio là lớp serving.
 
 ## Câu 3 (Trắc nghiệm)
 
-Khác biệt chính giữa LangGraph và CrewAI?
+Ollama và LM Studio đóng vai trò gì?
 
-- **A.** LangGraph chỉ cho vision, CrewAI cho text
-- **B.** LangGraph: graph có trạng thái, tường minh, auditable; CrewAI: crew theo vai (role) prototype nhanh ✅
-- **C.** Cả hai giống hệt nhau
-- **D.** CrewAI không hỗ trợ tool
+- **A.** Train model from scratch
+- **B.** Lớp inference/serving local, tải, quản lý và chat với model (GGUF/MLX) qua API/GUI ✅
+- **C.** Vector database cho RAG
+- **D.** Tokenizer
 
 **Đáp án: B**
 
-**Giải thích:** LangGraph hợp workflow cần kiểm soát/audit (tài chính có quy định); CrewAI nhanh để dựng nhóm agent theo vai.
+**Giải thích:** Chúng giúp chạy model local dễ dàng; Ollama có API kiểu OpenAI tiện cắm vào RAG/agents.
 
 ## Câu 4 (Tự luận)
 
-Vì sao workflow tài chính có quy định nên ưu tiên LangGraph?
+Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.
 
-**Trả lời mẫu:** Vì LangGraph cho phép định nghĩa trạng thái và luồng chuyển tiếp một cách tường minh, có thể kiểm tra/ghi vết (auditable) từng bước, và chèn các human-in-the-loop gate rõ ràng. Trong domain tài chính bị ràng buộc quy định, khả năng giải trình 'vì sao agent ra quyết định này' và kiểm soát chặt từng chuyển tiếp quan trọng hơn tốc độ prototype.
+**Trả lời mẫu:** 3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.
 
-**Giải thích:** CrewAI tiện cho thử nghiệm nhanh nhưng kém minh bạch hơn về luồng trạng thái.
+**Giải thích:** Đây là nội dung deliverable 03_hardware_decision.md.
 
-## Câu 5 (Trắc nghiệm)
+---
 
-Human-in-the-loop (HITL) gate nghĩa là gì?
+## Phần nâng cao
 
-- **A.** Agent chạy hoàn toàn tự động không cần người
-- **B.** Điểm dừng yêu cầu con người phê duyệt/sửa trước khi agent đi tiếp ✅
-- **C.** Một loại tool
-- **D.** Cách tính token
+## Nâng cao 1 (Trắc nghiệm)
 
-**Đáp án: B**
+Rolling buffer cache của Mistral 7B hoạt động thế nào và cho tiết kiệm bao nhiêu theo paper?
 
-**Giải thích:** HITL gate đặt giữa các stage rủi ro để con người kiểm soát; thiết kế least-privilege + HITL ngay từ đầu.
-
-## Câu 6 (Trắc nghiệm)
-
-Mô hình 5 tầng engineering (docs/5-layers-multi-agent.jpg) xếp theo thứ tự nào, từ trong ra ngoài?
-
-- **A.** Prompt → Harness → Context → Graph → Loop
-- **B.** Prompt → Context → Harness → Loop → Graph ✅
-- **C.** Context → Prompt → Loop → Harness → Graph
-- **D.** Loop → Prompt → Context → Graph → Harness
+- **A.** Cache lưu toàn bộ K, V nhưng nén 8 bit
+- **B.** Cache có kích thước cố định W; cặp K, V ở bước i ghi vào ô i mod W nên khi i vượt W cache ghi đè và không lớn thêm; ở chuỗi 32k paper báo giảm 8 lần bộ nhớ cache mà không ảnh hưởng chất lượng ✅
+- **C.** Cache chỉ giữ token đầu tiên
+- **D.** Cache lưu trên CPU
 
 **Đáp án: B**
 
-**Giải thích:** Prompt (the message) → Context (the memory) → Harness (the machine: gather-act-verify) → Loop (the system: run-check-decide) → Graph (the organization: nhiều agent + shared memory). Mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó là engineering.
+**Giải thích:** Mistral 7B mục 2 (arXiv 2310.06825), Rolling Buffer Cache. FoLLM mục 2.3.3.1 gọi cùng ý là fixed-size KV cache.
 
-## Câu 7 (Tự luận)
+## Nâng cao 2 (Tự luận)
 
-Bốn điều kiện nào làm loop autoresearch của Karpathy chạy được, và vì sao thiếu một cái là loop hỏng?
+Khi đo tốc độ inference trên Mac và trên 3070 Ti, vì sao nên tách tốc độ prefill và tốc độ decode thay vì báo một con số tokens mỗi giây?
 
-**Trả lời mẫu:** (1) Output verifiable — có metric đo được (val_bpb), không thì agent tối ưu thứ sai; (2) Action reversible — git reset về commit giữ lại được, thất bại không phá state; (3) Horizon ngắn — run ~5 phút cho feedback dày; (4) Environment bounded — repo giới hạn không gian hành động. Thiếu verify thì không biết giữ hay bỏ thay đổi; thiếu reversible thì một lỗi phá cả quá trình; horizon dài làm tín hiệu học thưa; environment mở làm không gian tìm kiếm nổ.
+**Trả lời mẫu:** Inference gồm hai pha (FoLLM mục 5.1.2, trang 207): prefill xử lý cả prompt trong một lượt nên gom nhiều token vào một lần nhân ma trận, còn decode sinh từng token và mỗi bước đọc lại toàn bộ trọng số và KV cache, bị giới hạn bởi băng thông bộ nhớ (Fleuret mục 8.2; Leviathan et al. mục 1). Hai pha có nút thắt khác nhau nên một con số gộp che mất việc máy nào mạnh ở pha nào; prompt dài với câu trả lời ngắn và ngược lại cho cảm giác rất khác.
 
-**Giải thích:** Đây là checklist trước khi cho agent chạy tự động bất kỳ việc gì — kể cả trong CornAgents.AI.
+**Giải thích:** Ghi tách hai số cho mỗi máy vào 03_hardware_decision.md.

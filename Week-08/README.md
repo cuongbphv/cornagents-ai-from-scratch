@@ -1,93 +1,83 @@
-# Tuần 8 — QLoRA fine-tuning thực tế trên 3070 Ti với Unsloth
+# Tuần 8: Pretraining: training loop + một lần chạy GPT-2 thật (cloud)
 
-> Phase 2 — Applied. Chuyển từ "from-scratch" sang tooling production: fine-tune một model 7B–8B thật bằng QLoRA 4-bit.
+> Phase 1: Deep Internals. Tuần giá trị cao. Hiểu vòng lặp pretraining, rồi thực sự pretrain một model nhỏ.
 
 ## Mục tiêu
 
-- Fine-tune model 7B–8B thật với **4-bit QLoRA** trên 3070 Ti (8GB).
-- Hiểu LoRA hyperparameters (r, α, target modules) trong thực tế.
+- Hiểu **pretraining loop**, cross-entropy/perplexity, **LR scheduling**, checkpointing.
+- Thực sự **pretrain** một model nhỏ.
 
 ## Nguồn học
 
-- **Unsloth docs** (unsloth.ai/docs): Fine-tuning Guide, LoRA Hyperparameters Guide, Requirements table.
-- HF **PEFT** + **TRL** (`SFTTrainer`).
-- NVIDIA — "How to Fine-Tune LLMs on RTX GPUs With Unsloth."
+- `karpathy/nanoGPT`: `train.py` (gradient clipping, LR warmup+decay, weight decay, mixed precision, grad accumulation đều có trong đó).
+- Karpathy, **llm.c "Reproduce GPT-2 124M"** (Discussion #481).
+- HF **Ultra-Scale Playbook** (gradient accumulation / parallelism).
 - Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — QLoRA/NF4, hyperparameters, quy trình 8GB, kỷ luật eval.
-2. [`02_qlora_finetune.py`](02_qlora_finetune.py) — smoke test → full run (deliverable).
-3. [`03_eval_notes.md`](03_eval_notes.md) — eval base vs fine-tuned trên held-out (deliverable).
-4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): loop, LR schedule, clipping, mixed precision, accumulation, checkpoint.
+2. [`02_train_loop.py`](02_train_loop.py): TỰ code pretraining loop, smoke test local.
+3. [`03_cloud_run_notes.md`](03_cloud_run_notes.md): quy trình thuê GPU + chạy thật.
+4. [`04_loss_analysis.md`](04_loss_analysis.md): write-up so sánh loss curve (deliverable).
+5. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-QLoRA fine-tune **Llama 3.1 8B** hoặc **Qwen** trên dataset instruction nhỏ (bắt đầu 500–1,000 mẫu). Export merged model + GGUF.
-
-## Cấu hình cho 8GB
-
-```
-load_in_4bit = True
-batch_size   = 1–2
-seq_len      ≤ 1024
-gradient_checkpointing = True
-r = 16, lora_alpha = 16
-target = tất cả attention + MLP projections
-```
-
-VRAM: 7B QLoRA ≈ 5GB, 8B ≈ 6GB (fits). 11B (~7.5GB) ở rìa; 14B (~8.5GB) vượt 8GB.
+1. Train **local** trên một text nhỏ thuộc public domain (vd. một truyện ngắn từ Project Gutenberg) → validate vòng lặp trên 3070 Ti.
+2. Sau đó chạy **pretraining GPT-2-small thật trên CLOUD** với FineWeb / FineWeb-Edu.
 
 ## Deliverable
 
-Adapter 7B/8B đã fine-tune + **eval so base vs fine-tuned** trên held-out examples.
+Checkpoint base-model nhỏ + write-up **so sánh loss curve** của bạn với GPT-2 gốc.
 
 ## Thời lượng
 
-~10–12 giờ. Một run 1,000–5,000 mẫu: vài giờ → qua đêm trên 8GB.
+~12-15 giờ (chưa kể thời gian train không cần ngồi canh).
 
-## Phần cứng
+## Phần cứng & chi phí (quan trọng)
 
-- **3070 Ti** (chính). Hoặc **Colab free T4 (15GB)** làm phương án dễ hơn.
-- *Threshold:* nếu fine-tune > 24h hoặc OOM ở batch 1 → chuyển 4090/A100 thuê.
+- **Local 3070 Ti**: chỉ để validate loop + model tí hon. 8GB → micro-batch 1-2, seq len 1024, gradient accumulation ~16-64 để đạt effective batch ~0.5M token (Karpathy target ~524,288 tokens/update).
+- **Cloud cho lần chạy thật**:
+  - RunPod RTX 4090 từ **$0.34/hr** (Community): chạy vài giờ.
+  - Karpathy llm.c: Lambda 8×A100 (~$14/hr/node), ~90 phút ≈ **$20** (Discussion #481).
+- **Caveat**: ước lượng thời gian cho 3070 Ti là extrapolation, KHÔNG phải benchmark đo thật, chạy **smoke test ngắn** trước khi commit chạy dài. *Trigger lên cloud:* khi run local dự kiến > ~24h.
+
+> ⚠️ Giá cloud biến động (marketplace). Kiểm tra lại tại thời điểm deploy. Từ VN truy cập được; lưu ý phương thức thanh toán (thẻ quốc tế) + latency.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — giải thích được vì sao 8GB fine-tune được 8B
-- [ ] Cài Unsloth + dependencies (kiểm tra CUDA khớp)
-- [ ] Chọn base model (Llama 3.1 8B / Qwen2.5 7B) ở 4-bit
-- [ ] Chuẩn bị dataset 500–1,000 mẫu (gợi ý: dùng domain Finance Banking của bạn)
-- [ ] Cấu hình LoRA (r=16, α=16, target all proj) + SFTTrainer
-- [ ] Smoke test vài step → xác nhận không OOM, loss giảm
-- [ ] Chạy full run + lưu adapter
-- [ ] Merge adapter + export GGUF (để chạy Ollama/LM Studio ở Tuần 9)
-- [ ] Eval base vs fine-tuned trên held-out → ghi `03_eval_notes.md`
+- [ ] Đọc `01_theory_notes.md`: chạy lại được mọi snippet trong đó
+- [ ] Code training loop: batch → logits → cross-entropy loss → backward → step
+- [ ] Thêm train/val split + đánh giá loss định kỳ
+- [ ] Thêm LR warmup + cosine decay
+- [ ] Thêm gradient clipping + mixed precision (autocast) + grad accumulation
+- [ ] Thêm checkpointing (lưu/khôi phục optimizer + model + step)
+- [ ] Smoke test local trên text public-domain nhỏ, xác nhận loss giảm
+- [ ] Chọn cloud provider + chuẩn bị dataset (FineWeb-Edu sample)
+- [ ] Chạy pretrain thật trên cloud → lưu checkpoint
+- [ ] Vẽ loss curve, so với GPT-2 gốc (~3.5): viết `04_loss_analysis.md`
 
-## 🚀 Bổ sung nâng cao (quantization internals + cách eval)
+## Mẹo bộ nhớ 8GB (nếu thử local)
 
-Tuần này dùng QLoRA/NF4 ở mức "bật cờ". Hiểu sâu hơn trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B4**:
+```
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+```
++ gradient checkpointing, micro-batch nhỏ, seq len ≤1024.
 
-- **NF4** (QLoRA): 4-bit "normal float", chỉ quantize base, train adapter LoRA ở bf16.
-- **GPTQ** (per-layer, Hessian) vs **AWQ** (bảo vệ kênh salient theo activation).
-- **GGUF** là *định dạng file* của llama.cpp (Q4_K_M, Q5_K_M, Q8_0…) — thứ Ollama/LM Studio load, không phải thuật toán.
+## 🚀 Bổ sung nâng cao (training dynamics + scale)
 
-> Quy tắc: 8-bit gần như không mất chất lượng; 4-bit là điểm ngọt local; perplexity tăng dần khi bit giảm.
+Pretraining là nơi nhiều thủ thuật "ăn tiền". Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md):
 
-Deliverable tuần này là "eval base vs fine-tuned", nên đọc thêm mục **H**:
+- **D Training dynamics**: các can thiệp trong `nanoGPT/train.py`: gradient clipping, **dropout=0 khi pretrain 1-epoch**, weight decay, weight tying, mixed precision; và mục noise/variance: nhiều "cải thiện" nằm trong nhiễu, phải chạy nhiều seed.
+- **D1 Optimizer**: AdamW vs **Muon** (nanochat dùng cho ma trận 2D, hội tụ nhanh hơn).
+- **D2**: bf16/fp16(GradScaler)/**fp8**, quản lý dtype tường minh kiểu nanochat.
+- **F Parallelism**: **DDP** (torchrun trong nanoGPT/llm.c), TP/PP/ZeRO/FSDP, **MFU**.
+- **H Eval**: dùng **bits-per-byte** (so sánh được giữa tokenizer) thay vì loss thô khi so với GPT-2; **CORE/DCLM**.
 
-- **Đừng tin một chỉ số duy nhất** — loss/perplexity giảm không tự động nghĩa là model hữu ích hơn trên việc bạn cần.
-- Nếu so hai model **khác tokenizer/backend**, dùng **bits-per-byte** thay perplexity thô.
-- Giữ một held-out set cố định để mọi lần fine-tune sau đều so được với lần này.
-
-## 📦 Dữ liệu cho tuần này
-
-Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **3** (dataset tiếng Anh license sạch), mục **2** (tiếng Việt), mục **7** (chọn base model), mục **8** (chiến lược song ngữ).
-
-Gợi ý cho lần fine-tune đầu: trộn `Sujet-Finance-Instruct-177k` (Apache 2.0) + `duyet/vietnamese-legal-instruct` (CC BY 4.0), thêm `UTS2017_Bank` (Apache 2.0) nếu làm task phân loại. Base an toàn về pháp lý: **Qwen2.5-7B-Instruct** (Apache 2.0).
-
-> ⚠️ **Fine-tune ở tuần này là để dạy HÀNH VI/ĐỊNH DẠNG, không phải nhồi kiến thức quy định.** Kiến thức quy định đi qua RAG (Tuần 10–11) + KG (Tuần 14) — đọc mục **0** của tài liệu dataset để hiểu vì sao. Và ⛔ chỉ dùng dataset license mở đã xác minh trong tài liệu dataset; tự cắt held-out split để eval trước khi train.
+> Nguồn: `nanoGPT/train.py`; HF *Ultra-Scale Playbook*; nanochat `optim.py`, `loss_eval.py`, `core_eval.py`.
 
 ## File trong folder
 
@@ -95,8 +85,9 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: QLoRA/NF4, hyperparameters, kỷ luật eval |
-| 2 | `02_qlora_finetune.py` | Starter script Unsloth QLoRA (điền dataset + tinh chỉnh) |
-| 3 | `03_eval_notes.md` | Template eval base vs fine-tuned |
-| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: loop, schedule, precision, checkpoint |
+| 2 | `02_train_loop.py` | Skeleton pretraining loop (TODO) |
+| 3 | `03_cloud_run_notes.md` | Quy trình thuê GPU + chạy cloud + checklist chi phí |
+| 4 | `04_loss_analysis.md` | Template write-up so sánh loss curve (deliverable) |
+| 5 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |

@@ -1,70 +1,71 @@
-# Tuần 10 — Xây dựng RAG pipeline end-to-end
+# Tuần 10: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
 
-> Phase 2 — Applied. Chunking → embeddings → vector store → retrieval → generation, trên tài liệu Finance Banking của bạn.
+> Phase 1: Deep Internals (tuần cuối phase). Hiểu pipeline alignment ở mức khái niệm và chạy ít nhất **một stage** from scratch. (Tách từ Tuần 9 cũ để lộ trình bớt dồn.)
 
 ## Mục tiêu
 
-Build baseline RAG đầy đủ trên corpus tài liệu nghiệp vụ Finance Banking của bạn.
+- Hiểu pipeline alignment: **SFT → reward model → PPO/DPO → GRPO** (khái niệm).
+- Chạy **một alignment stage** từ đầu (khuyến nghị bắt đầu với **SFT hoặc DPO**).
+- Phân biệt được SFT vs DPO vs GRPO và biết khi nào dùng cái nào.
 
 ## Nguồn học
 
-- Paper gốc RAG (arXiv 2005.11401) — nền lý thuyết; tutorial RAG chính thức trong docs LlamaIndex/LangChain.
-- **LlamaIndex** + **LangChain** docs.
-- GitHub: **NirDiamant/RAG_Techniques**, sosanzma/rag-techniques-handbook.
+- **FareedKhan-dev/train-llm-from-scratch** `src/post_training/`: SFT/RM/PPO/DPO/GRPO bằng PyTorch thuần trên dataset thật (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
+- Paper DPO (arXiv 2305.18290), InstructGPT/RLHF (arXiv 2203.02155), DeepSeekMath/GRPO (arXiv 2402.03300).
 - Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — 6 khâu RAG, embeddings/cosine, chunking, 3 bẫy tiếng Việt (NFC!).
-2. [`02_rag_pipeline.py`](02_rag_pipeline.py) — build baseline RAG trên corpus của bạn (deliverable).
-3. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): pipeline alignment, loss RM/DPO/GRPO với ví dụ số.
+2. [`02_alignment_notes.md`](02_alignment_notes.md): viết so sánh SFT vs DPO vs GRPO bằng lời mình (deliverable).
+3. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-Load PDFs → `RecursiveCharacterTextSplitter` (chunk ~800, overlap ~100) → embed → **Chroma** (dev) → retrieve top-k → generate bằng Ollama local hoặc Claude. Dùng **pgvector/Qdrant** nếu muốn production-grade.
+1. Đọc FareedKhan `src/post_training/`: hiểu cấu trúc SFT/RM/DPO.
+2. Chạy **một alignment stage** scaled-down (SFT hoặc DPO) trên dataset nhỏ.
+3. Viết ghi chú phân biệt SFT vs DPO vs GRPO bằng lời mình.
 
 ## Deliverable
 
-App RAG trả lời được câu hỏi trên tài liệu Finance Banking của bạn.
+- Log/checkpoint của **một stage alignment** đã chạy.
+- Ghi chú phân biệt **SFT vs DPO vs GRPO** → `02_alignment_notes.md`.
 
 ## Thời lượng
 
-~12 giờ.
+~10-12 giờ.
 
 ## Phần cứng
 
-Mac hoặc 3070 Ti cho embeddings/inference local; embeddings nhẹ.
+- 3070 Ti cho stage scaled-down (model nhỏ).
+- Cloud nếu đẩy lên base lớn hơn hoặc full PPO/GRPO (box dev FareedKhan dùng 2×H100 DDP + bf16, chạy scaled-down hoặc thuê).
+
+> **Nếu thiếu thời gian (Phase 1):** nén Tuần 10 còn *hiểu khái niệm* + một lần chạy DPO; hoãn chiều sâu reasoning/GRPO sang sau roadmap.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — nhớ normalize NFC ngay từ bước load
-- [ ] Thu thập corpus (PDF tài liệu nghiệp vụ nội bộ) vào `data/`
-- [ ] Load + parse PDF (PyPDF / Unstructured)
-- [ ] Chunk: RecursiveCharacterTextSplitter (size ~800, overlap ~100)
-- [ ] Chọn embedding model (BGE / e5 / OpenAI / nomic) — local được
-- [ ] Index vào Chroma (persist xuống đĩa)
-- [ ] Retrieve top-k + lắp prompt context
-- [ ] Generate bằng Ollama (Tuần 9) hoặc Claude
-- [ ] Test 10 câu hỏi domain → kiểm tra câu trả lời có grounding
-- [ ] (Chuẩn bị Tuần 11) lưu lại baseline để so sánh sau khi thêm rerank
+- [ ] Đọc `01_theory_notes.md`: tự tính lại được các ví dụ loss trong đó
+- [ ] Vẽ lại pipeline alignment: Pretrain → (Midtrain) → SFT → RM → PPO/DPO → GRPO/RLVR
+- [ ] Đọc FareedKhan `src/post_training/`: hiểu cấu trúc SFT/RM/DPO
+- [ ] Hiểu loss của Reward Model (log-sigmoid của hiệu score)
+- [ ] Hiểu vì sao DPO bỏ được RM riêng + dạng loss DPO
+- [ ] Hiểu GRPO: group-relative advantage, vì sao hợp RLVR (toán/code)
+- [ ] Chạy MỘT stage alignment (SFT hoặc DPO) scaled-down
+- [ ] Viết `02_alignment_notes.md`: SFT vs DPO vs GRPO
+- [ ] So phản hồi model trước/sau stage đã chạy → ghi ví dụ
 
-## 🚀 Bổ sung nâng cao (sampling quyết định độ "bịa")
+## 🚀 Bổ sung nâng cao (pipeline alignment đầy đủ)
 
-Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B2 Sampling**:
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G**:
 
-Cùng một context retrieve được, `temperature` và `top-p` vẫn quyết định câu trả lời bám nguồn hay bắt đầu suy diễn. Với RAG trên tài liệu nghiệp vụ, mặc định nên **hạ temperature** (≤0.3) và giữ top-p vừa phải — ưu tiên groundedness hơn sự "mượt".
+- Pipeline đầy đủ: `Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR`.
+- **Midtrain** (nanochat): bước *không có* trong pipeline GPT-2 kinh điển: dạy format hội thoại, special tokens, tool use.
+- **GRPO/RLVR**: bỏ critic, chuẩn hoá reward theo nhóm sample; **RLVR** = reward kiểm chứng được (toán đúng/sai, test pass) → nền reasoning model.
+- **Tool-use RL** (nanochat): model học gọi Python để tính/đếm, reward khi kết quả đúng.
 
-> ➡️ Tuần 11 sẽ đọc mục **H** đầy đủ để biết cách *đo* điều này thay vì cảm nhận.
-
-## 📦 Dữ liệu cho tuần này
-
-Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) — mục **1** (nguồn quy định tiếng Việt) và mục **9** (chọn embedding model).
-
-Corpus khuyến nghị: `th1nhng0/vietnamese-legal-documents` (CC BY 4.0, 171k văn bản scrape từ **vbpl.vn** của Bộ Tư pháp) → **filter riêng phần NHNN**. Chọn embedding model tham chiếu **VN-MTEB**.
-
-> ⚠️ Đọc mục **6** về pháp lý trước khi tải: ưu tiên nguồn chính thức (vbpl.vn) hơn aggregator thương mại có paywall; và giữ lại metadata nguồn + ngày hiệu lực của từng văn bản — bạn sẽ cần chúng làm provenance ở Tuần 14.
+> Nguồn: FareedKhan `src/post_training/` (SFT→RM→PPO→DPO→GRPO pure PyTorch); paper DPO/GRPO; nanochat `chat_sft.py`, `chat_rl.py`.
 
 ## File trong folder
 
@@ -72,10 +73,7 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: 6 khâu RAG + bẫy tiếng Việt |
-| 2 | `02_rag_pipeline.py` | Starter RAG (load→chunk→embed→store→retrieve→generate) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: pipeline alignment, RM/DPO/GRPO |
+| 2 | `02_alignment_notes.md` | Template so sánh SFT/DPO/GRPO (deliverable) |
 | 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
-| — | `data/` | (bạn tự thêm) PDF/tài liệu Finance Banking |
-
-> Anchor: corpus, dataset fine-tune và capstone NÊN đều là tài liệu nghiệp vụ Finance Banking (giữ tổng quát) — đây là điểm khác biệt của bạn.

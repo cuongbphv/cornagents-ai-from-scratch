@@ -1,83 +1,98 @@
-# Lý thuyết Tuần 15 — Capstone: lắp ghép, complexity budget, evaluation
+# Lý thuyết Tuần 15: Agent loop, MCP, 5 tầng engineering, reflective loop
 
-> Đọc trước khi chốt use case và viết [`02_eval_rubric.md`](02_eval_rubric.md). Tuần này không có khái niệm mới — nó là bài kiểm tra xem 14 tuần trước có ghép lại được thành một hệ thống **đo được** không. Nguồn: PDF trong `docs/` + paper LLM-judge đã xác minh 2026-08-11.
+> Đọc trước khi build agent trong [`02_minimal_agent.py`](02_minimal_agent.py). Nguồn chính của tuần là tài liệu trong repo (`docs/`) + docs chính thức đã xác minh 2026-08-11.
 
 ---
 
-## 1. Bản đồ lắp ghép — mỗi mảnh về đúng vai
+## 1. Agent là gì: định nghĩa làm việc được
+
+Theo docs Claude Agent SDK (xác minh 2026-08-11): *agent là ứng dụng hoàn thành một task bằng cách tự hoạch định các bước và gọi tool* (đọc file, chạy lệnh, sửa code). Khác chatbot ở một chữ: **loop**.
 
 ```
-Feature request (Finance Banking)
-   │
-   ▼
-Requirements Analyst agent (T13) ──đọc──> RAG (T10–11): grounding trực tiếp vào tài liệu
-   │  ghi entities/relations                 │
-   ▼                                         ▼
-Knowledge Graph (T14): shared memory ──fact-check──> Review agent (T13)
-   │                                         │
-   ▼                                         ▼
-Test-Gen agent (T13)              (tùy chọn) model fine-tuned (T8/T9) cho sub-task hẹp
-   │
-   ▼
-Human gate → artifacts: stories + design note + tests + eval report
+while chưa xong:
+    gather context → gọi model → model chọn tool → chạy tool → đưa kết quả về model
 ```
 
-Nguyên tắc phân vai model (từ README): Claude làm "brain" orchestration; model 7B fine-tuned chỉ nhận sub-task hẹp đã chứng minh được ở Tuần 8–9 (ví dụ một tác vụ phân loại nghiệp vụ) — **không** giao 7B làm brain để "tiết kiệm".
+- **Tool** = hàm có schema (tên, mô tả, tham số): model không "chạy" gì cả, nó chỉ **sinh yêu cầu gọi tool**; harness của bạn chạy thật rồi trả kết quả vào context. Hiểu điểm này là hiểu một nửa agent engineering: chất lượng agent = chất lượng tool + mô tả tool.
+- **Subagent** = agent con được giao task hẹp, có context riêng, cách chống phình context window của agent chính.
 
-## 2. Complexity budget — khai báo TRƯỚC khi chạy
+Loop này không phải phát minh của SDK nào, nó là hậu duệ trực tiếp của hai paper (cả hai có PDF trong repo): CoT (Wei et al. 2022, [`../docs/papers/2201.11903_chain-of-thought-prompting.pdf`](../docs/papers/2201.11903_chain-of-thought-prompting.pdf)) cho model "nghĩ thành lời" trước khi trả lời, rồi ReAct (Yao et al. 2022, [`../docs/papers/2210.03629_react-reasoning-acting.pdf`](../docs/papers/2210.03629_react-reasoning-acting.pdf)) đan xen reasoning với **hành động gọi tool** và quan sát kết quả. Đọc ReAct xong sẽ thấy agent loop ở trên chỉ là ReAct được đóng gói tử tế.
 
-Từ PDF mục VII + I5 (bảng trong README): max model calls, max sub-agents, max concurrent workers, max wall-clock, max tokens/chi phí, max retries, và **bằng chứng tối thiểu để được finalize**.
+## 2. Năm tầng engineering: bản đồ định vị mọi vấn đề
 
-- Hết budget → trả **artifact tốt nhất hiện có + danh sách issue chưa xử lý + lý do dừng**. Không giấu partial failure sau một câu trả lời trôi chảy — che partial failure là dạng "bịa" ở mức hệ thống.
-- Budget là số cụ thể viết vào config trước khi chạy, không phải cảm giác "chạy lâu quá thì dừng".
+Từ `docs/5-layers-multi-agent.jpg` (bảng đầy đủ trong [README.md](README.md)): Prompt → Context → Harness → Loop → Graph. Giá trị thực dụng nhất là **chẩn đoán theo tầng** (mục nâng cao I1):
 
-## 3. Ba metric bắt buộc — định nghĩa vận hành được
+| Triệu chứng | Tầng lỗi |
+|-------------|----------|
+| Output sai format | 1, Prompt |
+| Model không biết thứ cần biết | 2, Context |
+| Không ai kiểm kết quả | 3, Harness |
+| Chạy mãi không dừng / dừng quá sớm | 4, Loop |
+| Nhiều agent lặp việc nhau | 5, Graph |
 
-| Metric | Định nghĩa đo được | Cách đo |
-|--------|---------------------|---------|
-| **Success rate** | % run cho ra artifact đạt rubric | chấm theo [`02_eval_rubric.md`](02_eval_rubric.md), tiêu chí đúng/sai |
-| **Human-override rate** | % artifact người duyệt phải sửa/bác tại gate | đếm tại human gate — rẻ và trung thực nhất |
-| **Groundedness** | % claim dẫn được về nguồn (điều khoản/tài liệu/edge) | kiểm `source_refs` từng claim; với KG: cite edge có provenance |
+Nguyên tắc gốc: **model là commodity, hệ thống quanh nó mới là engineering.** Tuần này bạn làm tầng 3-4; Tuần 16-17 lên tầng 5.
 
-Trong domain có quy định, **groundedness quan trọng hơn success rate** (đã chốt trong README): một câu trả lời "thành công" mà không dẫn nguồn là rủi ro, không phải thành tích.
+## 3. MCP: chuẩn nối agent với thế giới ngoài
 
-## 4. Eval rubric — viết sao cho chấm được
+Model Context Protocol (modelcontextprotocol.io, xác minh 2026-08-11): chuẩn mở nối AI app với hệ thống ngoài, ví von chính thức của docs là "cổng USB-C cho AI". Kiến trúc: **MCP server** (bọc một nguồn dữ liệu/tool: filesystem, GitHub, Postgres...) ↔ **MCP client** (app AI của bạn) qua transport chuẩn. Giá trị: viết tool một lần, mọi client dùng được, thay vì mỗi framework một kiểu adapter. Task tuần này: nối đúng **một** server (filesystem hoặc GitHub) và gọi được nó từ agent.
 
-- Mỗi tiêu chí là câu **đúng/sai kiểm được**, kèm cách kiểm (test, so schema, đối chiếu nguồn) — kỹ năng viết AC của Tuần 13 mục 7 áp lại cho chính hệ thống.
-- Chấm bằng LLM-judge thì các bẫy đã xác minh ở Tuần 11 (Zheng et al., arXiv 2306.05685: thiên vị độ dài, vị trí, cùng họ model) áp **trực tiếp** vào rubric của bạn — giữ judge cố định, kiểm tay mẫu nhỏ, đừng tin một chỉ số duy nhất.
-- **Metric bị game** (mục nâng cao I5): ratchet chỉ cải thiện thứ nó thấy — success rate tăng có thể đi kèm chi phí tăng hoặc overfit eval set; luôn giữ ràng buộc phụ (budget, groundedness) bên cạnh metric chính.
+## 4. Reflective loop: loop có đo lường, không phải while(true)
 
-## 5. Tracing + thước đo cuối
+Cấu trúc từ `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (mục II, VI):
 
-Instrument Langfuse/LangSmith cho MỌI bước (bài Tuần 11 mục 6, giờ áp cho cả graph). Thước đo "hệ thống đáng tin" từ PDF — tự kiểm từng vế với demo của bạn:
+```
+generate → evaluate (tiêu chí tường minh) → revise → check stopping rule → lặp
+```
 
-> *"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."*
+- **Evaluator có tiêu chí viết ra được**: "nhìn ổn" không phải tiêu chí; rubric/test/schema mới là.
+- **Stopping rule khai báo trước**: max rounds + budget + điều kiện đạt. Thiếu nó là tầng 4 hỏng.
+- **Lưu mọi artifact mỗi vòng**: để so vòng sau hơn vòng trước thật không (đây là tính "ratchet": chỉ giữ cải thiện).
 
-Vế nào không chỉ ra được bằng trace/artifact thật → đó là việc phải làm nốt, không phải câu chữ để trích. Câu này đúng thì loops/swarms/graphs compose được; sai thì thêm agent chỉ tăng độ mờ đục.
+Bốn điều kiện làm loop kiểu này chạy được (từ PDF, thuộc lòng): **output verifiable, action reversible, horizon ngắn, environment bounded.** Task nào thiếu điều kiện nào thì bổ sung cơ chế bù (verify bằng gì? undo bằng gì? cắt nhỏ thế nào? giới hạn phạm vi ra sao?) trước khi cho agent tự chạy.
 
-## 6. Retrospective — nối ngược về Phase 1 (deliverable thật của roadmap)
+## 5. Chọn orchestration layer: quyết định của tuần
 
-[`03_retrospective.md`](03_retrospective.md) trả lời: hệ thống hoạt động **vì sao** — nối từng hành vi quan sát được về internals đã tự tay build. Gợi ý các sợi chỉ: temperature thấp giữ groundedness (sampling — T5/T10) ← bạn hiểu softmax T1; RAG thắng fine-tune cho kiến thức quy định (T8) ← bạn hiểu trọng số học phân phối, không lưu facts (T5–6); KG bắt multi-hop mà embedding trượt (T14) ← bạn hiểu cosine đo ngữ nghĩa, không đo cấu trúc (T10); chi phí multi-agent 10–15× (T13) ← bạn hiểu mỗi token đi qua từng layer (T4). Viết bằng lời mình — tiêu chí tự đánh giá của cả repo.
+Khung so sánh cho lựa chọn LangGraph vs CrewAI (tiêu chí từ README): domain tài chính có kiểm soát → ưu tiên **stateful + auditable** (trace lại được ai làm gì, state lưu ngoài transcript, human gate chèn được vào giữa graph). Ghi quyết định + lý do vào [`03_cornagents_architecture.md`](03_cornagents_architecture.md): quyết định sai sửa được, quyết định không ghi lý do thì không học được gì.
 
-## 7. Tiếng Việt trong capstone
+## 6. Tiếng Việt trong tuần này
 
-- **Groundedness tiếng Việt = dẫn về đúng số Điều/Khoản/văn bản** — tận dụng provenance đã ép từ Tuần 10 (metadata) và Tuần 14 (edge). Claim nghiệp vụ không có ref là fail rubric, bất kể văn có mượt.
-- **Rubric viết bằng tiếng Việt** — người duyệt tại gate là người đọc nghiệp vụ tiếng Việt; rubric họ không đọc được thì human gate chỉ là hình thức. (Tên metric/field giữ tiếng Anh theo quy ước hai lớp — Tuần 12 mục 6.)
-- **Eval set = câu hỏi nghiệp vụ tiếng Việt thật** (50–100 câu đã xây từ Tuần 11) + bộ 10 prompt song ngữ (Tuần 9) nếu có model fine-tuned trong luồng — kiểm cả chất lượng lẫn "sức khỏe song ngữ" trong một lần đo.
-- [Suy luận] Judge chấm groundedness trên văn bản pháp lý tiếng Việt nên được kiểm tay tỷ lệ cao hơn bình thường (ví dụ 20% mẫu thay vì 10%) — thiên vị judge trên tiếng Việt chưa được đo riêng trong nguồn đã dẫn, thận trọng là rẻ.
+- **Quy ước hai lớp ngôn ngữ, giữ nhất quán từ tuần này về sau:** phần "máy đọc" (tên tool, schema, field name, code) bằng tiếng Anh theo quy ước hệ sinh thái; phần "nội dung nghiệp vụ" (system prompt mô tả nghiệp vụ, dữ liệu, output cho người dùng) bằng tiếng Việt. Trộn lẫn hai lớp làm cả người lẫn model khó bảo trì.
+- **Test agent với input tiếng Việt ngay từ tuần này**, đừng đợi capstone: dữ liệu tiếng Việt đi xuyên tool boundary (đọc file → JSON → context) là chỗ lộ lỗi encoding/NFC (Tuần 13 mục 6) sớm nhất. Một test "đọc file .md tiếng Việt có dấu → tóm tắt đúng tên riêng" là đủ làm canary.
+- [Suy luận] Mô tả tool bằng tiếng Anh nhưng ví dụ trong mô tả nên chứa cả mẫu tiếng Việt nếu tool sẽ nhận dữ liệu Việt, model chọn tool theo mô tả, ví dụ sát thực tế giúp chọn đúng; dựa trên cơ chế tool-choice đọc mô tả, chưa có đo lường riêng cho tiếng Việt.
 
-## 8. Nguồn
+## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
-| Nguồn | Vị trí | Dùng cho mục |
-|-------|--------|--------------|
-| Karpathy-Loop PDF (mục VII–IX, Table VI) | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 2, 5 |
-| Zheng et al. 2023 — LLM-as-a-Judge (xác minh 2026-08-11) | https://arxiv.org/abs/2306.05685 | 4 |
+| Nguồn | URL | Dùng cho mục |
+|-------|-----|--------------|
+| Claude Agent SDK docs | https://code.claude.com/docs/en/agent-sdk | 1 |
+| Model Context Protocol docs | https://modelcontextprotocol.io/ | 3 |
+| Wei et al. 2022, Chain-of-Thought (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2201.11903, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
+| Yao et al. 2022, ReAct (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2210.03629, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
+| Tài liệu trong repo | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf), [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg) | 2, 4 |
 
-(Langfuse/LangSmith/promptfoo: link trong README nguồn học.)
+(LangGraph/CrewAI docs: link trong README, đọc đúng version lúc cài.)
 
 ## Sau khi đọc xong
 
-1. Chốt use case + vẽ bản đồ lắp ghép của riêng bạn (mục 1) trên giấy.
-2. Khai báo complexity budget bằng số, viết vào config.
-3. Viết [`02_eval_rubric.md`](02_eval_rubric.md) (tiếng Việt, tiêu chí đúng/sai) trước khi chạy demo.
-4. Chạy end-to-end, đo 3 metric, tự kiểm câu "traced to..." từng vế; viết [`03_retrospective.md`](03_retrospective.md); làm [`quiz.md`](quiz.md).
+1. Tự vẽ lại 5 tầng + bảng chẩn đoán bằng lời mình (checklist đầu tiên của README).
+2. Build single agent + nối 1 MCP server trong [`02_minimal_agent.py`](02_minimal_agent.py); chạy canary tiếng Việt (mục 6).
+3. Build reflective loop đủ 4 thành phần: generate/evaluate/revise/stop, lưu artifact từng vòng.
+4. Chọn stack, viết [`03_cornagents_architecture.md`](03_cornagents_architecture.md); làm [`quiz.md`](quiz.md).
+
+## 8. Agent theo định nghĩa giáo trình, và prompt engineering có hệ thống
+
+Năm tầng engineering ở mục 1 là khung của repo. Mục này đối chiếu hai tầng đầu với cách giáo trình định nghĩa, để bạn có ngôn ngữ chung khi đọc paper agent và khi giải thích cho người khác.
+
+**Agent chỉ là token prediction cộng tập action.** Jurafsky và Martin định nghĩa: "An agent is an LLM that has the power to autonomously act in the world, by calling other programs" (SLP3 mục 1.8, trang 24). Ví dụ họ đưa: gọi search engine để lấy thông tin mới, calendar để tính giờ trống, calculator, database, hay API của nhà cung cấp. Model làm được điều đó nhờ có một tập action như SEARCH() hay CALENDAR() mà nó có thể sinh ra trong output. Câu quan trọng nhất của mục: bước nhảy từ trợ lý hội thoại sang agent tự hành là lớn về hệ quả và rủi ro an toàn, nhưng "The intuition, however, is exactly the same as regular language models: token prediction. The technical difference is only that the set of actions in the world are added to the set of possible tokens to generate." Đây là cầu nối thẳng về Tuần 7: tool call chỉ là token đặc biệt trong vocab; loop agent ở mục 2 là vòng sinh token có chỗ dừng để chạy chương trình ngoài rồi nạp kết quả trở lại context. SLP3 minh họa bằng một prompt ReAct với ba action đơn giản, trong đó model xen kẽ Thought, Act và Obs; paper ReAct nằm trong kệ paper.
+
+**Prompt engineering theo nguyên tắc, không theo danh sách.** Xiao và Zhu (*Foundations of LLMs* mục 3.1, trang 97) nói rõ vì sao họ không đưa danh sách prompt: hiệu quả của prompting phụ thuộc rất nhiều vào LLM đang dùng, prompt thay đổi theo model, nên mục tiêu là đưa nguyên tắc dẫn đường thay vì công thức. Mục 3.2 (trang 115) xếp các phương pháp nâng cao thành năm nhóm: chain of thought, problem decomposition, self-refinement, ensembling, và RAG cùng tool use. Với chain of thought (mục 3.2.1), họ dùng bài tính trung bình các số để minh họa: hỏi thẳng thì model trả lời sai; thêm demonstration của bài tương tự thì tốt hơn; và yêu cầu model viết ra các bước suy luận thay vì kết luận ngay thì tốt hơn nữa. Với RAG và tool use (mục 3.2.5, trang 134), họ đặt RAG là cách bù khi LLM chỉ dựa trên kiến thức pretrain "lack accuracy and depth". Bốn nhóm còn lại sẽ quay lại ở Tuần 16 dưới dạng pattern multi-agent.
+
+**Cách dùng trong tuần.** Khi viết prompt cho single agent trong `02_minimal_agent.py`, thử theo đúng thứ tự FoLLM: hỏi thẳng, thêm ví dụ, rồi yêu cầu lập luận từng bước; ghi lại output của ba lần để thấy khác biệt bằng mắt. Khi nối MCP server, hãy nhìn tool call trong log như một token đặc biệt được sinh ra, đúng định nghĩa SLP3, và kiểm rằng kết quả tool được coi là input không đáng tin theo paper Instruction Hierarchy trong kệ paper.
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **Prompt engineering có hệ thống.** Xiao và Zhu, *Foundations of LLMs* mục 3.1 General Prompt Design (trang 97) nói rõ prompt phụ thuộc model nên sách không đưa danh sách prompt, chỉ đưa nguyên tắc; mục 3.2 Advanced Prompting Methods là chain-of-thought và các biến thể, cùng paper CoT trong kệ paper. Đây là tầng 1 trong 5 tầng của tuần.
+- **Agents theo giáo trình NLP.** SLP3 mục 1.8 Agents (trang 24) đặt agent trong bức tranh chung của LLM ngay ở chương mở đầu; chương 12 Agents của sách chưa viết xong tại bản nháp 19/08/2026.
+- **Code tham chiếu mở.** Notebook `chapter06/Chapter 6 - Prompt Engineering.ipynb` trong repo Hands-On LLM (Apache-2.0).

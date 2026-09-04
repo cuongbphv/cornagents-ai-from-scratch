@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-generate_quiz.py — Sinh quiz + solution cho từng tuần từ một nguồn chân lý duy nhất.
+generate_quiz.py: Sinh quiz + solution cho từng tuần từ một nguồn chân lý duy nhất.
 
 NGUỒN: scripts/quiz_bank.json
 ĐẦU RA:
-  - Week-XX/quiz.md            (chỉ câu hỏi — để tự kiểm tra)
+  - Week-XX/quiz.md            (chỉ câu hỏi, để tự kiểm tra)
   - Week-XX/quiz_solution.md   (đáp án + giải thích)
-  - report/assets/js/quiz-data.js  (window.QUIZ_DATA cho web portal — render Q&A flip-card)
+  - report/assets/js/quiz-data.js  (window.QUIZ_DATA cho web portal, render Q&A flip-card)
 
 CÁCH DÙNG
   # Sinh lại tất cả file từ quiz_bank.json (mặc định, không cần mạng/API):
   python scripts/generate_quiz.py
 
   # Chỉ một tuần:
-  python scripts/generate_quiz.py --week 3
+  python scripts/generate_quiz.py --week 6
 
-  # Dùng Claude API tạo thêm câu hỏi MỚI cho tuần 5 (cần ANTHROPIC_API_KEY):
-  python scripts/generate_quiz.py --ai --week 5 --num 4
+  # Dùng Claude API tạo thêm câu hỏi MỚI cho tuần 8 (cần ANTHROPIC_API_KEY):
+  python scripts/generate_quiz.py --ai --week 8 --num 4
   #   thêm --save để ghi câu mới vào quiz_bank.json (mặc định chỉ thử, không lưu)
 
 GHI CHÚ
@@ -69,15 +69,17 @@ def _qtype_label(q: dict) -> str:
 def render_quiz_md(week: dict) -> str:
     n, title, qs = week["week"], week["title"], week["questions"]
     out = [
-        f"# Tuần {n} — Quiz: {title}",
+        f"# Tuần {n}, Quiz: {title}",
         "",
-        f"> Tự kiểm tra **trước** khi xem solution. Tổng **{len(qs)}** câu. "
+        f"> Tự kiểm tra **trước** khi xem solution. Tổng **{len(qs)}** câu, trong đó **{sum(1 for q in qs if q.get('level') == 'advanced')}** câu nâng cao. "
         f"Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).",
-        "> _Sinh tự động từ `scripts/quiz_bank.json` — đừng sửa tay; chạy lại "
+        "> _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại "
         "`python scripts/generate_quiz.py`._",
         "",
     ]
-    for i, q in enumerate(qs, 1):
+    base = [q for q in qs if q.get("level") != "advanced"]
+    adv = [q for q in qs if q.get("level") == "advanced"]
+    for i, q in enumerate(base, 1):
         out.append(f"## Câu {i} ({_qtype_label(q)})")
         out.append("")
         out.append(q["q"])
@@ -86,6 +88,22 @@ def render_quiz_md(week: dict) -> str:
             for j, choice in enumerate(q["choices"]):
                 out.append(f"- **{LETTERS[j]}.** {choice}")
             out.append("")
+    if adv:
+        out.append("---")
+        out.append("")
+        out.append("## Phần nâng cao")
+        out.append("")
+        out.append("> Các câu dưới đây đòi đọc mục tương ứng trong `Week-00/advanced_topics_vi.md` hoặc paper gốc. Làm sau khi xong phần cơ bản.")
+        out.append("")
+        for i, q in enumerate(adv, 1):
+            out.append(f"## Nâng cao {i} ({_qtype_label(q)})")
+            out.append("")
+            out.append(q["q"])
+            out.append("")
+            if q.get("type") == "mcq":
+                for j, choice in enumerate(q["choices"]):
+                    out.append(f"- **{LETTERS[j]}.** {choice}")
+                out.append("")
     out.append("---")
     out.append("> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, "
                "rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.")
@@ -96,13 +114,21 @@ def render_quiz_md(week: dict) -> str:
 def render_solution_md(week: dict) -> str:
     n, title, qs = week["week"], week["title"], week["questions"]
     out = [
-        f"# Tuần {n} — Đáp án & Giải thích: {title}",
+        f"# Tuần {n}, Đáp án & Giải thích: {title}",
         "",
         "> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.",
         "",
     ]
-    for i, q in enumerate(qs, 1):
-        out.append(f"## Câu {i} ({_qtype_label(q)})")
+    base = [q for q in qs if q.get("level") != "advanced"]
+    adv = [q for q in qs if q.get("level") == "advanced"]
+    ordered = [(f"Câu {i}", q) for i, q in enumerate(base, 1)] + [(f"Nâng cao {i}", q) for i, q in enumerate(adv, 1)]
+    for label, q in ordered:
+        if label == "Nâng cao 1":
+            out.append("---")
+            out.append("")
+            out.append("## Phần nâng cao")
+            out.append("")
+        out.append(f"## {label} ({_qtype_label(q)})")
         out.append("")
         out.append(q["q"])
         out.append("")
@@ -136,7 +162,7 @@ def render_quiz_data_js(bank: dict) -> str:
     }
     body = json.dumps(payload, ensure_ascii=False, indent=2)
     return (
-        "/* Sinh tự động bởi scripts/generate_quiz.py — KHÔNG sửa tay.\n"
+        "/* Sinh tự động bởi scripts/generate_quiz.py, KHÔNG sửa tay.\n"
         "   Nguồn: scripts/quiz_bank.json */\n"
         f"window.QUIZ_DATA = {body};\n"
     )
@@ -164,7 +190,7 @@ def write_quiz_data_js(bank: dict) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Chế độ AI (tùy chọn) — dùng Claude tạo câu hỏi mới
+# Chế độ AI (tùy chọn): dùng Claude tạo câu hỏi mới
 # --------------------------------------------------------------------------- #
 AI_SYSTEM = (
     "Bạn là trợ giảng tạo quiz cho khoá học 'LLM from scratch' (tiếng Việt). "
@@ -210,7 +236,7 @@ def generate_ai_questions(week: dict, num: int, model: str):
             print("[AI] Không tìm thấy JSON array trong phản hồi → bỏ qua.")
             return None
         new_qs = json.loads(text[start : end + 1])
-    except Exception as e:  # noqa: BLE001 — fail mềm cho tiện học
+    except Exception as e:  # noqa: BLE001, fail mềm cho tiện học
         print(f"[AI] Lỗi khi gọi API ({e}) → bỏ qua, dùng bank tĩnh.")
         return None
 
@@ -249,7 +275,7 @@ def main():
         if changed and args.save:
             save_bank(bank)
         elif changed:
-            print("[AI] (Chưa lưu vào bank — thêm --save nếu muốn giữ.)")
+            print("[AI] (Chưa lưu vào bank, thêm --save nếu muốn giữ.)")
 
     ok = sum(write_week_files(w) for w in targets)
     write_quiz_data_js(bank)

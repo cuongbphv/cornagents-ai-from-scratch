@@ -1,84 +1,70 @@
-# Tuần 13 — Map LLM vào các stage SDLC; build agent graph CornAgents.AI
+# Tuần 13: Xây dựng RAG pipeline end-to-end
 
-> Phase 3 — SDLC / CornAgents.AI. Thiết kế các agent chuyên biệt cho requirements → design → code → review → test → docs, theo 5 workflow patterns của Anthropic, có human-in-the-loop gates.
+> Phase 2: Applied. Chunking → embeddings → vector store → retrieval → generation, trên tài liệu Finance Banking của bạn.
 
 ## Mục tiêu
 
-- Nắm **5 workflow patterns** của Anthropic: Prompt Chaining, Routing, Parallelization, Orchestrator–Workers, Evaluator–Optimizer — và chọn đúng pattern cho từng chỗ ("simple, composable patterns rather than complex frameworks").
-- Thiết kế agent chuyên biệt cho từng stage SDLC, với cổng phê duyệt của con người.
+Build baseline RAG đầy đủ trên corpus tài liệu nghiệp vụ Finance Banking của bạn.
 
 ## Nguồn học
 
-- `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` — mục IV (5 patterns + Dynamic Workflows), VI.D (Week 2: Go Multi-Agent), VIII (Decision Framework: 6 câu hỏi chọn kiến trúc).
-- Tham chiếu agentic SDLC: CodeRabbit (agentic-SDLC guide), Sonar (AC/DC framework), GlobalLogic (VelocityAI case study) — lấy pattern & quality gates.
-- Ví dụ code-review của Claude Agent SDK (đọc PR, flag bug/security, post comment).
-- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md).
+- Paper gốc RAG (arXiv 2005.11401): nền lý thuyết; tutorial RAG chính thức trong docs LlamaIndex/LangChain.
+- **LlamaIndex** + **LangChain** docs.
+- GitHub: **NirDiamant/RAG_Techniques**, sosanzma/rag-techniques-handbook.
+- Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm nguồn đã xác minh 2026-08-11).
 
 ## Thứ tự học trong tuần (mở file theo số)
 
-1. [`01_theory_notes.md`](01_theory_notes.md) — 5 patterns, chi phí multi-agent, artifact contract, gates.
-2. [`02_agents.py`](02_agents.py) — code 3 agent + nối orchestration (deliverable).
-3. [`03_agent_design.md`](03_agent_design.md) — thiết kế agent + I/O contract (deliverable).
-4. [`quiz.md`](quiz.md) — quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
+1. [`01_theory_notes.md`](01_theory_notes.md): 6 khâu RAG, embeddings/cosine, chunking, 3 bẫy tiếng Việt (NFC!).
+2. [`02_rag_pipeline.py`](02_rag_pipeline.py): build baseline RAG trên corpus của bạn (deliverable).
+3. [`quiz.md`](quiz.md): quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Giữ nguyên tên vì do `scripts/generate_quiz.py` sinh ra.)*
 
 ## Nhiệm vụ (Task)
 
-Implement 2–3 agent trong framework đã chọn:
-- **Requirements Analyst agent** (thế mạnh BA của bạn): biến feature request Finance Banking → user story + acceptance criteria, grounded bởi RAG Tuần 10–11 trên tài liệu nghiệp vụ nội bộ.
-- **Code Review agent** — mỗi lần review trả về **criterion-level defects**, không "looks good".
-- **Test-Generation agent**.
-
-Nối bằng pattern phù hợp (orchestrator–workers cho phân việc; evaluator–optimizer cho vòng chất lượng). Mỗi handoff giữa agent là một **artifact contract** (schema rõ, không phải prose). Thêm checkpoint phê duyệt của người + scope tool least-privilege.
+Load PDFs → `RecursiveCharacterTextSplitter` (chunk ~800, overlap ~100) → embed → **Chroma** (dev) → retrieve top-k → generate bằng Ollama local hoặc Claude. Dùng **pgvector/Qdrant** nếu muốn production-grade.
 
 ## Deliverable
 
-Workflow multi-agent: nhận một requirement → sinh **stories + design note + tests**, có human gate.
+App RAG trả lời được câu hỏi trên tài liệu Finance Banking của bạn.
 
 ## Thời lượng
 
-~12–15 giờ.
+~12 giờ.
 
 ## Phần cứng
 
-Bất kỳ; orchestration + API.
-
-## Kiến thức lõi: chọn pattern nào? (Decision framework từ docs)
-
-1. **Success có verify được không?** Không → đừng bắt đầu bằng autonomy; định nghĩa test/rubric trước.
-2. **Các bước có ổn định không?** Có → chain. Không → planning / orchestrator.
-3. **Subtask có độc lập không?** Có → parallelize. Không → khai báo dependency, giới hạn concurrent writes.
-4. **Cần giữ các nhánh thay thế không?** Có → DAG thay vì ép mọi kết quả vào một nhánh.
-5. **Facts phải sống qua run không?** Có → persist artifacts + graph state (Tuần 14), đừng dựa vào transcript.
-6. **Chi phí/latency chịu được không?** Đặt budget trước khi thêm worker.
-
-> Lưu ý từ docs: role split chỉ đáng khi chuyên môn hoá thêm tín hiệu; multi-agent hơn single agent ~90% ở task đa hướng nhưng tốn 10–15× token — cần reducer + budget rõ ràng.
+Mac hoặc 3070 Ti cho embeddings/inference local; embeddings nhẹ.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md` — viết artifact contract trước khi viết agent
-- [ ] Đọc mục IV + VIII của Karpathy-Loop PDF — nắm 5 patterns + 6 câu hỏi
-- [ ] Map từng stage SDLC ↔ loại agent + pattern + input/output rõ ràng
-- [ ] Agent 1 — Requirements Analyst: request → user stories + AC (dùng RAG)
-- [ ] Agent 2 — Code Review: đọc diff/PR → criterion-level defects
-- [ ] Agent 3 — Test-Gen: từ story/code → sinh test case
-- [ ] Định nghĩa artifact contract (schema) cho từng handoff
-- [ ] Nối thành graph (LangGraph state hoặc CrewAI crew)
-- [ ] Thêm human approval gate giữa các stage
-- [ ] Scope tool least-privilege cho từng agent
-- [ ] Chạy thử 1 requirement Finance Banking end-to-end
-- [ ] Ghi `03_agent_design.md`
+- [ ] Đọc `01_theory_notes.md`: nhớ normalize NFC ngay từ bước load
+- [ ] Thu thập corpus (PDF tài liệu nghiệp vụ nội bộ) vào `data/`
+- [ ] Load + parse PDF (PyPDF / Unstructured)
+- [ ] Chunk: RecursiveCharacterTextSplitter (size ~800, overlap ~100)
+- [ ] Chọn embedding model (BGE / e5 / OpenAI / nomic): local được
+- [ ] Index vào Chroma (persist xuống đĩa)
+- [ ] Retrieve top-k + lắp prompt context
+- [ ] Generate bằng Ollama (Tuần 12) hoặc Claude
+- [ ] Test 10 câu hỏi domain → kiểm tra câu trả lời có grounding
+- [ ] (Chuẩn bị Tuần 14) lưu lại baseline để so sánh sau khi thêm rerank
 
-## 🚀 Bổ sung nâng cao (chọn pattern & chi phí thật)
+## 🚀 Bổ sung nâng cao (sampling quyết định độ "bịa")
 
-Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I2–I3**:
+Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B2 Sampling**:
 
-- **I3 · Năm workflow patterns** chi tiết + con số cần nhớ trước khi tách vai: multi-agent thắng single agent ~**90%** ở task đa hướng nhưng tốn **10–15× token** → chỉ tách vai khi chuyên môn hoá *thêm tín hiệu*, và luôn định nghĩa **reducer** trước khi fan-out.
-- **I3 · Khi nào ĐỪNG fan-out**: task cần một mạch tư duy liền (thiết kế kiến trúc, viết narrative, refactor gắn kết chặt) sẽ *tệ hơn* khi chia nhỏ; fan-out song song còn tạo **lỗi tương quan** — verification chỉ cứu được nếu reviewer có prompt/bằng chứng/vai khác.
-- **I2 · Externalize bottleneck**: loop→iteration, chain→thứ tự, swarm→parallel search, DAG→lineage, graph→shared facts. Bạn đang ở bước swarm/chain; tuần sau mới lên graph.
+Cùng một context retrieve được, `temperature` và `top-p` vẫn quyết định câu trả lời bám nguồn hay bắt đầu suy diễn. Với RAG trên tài liệu nghiệp vụ, mặc định nên **hạ temperature** (≤0.3) và giữ top-p vừa phải, ưu tiên groundedness hơn sự "mượt".
 
-> Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục IV & VIII.
+> ➡️ Tuần 14 sẽ đọc mục **H** đầy đủ để biết cách *đo* điều này thay vì cảm nhận.
+
+## 📦 Dữ liệu cho tuần này
+
+Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md): mục **1** (nguồn quy định tiếng Việt) và mục **9** (chọn embedding model).
+
+Corpus khuyến nghị: `th1nhng0/vietnamese-legal-documents` (CC BY 4.0, 171k văn bản scrape từ **vbpl.vn** của Bộ Tư pháp) → **filter riêng phần NHNN**. Chọn embedding model tham chiếu **VN-MTEB**.
+
+> ⚠️ Đọc mục **6** về pháp lý trước khi tải: ưu tiên nguồn chính thức (vbpl.vn) hơn aggregator thương mại có paywall; và giữ lại metadata nguồn + ngày hiệu lực của từng văn bản, bạn sẽ cần chúng làm provenance ở Tuần 17.
 
 ## File trong folder
 
@@ -86,10 +72,10 @@ Số ở đầu tên file = thứ tự học.
 
 | # | File | Mô tả |
 |---|------|-------|
-| — | `README.md` | File này |
-| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: 5 patterns, contract, gates |
-| 2 | `02_agents.py` | Stub 3 agent + chỗ nối orchestration (TODO) |
-| 3 | `03_agent_design.md` | Template thiết kế agent + I/O contract (deliverable) |
-| 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `README.md` | File này |
+| 1 | `01_theory_notes.md` | Lý thuyết tự chứa: 6 khâu RAG + bẫy tiếng Việt |
+| 2 | `02_rag_pipeline.py` | Starter RAG (load→chunk→embed→store→retrieve→generate) |
+| 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
+| · | `data/` | (bạn tự thêm) PDF/tài liệu Finance Banking |
 
-> ➡️ Tiếp theo: **Tuần 14** thêm lớp knowledge graph làm shared memory — workers ghi findings vào graph thay vì dồn qua context window của orchestrator.
+> Anchor: corpus, dataset fine-tune và capstone NÊN đều là tài liệu nghiệp vụ Finance Banking (giữ tổng quát): đây là điểm khác biệt của bạn.

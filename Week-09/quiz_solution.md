@@ -1,45 +1,75 @@
-# Tuần 9 — Đáp án & Giải thích: Fine-tuning Mac/MLX + local inference stack
+# Tuần 9, Đáp án & Giải thích: Instruction fine-tuning (classification + instruction-following + LoRA)
 
 > ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
-Vì sao MacBook 24GB có thể fine-tune model lớn hơn RTX 3070 Ti 8GB?
+Ý tưởng cốt lõi của LoRA?
 
-- **A.** CPU Mac nhanh hơn GPU
-- **B.** Unified memory 24GB dùng chung cho cả 'GPU', cho phép chứa model 13-14B (đổi lại chậm hơn ~2-4×) ✅
-- **C.** MLX nén model xuống 1-bit
-- **D.** Mac có nhiều GPU hơn
-
-**Đáp án: B**
-
-**Giải thích:** Unified memory là lợi thế của Apple Silicon: dung lượng lớn hơn VRAM rời 8GB, dù thông lượng thấp hơn NVIDIA.
-
-## Câu 2 (Tự luận)
-
-Mô tả luồng fine-tune → phục vụ bằng MLX trên Mac.
-
-**Trả lời mẫu:** 1) mlx_lm.lora --model ... --train --data ... --iters 500 để train adapter LoRA. 2) mlx_lm.fuse --model ... --adapter-path ... để gộp adapter vào base. 3) Phục vụ qua Ollama (tạo Modelfile) hoặc LM Studio (load GGUF/MLX) để chat. Với 24GB có thể LoRA/QLoRA tới ~13-14B.
-
-**Giải thích:** Mac dùng định dạng MLX (mlx-community/...); Ollama/LM Studio là lớp serving.
-
-## Câu 3 (Trắc nghiệm)
-
-Ollama và LM Studio đóng vai trò gì?
-
-- **A.** Train model from scratch
-- **B.** Lớp inference/serving local — tải, quản lý và chat với model (GGUF/MLX) qua API/GUI ✅
-- **C.** Vector database cho RAG
-- **D.** Tokenizer
+- **A.** Lượng tử hoá trọng số xuống 4-bit
+- **B.** Đóng băng W, học thêm hai ma trận thấp hạng B,A sao cho W' = W + BA với rank r ≪ d ✅
+- **C.** Tăng learning rate cho lớp cuối
+- **D.** Cắt tỉa (prune) trọng số nhỏ
 
 **Đáp án: B**
 
-**Giải thích:** Chúng giúp chạy model local dễ dàng; Ollama có API kiểu OpenAI tiện cắm vào RAG/agents.
+**Giải thích:** LoRA chỉ train BA (ít tham số) thay vì toàn bộ W → tiết kiệm VRAM lớn, là nền của QLoRA (Tuần 11).
 
-## Câu 4 (Tự luận)
+## Câu 2 (Trắc nghiệm)
 
-Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.
+Để fine-tune GPT cho classification, thay đổi kiến trúc nào là cốt lõi?
 
-**Trả lời mẫu:** 3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.
+- **A.** Thêm một transformer block mới
+- **B.** Thay output head (vocab_size) bằng một head nhỏ số lớp = số nhãn, thường chỉ train head + vài layer cuối ✅
+- **C.** Bỏ positional embedding
+- **D.** Tăng gấp đôi số attention head
 
-**Giải thích:** Đây là nội dung deliverable 03_hardware_decision.md.
+**Đáp án: B**
+
+**Giải thích:** Classification không cần dự đoán token: thay head 50257 chiều bằng Linear ra num_classes (vd. spam/ham), dùng hidden state của token cuối. Đóng băng phần lớn model giúp train nhanh, ít overfit.
+
+## Câu 3 (Tự luận)
+
+Trong instruction fine-tuning, vì sao thường mask phần prompt/instruction khỏi loss (chỉ tính loss trên phần response)?
+
+**Trả lời mẫu:** Mục tiêu là dạy model SINH phản hồi tốt, không phải học thuộc lại đề bài. Nếu tính loss trên cả instruction, gradient bị pha loãng bởi việc dự đoán lại phần text đã cho sẵn, model tối ưu cho việc lặp lại prompt thay vì chất lượng response. Mask (đặt label = -100 trong PyTorch) các token thuộc prompt để cross-entropy chỉ chấm phần model phải tự sinh.
+
+**Giải thích:** Đây là chi tiết dễ bỏ sót khi tự viết collate function cho instruction dataset.
+
+## Câu 4 (Trắc nghiệm)
+
+Instruction fine-tuning khác pretraining ở điểm nào về DỮ LIỆU và MỤC TIÊU?
+
+- **A.** Khác thuật toán tối ưu hoàn toàn (không dùng cross-entropy)
+- **B.** Pretraining: text thô, học dự đoán token kế; instruction FT: cặp (instruction, response) có cấu trúc, học làm theo yêu cầu, cùng loss cross-entropy nhưng phân phối dữ liệu và hành vi đích khác ✅
+- **C.** Instruction FT không cần gradient
+- **D.** Pretraining chỉ dùng cho model nhỏ
+
+**Đáp án: B**
+
+**Giải thích:** Cơ chế học giống nhau (next-token prediction); thứ thay đổi là dữ liệu (template Alpaca-style) và hành vi mà ta muốn model hội tụ về (làm theo instruction thay vì tiếp tục văn bản).
+
+---
+
+## Phần nâng cao
+
+## Nâng cao 1 (Trắc nghiệm)
+
+Shazeer (arXiv 2002.05202) thay FFN 'Linear rồi GELU' bằng SwiGLU có ba ma trận. Ông giữ số tham số không đổi bằng cách nào, và điều này giải thích con số nào trong config Mistral 7B?
+
+- **A.** Bỏ ma trận output
+- **B.** Giảm số đơn vị ẩn d_ff; Mistral 7B có hidden_dim 14336 với d = 4096, tức 3,5d thay cho 4d ✅
+- **C.** Dùng bias để bù
+- **D.** Chia sẻ trọng số giữa hai ma trận gate và up
+
+**Đáp án: B**
+
+**Giải thích:** Shazeer mục 3: 'we reduce the number of hidden units d_ff'. Mistral 7B Table 1 (arXiv 2310.06825).
+
+## Nâng cao 2 (Tự luận)
+
+Jurafsky và Martin nói instruction tuning là supervised learning với cùng objective language modeling. Vậy khác biệt kỹ thuật duy nhất so với pretraining ở Tuần 8 nằm ở đâu, và hệ quả lên cách tính loss là gì?
+
+**Trả lời mẫu:** Khác ở dữ liệu (cặp instruction và response) và ở việc mask loss: chỉ tính cross-entropy trên phần response để model học sinh phản hồi, không học lặp lại đề bài; trong PyTorch đặt label -100 cho token prompt. Hàm loss, optimizer và cấu trúc training loop giữ nguyên (SLP3 mục 8.1, trang 210).
+
+**Giải thích:** Paper 'Instruction Tuning With Loss Over Instructions' trong kệ paper thử ngược điều này và tìm thấy hai ngoại lệ đáng nhớ.

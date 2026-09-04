@@ -25,7 +25,7 @@
   <rect width="880" height="230" rx="18" fill="#eef3f9"/>
   <rect width="880" height="230" rx="18" fill="url(#dots)"/>
 
-<text x="32" y="40" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Alignment · Tuần 7</text>
+<text x="32" y="40" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Alignment · Tuần 10</text>
 <text x="32" y="62" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="500" fill="#64748b">Neo FareedKhan-style pipeline, scaled-down để học</text>
 <g transform="translate(40,100)">
 <rect width="175" height="64" rx="14" fill="#d97706" filter="url(#soft)"/>

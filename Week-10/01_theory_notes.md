@@ -1,72 +1,108 @@
-# Lý thuyết Tuần 10 — RAG pipeline end-to-end
+# Lý thuyết Tuần 10: Alignment: SFT → Reward Model → PPO/DPO → GRPO
 
-> Đọc trước khi điền [`02_rag_pipeline.py`](02_rag_pipeline.py). Ví dụ số kiểm chứng bằng PyTorch 2.5.1 + tiktoken ngày 2026-08-11; nguồn cuối file.
+> Đọc trước khi chạy stage alignment và viết [`02_alignment_notes.md`](02_alignment_notes.md). Ví dụ số kiểm chứng bằng PyTorch 2.5.1 ngày 2026-08-11; nguồn cuối file.
 
 ---
 
-## 1. Vì sao RAG — và vì sao không phải fine-tune
-
-Nguyên tắc đã chốt từ Tuần 8: **fine-tune dạy hành vi, RAG cung cấp kiến thức.** Kiến thức quy định (thông tư, điều khoản) thay đổi liên tục và cần dẫn nguồn — nhét vào trọng số thì không cập nhật được, không trích dẫn được, và không kiểm chứng được. RAG (Lewis et al., arXiv 2005.11401) tách đôi: kiến thức nằm trong **kho tài liệu truy xuất được**, model chỉ làm việc đọc-hiểu-trả-lời trên context được đưa vào.
-
-Pipeline baseline 6 khâu — hỏng khâu nào hỏng cả chuỗi:
+## 1. Bản đồ pipeline: thuộc lòng trước, chi tiết sau
 
 ```
-Load PDF → Chunk → Embed → Vector store → Retrieve top-k → Generate (kèm context)
+Pretrain → (Midtrain) → SFT → Reward Model → PPO / DPO → GRPO/RLVR
 ```
 
-## 2. Embeddings + cosine similarity — thước đo "gần nghĩa"
+- **Pretrain**: đoán token kế (Tuần 8): biết *ngôn ngữ*, chưa biết *nghe lời*.
+- **SFT**: instruction FT (Tuần 9): bắt chước demonstration.
+- **RM → PPO** hoặc **DPO**: học từ *so sánh cặp* thay vì demonstration, vì "câu nào hay hơn" dễ gán nhãn hơn "viết câu hay".
+- **GRPO/RLVR**: RL với reward kiểm chứng được (toán đúng/sai, test pass): nền của reasoning model.
+- **Midtrain** (khái niệm nanochat, không có trong pipeline kinh điển): dạy format hội thoại/special token trước SFT.
 
-Embedding model biến đoạn văn thành vector; hai đoạn gần nghĩa → vector gần nhau theo **cosine similarity**:
+## 2. Reward Model: chấm điểm bằng so sánh cặp
+
+Data: `(prompt, chosen, rejected)`. RM là model + head scalar; loss Bradley-Terry:
 
 ```
-cos(a, b) = (a·b) / (|a||b|)     ∈ [−1, 1]
+L_RM = −log σ(r(x, y_chosen) − r(x, y_rejected))
 ```
 
-Kiểm chứng 2026-08-11: `cos(a, 2a) = 1.0` (cùng hướng tuyệt đối — cosine bỏ qua độ dài, chỉ đo hướng); hai vector lệch hướng cho 0.378. Retrieval = embed câu hỏi → tìm k chunk có cosine cao nhất trong store. Lưu ý nền từ Tuần 1: đây vẫn chỉ là dot product sau khi chuẩn hóa.
+Kiểm chứng: `r_chosen=2.0, r_rejected=1.0` → `−logsigmoid(1.0) = 0.3133`. Chênh lệch càng đúng chiều và càng lớn, loss càng nhỏ. RM chỉ học **thứ tự tương đối**: điểm tuyệt đối không có ý nghĩa.
 
-**Embedding model là quyết định chất lượng số 1 của RAG** — nó quyết định "gần nghĩa" nghĩa là gì. Chọn theo benchmark phù hợp ngôn ngữ của corpus (mục 6).
+## 3. PPO: RL trên reward đã học (mức khái niệm là đủ)
 
-Đừng coi cosine là chân lý mặc định. Steck et al. 2024 (arXiv [2403.05440](https://arxiv.org/abs/2403.05440), abstract tra 2026-08-12) chỉ ra với embedding học từ model có regularization, "cosine-similarity can yield arbitrary and therefore meaningless 'similarities'", có trường hợp thua cả dot product không chuẩn hóa. Bài học thực dụng: chất lượng retrieval đo bằng eval set của bạn (Tuần 11), không suy ra từ việc "đã dùng đúng công thức".
+Policy (model đang train) sinh câu trả lời → RM chấm → cập nhật policy tăng reward, **kèm phanh KL** giữ policy không trôi xa model tham chiếu (xa quá = reward hacking: câu được RM khen nhưng thực chất tệ). Cồng kềnh: cần 4 model trong bộ nhớ (policy, reference, RM, critic): lý do DPO ra đời.
 
-## 3. Chunking — cắt tài liệu không làm đứt nghĩa
+## 4. DPO: bỏ hẳn RM và RL loop
 
-- Baseline README: `RecursiveCharacterTextSplitter`, size ~800, overlap ~100. Splitter này đếm theo **ký tự** và ưu tiên cắt tại ranh giới tự nhiên (đoạn → câu → từ) theo thứ tự separator.
-- **Ký tự ≠ token.** Đo thật trên một câu thông tư tiếng Việt (cl100k, 2026-08-11): 115 ký tự → 52 token, tức ~**2.2 ký tự/token** — chunk 800 ký tự tiếng Việt ≈ 360 token. Muốn kiểm soát ngân sách context chính xác thì đếm bằng token của đúng model bạn dùng, đừng áng chừng theo ký tự.
-- Overlap tồn tại để câu nằm vắt qua ranh giới chunk không bị mất ngữ cảnh ở cả hai phía.
-- Với văn bản pháp luật, ranh giới tự nhiên tốt nhất là **Điều/Khoản/Điểm** — cắt theo cấu trúc văn bản (semantic) luôn thắng cắt theo đếm ký tự mù; giữ số hiệu Điều trong metadata của chunk.
+Insight của Rafailov et al. (arXiv 2305.18290, đúng như tựa đề *"Your Language Model is Secretly a Reward Model"*): bài toán RLHF-với-phanh-KL có nghiệm dạng đóng, cho phép viết reward **ẩn trong chính policy**, đưa về một loss supervised trên cặp preference:
 
-## 4. Vector store + metadata — chỗ provenance bắt đầu
+```
+L_DPO = −log σ( β·[ log πθ(y_w|x)/πref(y_w|x) − log πθ(y_l|x)/πref(y_l|x) ] )
+```
 
-- **Chroma** cho dev (persist xuống đĩa, không cần server); pgvector/Qdrant khi cần production.
-- Mỗi chunk lưu kèm **metadata: tên văn bản, số hiệu, điều khoản, ngày hiệu lực** — Tuần 14 cần chúng làm provenance, và câu trả lời có dẫn nguồn cần chúng ngay tuần này. Mất metadata lúc ingest là mất vĩnh viễn.
+Kiểm chứng toy: log-ratio chosen 0.5, rejected −0.3, β=0.1 → loss 0.6539. Đọc loss này bằng lời: **tăng xác suất câu được chọn, giảm câu bị loại, so tương đối với reference model, β điều phanh**. Chỉ cần 2 model (policy + reference đóng băng), train như supervised, vì thế DPO là stage được khuyến nghị chạy thử tuần này.
 
-## 5. Generate — grounding là mục tiêu, không phải văn hay
+Một lời cảnh tỉnh đáng biết trước khi kết luận "DPO ăn đứt PPO": Xu et al. 2024 (arXiv [2404.10719](https://arxiv.org/abs/2404.10719), abstract tra 2026-08-12) chạy so sánh có kiểm soát và báo cáo "PPO is able to surpass other alignment methods in all cases and achieve state-of-the-art results in challenging code competitions", kèm nhận định DPO "may have fundamental limitations". Với tuần này DPO vẫn là lựa chọn đúng, rẻ, dễ chạy, đủ để hiểu cơ chế, nhưng đừng mang "DPO tốt hơn PPO" đi như chân lý.
 
-- Prompt template tối thiểu: *"Chỉ trả lời dựa trên context dưới đây. Không tìm thấy thông tin thì nói không tìm thấy."* + context top-k + câu hỏi.
-- **Temperature ≤ 0.3** cho RAG nghiệp vụ (khuyến nghị trong README, mục nâng cao B2): cùng context đó, temperature cao làm model "suy diễn vượt nguồn" nhiều hơn.
-- Test 10 câu hỏi domain: với mỗi câu trả lời, tự hỏi **"câu này dẫn về được chunk nào?"** — không dẫn được = chưa grounded, đánh dấu lại làm baseline cho Tuần 11 đo.
+## 5. GRPO: advantage tính theo nhóm, khỏi cần critic
 
-## 6. Tiếng Việt trong tuần này — 3 bẫy có bằng chứng
+DeepSeekMath (arXiv 2402.03300): với mỗi prompt, sample **một nhóm** G câu trả lời, advantage của từng câu = chuẩn hóa reward **trong nhóm đó**:
 
-1. **Unicode NFC vs NFD** — bẫy âm thầm nhất. Kiểm chứng 2026-08-11: ký tự `ế` dạng NFC là **1 codepoint**, dạng NFD là **3 codepoint** (e + dấu mũ + dấu sắc), và hai chuỗi **không bằng nhau** khi so sánh trực tiếp. Corpus scrape từ nhiều nguồn có thể trộn cả hai dạng → cùng một từ thành hai chuỗi khác nhau khi match, đếm ký tự lệch, highlight sai. **Chuẩn hóa `unicodedata.normalize("NFC", text)` ngay tại bước load, trước mọi xử lý khác.**
-2. **Embedding model phải hỗ trợ tiếng Việt thật** — model embedding train chủ yếu tiếng Anh cho cosine similarity kém nghĩa trên tiếng Việt. Chọn theo **VN-MTEB** (benchmark embedding tiếng Việt — mục 9 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)); nghi ngờ thì tự test: 5 cặp câu nghiệp vụ đồng nghĩa + 5 cặp không liên quan, xem cosine có tách hai nhóm không.
-3. **Ngân sách token tiếng Việt**: 2.2 ký tự/token (đo ở mục 3) — khi ước lượng "top-k chunk có vừa context window không", tính bằng token thật, nhất là khi generate bằng model local context ngắn.
+```
+A_i = (r_i − mean(r_nhóm)) / std(r_nhóm)
+```
 
-Corpus khuyến nghị + lưu ý pháp lý: xem mục 📦 trong [README.md](README.md) (nguồn vbpl.vn, giữ metadata ngày hiệu lực).
+Không cần critic model như PPO. Hợp **RLVR**: reward kiểm chứng được bằng máy (đáp số đúng/sai, test pass/fail): reward sạch, không sợ RM bị hack. Đổi lại, chỉ áp được cho task có verifier.
 
-## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+## 6. Chọn stage nào khi nào: khung cho `02_alignment_notes.md`
+
+| | SFT | DPO | GRPO |
+|---|-----|-----|------|
+| Data cần | demonstration | cặp chosen/rejected | prompt + verifier |
+| Số model lúc train | 1 | 2 (policy + ref) | 2 + verifier (không critic) |
+| Dạy được gì | format, hành vi, miền | "gu", chọn giữa các câu khả dĩ | năng lực có thể chấm đúng/sai |
+| Khi nào dùng | luôn là bước đầu | có preference data, muốn rẻ | toán/code/task verify được |
+
+Viết lại bảng này **bằng lời mình** + trải nghiệm sau khi chạy một stage, đó là deliverable.
+
+## 7. Tiếng Việt trong tuần này
+
+- Các dataset trong nguồn học tuần này (Alpaca, Dolly, HH-RLHF, UltraFeedback): **kiểm tra ngôn ngữ từng bộ trước khi dùng**; phần lớn thiên tiếng Anh. Stage bạn chạy tuần này nên làm tiếng Anh cho khớp base model nhỏ.
+- Preference data tiếng Việt chất lượng cao hiếm và đắt (cần người gán "câu nào hơn", với văn bản nghiệp vụ là chuyên gia). [Suy luận] Với domain VN banking của dự án, thứ tự đầu tư hợp lý là SFT tiếng Việt + RAG trước, DPO tiếng Việt chỉ khi đã có nguồn preference thật, vì SFT/RAG giải quyết phần format + kiến thức, còn DPO cần data đắt nhất.
+- RLVR là ngoại lệ thú vị: reward do máy chấm nên **không phụ thuộc ngôn ngữ**: bài toán tính toán nghiệp vụ (đối chiếu số liệu, tính lãi) về lý thuyết làm RLVR tiếng Việt được mà không cần người gán nhãn preference.
+
+## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
 | Nguồn | URL | Dùng cho mục |
 |-------|-----|--------------|
-| Lewis et al. 2020 — RAG | https://arxiv.org/abs/2005.11401 | 1 |
-| Steck et al. 2024 — Is Cosine-Similarity Really About Similarity? (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2403.05440 | 2 |
-| Gekhman et al. 2024 — FT trên kiến thức mới & hallucination (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2405.05904 — PDF local: [`../docs/papers/`](../docs/papers/README.md) | 1 |
+| Ouyang et al. 2022, InstructGPT (RLHF/PPO) | https://arxiv.org/abs/2203.02155 | 2, 3 |
+| Rafailov et al. 2023, DPO (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2305.18290, PDF local: [`../docs/papers/2305.18290_dpo-direct-preference-optimization.pdf`](../docs/papers/2305.18290_dpo-direct-preference-optimization.pdf) | 4 |
+| Shao et al. 2024, DeepSeekMath (GRPO) | https://arxiv.org/abs/2402.03300 | 5 |
+| Xu et al. 2024, Is DPO Superior to PPO? (chỉ link, arXiv non-exclusive, kiểm 2026-08-12) | https://arxiv.org/abs/2404.10719 | 4 |
 
-(LlamaIndex/LangChain docs, NirDiamant/RAG_Techniques: link trong README nguồn học — API đổi theo version, đọc docs đúng version bạn cài.)
+(FareedKhan-dev/train-llm-from-scratch: link trong README, đọc `src/post_training/` để thấy cả 5 stage bằng PyTorch thuần.)
 
 ## Sau khi đọc xong
 
-1. Thu thập corpus vào `data/`, **normalize NFC ngay khi load**.
-2. Điền [`02_rag_pipeline.py`](02_rag_pipeline.py) theo 6 khâu; chunk giữ metadata điều khoản.
-3. Test 10 câu hỏi domain, ghi lại câu nào grounded/câu nào không — đây là baseline Tuần 11.
-4. Làm [`quiz.md`](quiz.md).
+1. Vẽ lại pipeline mục 1 bằng tay, không nhìn tài liệu.
+2. Đọc code FareedKhan `src/post_training/`: đối chiếu công thức mục 2/4/5 với code thật.
+3. Chạy MỘT stage scaled-down (khuyến nghị DPO), lưu log/checkpoint làm bằng chứng.
+4. Viết [`02_alignment_notes.md`](02_alignment_notes.md) từ bảng mục 6; làm [`quiz.md`](quiz.md).
+
+## 9. Khung RL cho alignment: từ agent và environment đến policy gradient
+
+Pipeline SFT, reward model, PPO, DPO, GRPO ở các mục trên dùng từ vựng của reinforcement learning. Mục này dựng từ vựng đó từ sách gốc, để công thức PPO và GRPO trong code FareedKhan không còn là hộp đen.
+
+**Agent và environment.** Sutton và Barto định nghĩa: "The learner and decision maker is called the agent. The thing it interacts with, comprising everything outside the agent, is called the environment" (*RL: An Introduction* mục 3.1, trang 47). Hai bên tương tác liên tục: agent chọn action, environment phản hồi bằng state mới và reward. Với LLM, SLP3 (mục 8.4, trang 219) map như sau: model chọn chuỗi action theo policy dựa trên state hiện tại, environment cho reward cho mỗi action, reward của cả chuỗi là hàm của reward từng bước, và mục tiêu là tối đa tổng reward. Cụ thể: policy là LLM với tham số θ, action là token, state là prompt cộng các token đã sinh, reward đến từ reward model học ở mục 4.
+
+**Softmax policy.** Sutton và Barto (mục 13.1, trang 322) yêu cầu policy π(a|s, θ) khả vi theo θ và, để còn khám phá, không bao giờ trở thành xác định, tức π(a|s, θ) ∈ (0, 1). Cách tham số hóa phổ biến cho action rời rạc là tính một preference h(s, a, θ) cho từng cặp state và action rồi lấy softmax: π(a|s, θ) = e^{h(s,a,θ)} / Σ_b e^{h(s,b,θ)} (eq. 13.2). Đó chính là softmax trên logits của LLM, với h là logit và b chạy trên vocab. Nhìn thấy điều này, bạn hiểu vì sao alignment bằng RL không cần thêm lớp nào mới cho model.
+
+**Policy gradient và REINFORCE.** Mục 13.3 (trang 326) đặt chiến lược chung là stochastic gradient ascent trên hiệu năng J(θ): cần một cách lấy mẫu sao cho kỳ vọng của gradient mẫu tỉ lệ với gradient thật; hằng số tỉ lệ không quan trọng vì được hấp thụ vào step size. Định lý policy gradient cho biểu thức ∇J(θ) tỉ lệ với Σ_s μ(s) Σ_a q_π(s, a) ∇π(a|s, θ), một tổng trên các state có trọng số là tần suất gặp state đó dưới policy π. Phiên bản "all-actions" cập nhật θ theo Σ_a q̂(S_t, a, w) ∇π(a|S_t, θ) (eq. 13.7). REINFORCE thay tổng trên mọi action bằng action đã thực sự lấy mẫu, nên gọi là Monte Carlo policy gradient.
+
+**Từ REINFORCE đến PPO trong RLHF.** Xiao và Zhu (*Foundations of LLMs* mục 4.3.3, trang 182) viết hàm utility của một trajectory τ là U(τ; θ) = Σ_t log π_θ(a_t|s_t) A(s_t, a_t) (eq. 4.39), trong đó A là advantage của action a_t tại state s_t, ước lượng bằng TD error r_t + γV(s_{t+1}) − V(s_t), với value function V được train nhờ reward model. Loss là −E_τ[U(τ; θ)] (eq. 4.40). So với REINFORCE, advantage thay cho return thô, đúng ý tưởng baseline ở Sutton và Barto mục 13.4 REINFORCE with Baseline (trang 329); PPO thêm cơ chế kẹp tỉ số policy mới trên policy cũ (mục 5 ở trên). GRPO bỏ value function, dùng nhóm sample từ cùng prompt để ước lượng advantage (mục 6). DPO đi hướng khác hẳn: bỏ luôn reward model tường minh (FoLLM mục 4.4.2, trang 193). Khi đọc code `src/post_training/` của FareedKhan, hãy tìm đúng ba thứ: chỗ tính log π_θ(a_t|s_t), chỗ tính advantage, và chỗ giữ KL với model tham chiếu.
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **Alignment đứng trên khung RL.** SLP3 mục 8.4 (trang 219): "Current approaches to aligning LLMs using preference data are based on a Reinforcement Learning (RL) framework (Sutton and Barto, 1998)." Mục 8.3 (trang 215) là reward model học từ cặp ưu tiên, đúng loss ở mục 4 của tuần.
+- **Khung RL gốc.** Sutton và Barto mục 3.1 (trang 47): "The learner and decision maker is called the agent. The thing it interacts with, comprising everything outside the agent, is called the environment." Với LLM, policy là model, action là token, reward đến từ reward model. Mục 13.1 (trang 322) đưa softmax policy π(a|s, θ) = e^{h(s,a,θ)} / Σ_b e^{h(s,b,θ)} (eq. 13.2), chính là softmax trên logits của LLM; mục 13.3 REINFORCE (trang 326) là tổ tiên của PPO và GRPO.
+- **RLHF và DPO.** Xiao và Zhu, *Foundations of LLMs* mục 4.3 (trang 172) giải thích vì sao cần RLHF: sở thích con người khó viết thành dataset fine-tune, và "often, humans themselves cannot precisely express their own preferences". Mục 4.4.2 (trang 193) giới thiệu DPO là phương pháp "simplifies the training framework by eliminating the need to explicitly model rewards [Rafailov et al., 2024]", cùng kết luận với paper DPO trong kệ paper.

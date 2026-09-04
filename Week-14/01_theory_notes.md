@@ -1,78 +1,97 @@
-# Lý thuyết Tuần 14 — Knowledge Graph pipeline làm shared memory
+# Lý thuyết Tuần 14: Hybrid search, reranking, RAGAS, tracing
 
-> Đọc trước khi điền [`02_kg_pipeline.py`](02_kg_pipeline.py). Ví dụ NetworkX kiểm chứng local 2026-08-11 (nx 3.6.1); nguồn chính là 2 PDF trong `docs/` của repo.
+> Đọc trước khi nâng cấp pipeline theo [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md). Ví dụ số kiểm chứng 2026-08-11; nguồn cuối file. Cần baseline Tuần 13 đã chạy.
 
 ---
 
-## 1. Vì sao graph — một câu đủ
+## 1. Vì sao vector search một mình không đủ
 
-*"The agent forgets, the graph does not."* Mỗi agent chết theo context window của nó; graph là nơi **facts sống xuyên session**. Ba vai trò trong multi-agent (từ Playbook, chi tiết trong [README.md](README.md)): shared memory (worker ghi findings vào graph thay vì dồn qua context orchestrator), grounding layer (evaluator fact-check claim theo edge), persistent world model (loop qua đêm không mất trí nhớ).
+Hai chế độ thất bại **bù nhau**:
 
-**RAG vs KG — không thay thế nhau:** RAG trả lời "đoạn văn nào giống câu hỏi nhất" (single-hop, ngữ nghĩa); KG trả lời "đi theo quan hệ từ A qua B tới C" (multi-hop, cấu trúc). Ví dụ quyết định trong README: *"văn bản A sửa đổi B, mà B căn cứ C"* — hai văn bản có thể không giống nhau ngữ nghĩa chút nào, RAG mù, KG đi 2 cạnh là tới.
+- **Vector (dense) trượt term chính xác**: câu hỏi chứa mã văn bản `"39/2016/TT-NHNN"`: embedding không bảo đảm chuỗi ký hiệu này "gần" đúng chunk chứa nó về cosine.
+- **BM25 (sparse/lexical) trượt diễn đạt khác**: hỏi "vay vốn mua nhà" không match chunk viết "cấp tín dụng phục vụ nhu cầu nhà ở", không trùng từ, BM25 mù.
 
-## 2. Pipeline 4 bước — model cho phán xét, code cho phần còn lại
+**Hybrid = chạy cả hai rồi trộn kết quả.** BM25 là hàm chấm điểm họ TF-IDF: điểm cao khi term của query xuất hiện nhiều trong document, hiếm trong corpus, có điều chỉnh độ dài document.
+
+## 2. Reciprocal Rank Fusion: trộn hai bảng xếp hạng không cần chỉnh trọng số
 
 ```
-1. Extraction  (Haiku + structured outputs)  → Entity(name, type, description) + Relation(S–P–O)
-2. Resolution  (Sonnet)                      → cluster surface forms về canonical entity
-3. Assembly    (NetworkX MultiDiGraph)       → node có type/source/description; edge có predicate + provenance
-4. Querying    (Sonnet)                      → serialize k-hop subgraph thành triples → trả lời + cite edges
+RRF(doc) = Σ_retriever 1 / (k + rank_doc)        k = 60 (mặc định phổ biến)
 ```
 
-Demo assembly kiểm chứng local 2026-08-11 — đúng dữ liệu domain của bạn:
+Chỉ dùng **thứ hạng**, không dùng điểm thô, nên trộn được hai hệ điểm khác thang (BM25 score vs cosine). Ví dụ kiểm chứng 2026-08-11, k=60:
 
-```python
-import networkx as nx
-G = nx.MultiDiGraph()
-G.add_edge("TT 39/2016/TT-NHNN", "Luật các TCTD 2010", predicate="căn_cứ",  source_doc="tt39.pdf")
-G.add_edge("TT 06/2023/TT-NHNN", "TT 39/2016/TT-NHNN", predicate="sửa_đổi", source_doc="tt06.pdf")
-# → 3 nodes, 2 edges; edge data giữ nguyên {'predicate': ..., 'source_doc': ...}
-```
+| Doc | Hạng BM25 | Hạng vector | RRF |
+|-----|-----------|-------------|-----|
+| A | 1 | 8 | 0.031099 |
+| B | 3 | 2 | **0.032002** ← thắng |
 
-`MultiDiGraph` vì: có hướng (A sửa đổi B ≠ B sửa đổi A) và cho phép **nhiều cạnh giữa cùng cặp node** (A vừa `căn_cứ` vừa `dẫn_chiếu` B).
+Bài học nằm trong ví dụ: doc B **không đứng đầu bảng nào** nhưng thắng vì tốt đều ở cả hai, RRF thưởng sự đồng thuận giữa hai retriever, đúng cái hybrid cần.
 
-## 3. Bốn nguyên tắc chất lượng — lý do đằng sau (bảng gốc trong README)
+## 3. Cross-encoder reranking: chậm mà chuẩn, nên chỉ chấm chung kết
 
-1. **Description là chìa khóa resolution** — resolver nhìn tên trần "TT 06" thì chỉ đoán; kèm mô tả grounded ("Thông tư 06/2023 của NHNN sửa đổi quy định cho vay...") mới phân xử được.
-2. **Precision > recall cho extraction** — một entity SAI sinh quan hệ sai **lan truyền qua multi-hop** (mọi câu trả lời đi qua node đó đều nhiễm); entity THIẾU chỉ làm graph chưa đầy đủ — sai bất đối xứng nên ưu tiên bất đối xứng. Prompt extraction vì thế viết "only entities central to the document".
-3. **Provenance trên mọi edge** — thiếu `source_doc` thì bước Querying "cite edges" thành trích dẫn suông, evaluator hết đường fact-check.
-4. **Evaluation feedback loop** — gold set + scorer + sửa prompt + xem F1: đúng hình dạng ratchet loop Tuần 12, áp cho pipeline dữ liệu.
+- **Bi-encoder** (retrieval): embed query và document **riêng rẽ** → so cosine. Nhanh (document embed trước từ lúc index), nhưng hai bên không "đọc" nhau.
+- **Cross-encoder** (rerank): nhét `(query, document)` **vào cùng một lượt** qua model → điểm liên quan. Chuẩn hơn hẳn vì attention chạy chéo giữa query và document (bạn hiểu vì sao, Tuần 6), nhưng phải chạy model cho TỪNG cặp → không thể chấm cả corpus.
+- Kiến trúc chuẩn: **retrieve rẻ lấy top-20..50 → cross-encoder chấm lại → lấy top-3..5 đưa vào prompt.** BGE reranker (mã mở) chạy ổn trên máy local.
 
-## 4. Diagnostics — đọc sức khỏe graph bằng 3 con số
+## 4. RAGAS: tách "lỗi tìm" khỏi "lỗi trả lời"
 
-| Chỉ số | Khỏe | Bệnh gì khi lệch |
-|--------|------|-------------------|
-| Connected components | tiến về 1 | nhiều mảnh rời = resolution kém (cùng entity, nhiều tên chưa gộp) |
-| Degree distribution | ít hub hợp lý | node degree khổng lồ bất thường = false merge (gộp nhầm nhiều entity làm một) |
-| Edges/nodes ratio | ~1.0–2.0 (theo Playbook) | quá thấp = extraction bỏ sót quan hệ; quá cao bất thường = quan hệ rác |
+Bốn metric, chia đúng hai nửa pipeline:
 
-Hai failure mode chết người (mục nâng cao I4): **silent entity loss** và **false merge** — cái thứ hai độc hơn vì nó *thêm* thông tin sai thay vì chỉ thiếu.
+| Metric | Đo cái gì | Lỗi ở đâu khi thấp |
+|--------|-----------|---------------------|
+| Context precision | context lấy về có liên quan không | retrieval |
+| Context recall | có lấy đủ thông tin cần không | retrieval |
+| Faithfulness | câu trả lời có bám context không | generation (bịa) |
+| Answer relevancy | có trả lời đúng câu hỏi không | generation |
 
-## 5. Eval extraction — precision/recall vs gold set
+Đọc kết quả theo cặp: faithfulness thấp + context tốt = model bịa → hạ temperature, siết prompt; context recall thấp = lỗi tìm → sửa retriever, đừng đổi model. Eval set ~20-30 cặp (câu hỏi, ground truth) như README, **so before/after cùng eval set** mới thành bảng số có nghĩa.
 
-Gold set mini (~10 entities, ~10 relations từ 2 tài liệu, gán tay): `precision = đúng/trích_ra`, `recall = đúng/gold`, `F1 = 2PR/(P+R)`. Chạy vòng: đo → sửa prompt extraction → đo lại → chỉ giữ thay đổi làm F1 tăng ("graph autoresearch"). Không có vòng này, pipeline drift mà không ai biết.
+Định nghĩa gốc của 4 metric nằm trong paper RAGAS (PDF trong repo: [`../docs/papers/2309.15217_ragas-rag-evaluation.pdf`](../docs/papers/2309.15217_ragas-rag-evaluation.pdf)): 8 trang, đọc được trong một buổi. Còn nếu muốn xem người khác đã ablate các tổ hợp module (chunking, rerank, hybrid...) ra sao trước khi tự thí nghiệm: Wang et al. 2024, *Searching for Best Practices in RAG* ([`../docs/papers/2407.01219_rag-best-practices.pdf`](../docs/papers/2407.01219_rag-best-practices.pdf)): họ "investigate existing RAG approaches and their potential combinations" và đề xuất các chiến lược cân bằng chất lượng/chi phí.
 
-## 6. Tiếng Việt trong tuần này — resolution là chỗ tiếng Việt thử thách nhất
+## 5. Bẫy LLM-as-judge: RAGAS chấm bằng LLM nên dính đủ
 
-- **NFC trước mọi so khớp** (kiểm chứng Tuần 10: `ế` NFC = 1 codepoint, NFD = 3, so sánh trực tiếp KHÔNG bằng nhau): hai node "Ngân hàng Nhà nước" ở hai dạng normalize là **hai node khác nhau** — một nguồn "nhiều mảnh rời" (mục 4) thuần kỹ thuật, sửa bằng 1 dòng `unicodedata.normalize("NFC", ...)` lúc ingest, rẻ hơn mọi prompt.
-- **Alias tiếng Việt cho resolver**: cùng một tổ chức xuất hiện là "NHNN" / "Ngân hàng Nhà nước" / "Ngân hàng Nhà nước Việt Nam" / "State Bank of Vietnam" — đây chính là bài "Edwin Aldrin → Buzz Aldrin" của Playbook, phiên bản nghiệp vụ. Description grounded (nguyên tắc 1) là thứ cứu resolver ở đây.
-- **Số hiệu văn bản là pattern tất định — đừng phí model**: `39/2016/TT-NHNN`, `06/2023/TT-NHNN` match được bằng regex; chuẩn hóa số hiệu bằng code, để model phân xử phần thật sự mơ hồ (đúng pattern "model cho phán xét, logic tất định cho phần còn lại" của mục nâng cao I4).
-- Entity types + predicates tiếng Việt (`VAN_BAN`, `sửa_đổi`...) như README gợi ý là ổn — chỉ cần **nhất quán tuyệt đối** (một danh sách đóng trong prompt, không cho model tự chế predicate mới).
+Zheng et al. (arXiv 2306.05685) ghi nhận các thiên vị của LLM judge: **thiên vị độ dài** (chuộng câu trả lời dài), **thiên vị vị trí** (chuộng phương án đứng trước khi so cặp), **tự khen model cùng họ**. Áp vào tuần này:
 
-## 7. Nguồn
+- Điểm RAGAS tăng ≠ chắc chắn tốt hơn, kiểm tay 5-10 mẫu mỗi lần đo, nhất là các mẫu điểm cao bất thường.
+- Giữ judge model **cố định** giữa before/after, đổi judge giữa chừng là vô hiệu phép so sánh.
+- Đừng tin một chỉ số duy nhất (mục nâng cao H): bảng số + đọc tay đi cùng nhau.
 
-| Nguồn | Vị trí | Dùng cho mục |
-|-------|--------|--------------|
-| Graph Engineering Playbook | [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf) | 2, 3, 4, 5 |
-| Karpathy-Loop PDF | [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) | 1 |
-| NetworkX (cài local, nx 3.6.1 — demo kiểm chứng 2026-08-11) | https://networkx.org/documentation/stable/ | 2, 4 |
-| Edge et al. 2024 — GraphRAG: Local to Global (Microsoft; CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2404.16130 — PDF local: [`../docs/papers/2404.16130_graphrag-local-to-global.pdf`](../docs/papers/2404.16130_graphrag-local-to-global.pdf) | đọc thêm sau mục 2 — mở rộng querying từ subgraph k-hop sang câu hỏi tổng hợp toàn corpus (community summarization) |
+Mức độ đáng ngại có số đo hẳn hoi: *Judging the Judges* (Bavaresco et al. 2024, PDF trong repo: [`../docs/papers/2406.12624_judging-the-judges.pdf`](../docs/papers/2406.12624_judging-the-judges.pdf)) cho 13 judge model chấm cùng bộ bài mà con người đồng thuận cao, và thấy ngay cả judge tốt nhất vẫn "quite far behind inter-human agreement", điểm số lệch tới 5 điểm so với người chấm, kèm "a tendency toward leniency". Điểm an ủi: model nhỏ (thậm chí metric lexical) vẫn **xếp hạng** tương đối ổn dù điểm tuyệt đối kém, nên dùng judge để so sánh A/B thì đáng tin hơn là đọc điểm tuyệt đối.
 
-(Anthropic Knowledge Graph Construction Cookbook: link trong README nguồn học.)
+## 6. Tracing: nhìn thấy từng bước thay vì đoán
+
+Langfuse/LangSmith ghi lại mỗi request: query → chunks lấy về (điểm số) → prompt cuối → câu trả lời → latency/token. Giá trị thật: khi một câu trả lời sai, mở trace ra **biết ngay lỗi ở khâu nào**: retrieval lấy sai chunk hay generation bịa trên chunk đúng. Không có trace, mọi debug RAG là đoán mò.
+
+## 7. Tiếng Việt trong tuần này
+
+- **BM25 với tiếng Việt cần nghĩ về tách từ.** Tiếng Việt viết rời từng âm tiết: tokenize theo khoảng trắng biến "ngân hàng" thành 2 term `ngân` + `hàng`: match nhầm với "hàng hóa", "hàng không". Hai hướng xử lý: (a) word segmentation trước khi index BM25 (thư viện tách từ tiếng Việt, kiểm tra license trước khi thêm vào repo theo chính sách CLAUDE.md); (b) chấp nhận âm tiết + dựa vào **cụm từ trong query** và vế vector của hybrid bù lại. [Suy luận] Với corpus văn bản pháp luật nhiều thuật ngữ cố định, (a) thường cải thiện precision, nhưng đây là giả thuyết để BẠN kiểm bằng eval set, không phải kết luận.
+- **Nhớ NFC trước khi index BM25** (Tuần 13 mục 6): `"tín"` NFC và NFD là hai term khác nhau, corpus trộn hai dạng làm BM25 "mất" document một cách âm thầm.
+- **Eval set phải là câu hỏi tiếng Việt nghiệp vụ thật** (README: tự xây 50-100 câu kèm điều khoản nguồn, không benchmark công khai nào thay được). Ground truth dẫn về số Điều/Khoản cụ thể.
+- **Judge chấm văn bản tiếng Việt**: chọn judge model đọc tiếng Việt tốt và giữ cố định; [Suy luận] các thiên vị ở mục 5 được nghiên cứu chủ yếu trên tiếng Anh, mức độ trên tiếng Việt chưa rõ, càng thêm lý do kiểm tay một mẫu nhỏ.
+
+## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
+
+| Nguồn | URL | Dùng cho mục |
+|-------|-----|--------------|
+| Zheng et al. 2023, Judging LLM-as-a-Judge | https://arxiv.org/abs/2306.05685 | 5 |
+| explodinggradients/ragas (Apache 2.0) | https://github.com/explodinggradients/ragas | 4 |
+| Es et al. 2023, paper RAGAS (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2309.15217, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 4 |
+| Wang et al. 2024, Searching for Best Practices in RAG (CC BY 4.0, kiểm 2026-08-12) | https://arxiv.org/abs/2407.01219, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 4 |
+| Bavaresco et al. 2024, Judging the Judges (CC0, kiểm 2026-08-12) | https://arxiv.org/abs/2406.12624, PDF local: [`../docs/papers/`](../docs/papers/README.md) | 5 |
+
+(Trang docs.ragas.io trả HTTP 429 tại thời điểm kiểm tra 2026-08-11, dùng repo GitHub ở trên làm cửa vào. BGE reranker, Langfuse/LangSmith: link trong README nguồn học.)
 
 ## Sau khi đọc xong
 
-1. Định nghĩa Pydantic schema + danh sách đóng entity types/predicates (mục 6).
-2. Điền [`02_kg_pipeline.py`](02_kg_pipeline.py) theo 4 bước — NFC ngay lúc ingest, regex cho số hiệu văn bản.
-3. Chạy diagnostics 3 con số + so grounded vs ungrounded trên 3–5 câu multi-hop.
-4. Gold set + đo F1 + tune prompt; cắm graph vào workflow Tuần 13; ghi [`03_graph_notes.md`](03_graph_notes.md); làm [`quiz.md`](quiz.md).
+1. Thêm BM25 (nhớ NFC) → trộn RRF → thêm BGE reranker, theo [`02_advanced_rag_notes.md`](02_advanced_rag_notes.md).
+2. Xây eval set tiếng Việt ~20-30 câu kèm điều khoản nguồn.
+3. Đo RAGAS before/after, kiểm tay 5-10 mẫu, wire tracing.
+4. Viết [`03_ragas_report.md`](03_ragas_report.md): bảng số + nhận xét đọc tay; làm [`quiz.md`](quiz.md).
+
+## Đọc thêm từ kệ sách
+
+> Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
+
+- **BM25 là gì.** IR-book mục 11.4.3 Okapi BM25 (trang 232): mô hình nhị phân độc lập không để ý tần suất từ và độ dài tài liệu, nên BM25 "was developed as a way of building a probabilistic model sensitive to these quantities while not introducing too many additional parameters into the model (Spärck Jones et al. 2000)". Đọc trước khi bật `rank_bm25` để biết hai tham số k₁ và b điều khiển gì.
+- **Đánh giá retrieval có xếp hạng.** IR-book mục 8.4 (trang 158): precision và recall là số đo trên tập không thứ tự; với kết quả xếp hạng ta tính chúng trên top-k và vẽ precision-recall curve có hình răng cưa. Mục 8.3 (trang 155) là các số đo không xếp hạng. Context precision và recall của RAGAS là phiên bản dùng LLM chấm của đúng các số đo này. SLP3 mục 11.2 (trang 261) nói cùng chuyện trong bối cảnh QA.
