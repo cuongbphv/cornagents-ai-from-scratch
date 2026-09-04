@@ -66,7 +66,7 @@ OWASP xếp Prompt Injection là **LLM01**: rủi ro số 1 trong *OWASP Top 10 
 
 ### 5.3. Mitigations lớp-theo-lớp: không lớp nào đủ một mình
 
-[Suy luận] Chưa có cơ chế nào loại bỏ được prompt injection ở gốc (Instruction Hierarchy là hướng train-side, chưa phải thứ bạn kiểm soát), nên phòng thủ đúng là **xếp lớp**: khớp với các mitigation trong tài liệu LLM01 của OWASP (tra 2026-08-16):
+OWASP viết thẳng rằng do yếu tố ngẫu nhiên trong cách model hoạt động, "it is unclear if there are fool-proof methods of prevention for prompt injection" (tài liệu LLM01, mục Prevention and Mitigation Strategies, kiểm 2026-09-04); Instruction Hierarchy là hướng train-side, chưa phải thứ bạn kiểm soát, nên phòng thủ đúng là xếp lớp theo đúng các mitigation của LLM01:
 
 | Lớp | Cơ chế | Đã có ở đâu trong tuần này |
 |-----|--------|---------------------------|

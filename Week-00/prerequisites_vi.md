@@ -6,7 +6,7 @@
 
 - **Không học hết file này trước rồi mới bắt đầu.** Roadmap 18 tuần tự dạy lại phần lớn: toán và lý thuyết học máy ở Tuần 1-3 (Phase 0, trích dẫn sách theo trang trong [`../docs/books/README.md`](../docs/books/README.md)), PyTorch ở Tuần 4, autograd ở Tuần 5. File này để: (a) tự đánh giá lỗ hổng, (b) biết mở nguồn nào khi hổng đúng chỗ đó, (c) gom các mảng nền (DSA, OCR, big data, design pattern...) không nằm gọn trong tuần nào.
 - Bảng dùng ba mức. Mức "Bắt buộc" nghĩa là thiếu thì Tuần 1-6 sẽ tắc, nên kiểm tra bằng checklist §4 trước khi bắt đầu. Mức "Cần trước Tuần X" có thể học bù ngay trước tuần đó, không cần trước Tuần 1. Mức "Awareness" chỉ cần hiểu khái niệm và biết công cụ tồn tại; roadmap không yêu cầu thực hành sâu.
-- `[Suy luận]` Việc xếp mức "Bắt buộc / Cần / Awareness" là đánh giá của tôi dựa trên nội dung các tuần trong repo này, không phải chuẩn khách quan.
+- Việc xếp mức "Bắt buộc / Cần / Awareness" là đánh giá của người viết dựa trên nội dung các tuần trong repo này, không phải chuẩn khách quan.
 
 ## 2. Bản đồ: mảng nền, tuần nào cần, mức
 
@@ -65,7 +65,7 @@ Tài liệu nghiệp vụ thực tế thường là **PDF scan**, phải OCR tr�
 - **VietOCR** ([github.com/pbcquoc/vietocr](https://github.com/pbcquoc/vietocr), Apache-2.0): model OCR chuyên tiếng Việt (TransformerOCR): đúng bài toán dấu thanh/mũ mà OCR đa ngôn ngữ hay sai.
 - **OpenCV** ([docs.opencv.org](https://docs.opencv.org/), Apache-2.0): tiền xử lý ảnh trước OCR (deskew, threshold, denoise).
 
-`[Suy luận]` Với văn bản tiếng Việt, sai sót OCR ở dấu thanh ("lãi suất" thành "lai suat" hoặc "lãi suắt") phá hoại cả BM25 lẫn embedding ở Tuần 13-14, nên bước kiểm tra chất lượng OCR + chuẩn hóa Unicode NFC (xem `Week-13/01_theory_notes.md`) cần đặt trước bước chunk. Mức đủ dùng: chạy được một trong các công cụ trên cho 1 file PDF scan và đánh giá output bằng mắt.
+Với văn bản tiếng Việt, sai sót OCR ở dấu thanh ("lãi suất" thành "lai suat" hoặc "lãi suắt") làm hỏng cả BM25 lẫn embedding ở Tuần 13-14: BM25 chỉ khớp khi từ trùng đúng chính tả ("they work only if there is exact overlap of words between the query and document", SLP3 mục 11.3, trang 264), còn tokenizer của model embedding cắt từ sai dấu thành những mảnh khác hẳn; nên bước kiểm tra chất lượng OCR + chuẩn hóa Unicode NFC (xem `Week-13/01_theory_notes.md`) cần đặt trước bước chunk. Mức đủ dùng: chạy được một trong các công cụ trên cho 1 file PDF scan và đánh giá output bằng mắt.
 
 ### 3.6 Big data & data pipeline (awareness)
 

@@ -78,6 +78,95 @@ Theo IR-book mục 11.4.3, BM25 được thiết kế để mô hình xác suấ
 
 **Giải thích:** IR-book trang 232 nói BM25 'sensitive to these quantities while not introducing too many additional parameters'. Hiểu hai tham số này giúp bạn không coi rank_bm25 là hộp đen khi đo lại RAGAS.
 
+## Câu 8 (Trắc nghiệm)
+
+Trong công thức BM25 (IR-book, phương trình 11.32), nếu bạn đặt tham số k1 = 0 cho tầng sparse retrieval của hệ hybrid search, điểm số của mỗi term thay đổi thế nào?
+
+- **A.** Không còn phụ thuộc vào tần suất term trong tài liệu, mô hình trở về dạng nhị phân chỉ còn trọng số idf (đáp án đúng)
+- **B.** Không còn chuẩn hóa theo độ dài tài liệu, mọi chunk dài hay ngắn đều được tính điểm như nhau
+- **C.** Không còn thành phần idf, mọi term hiếm hay phổ biến đều đóng góp một lượng bằng nhau
+- **D.** Không còn trọng số cho term trong query, mọi term của câu hỏi được coi là xuất hiện một lần
+
+**Đáp án: A**
+
+**Giải thích:** IR-book viết về k1 trong phương trình 11.32: "A k1 value of 0 corresponds to a binary model (no term frequency), and a large value corresponds to using raw term frequency." Chuẩn hóa độ dài do b điều khiển, trọng số term trong query do k3 điều khiển (phương trình 11.33), còn idf là thừa số log(N/df_t) độc lập với k1. (IR-book mục 11.4.3, tr. 233)
+
+## Câu 9 (Trắc nghiệm)
+
+Bộ chunk của bạn ở Tuần 13 có độ dài rất chênh lệch (một số chunk dài gấp năm lần trung bình). Theo IR-book, tham số nào của BM25 kiểm soát mức phạt theo độ dài tài liệu, và hai giá trị biên của nó có ý nghĩa gì?
+
+- **A.** b trong khoảng 0 đến 1; b = 0 là không chuẩn hóa độ dài, b = 1 là chuẩn hóa hoàn toàn theo độ dài (đáp án đúng)
+- **B.** k1 trong khoảng 0 đến vô cùng; k1 = 0 là không chuẩn hóa độ dài, k1 lớn là chuẩn hóa hoàn toàn
+- **C.** Lave, độ dài trung bình; Lave = 0 là không chuẩn hóa độ dài, Lave lớn là chuẩn hóa hoàn toàn
+- **D.** k3 trong khoảng 0 đến vô cùng; k3 = 0 là không chuẩn hóa độ dài, k3 lớn là chuẩn hóa hoàn toàn
+
+**Đáp án: A**
+
+**Giải thích:** IR-book: "b is another tuning parameter (0 ≤ b ≤ 1) which determines the scaling by document length: b = 1 corresponds to fully scaling the term weight by the document length, while b = 0 corresponds to no length normalization." Thừa số L_d/L_ave trong mẫu số nhân với b, nên khi chunk dài hơn trung bình, điểm tf bị giảm theo mức b chọn. (IR-book mục 11.4.3, tr. 233)
+
+## Câu 10 (Tự luận)
+
+Khi xây eval set cho RAG, một đồng nghiệp đề xuất đo retriever bằng accuracy (tỷ lệ chunk được phân loại đúng là liên quan hoặc không liên quan). IR-book phản đối cách này vì lý do gì, và điều đó áp dụng thế nào cho corpus của bạn?
+
+**Trả lời mẫu:** IR-book chỉ ra dữ liệu IR cực kỳ lệch: thường trên 99,9% tài liệu là không liên quan, nên một hệ thống gán nhãn tất cả tài liệu là không liên quan vẫn đạt accuracy rất cao mà vô dụng với người dùng. Precision và recall tập trung vào true positives, hỏi bao nhiêu phần tài liệu liên quan đã tìm được và kèm bao nhiêu false positives. Với corpus hàng nghìn chunk mà mỗi câu hỏi chỉ có vài chunk liên quan, accuracy của retriever sẽ luôn gần 1 và không phân biệt được retriever tốt hay xấu, nên phải dùng precision, recall hoặc F.
+
+**Giải thích:** Nguyên văn IR-book: "In almost all circumstances, the data is extremely skewed: normally over 99.9% of the documents are in the nonrelevant category. A system tuned to maximize accuracy can appear to perform well by simply deeming all documents nonrelevant to all queries." Accuracy được định nghĩa là (tp + tn)/(tp + fp + fn + tn), trong đó tn áp đảo. (IR-book mục 8.3, tr. 155)
+
+## Câu 11 (Trắc nghiệm)
+
+Vì sao IR-book định nghĩa F measure bằng trung bình điều hòa (harmonic mean) của precision và recall thay vì trung bình cộng?
+
+- **A.** Vì trung bình điều hòa cho phép cộng trực tiếp điểm F của nhiều query thành một điểm tổng, còn trung bình cộng phải chuẩn hóa theo số tài liệu trả về
+- **B.** Vì trung bình điều hòa luôn lớn hơn trung bình cộng nên điểm F cao hơn, giúp so sánh hai hệ thống có precision và recall cùng thấp dễ dàng hơn
+- **C.** Vì trung bình cộng chỉ định nghĩa được khi precision và recall cùng khác không, còn trung bình điều hòa xử lý được cả trường hợp một trong hai bằng không
+- **D.** Vì trả về toàn bộ tài liệu cho mọi query luôn đạt recall 100% và do đó trung bình cộng đạt 50%, trong khi trung bình điều hòa gần với giá trị nhỏ hơn trong hai số (đáp án đúng)
+
+**Đáp án: D**
+
+**Giải thích:** IR-book: trả về mọi tài liệu luôn đạt recall 100% nên trung bình cộng luôn có thể đạt 50%, "This strongly suggests that the arithmetic mean is an unsuitable measure to use." Với giả định 1 trong 10.000 tài liệu liên quan, trung bình điều hòa của chiến lược đó chỉ là 0,02%. "When the values of two numbers differ greatly, the harmonic mean is closer to their minimum than to their arithmetic mean." (IR-book mục 8.3, tr. 157)
+
+## Câu 12 (Trắc nghiệm)
+
+RAG của bạn lấy top 5 chunk cho mỗi câu hỏi, nhưng nhiều câu trong eval set chỉ có đúng 1 chunk liên quan nên precision at 5 không bao giờ vượt 0,2. IR-book nêu độ đo nào để xử lý đúng vấn đề này, và vì sao?
+
+- **A.** Precision at k với k nhỏ hơn, vì IR-book cho rằng đây là độ đo ổn định nhất và không cần biết số tài liệu liên quan
+- **B.** 11-point interpolated average precision, vì nó thay số tài liệu liên quan bằng 11 mức recall cố định
+- **C.** Recall at k, vì độ đo này không đổi theo số tài liệu liên quan và hệ thống hoàn hảo luôn đạt 1 với mọi k
+- **D.** R-precision, vì nó tính precision trên đúng |Rel| kết quả đầu nên hệ thống hoàn hảo có thể đạt 1 cho mọi query (đáp án đúng)
+
+**Đáp án: D**
+
+**Giải thích:** IR-book nói precision at k có nhược điểm "it is the least stable of the commonly used evaluation measures and that it does not average well, since the total number of relevant documents for a query has a strong influence on precision at k." R-precision "adjusts for the size of the set of relevant documents: A perfect system could score 1 on this metric for each query, whereas, even a perfect system could only achieve a precision at 20 of 0.4 if there were only 8 documents in the collection relevant". Sách cũng ghi R-precision trùng với break-even point và tương quan cao với MAP. (IR-book mục 8.4, tr. 161)
+
+## Câu 13 (Tự luận)
+
+SLP3 tính average precision (AP) cho một query như thế nào, và vì sao AP phản ánh chất lượng xếp hạng tốt hơn precision at k? Dùng ví dụ Fig. 11.7 (25 tài liệu, 9 liên quan) để minh họa con số sách đưa ra.
+
+**Trả lời mẫu:** Theo SLP3, ta đi xuống danh sách xếp hạng và chỉ ghi lại precision tại những vị trí gặp tài liệu liên quan (ví dụ hạng 1, 3, 5, 6 nhưng không phải 2 hay 4), rồi lấy trung bình các giá trị đó trên tập tài liệu liên quan (phương trình 11.16). MAP là trung bình AP trên tập query (phương trình 11.17). Với Fig. 11.7, sách cho biết AP (cũng là MAP vì chỉ một query) bằng 0,6. AP thưởng cho hệ thống đưa tài liệu liên quan lên cao vì precision tại các vị trí đó lớn, còn precision at k chỉ nhìn một điểm cắt cố định và bỏ qua thứ tự bên trong top k.
+
+**Giải thích:** SLP3: "we again descend through the ranked list of items, but now we note the precision only at those points where a relevant item has been encountered (for example at ranks 1, 3, 5, 6 but not 2 or 4 in Fig. 11.7)." và "The MAP for the single query (hence = AP) in Fig. 11.7 is 0.6." (SLP3 mục 11.2, tr. 263)
+
+## Câu 14 (Trắc nghiệm)
+
+IR-book định nghĩa interpolated precision tại mức recall r là precision cao nhất tìm được ở bất kỳ mức recall r' >= r (phương trình 8.7). Sách biện minh định nghĩa này bằng lập luận nào?
+
+- **A.** Vì MAP được định nghĩa dựa trên interpolated precision nên hai độ đo phải dùng cùng một quy ước làm trơn
+- **B.** Vì precision tại recall bằng 0 không xác định được, nên phải mượn giá trị từ các mức recall cao hơn để vẽ đủ 11 điểm
+- **C.** Vì gần như ai cũng sẵn sàng xem thêm vài tài liệu nếu điều đó làm tăng tỷ lệ tài liệu liên quan trong tập đã xem (đáp án đúng)
+- **D.** Vì đường precision-recall của các hệ thống khác nhau chỉ so sánh được khi chúng đơn điệu giảm trên cùng trục recall
+
+**Đáp án: C**
+
+**Giải thích:** IR-book: "The justification is that almost anyone would be prepared to look at a few more documents if it would increase the percentage of the viewed set that were relevant (that is, if the precision of the larger set is higher)." Sách cũng ghi MAP không dùng nội suy: "Using MAP, fixed recall levels are not chosen, and there is no interpolation." (tr. 160), nên phương án cuối sai. (IR-book mục 8.4, tr. 159)
+
+## Câu 15 (Tự luận)
+
+Bạn cần chọn k1 và b cho BM25 trên corpus văn bản pháp luật ngân hàng tiếng Việt. IR-book khuyến nghị quy trình nào để đặt hai tham số này, và nếu chưa có tập phát triển thì dùng giá trị nào?
+
+**Trả lời mẫu:** IR-book nói các tham số nên được đặt bằng cách tối ưu hiệu năng trên một development test collection tách riêng (tìm thủ công hoặc bằng grid search hay phương pháp tối ưu khác), rồi mới dùng các giá trị đó trên test collection thật. Khi không có bước tối ưu như vậy, thực nghiệm cho thấy giá trị hợp lý là k1 và k3 trong khoảng 1,2 đến 2 và b = 0,75. Với eval set RAG của bạn, điều này nghĩa là phải tách một phần câu hỏi làm dev set để dò k1, b, không dò trực tiếp trên tập dùng để báo cáo kết quả.
+
+**Giải thích:** Nguyên văn: "The tuning parameters of these formulas should ideally be set to optimize performance on a development test collection" và "In the absence of such optimization, experiments have shown reasonable values are to set k1 and k3 to a value between 1.2 and 2 and b = 0.75." (IR-book mục 11.4.3, tr. 233)
+
 ---
 
 ## Phần nâng cao

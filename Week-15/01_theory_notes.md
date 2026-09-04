@@ -55,7 +55,7 @@ Khung so sánh cho lựa chọn LangGraph vs CrewAI (tiêu chí từ README): do
 
 - Quy ước hai lớp ngôn ngữ, giữ nhất quán từ tuần này về sau: phần "máy đọc" (tên tool, schema, field name, code) bằng tiếng Anh theo quy ước hệ sinh thái; phần "nội dung nghiệp vụ" (system prompt mô tả nghiệp vụ, dữ liệu, output cho người dùng) bằng tiếng Việt. Trộn lẫn hai lớp làm cả người lẫn model khó bảo trì.
 - Test agent với input tiếng Việt ngay từ tuần này, đừng đợi capstone: dữ liệu tiếng Việt đi xuyên tool boundary (từ đọc file sang JSON rồi vào context) là chỗ lộ lỗi encoding/NFC (Tuần 13 mục 6) sớm nhất. Một test đọc file .md tiếng Việt có dấu rồi tóm tắt đúng tên riêng là đủ làm canary.
-- [Suy luận] Mô tả tool bằng tiếng Anh nhưng ví dụ trong mô tả nên chứa cả mẫu tiếng Việt nếu tool sẽ nhận dữ liệu Việt, model chọn tool theo mô tả, ví dụ sát thực tế giúp chọn đúng; dựa trên cơ chế tool-choice đọc mô tả, chưa có đo lường riêng cho tiếng Việt.
+- Mô tả tool bằng tiếng Anh nhưng ví dụ trong mô tả nên chứa cả mẫu tiếng Việt nếu tool sẽ nhận dữ liệu Việt: model chọn tool dựa trên mô tả và schema được đưa vào context, nên Anthropic dành riêng một phụ lục trong "Building Effective AI Agents" cho việc viết mô tả tool; ví dụ sát dữ liệu thật giúp chọn đúng. Chưa có đo lường riêng cho tiếng Việt.
 
 ## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 

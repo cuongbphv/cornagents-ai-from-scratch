@@ -78,6 +78,53 @@ Ghép đúng 5 workflow patterns của Anthropic với mô tả?
 
 **Giải thích:** Từ mục VI.D của Karpathy-Loop PDF: 'Every handoff should be an artifact contract. A reviewer returns criterion-level defects, not looks-good.'
 
+## Câu 8 (Trắc nghiệm)
+
+FoLLM nêu khung tổng quát của problem decomposition gồm hai thành phần. Khi map sang orchestrator-workers trong CornAgents.AI, hai thành phần đó là gì?
+
+- **A.** Prompt ensembling và output ensembling: chạy nhiều prompt hoặc lấy nhiều mẫu đầu ra rồi kết hợp chúng thành dự đoán cuối cùng
+- **B.** Prediction và refinement: sinh câu trả lời ban đầu rồi thu phản hồi và dùng phản hồi đó để sửa dần cho tới khi đầu ra đạt yêu cầu
+- **C.** Reasoning path search và verifier: tìm nhiều đường suy luận rồi chấm điểm từng bước để chọn đường tốt nhất trong không gian tìm kiếm
+- **D.** Sub-problem generation và sub-problem solving: tách bài toán thành các bài con, rồi giải từng bài con để rút ra kết luận trung gian và cuối (đáp án đúng)
+
+**Đáp án: D**
+
+**Giải thích:** FoLLM: "A general framework for problem decomposition involves two elements. Sub-problem Generation. This involves decomposing the input problem into a number of sub-problems. Sub-problem Solving. This involves solving each sub-problem and deriving intermediate and final conclusions through reasoning." Các phương án khác là self-refinement (3.2.3) và ensembling (3.2.4). (FoLLM mục 3.2.2, tr. 120)
+
+## Câu 9 (Trắc nghiệm)
+
+FoLLM phân biệt sinh toàn bộ bài con một lần ({p1,...,pn} = G(p0), phương trình 3.2) với sinh từng bài con theo bước (pi = Gi(p0, {p<i, a<i}), phương trình 3.5). Orchestrator của bạn nên sinh sub-task theo cách thứ hai trong trường hợp nào?
+
+- **A.** Khi các bước suy luận không cố định và mỗi bước phụ thuộc kết quả bước trước, nên đường giải phải được điều chỉnh trong lúc giải (đáp án đúng)
+- **B.** Khi muốn chạy các bài con song song để giảm chi phí tính toán, vì sinh theo bước cho phép phân phối đều tải giữa các worker
+- **C.** Khi bài toán có tính hợp thành rõ như viết tài liệu theo dàn ý, vì mỗi phần có thể được viết độc lập với các phần trước nó
+- **D.** Khi cần giảm số lần gọi LLM, vì sinh theo bước gộp việc sinh bài con và việc giải bài con vào cùng một lượt dự đoán duy nhất
+
+**Đáp án: A**
+
+**Giải thích:** FoLLM: cách hai bước (sinh hết rồi giải) "assumes that the problem is compositional, making it more suitable for tasks like writing and code generation"; ngược lại với bài toán suy luận phức tạp "the reasoning steps may not be fixed ... each step of reasoning may depend on the outcomes of prior steps. In such cases, it is undesirable to use fixed sub-problem generation in advance" (tr. 120 đến 121). Phương trình 3.5 cho phép "the reasoning paths are not fixed in advance, and the models can choose and adapt their reasoning strategies during problem-solving." (FoLLM mục 3.2.2, tr. 120-123)
+
+## Câu 10 (Tự luận)
+
+Reviewer agent trong CornAgents.AI chạy vòng lặp sửa dần. FoLLM mô tả khung self-refinement ba bước của Madaan et al. như thế nào, và sách cảnh báo hai vấn đề gì riêng của phương pháp lặp mà bạn phải xử lý khi thiết kế vòng lặp này?
+
+**Trả lời mẫu:** Ba bước: Prediction (LLM sinh đầu ra ban đầu), Feedback Collection (thu phản hồi về đầu ra, có thể do người, reward model hay chính LLM tạo), Refinement (LLM sửa đầu ra dựa trên phản hồi); hai bước sau có thể lặp nhiều lần và chất lượng phản hồi cụ thể, chi tiết là yếu tố quyết định. FoLLM cảnh báo phương pháp lặp có hai vấn đề không có ở phương pháp một lượt: lỗi ở bước sớm có thể ảnh hưởng xấu tới các bước sau, và việc quyết định khi nào dừng lặp thường cần thêm công sức kỹ thuật. Với reviewer agent, điều này nghĩa là phản hồi phải chỉ ra lỗi cụ thể theo tiêu chí và phải có điều kiện dừng rõ (số vòng tối đa hoặc ngưỡng chất lượng).
+
+**Giải thích:** FoLLM: "A general framework of self-refinement with LLMs involves three steps [Madaan et al., 2024]. Prediction ... Feedback Collection ... Refinement" và "receiving accurate and detailed feedback is critical". Về phương pháp lặp (tr. 129 đến 130): "errors in earlier steps may negatively impact subsequent problem-solving, and determining when to stop iterating often requires additional engineering effort." (FoLLM mục 3.2.3, tr. 126-130)
+
+## Câu 11 (Trắc nghiệm)
+
+Theo FoLLM, khác biệt then chốt giữa tool use và RAG là gì, và điểm chung nào khiến sách gọi cả hai là cùng một việc dưới góc nhìn language modeling?
+
+- **A.** Trong tool use, model tự quyết định có gọi hay không; trong RAG, hệ IR luôn được gọi cho mọi câu hỏi; cả hai đều được FoLLM xếp vào nhóm self-refinement vì đều sửa câu trả lời ban đầu bằng thông tin lấy từ bên ngoài
+- **B.** Trong tool use, hàm ngoài được gọi ngay trong lúc suy luận; trong RAG, văn bản truy hồi được cung cấp trước khi dự đoán bắt đầu; cả hai đều dùng hệ ngoài để tạo ngữ cảnh đủ và liên quan trước khi sinh kết quả cuối (đáp án đúng)
+- **C.** Tool use trả kết quả có cấu trúc còn RAG trả văn bản tự do; cả hai đều được đánh giá bằng exact match trên câu trả lời cuối, và FoLLM xếp cả hai vào nhóm phương pháp chain of thought nhiều vòng
+- **D.** Tool use chỉ dùng cho tính toán số còn RAG chỉ dùng cho văn bản; cả hai đều cần fine-tune model để sinh marker gọi hệ ngoài trước khi trả lời, và FoLLM xếp cả hai vào nhóm phương pháp ensembling
+
+**Đáp án: B**
+
+**Giải thích:** FoLLM: "A key difference between the tool use examples here and the previously discussed RAG examples is that in tool use, external functions can be called during inference. In contrast, in RAG, the retrieved texts are provided before the prediction process begins. However, from the language modeling perspective, they are actually doing the same thing: before generating the final result, we use external tools ... to obtain sufficient and relevant context." Sách xếp RAG vào khung problem decomposition (tr. 137), không phải self-refinement. (FoLLM mục 3.2.5, tr. 138)
+
 ---
 
 ## Phần nâng cao

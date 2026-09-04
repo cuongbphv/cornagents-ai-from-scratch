@@ -92,7 +92,7 @@ Các bước sửa tối thiểu (theo tutorial DDP chính thức của PyTorch,
 2. Dùng `DistributedSampler`, thứ "chunks the input data across all distributed processes" (nguyên văn tutorial), để 2 GPU không train trùng data; nếu loop tự cắt batch bằng `randint` thì thay bằng chia shard theo rank.
 3. Wrap model bằng `model = DDP(model, device_ids=[local_rank])`; gradient tự đồng bộ trong `backward()`.
 
-Đo **tokens/giây** với 1 GPU vs 2 GPU (cùng effective batch) và ghi kết quả vào [`03_cloud_run_notes.md`](03_cloud_run_notes.md). [Suy luận] Kỳ vọng gần 2× nhưng thường thấp hơn do chi phí giao tiếp gradient, số thật của bạn mới là bằng chứng.
+Đo **tokens/giây** với 1 GPU vs 2 GPU (cùng effective batch) và ghi kết quả vào [`03_cloud_run_notes.md`](03_cloud_run_notes.md). Kỳ vọng gần 2× nhưng thấp hơn một chút vì phải đồng bộ gradient giữa hai GPU; module DDP của PyTorch được báo cáo đạt "near-linear scalability using 256 GPUs" khi cấu hình đúng (Li et al. 2020, arXiv 2006.15704, abstract, kiểm 2026-09-04), còn số thật của bạn mới là bằng chứng.
 
 Lý thuyết nền: [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) §F (DDP, TP/PP/ZeRO/FSDP, MFU).
 

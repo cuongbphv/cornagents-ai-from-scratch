@@ -91,6 +91,100 @@ Jurafsky và Martin (SLP3 mục 2.4) nói từ và morpheme có nghĩa ổn đ�
 
 **Giải thích:** SLP3 trang 42 nói rõ tokenization là để 'different algorithms and systems can agree on simple questions' như độ dài văn bản, và perplexity 'assume that all texts have a fixed' đơn vị. Đây là lý do mục H nâng cao đề xuất bits per byte để so model khác tokenizer.
 
+## Câu 9 (Trắc nghiệm)
+
+Theo SLP3 mục 2.4.2, khi BPE encoder tách một câu mới (test) thành token, nó quyết định các phép merge dựa trên gì?
+
+- **A.** Chọn ngẫu nhiên một trong các cách phân đoạn hợp lệ theo vocabulary để tăng tính đa dạng của dữ liệu đưa vào model khi huấn luyện.
+- **B.** Đếm lại tần suất các cặp ký hiệu kề nhau trong chính câu mới, rồi merge cặp phổ biến nhất của câu đó cho tới khi hết cặp lặp lại.
+- **C.** Áp dụng lần lượt các merge đã học theo đúng thứ tự học từ tập train (cặp phổ biến nhất trước); tần suất trong dữ liệu test không có vai trò gì. (đáp án đúng)
+- **D.** Tìm cách phân đoạn cho ra ít token nhất bằng quy hoạch động trên toàn bộ vocabulary đã học, không cần quan tâm thứ tự merge.
+
+**Đáp án: C**
+
+**Giải thích:** SLP3 viết encoder "just runs on the test data the merges we have learned from the training data. It runs them in the order we learned them (i.e., greedily, meaning starting from the most frequent in the training data). The frequencies in the test data don't play a role, just the frequencies in the training data." Vì vậy tokenizer của bạn chỉ cần lưu danh sách merge có thứ tự; encode là lặp lại danh sách đó. (SLP3 mục 2.4.2, tr. 45)
+
+## Câu 10 (Trắc nghiệm)
+
+SLP3 mục 2.4.1 minh họa BPE trên corpus 10 ký tự "A B D C A B E C A B" với vocabulary ban đầu {A, B, C, D, E}. Sau hai lần merge (tạo AB rồi CAB), độ dài corpus và kích cỡ vocabulary là bao nhiêu?
+
+- **A.** Corpus dài 5 token, vocabulary có 6 token.
+- **B.** Corpus dài 8 token, vocabulary có 7 token.
+- **C.** Corpus dài 7 token, vocabulary có 6 token.
+- **D.** Corpus dài 5 token, vocabulary có 7 token. (đáp án đúng)
+
+**Đáp án: D**
+
+**Giải thích:** Sau merge thứ nhất corpus thành "AB D C AB E C AB": vocabulary 6 token {A, B, C, D, E, AB}, corpus dài 7. Cặp phổ biến nhất tiếp theo là "C AB", merge thành CAB cho corpus "AB D CAB E CAB": vocabulary 7 token và "the corpus has length 5". Ví dụ này cho thấy mỗi merge làm vocabulary tăng đúng 1 và corpus ngắn đi, đó là cách vocab_size của bạn tăng theo số merge k. (SLP3 mục 2.4.1, tr. 43)
+
+## Câu 11 (Trắc nghiệm)
+
+SLP3 mục 5.4 giải thích vì sao không dùng dot product thô làm độ đo tương đồng giữa hai vector từ mà chuẩn hóa thành cosine. Lý do là gì?
+
+- **A.** Vì dot product thô tốn O(N²) phép nhân với N chiều, còn cosine tính được trong O(N) nhờ chuẩn hóa vector trước khi so sánh.
+- **B.** Vì dot product thô thiên về vector dài, mà từ xuất hiện nhiều có vector dài hơn; chia cho độ dài hai vector loại bỏ ảnh hưởng của tần suất. (đáp án đúng)
+- **C.** Vì dot product thô chỉ định nghĩa được cho vector thưa đếm từ, còn cosine mới áp dụng được cho embedding dày đặc học từ mạng neural.
+- **D.** Vì dot product thô có thể âm trong khi độ tương đồng phải luôn không âm để có thể so sánh và xếp hạng giữa các cặp từ trong vocabulary.
+
+**Đáp án: B**
+
+**Giải thích:** SLP3 viết "This raw dot product, however, has a problem as a similarity metric: it favors long vectors" và "More frequent words have longer vectors, since they tend to co-occur with more words"; ta muốn độ đo cho biết hai từ giống nhau đến đâu "regardless of their frequency", nên chia dot product cho tích độ dài, chính là cos θ (công thức 5.9, 5.10). Với unit vector, dot product và cosine trùng nhau, đó là lý do các hệ RAG chuẩn hóa embedding trước khi so. (SLP3 mục 5.4, tr. 135)
+
+## Câu 12 (Trắc nghiệm)
+
+Theo UDL mục 12.2.1, số attention weight a[x_m, x_n] trong một khối self-attention phụ thuộc thế nào vào độ dài chuỗi N và chiều mỗi input D?
+
+- **A.** Tuyến tính theo N và bậc hai theo D, giống một lớp fully connected nối toàn bộ DN đầu vào với DN đầu ra.
+- **B.** Bậc hai theo D và độc lập với N, vì ma trận Ω_v có kích cỡ D × D được dùng chung cho mọi vị trí trong chuỗi.
+- **C.** Tuyến tính theo N và tuyến tính theo D, vì mỗi cặp input cần D trọng số riêng để so từng chiều với nhau.
+- **D.** Bậc hai theo N và độc lập với D, vì chỉ có một trọng số cho mỗi cặp có thứ tự (x_m, x_n) bất kể kích cỡ của các input. (đáp án đúng)
+
+**Đáp án: D**
+
+**Giải thích:** Prince viết các attention weight "are also sparse since there is only one weight for each ordered pair of inputs (x_m, x_n), regardless of the size of these inputs (figure 12.2c). It follows that the number of attention weights has a quadratic dependence on the sequence length N, but is independent of the length D of each input." Ngược lại, phép tính value với Ω_v chia sẻ tham số nên chỉ tăng tuyến tính theo N. Đây là gốc của ma trận N × N trong code attention của bạn. (UDL mục 12.2.1, tr. 209)
+
+## Câu 13 (Trắc nghiệm)
+
+UDL mục 12.2.3 nói self-attention không có hàm kích hoạt như ReLU, nhưng toàn bộ phép tính vẫn phi tuyến. Tính phi tuyến đó đến từ đâu?
+
+- **A.** Từ ReLU ẩn trong phép tính query và key, giống lớp fully connected chuẩn f[x] = ReLU[β + Ωx] mà Prince nêu ở đầu mục 12.2.
+- **B.** Từ dot product query-key rồi softmax khi tính attention weight; các trọng số này là hàm phi tuyến của input, một dạng hypernetwork. (đáp án đúng)
+- **C.** Từ LayerNorm được áp dụng lên các value trước khi lấy tổng có trọng số, vì phép chuẩn hóa chia cho độ lệch chuẩn là phi tuyến.
+- **D.** Từ positional encoding được cộng vào input, vì các hàm sin và cos dùng để mã hóa vị trí là hàm phi tuyến của chỉ số vị trí.
+
+**Đáp án: B**
+
+**Giải thích:** Prince tóm tắt: "There is no activation function, but the mechanism is nonlinear due to the dot-product and a softmax operation used to compute the attention weights." Ở mục 12.2.2 ông gọi đây là ví dụ của hypernetwork, "where one network branch computes the weights of another". Value chỉ là biến đổi tuyến tính của input; phi tuyến nằm ở cách các value được trộn. (UDL mục 12.2.3, tr. 209-211)
+
+## Câu 14 (Trắc nghiệm)
+
+Fleuret (mục 4.8) nêu tính chất của attention operator đối với hoán vị đầu vào khi không dùng mask. Tính chất đó là gì?
+
+- **A.** Đẳng biến với mọi hoán vị của cả ba tensor, nghĩa là đổi chỗ bất kỳ đầu vào nào cũng đổi chỗ đầu ra tương ứng.
+- **B.** Bất biến với hoán vị của key và value, và đẳng biến với hoán vị của query vì tensor kết quả bị hoán vị theo cùng cách. (đáp án đúng)
+- **C.** Bất biến với mọi hoán vị của cả query, key và value, nên bắt buộc phải cộng positional encoding thì mới phân biệt được vị trí.
+- **D.** Bất biến với hoán vị của query và đẳng biến với hoán vị của key và value, vì thứ tự query không ảnh hưởng tới điểm attention.
+
+**Đáp án: B**
+
+**Giải thích:** Fleuret viết attention operator, và do đó multi-head attention layer khi không có mask, "is invariant to a permutation of the keys and values, and equivariant to a permutation of the queries, as it would permute the resulting tensor similarly." Đổi chỗ các key/value chỉ đổi thứ tự cộng trong Σ_k A_{q,k} V_k nên Y_q không đổi; đổi chỗ query thì các hàng của Y đổi chỗ theo. Đây là lý do cần positional encoding (mục 4.10). (Fleuret mục 4.8, tr. 97)
+
+## Câu 15 (Tự luận)
+
+SLP3 mục 7.1 mở đầu bằng hai câu "The chicken didn't cross the road because it was too tired" và "... because it was too wide", rồi xét tình huống model causal mới đọc tới từ "it". Dùng ví dụ này để giải thích vì sao static embedding không đủ, và attention xây biểu diễn cho "it" như thế nào ở lớp k+1.
+
+**Trả lời mẫu:** Với static embedding như word2vec, từ "it" luôn có cùng một vector dù nó chỉ con gà (câu 1) hay con đường (câu 2). Khi model causal mới đọc tới "it" thì chưa biết nó sẽ chỉ gì, nên biểu diễn hợp lý phải mang đặc điểm của cả chicken và road. Attention làm điều đó: khi tính biểu diễn cho "it" ở lớp k+1, nó gán trọng số cao cho cột chicken và road ở lớp k (Figure 7.3) và tổng hợp biểu diễn của các token đó, tạo ra contextual embedding thay đổi theo ngữ cảnh và có thể lấy thông tin từ những từ ở xa.
+
+**Giải thích:** SLP3 viết với static embedding "the representation of a word's meaning is always the same vector irrespective of the context"; ở câu (7.3) dừng tại "it", "a representation of it at this point might have aspects of both chicken and road" (tr. 179). Attention là cơ chế "weighs and combines the representations from appropriate other tokens in the context from layer k to build the representation for tokens in layer k + 1", và Figure 7.3 cho thấy chicken và road nhận attention weight cao. (SLP3 mục 7.1, tr. 180)
+
+## Câu 16 (Tự luận)
+
+SLP3 mục 7.4 mô tả việc lấy token embedding như một phép nhân ma trận và nêu một hạn chế của absolute positional embedding học được. Hãy giải thích vì sao nn.Embedding tương đương nhân vector one-hot với E, nêu shape của E và E_pos, và mô tả hạn chế đó.
+
+**Trả lời mẫu:** E có shape [|V| × d], mỗi hàng là embedding của một token. Nhân vector one-hot [1 × |V|] (chỉ có 1 tại chỉ số token) với E cho ra đúng hàng tương ứng, nên lookup theo chỉ số của nn.Embedding và phép nhân one-hot × E cho cùng kết quả; cả chuỗi N token là ma trận one-hot [N × |V|] nhân E cho [N × d]. Positional embedding tuyệt đối được lưu trong E_pos shape [N × d] và cộng vào token embedding. Hạn chế: các vị trí đầu chuỗi có rất nhiều ví dụ huấn luyện còn các vị trí gần giới hạn độ dài có ít, nên embedding của các vị trí cuối có thể được huấn luyện kém và tổng quát hóa không tốt; sinusoidal hay RoPE là các lựa chọn thay thế.
+
+**Giải thích:** SLP3: E "has a row for each of the |V| tokens" với shape [|V| × d]; "Multiplying by a one-hot vector that has only one non-zero element x_i = 1 simply selects out the relevant row vector for word i" (Figure 7.12, 7.13, tr. 192). Positional embedding học được lưu trong E_pos shape [N × d]; hạn chế: "there will be plenty of training examples for the initial positions in our inputs and correspondingly fewer at the outer length limits. These latter embeddings may be poorly trained and may not generalize well during testing." (SLP3 mục 7.4, tr. 193)
+
 ---
 
 ## Phần nâng cao

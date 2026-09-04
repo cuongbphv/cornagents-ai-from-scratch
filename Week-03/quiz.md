@@ -1,6 +1,6 @@
 # Tuần 3, Quiz: Nền tảng ML và lý thuyết học
 
-> Tự kiểm tra **trước** khi xem solution. Tổng **8** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
+> Tự kiểm tra **trước** khi xem solution. Tổng **15** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
 > _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
 
 ## Câu 1 (Trắc nghiệm)
@@ -46,6 +46,64 @@ Trong định nghĩa PAC learnability, hai tham số ε và δ lần lượt man
 ## Câu 6 (Tự luận)
 
 Logistic regression khác linear regression ở những điểm nào về đầu ra, hàm loss và cách giải, và vì sao có thể gọi nó là mạng neural một lớp?
+
+## Câu 7 (Trắc nghiệm)
+
+Hệ quả 2.3 trong UML cho lớp giả thuyết hữu hạn (giả định realizable): với m ≥ log(|H|/δ)/ε mẫu, ERM đạt lỗi thật ≤ ε với xác suất ≥ 1 − δ. Nếu bạn gấp đôi kích thước lớp giả thuyết |H| mà giữ ε, δ, số mẫu cần thiết thay đổi thế nào?
+
+- **A.** Không thay đổi, vì bound chỉ phụ thuộc vào ε và δ, còn |H| bị triệt tiêu trong union bound.
+- **B.** Tăng gấp đôi, vì số mẫu cần thiết tỉ lệ thuận với số giả thuyết mà thuật toán phải phân biệt.
+- **C.** Tăng gấp bốn, vì lỗi ε xuất hiện bậc hai trong Hoeffding và |H| nhân đôi số sự kiện xấu.
+- **D.** Tăng thêm một lượng cố định log(2)/ε, vì |H| chỉ xuất hiện trong logarit nên mở rộng lớp giả thuyết khá rẻ.
+
+## Câu 8 (Trắc nghiệm)
+
+Bất đẳng thức Hoeffding (UML Lemma 4.5) cho P[|(1/m)Σθᵢ − µ| > ε] ≤ 2 exp(−2mε²/(b − a)²). Muốn giảm sai số ε xuống còn một nửa với cùng độ tin cậy, kích thước mẫu m cần thay đổi bao nhiêu?
+
+- **A.** Gấp đôi, vì ε và m xuất hiện đối xứng trong tích mε² nên chia đôi ε tương đương nhân đôi m.
+- **B.** Gấp tám, vì ngoài mε² còn phải bù cho hệ số 2 phía trước hàm mũ.
+- **C.** Không cần thay đổi, vì độ tin cậy 1 − δ đã cố định và Hoeffding không phụ thuộc vào ε.
+- **D.** Gấp bốn, vì mũ chứa mε² nên để giữ nguyên mε² khi ε giảm một nửa thì m phải tăng bốn lần.
+
+## Câu 9 (Trắc nghiệm)
+
+Định lý No-Free-Lunch (UML Định lý 5.1) nói gì, và hệ quả nào rút ra cho lớp giả thuyết gồm mọi hàm từ một miền X vô hạn vào {0, 1}?
+
+- **A.** Với mọi learner A và m < |X|/2, tồn tại D có hàm f với L_D(f) = 0 nhưng P[L_D(A(S)) ≥ 1/8] ≥ 1/7, do đó lớp gồm mọi hàm trên X vô hạn không PAC learnable.
+- **B.** Mọi thuật toán học đều đạt lỗi tối thiểu trên mọi phân phối nếu m đủ lớn, do đó lớp gồm mọi hàm là PAC learnable ngay khi m ≥ |X|/2.
+- **C.** Không thuật toán nào học được bất kỳ hàm nào nếu không biết trước phân phối D, do đó chỉ các lớp giả thuyết hữu hạn mới có thể PAC learnable.
+- **D.** Với m ≥ |X|/2 mẫu mọi learner đều đạt lỗi ≤ 1/8 với xác suất ≥ 6/7, do đó VC-dimension của lớp gồm mọi hàm đúng bằng |X|/2.
+
+## Câu 10 (Trắc nghiệm)
+
+Theo UML Định nghĩa 6.5, VC-dimension của lớp giả thuyết H là gì, và VCdim của lớp hàm ngưỡng (threshold functions) trên R bằng bao nhiêu?
+
+- **A.** VCdim là số tham số của mô hình; hàm ngưỡng có một tham số θ nên VCdim = 1, và mọi lớp có vô hạn giả thuyết đều có VCdim vô hạn.
+- **B.** VCdim là số giả thuyết phân biệt trong H; hàm ngưỡng trên R có vô hạn giá trị θ nên VCdim vô hạn và lớp này không PAC learnable.
+- **C.** VCdim là số mẫu tối thiểu để ERM không overfit; hàm ngưỡng cần đúng hai điểm để xác định θ nên VCdim = 2 với mọi phân phối D.
+- **D.** VCdim là kích thước lớn nhất của một tập C ⊂ X mà H shatter được; hàm ngưỡng shatter mọi tập một điểm nhưng không tập hai điểm nào, nên VCdim = 1.
+
+## Câu 11 (Trắc nghiệm)
+
+Bạn thử r = 200 cấu hình hyperparameter và chọn cấu hình có lỗi validation thấp nhất trên tập validation V gồm m_v mẫu. UML Định lý 11.2 cảnh báo điều gì về ước lượng lỗi thật của cấu hình được chọn?
+
+- **A.** Bound phụ thuộc vào VC-dimension của mô hình gốc, nên với mạng neural lớn m_v phải ít nhất bằng số tham số thì ước lượng mới có ý nghĩa.
+- **B.** Bound đúng đồng thời cho cả r giả thuyết với |H| = r trong logarit, nên thử quá nhiều cấu hình so với m_v sẽ dẫn đến overfitting chính validation set.
+- **C.** Không có vấn đề gì, vì validation set độc lập với training set nên lỗi validation là ước lượng không chệch cho mọi cấu hình, kể cả cấu hình được chọn sau cùng.
+- **D.** Bound trở nên vô nghĩa ngay khi r > 1, vì Định lý 11.1 chỉ đúng cho một giả thuyết duy nhất được cố định trước khi lấy mẫu validation set.
+
+## Câu 12 (Trắc nghiệm)
+
+Shalizi viết in-sample loss dưới dạng L(z_n, θ) = E[L(Z, θ)] + η_n(θ), với η_n(θ) là nhiễu lấy mẫu có kỳ vọng 0. Vì sao lỗi trên tập huấn luyện của mô hình được chọn θ̂_n lại lạc quan (optimistic) dù luật số lớn nói L(z_n, θ) → E[L(Z, θ)] cho từng θ?
+
+- **A.** Vì tập huấn luyện luôn có nhiễu đo lường, nên kỳ vọng của η_n(θ) thực ra dương với mọi θ và phải trừ đi một hằng số hiệu chỉnh.
+- **B.** Vì luật số lớn chỉ đúng khi loss là mean squared error; với negative log-likelihood, in-sample loss không hội tụ về risk thật dù n tăng.
+- **C.** Vì η_n(θ) có kỳ vọng 0 với từng θ cố định, nhưng θ̂_n được chọn để cực tiểu E[L] + η_n nên nó thường là θ vừa tốt vừa may mắn (η_n < 0).
+- **D.** Vì luật số lớn chỉ áp dụng khi n → ∞, nên với mọi n hữu hạn in-sample loss của bất kỳ θ nào cũng lớn hơn risk thật của nó.
+
+## Câu 13 (Tự luận)
+
+Tong Zhang phát biểu generalization bound dạng: với xác suất ≥ 1 − δ, test-loss ≤ training-loss + εₙ(δ). Hãy viết dạng này, giải thích vì sao ta cần nó khi chỉ quan sát được training error, rồi nêu điểm căng thẳng mà Zhang chỉ ra giữa lý thuyết cổ điển (hạn chế kích thước mô hình) và quan sát thực nghiệm ở mạng neural hiện đại. Điều này ảnh hưởng thế nào đến cách bạn đọc loss curve ở Tuần 8?
 
 ---
 

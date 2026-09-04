@@ -64,7 +64,7 @@ Vế nào không chỉ ra được bằng trace/artifact thật thì đó là vi
 - Groundedness tiếng Việt nghĩa là dẫn về đúng số Điều/Khoản/văn bản: tận dụng provenance đã ép từ Tuần 13 (metadata) và Tuần 17 (edge). Claim nghiệp vụ không có ref là fail rubric, bất kể văn có mượt.
 - Rubric viết bằng tiếng Việt, vì người duyệt tại gate là người đọc nghiệp vụ tiếng Việt; rubric họ không đọc được thì human gate chỉ là hình thức. (Tên metric/field giữ tiếng Anh theo quy ước hai lớp, Tuần 15 mục 6.)
 - Eval set là câu hỏi nghiệp vụ tiếng Việt thật (50-100 câu đã xây từ Tuần 14) cộng bộ 10 prompt song ngữ (Tuần 12) nếu có model fine-tuned trong luồng, kiểm cả chất lượng lẫn "sức khỏe song ngữ" trong một lần đo.
-- [Suy luận] Judge chấm groundedness trên văn bản pháp lý tiếng Việt nên được kiểm tay tỷ lệ cao hơn bình thường (ví dụ 20% mẫu thay vì 10%): thiên vị judge trên tiếng Việt chưa được đo riêng trong nguồn đã dẫn, thận trọng là rẻ.
+- Judge chấm groundedness trên văn bản pháp lý tiếng Việt nên được kiểm tay tỷ lệ cao hơn bình thường (ví dụ 20% mẫu thay vì 10%), vì các thiên vị judge trong nguồn đã dẫn (Zheng et al. 2023) được đo trên benchmark tiếng Anh, chưa có số cho tiếng Việt; thận trọng là rẻ.
 
 ## 8. Benchmark & trajectory-level eval cho agent: định vị, không thay thế
 
@@ -75,7 +75,7 @@ Ba metric mục 3 đo hệ thống của bạn trên bài toán của bạn. Hai
 
 Về outcome-level so với trajectory-level, cả 3 metric mục 3 đều là outcome-level, chấm artifact cuối, không nhìn đường đi. Trajectory/step-wise eval chấm từng bước trong trace: gọi đúng tool không, đúng thứ tự phụ thuộc không, có lặp vô ích đốt budget không, fail ở bước nào. Hai tầng bắt lỗi khác nhau: outcome tốt vẫn có thể che một trajectory lãng phí (ăn vào complexity budget mục 2), outcome hỏng mà không có trajectory thì không biết sửa đâu. Nguyên liệu đã có sẵn, trace Langfuse/LangSmith của mục 5 chính là trajectory; τ-bench cho thấy thêm một lớp nữa: chạy lặp để đo độ ổn định kiểu pass^k.
 
-Khuyến nghị cho capstone là giữ 3 metric mục 3 làm chính, chúng đo đúng bài toán Finance Banking tiếng Việt của bạn, điều không benchmark ngoài nào làm được. Benchmark ngoài chỉ dùng để đối chiếu *phương pháp* đo (outcome theo rubric như SWE-bench, so goal-state và pass^k như τ-bench), không nhập task của họ vào eval set của bạn. [Suy luận] Nếu thêm được một phép đo từ mục này thì đáng nhất là chạy lặp 3-5 lần vài task chủ chốt theo tinh thần pass^k, chi phí thấp mà lộ ngay độ ổn định; mức lợi ích cụ thể với hệ của bạn chỉ biết sau khi đo.
+Khuyến nghị cho capstone là giữ 3 metric mục 3 làm chính, chúng đo đúng bài toán Finance Banking tiếng Việt của bạn, điều không benchmark ngoài nào làm được. Benchmark ngoài chỉ dùng để đối chiếu *phương pháp* đo (outcome theo rubric như SWE-bench, so goal-state và pass^k như τ-bench), không nhập task của họ vào eval set của bạn. Nếu thêm được một phép đo từ mục này thì, theo người viết, đáng nhất là chạy lặp 3-5 lần vài task chủ chốt theo tinh thần pass^k, chi phí thấp mà lộ ngay độ ổn định; mức lợi ích cụ thể với hệ của bạn chỉ biết sau khi đo.
 
 ## 9. Nguồn
 

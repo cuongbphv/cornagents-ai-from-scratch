@@ -79,6 +79,131 @@ window.QUIZ_DATA = {
           "explain": "SVD cho biết một ma trận thực sự có bao nhiêu chiều đáng kể. Đó là câu trả lời cho câu hỏi 'rank r = 8 có đủ không' mà bạn sẽ gặp khi cấu hình QLoRA."
         },
         {
+          "id": "w1b1",
+          "type": "mcq",
+          "q": "Một ma trận A kích thước 2×4 có hạng rk(A) = 2, xem như ánh xạ tuyến tính Φ: R⁴ → R². Không gian nghiệm của Ax = 0 (kernel) có số chiều bằng bao nhiêu, và vì sao?",
+          "choices": [
+            "1, vì hạng 2 trừ đi số chiều của không gian đích là 2 và cộng thêm một chiều cho vector 0.",
+            "0, vì A có hạng đầy đủ theo hàng nên hệ Ax = 0 chỉ có nghiệm tầm thường x = 0.",
+            "4, vì kernel luôn là toàn bộ không gian nguồn khi số cột lớn hơn số hàng của ma trận.",
+            "2, vì theo định lý rank-nullity dim(ker Φ) + dim(Im Φ) = dim(V) = 4 và dim(Im Φ) = rk(A) = 2."
+          ],
+          "answer": 3,
+          "explain": "Định lý rank-nullity phát biểu dim(ker(Φ)) + dim(Im(Φ)) = dim(V) (công thức 2.129). Ảnh của Φ là span các cột của A nên dim(Im Φ) = rk(A) = 2, suy ra dim(ker Φ) = 4 − 2 = 2; Example 2.25 tính đúng kernel hai chiều cho một ma trận 2×4 như vậy. Hệ quả trong sách: nếu dim(Im Φ) < dim(V) thì Ax = 0 có vô số nghiệm. Ý này nối sang Tuần 1 lab về hạng hiệu dụng: một ma trận trọng số có kernel lớn nghĩa là nhiều hướng đầu vào bị ánh xạ về 0 (MML mục 2.7.3, Định lý 2.24, Ví dụ 2.25, tr. 59-60)"
+        },
+        {
+          "id": "w1b2",
+          "type": "mcq",
+          "q": "MML nói rằng mọi inner product đều sinh ra một norm qua ‖x‖ = √⟨x, x⟩, nhưng điều ngược lại không đúng. Phát biểu nào sau đây đúng với nội dung sách?",
+          "choices": [
+            "Norm Euclid ‖x‖₂ là ví dụ về một norm không được sinh ra từ bất kỳ inner product nào.",
+            "Mọi norm trên Rⁿ đều được sinh ra từ đúng một inner product duy nhất, nên hai khái niệm tương đương.",
+            "Norm Manhattan ‖x‖₁ là ví dụ về một norm không được sinh ra từ bất kỳ inner product nào.",
+            "Norm chỉ được định nghĩa khi có inner product, nên không tồn tại norm nào ngoài norm sinh từ inner product."
+          ],
+          "answer": 2,
+          "explain": "Sách viết: \"not every norm is induced by an inner product. The Manhattan norm (3.3) is an example of a norm without a corresponding inner product\" ngay sau công thức (3.16). Norm Euclid thì ngược lại, chính là norm sinh từ dot product (3.4). Điểm này giải thích vì sao cosine similarity (cần inner product để có góc) được xây trên dot product và norm ℓ2, không xây trên ℓ1 (MML mục 3.3, công thức 3.16, tr. 75)"
+        },
+        {
+          "id": "w1b3",
+          "type": "mcq",
+          "q": "Trong Ví dụ 3.7 của MML, hai vector x = [1, 1]ᵀ và y = [−1, 1]ᵀ trực giao theo dot product. Nếu đổi sang inner product ⟨x, y⟩ = xᵀ diag(2, 1) y thì điều gì xảy ra?",
+          "choices": [
+            "Chúng vẫn trực giao, vì trực giao là tính chất hình học của hai vector, không phụ thuộc inner product.",
+            "Inner product này không hợp lệ vì ma trận diag(2, 1) không đối xứng xác định dương, nên không thể tính góc.",
+            "Chúng trở thành cùng phương, vì ma trận diag(2, 1) kéo giãn trục thứ nhất gấp đôi làm hai vector trùng hướng.",
+            "Chúng không còn trực giao nữa: cos ω = −1/3 và góc xấp xỉ 109,5°, cho thấy trực giao phụ thuộc inner product đã chọn."
+          ],
+          "answer": 3,
+          "explain": "Sách tính cos ω = ⟨x, y⟩/(‖x‖‖y‖) = −1/3 nên ω ≈ 1.91 rad ≈ 109.5°, và kết luận \"vectors that are orthogonal with respect to one inner product do not have to be orthogonal with respect to a different inner product\". diag(2, 1) là ma trận đối xứng xác định dương nên vẫn là inner product hợp lệ theo Định lý 3.5. Liên hệ: attention score qᵀk cũng là một dạng song tuyến tính; các ma trận W_Q, W_K học được quyết định cặp token nào được coi là \"vuông góc\" (MML mục 3.4, Ví dụ 3.7, công thức 3.27-3.28, tr. 77-78)"
+        },
+        {
+          "id": "w1b4",
+          "type": "mcq",
+          "q": "Cho A là ma trận trực giao (AAᵀ = AᵀA = I). Khi biến đổi hai vector x, y bằng A, độ dài ‖Ax‖ và góc giữa Ax và Ay thay đổi thế nào so với x, y ban đầu?",
+          "choices": [
+            "Cả độ dài và góc đều giữ nguyên, vì xᵀAᵀAy = xᵀy; A biểu diễn phép xoay (có thể kèm lật).",
+            "Độ dài giữ nguyên nhưng góc có thể thay đổi tùy theo hướng của x và y so với các cột của A.",
+            "Độ dài được nhân với định thức của A còn góc được giữ nguyên, nên A chỉ là phép co giãn đều.",
+            "Góc giữ nguyên nhưng độ dài bị nhân với căn bậc hai của số chiều n do chuẩn hóa cột."
+          ],
+          "answer": 0,
+          "explain": "Với dot product, ‖Ax‖² = xᵀAᵀAx = xᵀx = ‖x‖² (công thức 3.31) và cos ω của Ax, Ay bằng xᵀy/(‖x‖‖y‖) (công thức 3.32), nên \"orthogonal matrices A with Aᵀ = A⁻¹ preserve both angles and distances\" và chúng là các phép xoay có thể kèm lật. Đây là nền toán của việc xoay query và key theo vị trí (RoPE, Tuần 6-7) mà không làm đổi độ dài của chúng (MML mục 3.4, Định nghĩa 3.8, công thức 3.29-3.32, tr. 78)"
+        },
+        {
+          "id": "w1b5",
+          "type": "mcq",
+          "q": "Chiếu vector x = [1, 1, 1]ᵀ lên đường thẳng qua gốc có vector chỉ phương b = [1, 2, 2]ᵀ (dùng dot product). Điểm chiếu π_U(x) là gì?",
+          "choices": [
+            "[1, 1, 1]ᵀ, vì x đã có tọa độ dương như b nên nó nằm sẵn trong không gian con U.",
+            "(5/9)·[1, 2, 2]ᵀ, vì hệ số chiếu λ = bᵀx/‖b‖² = 5/9 và π_U(x) = λb.",
+            "(5/3)·[1, 2, 2]ᵀ, vì hệ số chiếu chính là bᵀx = 5 rồi chia cho ‖b‖ = 3.",
+            "(1/3)·[1, 2, 2]ᵀ, vì hệ số chiếu là bᵀx chia cho ‖b‖ = 3."
+          ],
+          "answer": 1,
+          "explain": "Ma trận chiếu là P_π = bbᵀ/‖b‖² (công thức 3.46); với b = [1, 2, 2]ᵀ ta có bᵀb = 9 và P_π = (1/9)[[1,2,2],[2,4,4],[2,4,4]] (công thức 3.47). Sách tính P_π x = (1/9)[5, 10, 10]ᵀ ∈ span[[1, 2, 2]ᵀ] (công thức 3.48), tức (5/9)b. Hệ số λ = bᵀx/‖b‖² (công thức 3.41) là tọa độ của điểm chiếu theo b; nếu ‖b‖ = 1 thì λ = bᵀx, đúng dạng attention score chiếu query lên key đơn vị (MML mục 3.8.1, Ví dụ 3.10, công thức 3.46-3.48, tr. 84-85)"
+        },
+        {
+          "id": "w1b6",
+          "type": "mcq",
+          "q": "Ma trận A = [[4, 2], [1, 3]] có trace bằng 7 và định thức bằng 10. Dựa vào tính chất tổng và tích các trị riêng, cặp trị riêng của A là gì?",
+          "choices": [
+            "λ₁ = 4 và λ₂ = 3, vì trị riêng của ma trận vuông luôn là các phần tử nằm trên đường chéo chính.",
+            "λ₁ = 1 và λ₂ = 6, vì tổng bằng 7 và đây là hai số nguyên dương duy nhất thỏa điều kiện tổng.",
+            "λ₁ = 2 và λ₂ = 5, vì chúng có tổng 7 bằng trace và tích 10 bằng định thức của A.",
+            "λ₁ = −2 và λ₂ = −5, vì đa thức đặc trưng λ² + 7λ + 10 có hai nghiệm âm."
+          ],
+          "answer": 2,
+          "explain": "Vũ Hữu Tiệp nêu tính chất: \"Tích của tất cả các trị riêng của một ma trận bằng định thức của ma trận đó. Tổng tất cả các trị riêng của một ma trận bằng tổng các phần tử trên đường chéo\" (Vũ Hữu Tiệp mục 1.11.2, tr. 23). MML tính trực tiếp cùng ma trận này: p(λ) = (4 − λ)(3 − λ) − 2 = λ² − 7λ + 10 = (2 − λ)(5 − λ), cho λ₁ = 2, λ₂ = 5 với E₅ = span[[2, 1]ᵀ] và E₂ = span[[1, −1]ᵀ] (MML mục 4.2, Ví dụ 4.5, công thức 4.29-4.35, tr. 107-108)"
+        },
+        {
+          "id": "w1b7",
+          "type": "mcq",
+          "q": "Xét A₁ = [[9, 6], [6, 5]] và A₂ = [[9, 6], [6, 3]]. Cả hai đều đối xứng. Phát biểu nào đúng về tính xác định dương của chúng?",
+          "choices": [
+            "A₂ xác định dương còn A₁ không, vì định thức của A₂ nhỏ hơn nên dạng toàn phương của nó bị chặn tốt hơn.",
+            "Cả hai đều xác định dương vì mọi phần tử đều dương và ma trận đối xứng thì trị riêng luôn dương.",
+            "A₁ xác định dương vì xᵀA₁x = (3x₁ + 2x₂)² + x₂² > 0 với x ≠ 0; A₂ thì không, vì xᵀA₂x = (3x₁ + 2x₂)² − x₂² âm tại x = [2, −3]ᵀ.",
+            "Không ma trận nào xác định dương, vì phần tử ngoài đường chéo 6 lớn hơn phần tử đường chéo 5 và 3."
+          ],
+          "answer": 2,
+          "explain": "MML khai triển xᵀA₁x = 9x₁² + 12x₁x₂ + 5x₂² = (3x₁ + 2x₂)² + x₂² > 0 với mọi x ≠ 0, nên A₁ xác định dương; còn xᵀA₂x = (3x₁ + 2x₂)² − x₂² \"can be less than 0, e.g., for x = [2, −3]ᵀ\". Đây là tính chất mà Hessian của hàm lồi (Tuần 2) và ma trận Gram trong least squares đều dựa vào. Vũ Hữu Tiệp bổ sung: mọi trị riêng của ma trận xác định dương là số thực dương và ma trận đó khả nghịch (Vũ Hữu Tiệp mục 1.13.2, tr. 25); khai triển của A₁, A₂ ở (MML mục 3.2.3, Ví dụ 3.4, công thức 3.12-3.13, tr. 74)"
+        },
+        {
+          "id": "w1b8",
+          "type": "mcq",
+          "q": "Cho x = [3, −4, 1]ᵀ. Bộ giá trị (‖x‖₁, ‖x‖₂, ‖x‖∞) theo định nghĩa các chuẩn ℓp là gì?",
+          "choices": [
+            "(0, √26, 4), vì chuẩn ℓ1 là tổng đại số các phần tử nên với vector này 3 − 4 + 1 = 0.",
+            "(8, 26, 4), vì chuẩn ℓ2 được định nghĩa là tổng bình phương các phần tử và không lấy căn bậc hai.",
+            "(8, √26, 4), vì ℓ1 là tổng trị tuyệt đối, ℓ2 là căn của tổng bình phương, ℓ∞ là trị tuyệt đối lớn nhất.",
+            "(8, √26, 3), vì chuẩn vô cùng lấy phần tử đầu tiên của vector, không lấy trị tuyệt đối lớn nhất."
+          ],
+          "answer": 2,
+          "explain": "Theo định nghĩa: ‖x‖₁ = |3| + |−4| + |1| = 8; ‖x‖₂ = √(9 + 16 + 1) = √26; và khi p → ∞ thì ‖x‖p → max_j |x_j| = 4 (công thức 1.41). Vũ Hữu Tiệp giải thích ℓ1 như quãng đường đi trong thành phố bàn cờ, ℓ2 là đường chim bay (Vũ Hữu Tiệp mục 1.14.1, công thức 1.37-1.41, tr. 27-28). MML nêu Manhattan norm ‖x‖₁ = Σ|xᵢ| (công thức 3.3) và Euclid norm ‖x‖₂ = √(xᵀx) (công thức 3.4) (MML mục 3.1, Ví dụ 3.1-3.2, tr. 71-72)"
+        },
+        {
+          "id": "w1b9",
+          "type": "open",
+          "q": "MML dùng ảnh Stonehenge 1432×1910 để minh họa xấp xỉ hạng thấp. Hãy nêu cách viết A thành tổng các ma trận hạng 1, cho biết xấp xỉ hạng 5 cần lưu bao nhiêu số so với ảnh gốc, rồi áp dụng cùng phép tính cho ma trận hiệu chỉnh LoRA kích thước d×k với hạng r.",
+          "answer": "Theo SVD, A = Σᵢ σᵢ uᵢ vᵢᵀ (tổng r ma trận hạng 1, mỗi ma trận là tích ngoài của một cột U và một cột V). Cắt tổng ở k < r ta được xấp xỉ hạng k. Với ảnh Stonehenge, ảnh gốc cần 1432·1910 = 2.735.120 số, còn xấp xỉ hạng 5 chỉ cần 5·(1432 + 1910 + 1) = 16.715 số, khoảng 0,6% ảnh gốc. Với LoRA, ma trận hiệu chỉnh d×k hạng r được lưu bằng hai ma trận d×r và r×k, tức r(d + k) số thay cho d·k; ví dụ d = k = 4096 và r = 8 thì 8·8192 = 65.536 so với 16.777.216 tham số (con số LoRA tính theo cùng công thức lưu trữ, không in trong MML).",
+          "explain": "Công thức A = Σᵢ σᵢ uᵢ vᵢᵀ là (4.91) và xấp xỉ hạng k là Â(k) = Σᵢ₌₁ᵏ σᵢ uᵢ vᵢᵀ (4.92). Sách viết: \"the original image requires 1,432 · 1,910 = 2,735,120 numbers, the rank-5 approximation requires us only to store the five singular values and the five left- and right-singular vectors (1,432 and 1,910-dimensional each) for a total of 5 · (1,432 + 1,910 + 1) = 16,715 numbers\", tức chỉ hơn 0,6% ảnh gốc. Phần tính cho LoRA là suy luận từ cùng công thức lưu trữ (MML mục 4.6, công thức 4.90-4.92, tr. 129-130)"
+        },
+        {
+          "id": "w1b10",
+          "type": "open",
+          "q": "MML lưu ý rằng số chiều của một không gian vector không nhất thiết bằng số phần tử trong mỗi vector. Hãy giải thích nhận xét này qua ví dụ trong sách, nêu ba cách phát biểu tương đương của một cơ sở, và cho biết vì sao ý này quan trọng khi bạn nhìn một ma trận embedding có 768 cột.",
+          "answer": "Ví dụ trong sách: V = span[[0, 1]ᵀ] là không gian một chiều dù vector cơ sở có hai phần tử. Số chiều là số vector trong một cơ sở, và mọi cơ sở của cùng một không gian đều có số phần tử bằng nhau. Một tập B là cơ sở khi và chỉ khi nó là tập sinh nhỏ nhất (minimal generating set), hoặc là tập độc lập tuyến tính lớn nhất (thêm bất kỳ vector nào cũng làm phụ thuộc), hoặc mọi vector đều viết được duy nhất thành tổ hợp tuyến tính của B. Với ma trận embedding 768 cột, 768 chỉ là số phần tử của mỗi vector; số chiều thực sự mà các embedding trải ra bằng hạng của ma trận, có thể nhỏ hơn nhiều, và đó là điều SVD ở lab Tuần 1 đo được.",
+          "explain": "Sách viết: \"The dimension of a vector space is not necessarily the number of elements in a vector. For instance, the vector space V = span[[0, 1]ᵀ] is one-dimensional, although the basis vector possesses two elements\" (MML mục 2.6.1, tr. 46). Ba phát biểu tương đương của cơ sở và nhận xét \"all bases possess the same number of elements\" nằm ở trang trước; số chiều dim(V) là số vector cơ sở. Hạng của ma trận là số cột độc lập tuyến tính và bằng số chiều của không gian cột (MML mục 2.6.1-2.6.2, tr. 45-47)"
+        },
+        {
+          "id": "w1b12",
+          "type": "open",
+          "q": "Tính cosine của góc giữa x = [1, 1]ᵀ và y = [1, 2]ᵀ theo Ví dụ 3.6 của MML, nêu giá trị góc xấp xỉ, rồi giải thích vì sao trong RAG người ta dùng cosine similarity (chia dot product cho tích hai norm) thay vì dùng dot product thô.",
+          "answer": "cos ω = xᵀy/(√(xᵀx)·√(yᵀy)) = 3/√10 ≈ 0,949, nên ω = arccos(3/√10) ≈ 0,32 rad, khoảng 18°. Việc chia cho ‖x‖‖y‖ đưa giá trị vào đoạn [−1, 1] theo bất đẳng thức Cauchy-Schwarz, nên cosine chỉ đo mức cùng hướng của hai vector mà không phụ thuộc độ dài của chúng. Trong RAG, hai đoạn văn dài ngắn khác nhau có embedding với norm khác nhau; dot product thô sẽ ưu tiên vector dài, còn cosine so sánh hướng, tức nội dung ngữ nghĩa (phần áp dụng cho RAG suy thẳng từ định nghĩa góc trong sách).",
+          "explain": "Sách tính cos ω = xᵀy/√(xᵀx yᵀy) = 3/√10 và \"the angle between the two vectors is arccos(3/√10) ≈ 0.32 rad, which corresponds to about 18°\" (MML mục 3.4, Ví dụ 3.6, công thức 3.26, tr. 77). Bất đẳng thức Cauchy-Schwarz |⟨x, y⟩| ≤ ‖x‖‖y‖ (công thức 3.17) là lý do −1 ≤ ⟨x, y⟩/(‖x‖‖y‖) ≤ 1 (công thức 3.24) và tồn tại duy nhất ω ∈ [0, π] (MML mục 3.3-3.4, công thức 3.17, 3.24-3.25, tr. 75-76)"
+        },
+        {
           "id": "w1adv1",
           "type": "mcq",
           "level": "advanced",
@@ -186,6 +311,125 @@ window.QUIZ_DATA = {
           "explain": "Cross-entropy H(P, Q) = H(P) + D_KL(P‖Q). Vì KL ≥ 0 với đẳng thức khi P = Q (bất đẳng thức Gibbs, MacKay trang 34), đáy của loss là entropy của dữ liệu, không phải 0. Dữ liệu có nhiễu thì loss tốt nhất vẫn dương."
         },
         {
+          "id": "w2b1",
+          "type": "mcq",
+          "q": "Theo quy ước numerator layout của MML, Jacobian của hàm f: R³ → R² có kích thước nào, và gradient của hàm vô hướng g: Rⁿ → R được viết là vector hàng hay cột?",
+          "choices": [
+            "Jacobian 3×2 và gradient là vector cột n×1, vì mỗi cột ứng với một đầu ra của f.",
+            "Jacobian 2×3 và gradient là vector hàng 1×n, vì các phần tử của f xác định hàng, các biến x xác định cột.",
+            "Jacobian 2×2 và gradient là vector cột n×1, vì số hàng và cột đều bằng số chiều đầu ra.",
+            "Jacobian 3×3 và gradient là vector hàng 1×n, vì Jacobian luôn vuông để có thể lấy định thức."
+          ],
+          "answer": 1,
+          "explain": "Định nghĩa 5.6: Jacobian của f: Rⁿ → Rᵐ là ma trận m×n với J(i, j) = ∂fᵢ/∂xⱼ; sách ghi rõ \"we use the numerator layout of the derivative, i.e., the derivative df/dx of f ∈ Rᵐ with respect to x ∈ Rⁿ is an m × n matrix, where the elements of f define the rows and the elements of x define the columns\" (MML mục 5.3, Định nghĩa 5.6, công thức 5.57-5.59, tr. 150). Gradient của hàm vô hướng là vector hàng 1×n (công thức 5.40); lý do chọn hàng là để áp dụng chain rule dạng nhân ma trận mà không phải lo chiều (MML mục 5.2, tr. 146-147)"
+        },
+        {
+          "id": "w2b2",
+          "type": "mcq",
+          "q": "Cho f(x₁, x₂) = x₁² + 2x₂ với x₁ = sin t và x₂ = cos t. Áp dụng chain rule nhiều biến, df/dt bằng bao nhiêu?",
+          "choices": [
+            "2 sin t cos t + 2 cos t, vì đạo hàm của cos t là cos t và của sin t là cos t.",
+            "2 cos t − 2 sin t, vì chỉ cần lấy đạo hàm từng biến theo t rồi cộng lại, bỏ qua các đạo hàm riêng của f.",
+            "sin 2t + 2, vì 2 sin t cos t = sin 2t và đạo hàm của 2x₂ theo t là hằng số 2.",
+            "2 sin t (cos t − 1), vì df/dt = (∂f/∂x₁)(∂x₁/∂t) + (∂f/∂x₂)(∂x₂/∂t) = 2 sin t cos t − 2 sin t."
+          ],
+          "answer": 3,
+          "explain": "Ví dụ 5.8 trong MML: df/dt = ∂f/∂x₁ · ∂x₁/∂t + ∂f/∂x₂ · ∂x₂/∂t = 2 sin t · cos t + 2 · (−sin t) = 2 sin t (cos t − 1) (công thức 5.50a-c). Dạng ma trận của cùng phép tính là gradient hàng [∂f/∂x₁ ∂f/∂x₂] nhân với cột [∂x₁/∂t; ∂x₂/∂t] (công thức 5.49); đây đúng là phép nhân mà autograd ở Tuần 5 thực hiện tại mỗi nút (MML mục 5.2.2, Ví dụ 5.8, công thức 5.49-5.50, tr. 148)"
+        },
+        {
+          "id": "w2b3",
+          "type": "mcq",
+          "q": "MML phân biệt forward mode và reverse mode của automatic differentiation qua thứ tự nhân trong dy/dx = (dy/db)(db/da)(da/dx). Vì sao reverse mode (backpropagation) được ưu tiên khi huấn luyện mạng neural?",
+          "choices": [
+            "Vì forward mode cần lưu toàn bộ đồ thị tính toán trong bộ nhớ, còn reverse mode không cần lưu giá trị trung gian.",
+            "Vì reverse mode cho gradient chính xác hơn về số học, còn forward mode chỉ là xấp xỉ sai phân hữu hạn.",
+            "Vì reverse mode là cách duy nhất áp dụng được chain rule cho các hàm hợp có nhiều hơn hai tầng.",
+            "Vì trong mạng neural số chiều đầu vào thường lớn hơn nhiều số chiều nhãn, nên nhân từ phía đầu ra ngược về rẻ hơn đáng kể."
+          ],
+          "answer": 3,
+          "explain": "Sách viết: \"Equation (5.120) would be the reverse mode because gradients are propagated backward through the graph\" và \"In the context of neural networks, where the input dimensionality is often much higher than the dimensionality of the labels, the reverse mode is computationally significantly cheaper than the forward mode\". Cả hai mode đều cho gradient chính xác tới độ chính xác máy (khác với sai phân hữu hạn), và việc chọn thứ tự nhân dựa trên tính kết hợp của phép nhân ma trận (MML mục 5.6.2, công thức 5.119-5.121, tr. 161-162)"
+        },
+        {
+          "id": "w2b4",
+          "type": "mcq",
+          "q": "Khi kiểm tra đạo hàm bằng số, Vũ Hữu Tiệp khuyên dùng công thức hai phía (f(x + ε) − f(x − ε))/(2ε) thay cho công thức một phía (f(x + ε) − f(x))/ε. Lý do bằng khai triển Taylor là gì?",
+          "choices": [
+            "Hai công thức có cùng sai số O(ε) nhưng công thức hai phía tính nhanh gấp đôi vì chỉ cần một lần gọi hàm.",
+            "Công thức hai phía có sai số O(ε) còn công thức một phía có sai số O(ε²), nên hai phía ổn định hơn khi ε lớn.",
+            "Công thức hai phía triệt tiêu số hạng bậc hai f''(x)ε/2 nên sai số chỉ còn O(ε²), trong khi công thức một phía có sai số O(ε).",
+            "Công thức hai phía đúng tuyệt đối với mọi đa thức bậc ba, còn công thức một phía chỉ đúng với hàm tuyến tính."
+          ],
+          "answer": 2,
+          "explain": "Từ khai triển Taylor (2.19)-(2.20), sách thu được (f(x + ε) − f(x))/ε ≈ f'(x) + f''(x)ε/2 + ... = f'(x) + O(ε) (công thức 2.21) và (f(x + ε) − f(x − ε))/(2ε) ≈ f'(x) + f⁽³⁾(x)ε²/6 + ... = f'(x) + O(ε²) (công thức 2.22); \"Khi ε rất nhỏ, O(ε²) ≪ O(ε), tức cách đánh giá sử dụng công thức 2.22 có sai số nhỏ hơn\". Sách cũng lưu ý numerical gradient chỉ dùng để kiểm tra vì quá tốn kém với ma trận lớn, nên khi so sánh người ta giảm số chiều và số điểm dữ liệu (Vũ Hữu Tiệp mục 2.6.1-2.6.2, công thức 2.18-2.22, tr. 36-37)"
+        },
+        {
+          "id": "w2b5",
+          "type": "mcq",
+          "q": "Nguyễn Thanh Tuấn chạy gradient descent trên f(x) = x² từ x = 10 với learning_rate = 0,1. Sau mỗi bước x được cập nhật thế nào, và sau 10 bước x xấp xỉ bao nhiêu?",
+          "choices": [
+            "x ← x − 0,1·2x, tức nhân với 0,8 mỗi bước; sau 10 bước x ≈ 1,07.",
+            "x ← x − 0,1·x², tức trừ đi 10 ở bước đầu; sau 10 bước x đã về đúng 0.",
+            "x ← x − 0,1·x, tức nhân với 0,9 mỗi bước; sau 10 bước x ≈ 3,49.",
+            "x ← 0,1·2x, tức nhân với 0,2 mỗi bước; sau 10 bước x ≈ 10⁻⁶."
+          ],
+          "answer": 0,
+          "explain": "Với f'(x) = 2x, bước cập nhật là x = x − learning_rate·2x = 0,8x. Bảng trong sách liệt kê x sau từng lần: 8,00; 6,40; 5,12; 4,10; 3,28; 2,62; 2,10; 1,68; 1,34; 1,07 với f(x) giảm từ 64,00 xuống 1,15 (Nguyễn Thanh Tuấn mục 3.3.2, tr. 52). Sách cũng nêu ba trường hợp learning rate: nhỏ thì cần rất nhiều bước, hợp lý thì hội tụ sau số bước vừa phải, quá lớn thì overshoot và không về được cực tiểu (Nguyễn Thanh Tuấn mục 3.3.2, tr. 53)"
+        },
+        {
+          "id": "w2b6",
+          "type": "mcq",
+          "q": "MML tách bạch pmf, pdf và cdf trong Bảng 6.1. Phát biểu nào sau đây đúng?",
+          "choices": [
+            "Giá trị của hàm mật độ p(x) (pdf) có thể lớn hơn 1, miễn là tích phân của nó trên toàn miền bằng 1.",
+            "Giá trị của hàm khối xác suất P(X = x) (pmf) có thể lớn hơn 1 khi biến rời rạc có ít trạng thái.",
+            "pdf và cdf là hai tên gọi của cùng một hàm, khác nhau ở chỗ cdf được chuẩn hóa để nhận giá trị trong [0, 1].",
+            "Hàm phân phối tích lũy P(X ≤ x) (cdf) chỉ định nghĩa cho biến rời rạc, còn biến liên tục chỉ có pdf."
+          ],
+          "answer": 0,
+          "explain": "Sách viết ngay dưới Bảng 6.1 rằng \"density can be greater than 1. However, it needs to hold that ∫ p(x)dx = 1\" (công thức 6.19). Bảng 6.1 xếp: biến rời rạc có P(X = x) là pmf và không có \"interval probability\"; biến liên tục có p(x) là pdf và P(X ≤ x) là cdf. Sách cũng cảnh báo tài liệu ML dùng lẫn chữ \"distribution\" cho cả pmf, pdf và cdf. Điều này quan trọng khi đọc log-likelihood của mô hình liên tục: log p(x) dương không phải lỗi (MML mục 6.2-6.3, Bảng 6.1, công thức 6.19, tr. 183)"
+        },
+        {
+          "id": "w2b8",
+          "type": "mcq",
+          "q": "Bốn phân phối trên 4 trạng thái: p₁ = [0,25; 0,25; 0,25; 0,25], p₂ = [0,5; 0,5; 0; 0], p₃ = [1; 0; 0; 0], p₄ = [0,7; 0,1; 0,1; 0,1]. Phân phối nào có entropy lớn nhất và giá trị đó là bao nhiêu bit?",
+          "choices": [
+            "p₂, với entropy 1 bit, vì hai trạng thái có xác suất 0 làm giảm bậc tự do và tăng độ bất định.",
+            "p₁, với entropy log₂ 4 = 2 bit, vì phân phối đều là phân phối có entropy lớn nhất trên K trạng thái.",
+            "p₄, với entropy khoảng 1,36 bit, vì nó vừa có một trạng thái nổi trội vừa giữ được ba trạng thái hiếm.",
+            "p₃, với entropy 4 bit, vì toàn bộ khối lượng dồn vào một trạng thái nên lượng thông tin của trạng thái đó lớn nhất."
+          ],
+          "answer": 1,
+          "explain": "Tự tính theo định nghĩa: H(p₂) = 1 bit, H(p₃) = 0, H(p₄) ≈ 0,36 + 3·0,332 ≈ 1,36 bit (ba con số này tính tay từ công thức entropy, không in trong sách). MacKay định nghĩa H(X) = Σ P(x) log 1/P(x) với quy ước 0 × log 1/0 ≡ 0 (MacKay mục 2.4, công thức 2.35, tr. 32). Murphy: \"The discrete distribution with maximum entropy is the uniform distribution. Hence for a K-ary random variable, the entropy is maximized if p(x = k) = 1/K; in this case, H(X) = log₂ K\" (công thức 6.2), và phân phối suy biến có entropy 0 là giá trị nhỏ nhất (Murphy mục 6.1.1, công thức 6.1-6.2, tr. 207)"
+        },
+        {
+          "id": "w2b9",
+          "type": "open",
+          "q": "Vì sao MML nói chi phí tính gradient bằng backpropagation \"có độ phức tạp tương đương với chi phí tính chính hàm số\", dù biểu thức đạo hàm viết tường minh (công thức 5.110) dài hơn hàm gốc rất nhiều? Trình bày cơ chế tái sử dụng trong chuỗi ∂L/∂θᵢ.",
+          "answer": "Backprop không khai triển biểu thức đạo hàm thành công thức đóng mà làm việc trên các biến trung gian của đồ thị tính toán. Với mạng K tầng, ∂L/∂θ_{K−1} = (∂L/∂f_K)(∂f_K/∂θ_{K−1}), rồi ∂L/∂θ_{K−2} = (∂L/∂f_K)(∂f_K/∂f_{K−1})(∂f_{K−1}/∂θ_{K−2}); phần tích đã tính cho tầng i+1 được dùng lại cho tầng i, mỗi tầng chỉ cần nhân thêm một đạo hàm cục bộ theo đầu vào và một theo tham số. Vì mỗi phép toán sơ cấp (cộng, nhân, exp, sin...) có đạo hàng cục bộ đơn giản, tổng số phép tính khi đi ngược tỉ lệ với số phép tính khi đi tiến. Đây chính là lý do một bước training gồm forward và backward chỉ tốn cỡ vài lần forward, không phụ thuộc số tham số theo kiểu bùng nổ.",
+          "explain": "Các công thức (5.115)-(5.118) cho ∂L/∂θᵢ = (∂L/∂f_K)(∂f_K/∂f_{K−1})···(∂f_{i+1}/∂θᵢ) và sách nói \"Assuming, we have already computed the partial derivatives ∂L/∂θ_{i+1}, then most of the computation can be reused to compute ∂L/∂θᵢ\" (MML mục 5.6.1, công thức 5.115-5.118, tr. 160). Ví dụ 5.14 với các biến trung gian a, b, c, d, e kết luận: \"the computation required for calculating the derivative is of similar complexity as the computation of the function itself. This is quite counter-intuitive since the mathematical expression for the derivative ∂f/∂x (5.110) is significantly more complicated than the mathematical expression of the function f(x) in (5.109)\" (MML mục 5.6.2, Ví dụ 5.14, công thức 5.122-5.142, tr. 160-163)"
+        },
+        {
+          "id": "w2b10",
+          "type": "open",
+          "q": "MML mô tả hiện tượng gradient descent \"zigzag\" trong thung lũng dài và hẹp. Hãy giải thích hiện tượng này bằng condition number, nêu hai heuristic điều chỉnh step size mà sách trích từ Toussaint (2012), và cho biết momentum thay đổi công thức cập nhật ra sao.",
+          "answer": "Khi mặt mục tiêu cong mạnh theo một hướng và rất phẳng theo hướng khác, gradient gần như vuông góc với hướng ngắn nhất tới cực tiểu, nên các bước nhảy qua lại giữa hai vách thung lũng. Tốc độ hội tụ phụ thuộc condition number κ = σ_max(A)/σ_min(A), tỉ số giữa giá trị kỳ dị lớn nhất và nhỏ nhất, đo mức chênh giữa hướng cong nhất và hướng phẳng nhất; κ lớn là bài toán poorly conditioned. Hai heuristic: nếu giá trị hàm tăng sau một bước thì step size quá lớn, hoàn tác và giảm step size; nếu giá trị hàm giảm thì có thể tăng step size. Momentum thêm bộ nhớ vào cập nhật: x_{i+1} = xᵢ − γᵢ(∇f(xᵢ))ᵀ + αΔxᵢ với Δxᵢ = xᵢ − x_{i−1} và α ∈ [0, 1], làm mượt các bước dao động và trung bình hóa gradient nhiễu; đây là tổ tiên của các optimizer Tuần 4.",
+          "explain": "Sách viết: \"For poorly conditioned convex problems, gradient descent increasingly 'zigzags' as the gradients point nearly orthogonally to the shortest direction to a minimum point\" (MML mục 7.1, tr. 229); condition number κ = σ(A)_max/σ(A)_min \"measures the ratio of the most curved direction versus the least curved direction\" (MML mục 7.1.1, Ví dụ 7.2, tr. 230). Hai heuristic của Toussaint (2012) và công thức momentum (7.11)-(7.12) với α ∈ [0, 1] nằm ở cùng đoạn (MML mục 7.1.1-7.1.2, công thức 7.11-7.12, tr. 229-231)"
+        },
+        {
+          "id": "w2b11",
+          "type": "open",
+          "q": "Trong ước lượng MLE cho phân phối chuẩn một chiều (Vũ Hữu Tiệp, Ví dụ 3, Chương 4), kết quả cho µ và σ² là gì? Nêu hai lý do MML đưa ra cho việc lấy log của likelihood trước khi tối ưu, và liên hệ với cách bạn sẽ cài cross-entropy ở Tuần 4.",
+          "answer": "Với các quan sát độc lập x₁, ..., x_N tuân theo N(µ, σ²), cực đại log-likelihood J(µ, σ) = −N log σ − Σ(xᵢ − µ)²/(2σ²) cho µ = (1/N)Σxᵢ (trung bình mẫu) và σ² = (1/N)Σ(xᵢ − µ)². MML nêu hai lý do lấy log: (a) tránh numerical underflow khi nhân N xác suất rất nhỏ, ví dụ không biểu diễn được các số cỡ 10⁻²⁵⁶; (b) log biến tích thành tổng, nên gradient là tổng các gradient riêng lẻ thay vì phải áp dụng quy tắc tích lặp lại N lần. Vì log là hàm tăng nghiêm ngặt, điểm cực đại của f và của log f trùng nhau. Cross-entropy ở Tuần 4 là negative log-likelihood trung bình trên batch, nên cả hai lý do này áp dụng trực tiếp.",
+          "explain": "Vũ Hữu Tiệp đưa J(µ, σ) ở công thức (4.23), giải ∂J/∂µ = 0 và ∂J/∂σ = 0 để được µ = Σxᵢ/N và σ² = Σ(xᵢ − µ)²/N (Vũ Hữu Tiệp mục 4.2, Ví dụ 3, công thức 4.20-4.26, tr. 56-57). MML: \"the log-transformation is useful since (a) it does not suffer from numerical underflow, and (b) the differentiation rules will turn out simpler ... we cannot represent very small numbers, such as 10⁻²⁵⁶ ... the log-transform will turn the product into a sum of log-probabilities such that the corresponding gradient is a sum of individual gradients\" (MML mục 9.2.1, Remark Log-Transformation, công thức 9.7-9.8, tr. 293)"
+        },
+        {
+          "id": "w2b12",
+          "type": "open",
+          "q": "Xem loss trên một minibatch như trung bình X̄ₙ của n biến độc lập cùng phân phối, kỳ vọng µ và phương sai σ². Durrett cho biết gì về E X̄ₙ, var(X̄ₙ) và về phân phối giới hạn của (Sₙ − nµ)/(σ√n)? Từ đó suy ra điều gì khi bạn tăng batch size từ 16 lên 64?",
+          "answer": "E X̄ₙ = µ (X̄ₙ là ước lượng không chệch của µ) và var(X̄ₙ) = σ²/n, nên phương sai của trung bình giảm tỉ lệ nghịch với n; luật số lớn yếu (Định lý 4.7) nói P(|X̄ₙ − µ| > ε) → 0. Định lý giới hạn trung tâm (Định lý 4.9) nói (Sₙ − nµ)/(σ√n) hội tụ về phân phối chuẩn tắc, nên với n đủ lớn X̄ₙ xấp xỉ chuẩn quanh µ với độ lệch chuẩn σ/√n; theo bảng chuẩn, khoảng 68% xác suất nằm trong một độ lệch chuẩn và 95% trong hai. Tăng batch từ 16 lên 64 (gấp 4) làm var giảm 4 lần, tức độ lệch chuẩn của loss batch giảm một nửa: loss curve mượt hơn nhưng mỗi bước tốn gấp 4 lần tính toán (kết luận về loss curve áp dụng công thức phương sai σ²/n).",
+          "explain": "Durrett: \"E X̄ₙ = µ, var(X̄ₙ) = σ²/n\" (công thức 4.15), \"X̄ₙ is an unbiased estimator of µ\", và Định lý 4.7 (Weak law of Large Numbers): với mọi ε > 0, P(|X̄ₙ − µ| > ε) → 0 (Durrett EP4A mục 4.4, công thức 4.15, Định lý 4.7, tr. 93). Định lý 4.9 (CLT): P(a ≤ (Sₙ − nµ)/(σ√n) ≤ b) → ∫ₐᵇ e^{−x²/2}/√(2π) dx, kèm bảng Φ(1) = 0,8413, Φ(2) = 0,9772 và nhận xét 68%, 95%, dưới 0,3% (Durrett EP4A mục 4.5, Định lý 4.9, tr. 95). MML cũng viết loss huấn luyện dạng tổng L(θ) = Σ Lₙ(θ) và SGD dùng xấp xỉ nhiễu của gradient (MML mục 7.1.3, công thức 7.13-7.14, tr. 231)"
+        },
+        {
           "id": "w2adv1",
           "type": "mcq",
           "level": "advanced",
@@ -278,6 +522,91 @@ window.QUIZ_DATA = {
           "q": "Logistic regression khác linear regression ở những điểm nào về đầu ra, hàm loss và cách giải, và vì sao có thể gọi nó là mạng neural một lớp?",
           "answer": "Linear regression trả về số thực, dùng squared loss, và có nghiệm đóng bằng phép chiếu trực giao (MML Example 8.1, trang 259). Logistic regression đưa đầu ra qua sigmoid để thành xác suất trong (0, 1), dùng negative log-likelihood của Bernoulli tức binary cross-entropy, và không có nghiệm đóng nên phải dùng gradient descent với gradient Xᵀ(p − y)/n (Vũ Hữu Tiệp chương 14, trang 165). Nó là một lớp tuyến tính nối với một hàm kích hoạt phi tuyến và một loss, đúng cấu trúc tối giản của một mạng neural.",
           "explain": "Tuần 4 viết lại đúng model này bằng nn.Linear và F.binary_cross_entropy trong PyTorch, rồi chồng thêm lớp để thành MLP."
+        },
+        {
+          "id": "w3b1",
+          "type": "mcq",
+          "q": "Hệ quả 2.3 trong UML cho lớp giả thuyết hữu hạn (giả định realizable): với m ≥ log(|H|/δ)/ε mẫu, ERM đạt lỗi thật ≤ ε với xác suất ≥ 1 − δ. Nếu bạn gấp đôi kích thước lớp giả thuyết |H| mà giữ ε, δ, số mẫu cần thiết thay đổi thế nào?",
+          "choices": [
+            "Không thay đổi, vì bound chỉ phụ thuộc vào ε và δ, còn |H| bị triệt tiêu trong union bound.",
+            "Tăng gấp đôi, vì số mẫu cần thiết tỉ lệ thuận với số giả thuyết mà thuật toán phải phân biệt.",
+            "Tăng gấp bốn, vì lỗi ε xuất hiện bậc hai trong Hoeffding và |H| nhân đôi số sự kiện xấu.",
+            "Tăng thêm một lượng cố định log(2)/ε, vì |H| chỉ xuất hiện trong logarit nên mở rộng lớp giả thuyết khá rẻ."
+          ],
+          "answer": 3,
+          "explain": "Hệ quả 2.3: \"let m be an integer that satisfies m ≥ log(|H|/δ)/ε. Then, for any labeling function f, and for any distribution D, for which the realizability assumption holds ... with probability of at least 1 − δ ... L_(D,f)(h_S) ≤ ε\" (UML Hệ quả 2.3, tr. 40-41). Vì log(2|H|/δ) = log(|H|/δ) + log 2, số mẫu chỉ tăng thêm log(2)/ε. Chứng minh đi qua union bound trên tập giả thuyết xấu H_B và bất đẳng thức (1 − ε)ᵐ ≤ e^{−εm} (công thức 2.9), nên |H| xuất hiện dưới dạng hệ số |H|e^{−εm} rồi vào logarit (UML mục 2.3.1, công thức 2.6-2.9, tr. 39-40)"
+        },
+        {
+          "id": "w3b2",
+          "type": "mcq",
+          "q": "Bất đẳng thức Hoeffding (UML Lemma 4.5) cho P[|(1/m)Σθᵢ − µ| > ε] ≤ 2 exp(−2mε²/(b − a)²). Muốn giảm sai số ε xuống còn một nửa với cùng độ tin cậy, kích thước mẫu m cần thay đổi bao nhiêu?",
+          "choices": [
+            "Gấp đôi, vì ε và m xuất hiện đối xứng trong tích mε² nên chia đôi ε tương đương nhân đôi m.",
+            "Gấp tám, vì ngoài mε² còn phải bù cho hệ số 2 phía trước hàm mũ.",
+            "Không cần thay đổi, vì độ tin cậy 1 − δ đã cố định và Hoeffding không phụ thuộc vào ε.",
+            "Gấp bốn, vì mũ chứa mε² nên để giữ nguyên mε² khi ε giảm một nửa thì m phải tăng bốn lần."
+          ],
+          "answer": 3,
+          "explain": "Lemma 4.5 (Hoeffding's Inequality): với θ₁, ..., θₘ i.i.d., E[θᵢ] = µ và θᵢ ∈ [a, b], P[|(1/m)Σθᵢ − µ| > ε] ≤ 2 exp(−2mε²/(b − a)²) (UML Lemma 4.5, tr. 56). Vì bound phụ thuộc vào mε², chia đôi ε đòi m tăng gấp bốn; Hệ quả 4.6 cho cùng kết luận với sample complexity m_H^UC(ε, δ) ≤ ⌈log(2|H|/δ)/(2ε²)⌉ (UML mục 4.2, Hệ quả 4.6, tr. 57). Sách nhấn mạnh luật số lớn chỉ là kết quả tiệm cận, còn Hoeffding cho con số cụ thể với m hữu hạn, đúng điều cần khi ước lượng độ tin cậy của một eval set (UML mục 4.2, tr. 56)"
+        },
+        {
+          "id": "w3b3",
+          "type": "mcq",
+          "q": "Định lý No-Free-Lunch (UML Định lý 5.1) nói gì, và hệ quả nào rút ra cho lớp giả thuyết gồm mọi hàm từ một miền X vô hạn vào {0, 1}?",
+          "choices": [
+            "Với mọi learner A và m < |X|/2, tồn tại D có hàm f với L_D(f) = 0 nhưng P[L_D(A(S)) ≥ 1/8] ≥ 1/7, do đó lớp gồm mọi hàm trên X vô hạn không PAC learnable.",
+            "Mọi thuật toán học đều đạt lỗi tối thiểu trên mọi phân phối nếu m đủ lớn, do đó lớp gồm mọi hàm là PAC learnable ngay khi m ≥ |X|/2.",
+            "Không thuật toán nào học được bất kỳ hàm nào nếu không biết trước phân phối D, do đó chỉ các lớp giả thuyết hữu hạn mới có thể PAC learnable.",
+            "Với m ≥ |X|/2 mẫu mọi learner đều đạt lỗi ≤ 1/8 với xác suất ≥ 6/7, do đó VC-dimension của lớp gồm mọi hàm đúng bằng |X|/2."
+          ],
+          "answer": 0,
+          "explain": "Định lý 5.1: \"Let A be any learning algorithm for the task of binary classification with respect to the 0 − 1 loss over a domain X. Let m be any number smaller than |X|/2 ... Then, there exists a distribution D over X × {0, 1} such that: 1. There exists a function f : X → {0, 1} with L_D(f) = 0. 2. With probability of at least 1/7 over the choice of S ∼ Dᵐ we have that L_D(A(S)) ≥ 1/8\" (UML mục 5.1, Định lý 5.1, tr. 61). Hệ quả 5.2: \"Let X be an infinite domain set and let H be the set of all functions from X to {0, 1}. Then, H is not PAC learnable\" (UML mục 5.1.1, Hệ quả 5.2, tr. 63). Sách kết luận cần prior knowledge qua việc giới hạn lớp giả thuyết, tức inductive bias (UML mục 5.1.1, tr. 64)"
+        },
+        {
+          "id": "w3b4",
+          "type": "mcq",
+          "q": "Theo UML Định nghĩa 6.5, VC-dimension của lớp giả thuyết H là gì, và VCdim của lớp hàm ngưỡng (threshold functions) trên R bằng bao nhiêu?",
+          "choices": [
+            "VCdim là số tham số của mô hình; hàm ngưỡng có một tham số θ nên VCdim = 1, và mọi lớp có vô hạn giả thuyết đều có VCdim vô hạn.",
+            "VCdim là số giả thuyết phân biệt trong H; hàm ngưỡng trên R có vô hạn giá trị θ nên VCdim vô hạn và lớp này không PAC learnable.",
+            "VCdim là số mẫu tối thiểu để ERM không overfit; hàm ngưỡng cần đúng hai điểm để xác định θ nên VCdim = 2 với mọi phân phối D.",
+            "VCdim là kích thước lớn nhất của một tập C ⊂ X mà H shatter được; hàm ngưỡng shatter mọi tập một điểm nhưng không tập hai điểm nào, nên VCdim = 1."
+          ],
+          "answer": 3,
+          "explain": "Định nghĩa 6.5: \"The VC-dimension of a hypothesis class H, denoted VCdim(H), is the maximal size of a set C ⊂ X that can be shattered by H. If H can shatter sets of arbitrarily large size we say that H has infinite VC-dimension\". Mục 6.3.1 kết luận cho hàm ngưỡng: H shatter mọi C = {c₁} nên VCdim ≥ 1, nhưng với C = {c₁, c₂}, c₁ ≤ c₂ thì không shatter được, do đó VCdim(H) = 1. Định lý 6.6 nói lớp có VC-dimension vô hạn thì không PAC learnable; lớp vô hạn nhưng VCdim hữu hạn vẫn học được, nên VCdim không phải số tham số hay số giả thuyết (UML mục 6.2-6.3.1, Định nghĩa 6.5, Định lý 6.6, tr. 70)"
+        },
+        {
+          "id": "w3b5",
+          "type": "mcq",
+          "q": "Bạn thử r = 200 cấu hình hyperparameter và chọn cấu hình có lỗi validation thấp nhất trên tập validation V gồm m_v mẫu. UML Định lý 11.2 cảnh báo điều gì về ước lượng lỗi thật của cấu hình được chọn?",
+          "choices": [
+            "Bound phụ thuộc vào VC-dimension của mô hình gốc, nên với mạng neural lớn m_v phải ít nhất bằng số tham số thì ước lượng mới có ý nghĩa.",
+            "Bound đúng đồng thời cho cả r giả thuyết với |H| = r trong logarit, nên thử quá nhiều cấu hình so với m_v sẽ dẫn đến overfitting chính validation set.",
+            "Không có vấn đề gì, vì validation set độc lập với training set nên lỗi validation là ước lượng không chệch cho mọi cấu hình, kể cả cấu hình được chọn sau cùng.",
+            "Bound trở nên vô nghĩa ngay khi r > 1, vì Định lý 11.1 chỉ đúng cho một giả thuyết duy nhất được cố định trước khi lấy mẫu validation set."
+          ],
+          "answer": 1,
+          "explain": "Bài học cho Tuần 14: eval set RAG nhỏ mà quét hàng trăm cấu hình thì điểm tốt nhất bị thổi phồng. Định lý 11.2: với H = {h₁, ..., h_r} và validation set V kích thước m_v độc lập với H, với xác suất ≥ 1 − δ, ∀h ∈ H: |L_D(h) − L_V(h)| ≤ √(log(2|H|/δ)/(2m_v)). Sách nhận xét: \"the error on the validation set approximates the true error as long as H is not too large. However, if we try too many methods (resulting in |H| that is large relative to the size of the validation set) then we're in danger of overfitting\". Chọn cấu hình theo validation chính là áp dụng ERM_H trên validation set với lớp hữu hạn (UML mục 11.2.2, Định lý 11.2, tr. 147-148)"
+        },
+        {
+          "id": "w3b6",
+          "type": "mcq",
+          "q": "Shalizi viết in-sample loss dưới dạng L(z_n, θ) = E[L(Z, θ)] + η_n(θ), với η_n(θ) là nhiễu lấy mẫu có kỳ vọng 0. Vì sao lỗi trên tập huấn luyện của mô hình được chọn θ̂_n lại lạc quan (optimistic) dù luật số lớn nói L(z_n, θ) → E[L(Z, θ)] cho từng θ?",
+          "choices": [
+            "Vì tập huấn luyện luôn có nhiễu đo lường, nên kỳ vọng của η_n(θ) thực ra dương với mọi θ và phải trừ đi một hằng số hiệu chỉnh.",
+            "Vì luật số lớn chỉ đúng khi loss là mean squared error; với negative log-likelihood, in-sample loss không hội tụ về risk thật dù n tăng.",
+            "Vì η_n(θ) có kỳ vọng 0 với từng θ cố định, nhưng θ̂_n được chọn để cực tiểu E[L] + η_n nên nó thường là θ vừa tốt vừa may mắn (η_n < 0).",
+            "Vì luật số lớn chỉ áp dụng khi n → ∞, nên với mọi n hữu hạn in-sample loss của bất kỳ θ nào cũng lớn hơn risk thật của nó."
+          ],
+          "answer": 2,
+          "explain": "Shalizi: \"the in-sample loss equals the risk plus sampling noise: L(z_n, θ) = E[L(Z, θ)] + η_n(θ)\" (công thức 3.6) và \"θ̂_n = argmin (E[L(Z, θ)] + η_n(θ)) ... we're almost surely going to end up picking a θ̂_n which was more or less lucky (η_n < 0) as well as good (E[L(Z, θ)] small). This is the reason why picking the model which best fits the data tends to exaggerate how well it will do in the future\" (công thức 3.7). Sách nói lý thuyết học tiến xa hơn bằng các uniform laws of large numbers, tức kiểm soát max_θ |η_n(θ)|, đúng khung uniform convergence của UML Chương 4 (Shalizi mục 3.2, công thức 3.5-3.7, tr. 71-73)"
+        },
+        {
+          "id": "w3b9",
+          "type": "open",
+          "q": "Tong Zhang phát biểu generalization bound dạng: với xác suất ≥ 1 − δ, test-loss ≤ training-loss + εₙ(δ). Hãy viết dạng này, giải thích vì sao ta cần nó khi chỉ quan sát được training error, rồi nêu điểm căng thẳng mà Zhang chỉ ra giữa lý thuyết cổ điển (hạn chế kích thước mô hình) và quan sát thực nghiệm ở mạng neural hiện đại. Điều này ảnh hưởng thế nào đến cách bạn đọc loss curve ở Tuần 8?",
+          "answer": "Dạng bound: E_{(X,Y)∼D} L(f(ŵ, X), Y) ≤ (1/n)Σᵢ L(f(ŵ, Xᵢ), Yᵢ) + εₙ(δ), với εₙ(δ) → 0 khi n → ∞; xác suất tính trên việc lấy mẫu ngẫu nhiên tập huấn luyện Sₙ. Ta cần nó vì test loss là kỳ vọng trên phân phối D không biết, chỉ training loss là quan sát được, nên bound cho phép suy test loss từ training loss cộng một khoản phụ thuộc n và độ phức tạp của lớp mô hình. Zhang lưu ý lý thuyết cổ điển coi hạn chế kích thước mô hình là kỹ thuật then chốt chống overfitting, nhưng với mạng neural hiện đại người ta quan sát mô hình lớn gần như luôn tốt hơn và hiện tượng benign overfitting: thuật toán với implicit bias phù hợp vẫn đạt test tốt dù fit hoàn toàn nhiễu; lý thuyết cho việc này chưa chín. Khi đọc loss curve Tuần 8, train loss thấp hơn validation loss là đúng dự đoán của bound, nhưng khoảng cách nhỏ không đủ để kết luận mô hình quá lớn hay quá nhỏ; cần nhìn validation loss thực tế thay vì chỉ dựa vào số tham số.",
+          "explain": "Công thức (1.2): \"with probability at least 1 − δ ... E_{(X,Y)∼D} L(f(ŵ, X), Y) ≤ (1/n)Σ L(f(ŵ, Xᵢ), Yᵢ) + εₙ(δ)\", cùng định nghĩa training-loss và test-loss ở mục 1.1 (Tong Zhang mục 1.1, công thức 1.1-1.2, tr. 2-3). Về căng thẳng lý thuyết: \"the mathematical theory developed for limiting model size and preventing overfitting is the key classical technique ... However, in recent years, this classical view point has evolved due to the empirical observation in modern neural network models that large models nearly always perform better. For such models, one observes the so-called benign overfitting phenomenon ... the related theoretical results are less mature\" (Tong Zhang mục 1.4, tr. 7). Hình 1.1 vẽ training error giảm đơn điệu còn test error có dạng chữ U theo độ phức tạp mô hình (Tong Zhang mục 1.4, Hình 1.1, tr. 6)"
         },
         {
           "id": "w3adv1",
@@ -394,6 +723,105 @@ window.QUIZ_DATA = {
           "explain": "Đây là toàn bộ 'phần mới' của Tuần 4: đổi công cụ, không đổi toán. Nếu bạn chỉ ra được ba dòng này thì đã nối xong Phase 0 với PyTorch."
         },
         {
+          "id": "w4b1",
+          "type": "mcq",
+          "q": "UDL mục 5.1.3 chuyển từ cực đại likelihood (tích các Pr(y_i|f[x_i, ϕ])) sang cực đại log-likelihood (tổng các log). Lý do thực tế mà Prince nêu là gì, và vì sao phép chuyển này không làm đổi nghiệm tối ưu?",
+          "choices": [
+            "Vì logarit đổi dấu các số hạng, biến bài toán cực đại thành cực tiểu mà không cần nhân thêm hệ số âm nào, nên hai bài toán trùng nghiệm.",
+            "Vì logarit biến tích thành tổng, tránh tích của nhiều xác suất nhỏ khó biểu diễn bằng số học độ chính xác hữu hạn, mà vị trí cực đại vẫn giữ nguyên do log đơn điệu tăng.",
+            "Vì logarit làm hàm mất mát trở thành lồi, nên gradient descent luôn tìm được cực tiểu toàn cục bất kể điểm khởi đầu, và nghiệm vì thế không đổi.",
+            "Vì logarit làm giảm phương sai của gradient qua các minibatch, nên SGD hội tụ nhanh hơn về cùng một nghiệm so với dùng likelihood thô."
+          ],
+          "answer": 1,
+          "explain": "Prince viết mỗi số hạng Pr(y_i|f[x_i, ϕ]) có thể rất nhỏ nên tích của nhiều số hạng \"can be tiny\" và khó biểu diễn với finite precision arithmetic; log là hàm đơn điệu tăng nên cực đại của g[z] và log[g[z]] ở cùng vị trí (Figure 5.2), và tổng thay cho tích thì biểu diễn số không còn là vấn đề. Đây cũng là lý do trong code bạn luôn cộng log-prob thay vì nhân xác suất. (UDL mục 5.1.3, tr. 59)"
+        },
+        {
+          "id": "w4b2",
+          "type": "mcq",
+          "q": "UDL mục 5.7 xuất phát từ việc cực tiểu KL divergence giữa phân phối thực nghiệm q(y) (tổng các hàm delta Dirac tại các điểm dữ liệu) và phân phối model Pr(y|θ). Số hạng nào trong KL biến mất khi tối ưu theo θ, và kết quả cuối cùng là gì?",
+          "choices": [
+            "Hệ số 1/I biến mất vì phân phối thực nghiệm đã được chuẩn hóa; nhờ đó KL trở thành entropy của model và trùng với negative log-likelihood.",
+            "Số hạng tích phân q log Pr(y|θ) biến mất vì các delta Dirac tích phân về 0; phần còn lại là entropy của dữ liệu và trùng với negative log-likelihood.",
+            "Không số hạng nào biến mất; KL được giữ nguyên rồi xấp xỉ bằng khai triển Taylor bậc một quanh θ để thu được negative log-likelihood.",
+            "Số hạng tích phân q log q biến mất vì không phụ thuộc θ; phần còn lại là cross-entropy, và sau khi thay q bằng tổng các delta Dirac thì đúng bằng negative log-likelihood."
+          ],
+          "answer": 3,
+          "explain": "Trong công thức 5.29, số hạng thứ nhất của KL (tích phân q(y) log q(y)) \"disappears, as it has no dependence on θ\"; số hạng còn lại là cross-entropy. Thay q(y) = (1/I) Σ δ[y - y_i] vào cho tổng -Σ log Pr(y_i|θ) (công thức 5.30, hệ số 1/I bị bỏ vì không đổi vị trí cực tiểu), chính là tiêu chí negative log-likelihood của mục 5.2. Vì vậy loss cross-entropy mà bạn gọi trong PyTorch và NLL là một. (UDL mục 5.7, tr. 72)"
+        },
+        {
+          "id": "w4b3",
+          "type": "mcq",
+          "q": "Trong phần \"Engineering the loss\", Fleuret giải thích vì sao bài toán phân loại được huấn luyện bằng cross-entropy dù chỉ số ta thực sự quan tâm là tỉ lệ lỗi phân loại. Lý do đó là gì?",
+          "choices": [
+            "Vì tỉ lệ lỗi phân loại không có gradient mang thông tin, còn cross-entropy là một proxy dễ tối ưu hơn mà vẫn hướng model về cùng mục tiêu.",
+            "Vì tỉ lệ lỗi phân loại cần nhãn dạng one-hot, còn cross-entropy chỉ cần logit chưa chuẩn hóa của model, tiết kiệm bộ nhớ khi batch lớn.",
+            "Vì tỉ lệ lỗi phân loại chỉ tính được trên tập test còn cross-entropy tính được trên tập train, nên chỉ cross-entropy mới dùng được để cập nhật tham số.",
+            "Vì cross-entropy luôn cho giá trị nhỏ hơn tỉ lệ lỗi nên đường cong loss trông mượt hơn, thuận tiện khi theo dõi quá trình huấn luyện."
+          ],
+          "answer": 0,
+          "explain": "Fleuret viết loss được cực tiểu khi train thường không phải đại lượng ta muốn tối ưu sau cùng mà là một proxy dễ tìm tham số hơn: cross-entropy là loss chuẩn cho phân loại \"even though the actual performance measure is a classification error rate, because the latter has no informative gradient\". Điều này giải thích vì sao trong training loop bạn theo dõi cross-entropy nhưng khi đánh giá lại nhìn accuracy hay perplexity. (Fleuret mục 3.1, tr. 28)"
+        },
+        {
+          "id": "w4b4",
+          "type": "mcq",
+          "q": "UDL mục 6.2.1 đưa ra một cách diễn giải khác về stochastic gradient descent so với cách nhìn \"thêm nhiễu vào gradient\". Cách diễn giải đó là gì?",
+          "choices": [
+            "SGD chọn ngẫu nhiên một tập con tham số để cập nhật ở mỗi bước, nên tính trung bình theo thời gian mọi tham số đều được cập nhật giống gradient descent.",
+            "SGD tính gradient chính xác trên toàn bộ dữ liệu rồi cộng thêm nhiễu Gaussian có phương sai tỉ lệ với learning rate để thoát khỏi cực tiểu địa phương.",
+            "SGD thực hiện gradient descent xác định trên một hàm mất mát thay đổi theo từng batch, nhưng kỳ vọng của loss và của gradient tại mọi điểm vẫn bằng của gradient descent thường.",
+            "SGD tính gradient của cùng một hàm mất mát nhưng làm tròn về độ chính xác thấp hơn ở mỗi bước, và chính sai số làm tròn đó đóng vai trò nhiễu ngẫu nhiên."
+          ],
+          "answer": 2,
+          "explain": "Prince viết SGD có thể xem như tính gradient của một hàm mất mát khác ở mỗi vòng lặp vì loss phụ thuộc cả model và batch được chọn; theo cách nhìn này \"SGD performs deterministic gradient descent on a constantly changing loss function\" (Figure 6.6), song \"the expected loss and expected gradients at any point remain the same as for gradient descent\". Đây là lý do mỗi batch trong training loop của bạn cho một hướng khác nhau nhưng trung bình vẫn đi xuống. (UDL mục 6.2.1, tr. 85)"
+        },
+        {
+          "id": "w4b5",
+          "type": "mcq",
+          "q": "Trong Adam (UDL mục 6.4), sau khi tính m_{t+1} và v_{t+1} bằng momentum, Prince hiệu chỉnh chúng thành m̃ = m/(1 - β^{t+1}) và ṽ = v/(1 - γ^{t+1}) (công thức 6.16). Vì sao cần bước này?",
+          "choices": [
+            "Vì gradient ở các lớp sâu có độ lớn khác nhau, cần chia cho một hệ số phụ thuộc thời gian để cân bằng mức cập nhật giữa các lớp trong mạng.",
+            "Vì learning rate α cần giảm dần theo lịch, và phép chia này chính là cách Adam cài sẵn lịch giảm learning rate mà không cần scheduler ngoài.",
+            "Vì ở đầu quá trình các phép đo trước đó thực chất bằng 0, khiến ước lượng trung bình có trọng số nhỏ một cách phi thực tế; hiệu chỉnh giảm dần tác dụng khi t tăng.",
+            "Vì ε trong mẫu số quá nhỏ ở các bước đầu, nên phải phóng đại m và v để phép chia cho căn bậc hai không bị tràn số về 0 ở những bước cập nhật đầu tiên."
+          ],
+          "answer": 2,
+          "explain": "Prince giải thích dùng momentum tương đương lấy trung bình có trọng số theo lịch sử; \"At the start of the procedure, all the previous measurements are effectively zero, resulting in unrealistically small estimates\", nên phải chia cho 1 - β^{t+1} và 1 - γ^{t+1}. Vì β, γ thuộc [0, 1) nên các lũy thừa nhỏ dần, mẫu số tiến về 1 và \"this modification has a diminishing effect\". Các lựa chọn về cân bằng lớp hay lịch learning rate mô tả tác dụng khác của Adam, không phải lý do của bước hiệu chỉnh này. (UDL mục 6.4, tr. 90)"
+        },
+        {
+          "id": "w4b6",
+          "type": "mcq",
+          "q": "Theo UDL mục 6.3, việc thêm momentum m_{t+1} = β m_t + (1 - β) Σ ∂ℓ_i/∂ϕ ảnh hưởng thế nào đến độ lớn bước đi hiệu dụng của SGD?",
+          "choices": [
+            "Bước hiệu dụng tăng khi các gradient liên tiếp cùng hướng, và giảm khi hướng gradient đổi liên tục vì các số hạng trong tổng triệt tiêu lẫn nhau.",
+            "Bước hiệu dụng luôn nhỏ hơn α vì hệ số (1 - β) làm co gradient hiện tại trước khi cộng vào, nên momentum chủ yếu làm chậm quá trình học.",
+            "Bước hiệu dụng không đổi so với SGD thường; momentum chỉ xoay hướng đi về phía gradient trung bình mà không đổi độ dài mỗi bước.",
+            "Bước hiệu dụng luôn lớn hơn α vì momentum cộng dồn mọi gradient trước đó với trọng số bằng nhau, làm quỹ đạo dài hơn ở mọi bước."
+          ],
+          "answer": 0,
+          "explain": "Prince viết công thức đệ quy làm bước gradient trở thành tổng có trọng số vô hạn của mọi gradient trước đó với trọng số giảm dần về quá khứ: \"The effective learning rate increases if all these gradients are aligned over multiple iterations but decreases if the gradient direction repeatedly changes as the terms in the sum cancel out.\" Kết quả là quỹ đạo mượt hơn và ít dao động trong các thung lũng (Figure 6.7). (UDL mục 6.3, tr. 86)"
+        },
+        {
+          "id": "w4b7",
+          "type": "open",
+          "q": "UDL mục 5.2 tóm tắt \"recipe\" bốn bước để xây dựng hàm mất mát theo maximum likelihood. Hãy ánh xạ từng bước vào bài toán dự đoán token kế tiếp trong GPT mà bạn tự cài: phân phối nào được chọn, phần nào của mạng tính tham số phân phối, loss nào được cực tiểu, và khi generate bạn trả về gì?",
+          "answer": "Bước 1: chọn một phân phối xác suất rời rạc trên |V| token của vocabulary. Bước 2: mạng f[x, ϕ] (các block transformer rồi lm_head) tính tham số của phân phối đó, tức logits rồi softmax thành Pr(token|ngữ cảnh). Bước 3: tìm ϕ cực tiểu negative log-likelihood -Σ log Pr(y_i|f[x_i, ϕ]) trên các cặp (ngữ cảnh, token đúng), chính là cross-entropy loss trong training loop. Bước 4: khi sinh văn bản trả về hoặc cả phân phối (để sample) hoặc giá trị làm phân phối cực đại (greedy).",
+          "explain": "Prince liệt kê bốn bước: (1) chọn phân phối Pr(y|θ) trên miền đầu ra, (2) cho model dự đoán tham số θ = f[x, ϕ], (3) cực tiểu negative log-likelihood -Σ log Pr(y_i|f[x_i, ϕ]) (công thức 5.6), (4) khi suy luận trả về \"either the full distribution Pr(y|f[x, ϕ̂]) or the value where this distribution is maximized\". Mục 5.7 sau đó chỉ ra tiêu chí này trùng với cross-entropy. (UDL mục 5.2, tr. 60)"
+        },
+        {
+          "id": "w4b8",
+          "type": "open",
+          "q": "UDL mục 6.1.3 mô tả saddle point trên mặt loss của Gabor model. Vì sao tiêu chí dừng \"gradient đủ nhỏ\" trong training loop có thể đánh lừa bạn ở gần saddle point, và mục 6.2.2 nói SGD giúp gì trong tình huống này?",
+          "answer": "Tại saddle point gradient bằng 0 nhưng hàm tăng theo hướng này và giảm theo hướng khác, và mặt loss quanh đó rất phẳng; nếu dừng khi gradient nhỏ ta có thể tưởng đã hội tụ trong khi mới chỉ ở gần saddle point. SGD giảm khả năng kẹt ở đó vì gradient được tính trên từng batch khác nhau, và nhiều khả năng ít nhất một số batch có gradient đáng kể tại điểm đó, đẩy tham số đi tiếp.",
+          "explain": "Prince viết về saddle point: \"the surface near the saddle point is flat, so it's hard to be sure that training hasn't converged; if we terminate the algorithm when the gradient is small, we may erroneously stop near a saddle point\" (mục 6.1.3, tr. 83). Trong danh sách ưu điểm của SGD ở mục 6.2.2, điểm thứ năm là nó giảm khả năng kẹt gần saddle point vì \"at least some of the possible batches will have a significant gradient at any point on the loss function\". (UDL mục 6.2.2, tr. 83-86)"
+        },
+        {
+          "id": "w4b9",
+          "type": "open",
+          "q": "Fleuret định nghĩa cross-entropy trực tiếp từ logit f(x;w)_y. Hãy viết lại công thức ước lượng P̂(Y = y | X = x) và ℒ_ce(w) theo Fleuret, rồi giải thích vì sao hàm loss trong code của bạn nhận logit thô chứ không phải xác suất đã qua softmax.",
+          "answer": "Mỗi thành phần f(x;w)_y được hiểu là log của một xác suất chưa chuẩn hóa (logit). Xác suất hậu nghiệm là P̂(Y = y | X = x) = exp f(x;w)_y / Σ_z exp f(x;w)_z, tức softmax (Fleuret gọi chính xác hơn là softargmax). Cross-entropy là ℒ_ce(w) = -(1/N) Σ_n log P̂(Y = y_n | X = x_n) = (1/N) Σ_n [-log(exp f(x_n;w)_{y_n} / Σ_z exp f(x_n;w)_z)]. Vì công thức loss đã chứa sẵn bước chuẩn hóa softmax bên trong, đầu vào tự nhiên của nó là vector logit; đưa xác suất đã softmax vào sẽ là áp softmax hai lần và sai công thức.",
+          "explain": "Fleuret: đầu ra model là vector có một thành phần f(x;w)_y cho mỗi lớp, \"interpreted as the logarithm of a non-normalized probability, or logit\"; từ đó P̂(Y = y | X = x) = exp f(x;w)_y / Σ_z exp f(x;w)_z (tr. 26) và ℒ_ce(w) = -(1/N) Σ log P̂(Y = y_n | X = x_n), với số hạng bên trong ký hiệu L_ce(f(x_n;w), y_n) (tr. 27). (Fleuret mục 3.1, tr. 26)"
+        },
+        {
           "id": "w4adv1",
           "type": "mcq",
           "level": "advanced",
@@ -487,6 +915,105 @@ window.QUIZ_DATA = {
           "q": "Bạn vừa điền xong _backward cho các phép trong micrograd nhưng chưa muốn phụ thuộc PyTorch để kiểm. Hãy mô tả cách dùng sai phân trung tâm của Tuần 2 để kiểm gradient của một Value, và nói vì sao nên kiểm bằng cách này trước khi chạy 03_check_grad.py.",
           "answer": "Dựng biểu thức f từ các Value, gọi f.backward() để có a.grad. Rồi nhúc nhích a.data thêm ε (khoảng 1e-6), tính lại f thành f_plus; trừ ε, tính f_minus; so (f_plus − f_minus) / 2ε với a.grad, lệch dưới khoảng 1e-6 là khớp. Làm trước để tách hai nguồn lỗi: nếu sai phân khớp mà PyTorch lệch thì lỗi nằm ở cách gọi PyTorch trong 03_check_grad.py, còn nếu sai phân đã lệch thì lỗi nằm trong _backward của bạn.",
           "explain": "Sai phân trung tâm là công cụ kiểm độc lập duy nhất không cần thư viện. Kỹ năng này dùng lại mỗi khi bạn tự viết một phép đạo hàm, kể cả ở Tuần 6 khi viết attention."
+        },
+        {
+          "id": "w5b1",
+          "type": "mcq",
+          "q": "Trong backward pass của UDL mục 7.4 với mạng ReLU, đạo hàm ∂h_3/∂f_2 của activation theo pre-activation được xử lý thế nào để cài đặt hiệu quả?",
+          "choices": [
+            "Nó là ma trận đường chéo với 1 tại các vị trí f_2 > 0 và 0 ở nơi khác; thay vì nhân ma trận, ta rút vector đường chéo I[f_2 > 0] và nhân từng phần tử.",
+            "Nó là ma trận đầy đủ D_3 × D_3 phải nhân với Ω^T ở mỗi lớp, và Prince xem đây là bước tốn kém nhất của toàn bộ backward pass.",
+            "Nó bằng hằng số 1 vì ReLU tuyến tính trên miền dương, nên đạo hàm này được bỏ qua và backward pass chỉ còn phép nhân với Ω^T.",
+            "Nó là ma trận đường chéo với giá trị bằng chính f_2, vì đạo hàm ReLU tỉ lệ với độ lớn của pre-activation tại mỗi đơn vị ẩn."
+          ],
+          "answer": 0,
+          "explain": "Prince viết đạo hàm này \"will be a diagonal matrix since each activation only depends on the corresponding pre-activation\"; với ReLU các phần tử đường chéo là 0 nơi f_2 < 0 và 1 nơi khác (Figure 7.6), và \"Rather than multiply by this matrix, we extract the diagonal terms as a vector I[f_2 > 0] and pointwise multiply, which is more efficient.\" Đây chính là phép ⊙ trong công thức 7.25 và là cách _backward của ReLU trong micrograd hoạt động. (UDL mục 7.4, tr. 105)"
+        },
+        {
+          "id": "w5b2",
+          "type": "mcq",
+          "q": "UDL mục 7.4.1 kết luận backpropagation \"extremely efficient\" về tính toán nhưng nêu một nhược điểm. Nhược điểm đó là gì?",
+          "choices": [
+            "Chỉ áp dụng được cho mạng tính toán tuần tự, không mở rộng được cho đồ thị tính toán có nhánh như residual connection.",
+            "Không hiệu quả về bộ nhớ vì toàn bộ giá trị trung gian của forward pass phải được lưu lại, điều này có thể giới hạn kích cỡ model có thể train.",
+            "Tốn tính toán vì mỗi lớp cần nhân ma trận hai lần trong backward pass, nên chi phí gấp đôi forward pass và tăng theo độ sâu mạng.",
+            "Không ổn định về số học vì phép nhân với ma trận chuyển vị Ω^T làm mất độ chính xác số thực ở các lớp sâu của mạng."
+          ],
+          "answer": 1,
+          "explain": "Prince viết bước tốn nhất của cả forward và backward pass chỉ là nhân ma trận (với Ω và Ω^T), nhưng \"it is not memory efficient; the intermediate values in the forward pass must all be stored, and this can limit the size of the model we can train.\" Lựa chọn về đồ thị có nhánh sai vì mục 7.4.3 nói backprop vẫn áp dụng cho mọi đồ thị tính toán không có chu trình. Đây là gốc của lỗi hết VRAM khi tăng batch hay độ dài chuỗi. (UDL mục 7.4.1, tr. 106)"
+        },
+        {
+          "id": "w5b3",
+          "type": "mcq",
+          "q": "He initialization trong UDL mục 7.5.1 đặt phương sai trọng số σ²_Ω = 2/D_h. Hệ số 2 trong công thức này đến từ đâu?",
+          "choices": [
+            "Vì bias được khởi tạo bằng 0 nên mất đi một nửa nguồn phương sai của pre-activation, và phương sai trọng số phải gấp đôi để bù lại.",
+            "Vì có hai ma trận trọng số (một cho forward, một cho backward) cần cân bằng, nên phương sai được nhân đôi để bù cho cả hai chiều.",
+            "Vì ReLU cắt bỏ khoảng nửa số pre-activation, nên moment bậc hai E[h_j²] chỉ bằng nửa phương sai σ²_f; hệ số 2 bù lại để phương sai giữ nguyên qua lớp.",
+            "Vì mỗi lớp có D_h đầu vào và D_h đầu ra, tổng cộng 2D_h kết nối, và phương sai được chia đều cho toàn bộ số kết nối đó để cân bằng hai phía."
+          ],
+          "answer": 2,
+          "explain": "Prince giả sử phân phối pre-activation ở lớp trước đối xứng quanh 0, nên \"half of these pre-activations will be clipped by the ReLU function, and the second moment E[h_j²] will be half the variance σ²_f\"; từ đó σ²_{f'} = (1/2) D_h σ²_Ω σ²_f (công thức 7.31). Muốn phương sai không đổi qua lớp thì σ²_Ω = 2/D_h (công thức 7.32), gọi là He initialization. (UDL mục 7.5.1, tr. 110)"
+        },
+        {
+          "id": "w5b4",
+          "type": "mcq",
+          "q": "Bishop (PRML mục 5.3.3) so sánh backpropagation với sai phân hữu hạn để tính gradient. Theo Bishop, vì sao không dùng sai phân hữu hạn khi huấn luyện, nhưng nó vẫn giữ một vai trò quan trọng trong thực hành?",
+          "choices": [
+            "Vì sai phân cần O(W²) phép tính do phải nhiễu từng trọng số riêng lẻ, còn backprop chỉ O(W); nhưng so với sai phân trung tâm là cách kiểm tra mạnh cho code backprop.",
+            "Vì sai phân chỉ tính được đạo hàm theo đầu vào chứ không theo trọng số, nên nó chỉ hữu ích để tính ma trận Jacobian của một mạng đã huấn luyện xong.",
+            "Vì sai phân đòi hỏi lưu toàn bộ giá trị trung gian giống backprop nhưng chậm gấp đôi, nên chỉ được dùng để kiểm tra khi bộ nhớ GPU còn dư nhiều.",
+            "Vì sai phân có sai số O(ε) không thể giảm thêm dù chọn ε nhỏ, nên nó chỉ được dùng cho các hàm kích hoạt không khả vi tại một điểm như ReLU."
+          ],
+          "answer": 0,
+          "explain": "Bishop viết mỗi forward propagation tốn O(W) và có W trọng số phải nhiễu riêng lẻ, \"so that the overall scaling is O(W²)\"; sai phân trung tâm (công thức 5.69) có sai số O(ε²) chứ không phải O(ε) không giảm được. Tuy vậy \"a comparison of the derivatives calculated by backpropagation with those obtained using central differences provides a powerful check on the correctness of any software implementation of the backpropagation algorithm\". Đây là phép kiểm gradient bạn dùng cho micrograd. (Bishop mục 5.3.3, tr. 247)"
+        },
+        {
+          "id": "w5b5",
+          "type": "mcq",
+          "q": "MML mục 5.6.2 trình bày automatic differentiation có forward mode và reverse mode. Hai chế độ khác nhau ở điểm nào, và vì sao huấn luyện mạng neural dùng reverse mode?",
+          "choices": [
+            "Hai chế độ chỉ khác thứ tự nhân các Jacobian nhờ tính kết hợp của phép nhân ma trận; khi chiều đầu vào lớn hơn nhiều chiều nhãn, reverse mode rẻ hơn hẳn.",
+            "Reverse mode cho kết quả chính xác hơn về số học, còn forward mode tích lũy sai số làm tròn qua từng lớp nên không dùng được cho các mạng sâu nhiều lớp.",
+            "Reverse mode không cần lưu giá trị trung gian của forward pass, trong khi forward mode phải lưu toàn bộ đồ thị tính toán nên tốn bộ nhớ hơn.",
+            "Forward mode chỉ áp dụng cho hàm một biến còn reverse mode cho hàm nhiều biến; mạng neural có rất nhiều tham số nên bắt buộc dùng reverse mode."
+          ],
+          "answer": 0,
+          "explain": "MML viết \"the forward and reverse mode differ in the order of multiplication. Due to the associativity of matrix multiplication\" ta có thể nhóm (dy/db · db/da) · da/dx (reverse, công thức 5.120) hoặc dy/db · (db/da · da/dx) (forward, 5.121); reverse mode lan truyền gradient ngược chiều dòng dữ liệu. Với mạng neural, \"where the input dimensionality is often much higher than the dimensionality of the labels, the reverse mode is computationally significantly cheaper than the forward mode\". (MML mục 5.6.2, tr. 162)"
+        },
+        {
+          "id": "w5b6",
+          "type": "mcq",
+          "q": "Theo công thức (5.53) của Bishop, đạo hàm ∂E_n/∂w_ji của lỗi theo một trọng số trong mạng feed-forward bằng gì?",
+          "choices": [
+            "Hiệu y_j - t_j nhân với w_ji, một công thức áp dụng chung cho cả đơn vị ẩn lẫn đơn vị đầu ra của mạng.",
+            "Tổng các δ_k của mọi đơn vị k mà đơn vị j gửi kết nối tới, nhân với h'(a_j), và không phụ thuộc vào activation z_i.",
+            "Tích của δ_j (lỗi tại đơn vị ở đầu ra của kết nối) với z_i (activation ở đầu vào của kết nối), cùng dạng với model tuyến tính.",
+            "Tích của δ_i ở đầu vào của kết nối với z_j ở đầu ra của kết nối, vì tín hiệu lỗi được nhân ngược chiều dòng dữ liệu."
+          ],
+          "answer": 2,
+          "explain": "Bishop định nghĩa δ_j ≡ ∂E_n/∂a_j (5.51), có ∂a_j/∂w_ji = z_i (5.52), suy ra ∂E_n/∂w_ji = δ_j z_i (5.53): \"the required derivative is obtained simply by multiplying the value of δ for the unit at the output end of the weight by the value of z for the unit at the input end of the weight\". Lựa chọn về tổng Σ w_kj δ_k nhân h'(a_j) là công thức tính δ_j cho đơn vị ẩn (5.56), không phải đạo hàm theo trọng số. Trong micrograd, đây là _backward của phép nhân: grad của trọng số bằng grad đầu ra nhân giá trị đầu vào. (Bishop mục 5.3.1, tr. 243)"
+        },
+        {
+          "id": "w5b7",
+          "type": "open",
+          "q": "Trong Example 5.14 của MML, biến trung gian c = a + b được dùng bởi cả d = sqrt(c) và e = cos(c). Hãy viết ∂f/∂c theo chain rule như MML và giải thích vì sao micrograd phải dùng `self.grad +=` thay vì `self.grad =` trong _backward.",
+          "answer": "Vì c có hai node con d và e, ∂f/∂c = (∂f/∂d)(∂d/∂c) + (∂f/∂e)(∂e/∂c) = 1 · 1/(2 sqrt(c)) + 1 · (-sin c). Tổng quát, gradient của một biến bằng tổng đóng góp qua mọi node con có nó làm parent. Trong micrograd, mỗi node con gọi _backward riêng và cộng phần đóng góp của mình vào grad của parent; nếu dùng phép gán thì phần của node con chạy trước sẽ bị ghi đè, cho gradient sai.",
+          "explain": "MML viết ∂f/∂c = (∂f/∂d)(∂d/∂c) + (∂f/∂e)(∂e/∂c) (công thức 5.135) và sau khi thay đạo hàm cơ bản: ∂f/∂c = 1 · 1/(2√c) + 1 · (-sin(c)) (5.139). Công thức tổng quát 5.145 viết ∂f/∂x_i là tổng trên mọi x_j có x_i thuộc Pa(x_j). Vì thế gradient tại một node là tổng theo các node con, ứng với phép cộng dồn trong micrograd. (MML mục 5.6.2, tr. 163)"
+        },
+        {
+          "id": "w5b8",
+          "type": "open",
+          "q": "Figure 7.7 của UDL xét mạng 50 lớp ẩn, D_h = 100 đơn vị mỗi lớp, đầu vào chuẩn tắc, khởi tạo trọng số theo phân phối chuẩn với năm phương sai σ²_Ω thuộc {0.001, 0.01, 0.02, 0.1, 1.0}. Mô tả điều xảy ra với phương sai activation ở forward pass và phương sai gradient ở backward pass cho ba trường hợp σ²_Ω = 0.02, lớn hơn 0.02, nhỏ hơn 0.02, và nêu tên hai hiện tượng tương ứng.",
+          "answer": "Với σ²_Ω = 2/D_h = 0.02 (He initialization) phương sai activation giữ ổn định qua các lớp. Với giá trị lớn hơn (0.1, 1.0) phương sai tăng nhanh theo độ sâu; với giá trị nhỏ hơn (0.01, 0.001) phương sai giảm nhanh (trục log). Backward pass tiếp tục đúng xu hướng đó: khởi tạo lớn hơn 0.02 làm độ lớn gradient tăng nhanh khi đi ngược về các lớp đầu (exploding gradient), khởi tạo nhỏ hơn làm gradient teo dần (vanishing gradient).",
+          "explain": "Chú thích Figure 7.7: \"For He initialization (σ²_Ω = 2/D_h = 0.02), the variance is stable. However, for larger values, it increases rapidly, and for smaller values, it decreases rapidly (note log scale)\"; phương sai gradient ở backward pass \"continues this trend\", và hai trường hợp được gọi là \"the exploding gradient and vanishing gradient problems, respectively\". Đây là lý do bạn phải chọn std khởi tạo cho nn.Linear trong GPT của mình thay vì để ngẫu nhiên tùy ý. (UDL mục 7.5, tr. 110)"
+        },
+        {
+          "id": "w5b9",
+          "type": "open",
+          "q": "Bishop (PRML mục 5.3) nhấn mạnh thuật ngữ backpropagation trong tài liệu neural network được dùng với nhiều nghĩa khác nhau, và ông tách quá trình huấn luyện thành hai giai đoạn riêng biệt. Hai giai đoạn đó là gì, Bishop dùng chữ backpropagation cho giai đoạn nào, và chúng tương ứng với dòng lệnh nào trong training loop micrograd hoặc PyTorch của bạn?",
+          "answer": "Giai đoạn một: tính đạo hàm của hàm lỗi theo trọng số, bằng cách lan truyền lỗi ngược qua mạng; Bishop dành riêng chữ backpropagation cho giai đoạn này. Giai đoạn hai: dùng các đạo hàm đó để tính lượng điều chỉnh trọng số, ví dụ bằng gradient descent (Rumelhart et al. 1986) hoặc các phương pháp tối ưu mạnh hơn. Trong code, giai đoạn một là loss.backward() (điền .grad), giai đoạn hai là vòng cập nhật p.data -= lr * p.grad hay optimizer.step(). Bishop lưu ý hai giai đoạn độc lập: backprop áp dụng được cho nhiều loại mạng và hàm lỗi khác, còn bước cập nhật có thể thay bằng optimizer bất kỳ.",
+          "explain": "Bishop viết: \"In the first stage, the derivatives of the error function with respect to the weights must be evaluated ... we shall use the term backpropagation specifically to describe the evaluation of derivatives. In the second stage, the derivatives are then used to compute the adjustments to be made to the weights.\" Ông nhấn mạnh \"It is important to recognize that the two stages are distinct\" và giai đoạn hai có thể dùng \"a variety of optimization schemes, many of which are substantially more powerful than simple gradient descent\". (Bishop mục 5.3, tr. 241)"
         },
         {
           "id": "w5adv1",
@@ -603,6 +1130,98 @@ window.QUIZ_DATA = {
           "explain": "SLP3 trang 42 nói rõ tokenization là để 'different algorithms and systems can agree on simple questions' như độ dài văn bản, và perplexity 'assume that all texts have a fixed' đơn vị. Đây là lý do mục H nâng cao đề xuất bits per byte để so model khác tokenizer."
         },
         {
+          "id": "w6b1",
+          "type": "mcq",
+          "q": "Theo SLP3 mục 2.4.2, khi BPE encoder tách một câu mới (test) thành token, nó quyết định các phép merge dựa trên gì?",
+          "choices": [
+            "Chọn ngẫu nhiên một trong các cách phân đoạn hợp lệ theo vocabulary để tăng tính đa dạng của dữ liệu đưa vào model khi huấn luyện.",
+            "Đếm lại tần suất các cặp ký hiệu kề nhau trong chính câu mới, rồi merge cặp phổ biến nhất của câu đó cho tới khi hết cặp lặp lại.",
+            "Áp dụng lần lượt các merge đã học theo đúng thứ tự học từ tập train (cặp phổ biến nhất trước); tần suất trong dữ liệu test không có vai trò gì.",
+            "Tìm cách phân đoạn cho ra ít token nhất bằng quy hoạch động trên toàn bộ vocabulary đã học, không cần quan tâm thứ tự merge."
+          ],
+          "answer": 2,
+          "explain": "SLP3 viết encoder \"just runs on the test data the merges we have learned from the training data. It runs them in the order we learned them (i.e., greedily, meaning starting from the most frequent in the training data). The frequencies in the test data don't play a role, just the frequencies in the training data.\" Vì vậy tokenizer của bạn chỉ cần lưu danh sách merge có thứ tự; encode là lặp lại danh sách đó. (SLP3 mục 2.4.2, tr. 45)"
+        },
+        {
+          "id": "w6b2",
+          "type": "mcq",
+          "q": "SLP3 mục 2.4.1 minh họa BPE trên corpus 10 ký tự \"A B D C A B E C A B\" với vocabulary ban đầu {A, B, C, D, E}. Sau hai lần merge (tạo AB rồi CAB), độ dài corpus và kích cỡ vocabulary là bao nhiêu?",
+          "choices": [
+            "Corpus dài 5 token, vocabulary có 6 token.",
+            "Corpus dài 8 token, vocabulary có 7 token.",
+            "Corpus dài 7 token, vocabulary có 6 token.",
+            "Corpus dài 5 token, vocabulary có 7 token."
+          ],
+          "answer": 3,
+          "explain": "Sau merge thứ nhất corpus thành \"AB D C AB E C AB\": vocabulary 6 token {A, B, C, D, E, AB}, corpus dài 7. Cặp phổ biến nhất tiếp theo là \"C AB\", merge thành CAB cho corpus \"AB D CAB E CAB\": vocabulary 7 token và \"the corpus has length 5\". Ví dụ này cho thấy mỗi merge làm vocabulary tăng đúng 1 và corpus ngắn đi, đó là cách vocab_size của bạn tăng theo số merge k. (SLP3 mục 2.4.1, tr. 43)"
+        },
+        {
+          "id": "w6b3",
+          "type": "mcq",
+          "q": "SLP3 mục 5.4 giải thích vì sao không dùng dot product thô làm độ đo tương đồng giữa hai vector từ mà chuẩn hóa thành cosine. Lý do là gì?",
+          "choices": [
+            "Vì dot product thô tốn O(N²) phép nhân với N chiều, còn cosine tính được trong O(N) nhờ chuẩn hóa vector trước khi so sánh.",
+            "Vì dot product thô thiên về vector dài, mà từ xuất hiện nhiều có vector dài hơn; chia cho độ dài hai vector loại bỏ ảnh hưởng của tần suất.",
+            "Vì dot product thô chỉ định nghĩa được cho vector thưa đếm từ, còn cosine mới áp dụng được cho embedding dày đặc học từ mạng neural.",
+            "Vì dot product thô có thể âm trong khi độ tương đồng phải luôn không âm để có thể so sánh và xếp hạng giữa các cặp từ trong vocabulary."
+          ],
+          "answer": 1,
+          "explain": "SLP3 viết \"This raw dot product, however, has a problem as a similarity metric: it favors long vectors\" và \"More frequent words have longer vectors, since they tend to co-occur with more words\"; ta muốn độ đo cho biết hai từ giống nhau đến đâu \"regardless of their frequency\", nên chia dot product cho tích độ dài, chính là cos θ (công thức 5.9, 5.10). Với unit vector, dot product và cosine trùng nhau, đó là lý do các hệ RAG chuẩn hóa embedding trước khi so. (SLP3 mục 5.4, tr. 135)"
+        },
+        {
+          "id": "w6b4",
+          "type": "mcq",
+          "q": "Theo UDL mục 12.2.1, số attention weight a[x_m, x_n] trong một khối self-attention phụ thuộc thế nào vào độ dài chuỗi N và chiều mỗi input D?",
+          "choices": [
+            "Tuyến tính theo N và bậc hai theo D, giống một lớp fully connected nối toàn bộ DN đầu vào với DN đầu ra.",
+            "Bậc hai theo D và độc lập với N, vì ma trận Ω_v có kích cỡ D × D được dùng chung cho mọi vị trí trong chuỗi.",
+            "Tuyến tính theo N và tuyến tính theo D, vì mỗi cặp input cần D trọng số riêng để so từng chiều với nhau.",
+            "Bậc hai theo N và độc lập với D, vì chỉ có một trọng số cho mỗi cặp có thứ tự (x_m, x_n) bất kể kích cỡ của các input."
+          ],
+          "answer": 3,
+          "explain": "Prince viết các attention weight \"are also sparse since there is only one weight for each ordered pair of inputs (x_m, x_n), regardless of the size of these inputs (figure 12.2c). It follows that the number of attention weights has a quadratic dependence on the sequence length N, but is independent of the length D of each input.\" Ngược lại, phép tính value với Ω_v chia sẻ tham số nên chỉ tăng tuyến tính theo N. Đây là gốc của ma trận N × N trong code attention của bạn. (UDL mục 12.2.1, tr. 209)"
+        },
+        {
+          "id": "w6b5",
+          "type": "mcq",
+          "q": "UDL mục 12.2.3 nói self-attention không có hàm kích hoạt như ReLU, nhưng toàn bộ phép tính vẫn phi tuyến. Tính phi tuyến đó đến từ đâu?",
+          "choices": [
+            "Từ ReLU ẩn trong phép tính query và key, giống lớp fully connected chuẩn f[x] = ReLU[β + Ωx] mà Prince nêu ở đầu mục 12.2.",
+            "Từ dot product query-key rồi softmax khi tính attention weight; các trọng số này là hàm phi tuyến của input, một dạng hypernetwork.",
+            "Từ LayerNorm được áp dụng lên các value trước khi lấy tổng có trọng số, vì phép chuẩn hóa chia cho độ lệch chuẩn là phi tuyến.",
+            "Từ positional encoding được cộng vào input, vì các hàm sin và cos dùng để mã hóa vị trí là hàm phi tuyến của chỉ số vị trí."
+          ],
+          "answer": 1,
+          "explain": "Prince tóm tắt: \"There is no activation function, but the mechanism is nonlinear due to the dot-product and a softmax operation used to compute the attention weights.\" Ở mục 12.2.2 ông gọi đây là ví dụ của hypernetwork, \"where one network branch computes the weights of another\". Value chỉ là biến đổi tuyến tính của input; phi tuyến nằm ở cách các value được trộn. (UDL mục 12.2.3, tr. 209-211)"
+        },
+        {
+          "id": "w6b6",
+          "type": "mcq",
+          "q": "Fleuret (mục 4.8) nêu tính chất của attention operator đối với hoán vị đầu vào khi không dùng mask. Tính chất đó là gì?",
+          "choices": [
+            "Đẳng biến với mọi hoán vị của cả ba tensor, nghĩa là đổi chỗ bất kỳ đầu vào nào cũng đổi chỗ đầu ra tương ứng.",
+            "Bất biến với hoán vị của key và value, và đẳng biến với hoán vị của query vì tensor kết quả bị hoán vị theo cùng cách.",
+            "Bất biến với mọi hoán vị của cả query, key và value, nên bắt buộc phải cộng positional encoding thì mới phân biệt được vị trí.",
+            "Bất biến với hoán vị của query và đẳng biến với hoán vị của key và value, vì thứ tự query không ảnh hưởng tới điểm attention."
+          ],
+          "answer": 1,
+          "explain": "Fleuret viết attention operator, và do đó multi-head attention layer khi không có mask, \"is invariant to a permutation of the keys and values, and equivariant to a permutation of the queries, as it would permute the resulting tensor similarly.\" Đổi chỗ các key/value chỉ đổi thứ tự cộng trong Σ_k A_{q,k} V_k nên Y_q không đổi; đổi chỗ query thì các hàng của Y đổi chỗ theo. Đây là lý do cần positional encoding (mục 4.10). (Fleuret mục 4.8, tr. 97)"
+        },
+        {
+          "id": "w6b8",
+          "type": "open",
+          "q": "SLP3 mục 7.1 mở đầu bằng hai câu \"The chicken didn't cross the road because it was too tired\" và \"... because it was too wide\", rồi xét tình huống model causal mới đọc tới từ \"it\". Dùng ví dụ này để giải thích vì sao static embedding không đủ, và attention xây biểu diễn cho \"it\" như thế nào ở lớp k+1.",
+          "answer": "Với static embedding như word2vec, từ \"it\" luôn có cùng một vector dù nó chỉ con gà (câu 1) hay con đường (câu 2). Khi model causal mới đọc tới \"it\" thì chưa biết nó sẽ chỉ gì, nên biểu diễn hợp lý phải mang đặc điểm của cả chicken và road. Attention làm điều đó: khi tính biểu diễn cho \"it\" ở lớp k+1, nó gán trọng số cao cho cột chicken và road ở lớp k (Figure 7.3) và tổng hợp biểu diễn của các token đó, tạo ra contextual embedding thay đổi theo ngữ cảnh và có thể lấy thông tin từ những từ ở xa.",
+          "explain": "SLP3 viết với static embedding \"the representation of a word's meaning is always the same vector irrespective of the context\"; ở câu (7.3) dừng tại \"it\", \"a representation of it at this point might have aspects of both chicken and road\" (tr. 179). Attention là cơ chế \"weighs and combines the representations from appropriate other tokens in the context from layer k to build the representation for tokens in layer k + 1\", và Figure 7.3 cho thấy chicken và road nhận attention weight cao. (SLP3 mục 7.1, tr. 180)"
+        },
+        {
+          "id": "w6b9",
+          "type": "open",
+          "q": "SLP3 mục 7.4 mô tả việc lấy token embedding như một phép nhân ma trận và nêu một hạn chế của absolute positional embedding học được. Hãy giải thích vì sao nn.Embedding tương đương nhân vector one-hot với E, nêu shape của E và E_pos, và mô tả hạn chế đó.",
+          "answer": "E có shape [|V| × d], mỗi hàng là embedding của một token. Nhân vector one-hot [1 × |V|] (chỉ có 1 tại chỉ số token) với E cho ra đúng hàng tương ứng, nên lookup theo chỉ số của nn.Embedding và phép nhân one-hot × E cho cùng kết quả; cả chuỗi N token là ma trận one-hot [N × |V|] nhân E cho [N × d]. Positional embedding tuyệt đối được lưu trong E_pos shape [N × d] và cộng vào token embedding. Hạn chế: các vị trí đầu chuỗi có rất nhiều ví dụ huấn luyện còn các vị trí gần giới hạn độ dài có ít, nên embedding của các vị trí cuối có thể được huấn luyện kém và tổng quát hóa không tốt; sinusoidal hay RoPE là các lựa chọn thay thế.",
+          "explain": "SLP3: E \"has a row for each of the |V| tokens\" với shape [|V| × d]; \"Multiplying by a one-hot vector that has only one non-zero element x_i = 1 simply selects out the relevant row vector for word i\" (Figure 7.12, 7.13, tr. 192). Positional embedding học được lưu trong E_pos shape [N × d]; hạn chế: \"there will be plenty of training examples for the initial positions in our inputs and correspondingly fewer at the outer length limits. These latter embeddings may be poorly trained and may not generalize well during testing.\" (SLP3 mục 7.4, tr. 193)"
+        },
+        {
           "id": "w6adv1",
           "type": "mcq",
           "level": "advanced",
@@ -708,6 +1327,98 @@ window.QUIZ_DATA = {
           ],
           "answer": 2,
           "explain": "Router gán mỗi token cho top-k experts → tổng tham số lớn nhưng tham số active mỗi token nhỏ; cần lo load balancing. Qwen3-MoE, gpt-oss, DeepSeek dùng MoE."
+        },
+        {
+          "id": "w7b1",
+          "type": "mcq",
+          "q": "SLP3 mục 7.2 gọi attention là thành phần token-mixing. Theo mục 7.2.1, feedforward layer trong block khác attention ở điểm nào về cách xử lý các vị trí token và chia sẻ tham số?",
+          "choices": [
+            "FFN chỉ được áp dụng lên token cuối cùng của chuỗi để tạo logits cho token kế tiếp, các vị trí khác bỏ qua để tiết kiệm tính toán.",
+            "FFN cũng trộn thông tin giữa các vị trí nhưng chỉ trong một cửa sổ cục bộ vài token lân cận, giống một phép tích chập một chiều.",
+            "FFN dùng chung một bộ tham số cho mọi lớp của transformer, chỉ khác nhau giữa các vị trí token để mã hóa thông tin vị trí.",
+            "FFN là position-wise: áp dụng độc lập lên từng vị trí token, dùng cùng tham số cho mọi vị trí trong một lớp nhưng tham số khác nhau giữa các lớp."
+          ],
+          "answer": 3,
+          "explain": "SLP3 viết \"The feedforward layer is position-wise, meaning that it operates on each token position i independently. This makes a contrast with the attention network, whose job is to mix information from different token positions. The feedforward weights are shared across positions ... but are different from layer to layer.\" Đó là lý do trong code bạn áp một nn.Sequential lên tensor (B, T, d) mà không cần vòng lặp theo T. (SLP3 mục 7.2.1, tr. 186)"
+        },
+        {
+          "id": "w7b2",
+          "type": "mcq",
+          "q": "GPT của bạn theo kiến trúc prenorm có một LayerNorm cuối cùng đặt ngay trước lm_head. Theo SLP3 mục 7.2, vì sao lớp này cần thiết?",
+          "choices": [
+            "Vì kiến trúc postnorm gốc của Vaswani et al. (2017) yêu cầu lớp này, và GPT giữ lại để tương thích với trọng số đã huấn luyện trước.",
+            "Vì lm_head chia sẻ trọng số với ma trận embedding nên cần chuẩn hóa để hai ma trận có cùng thang đo trước khi tính logits trên vocabulary.",
+            "Vì prenorm đặt layer norm trước attention và FFN nên đầu ra block cuối chưa được chuẩn hóa; cần một layer norm phụ ngay dưới language modeling head.",
+            "Vì softmax của lm_head cần đầu vào có trung bình 0 và phương sai 1 để tránh tràn số khi tính exp trên một vocabulary lớn hàng chục nghìn token."
+          ],
+          "answer": 2,
+          "explain": "SLP3: \"at the very end of the last (highest) transformer block, there is a single extra layer norm that is run on the last h_i of each token stream (just below the language model head layer)\", và chú thích 2 nói kiến trúc phổ biến nhất là prenorm, còn postnorm của Vaswani et al. (2017) đặt layer norm sau attention và FFN; \"having the layer norm beforehand works better, but does require this one extra layer at the end.\" (SLP3 mục 7.2, tr. 188)"
+        },
+        {
+          "id": "w7b3",
+          "type": "mcq",
+          "q": "Theo SLP3 mục 7.5, khi dùng weight tying, ma trận ánh xạ từ đầu ra lớp cuối h (shape [1 × d]) sang logits có shape gì, và vì sao được gọi là unembedding?",
+          "choices": [
+            "[d × |V|], là E^T, vì nó ánh xạ ngược từ embedding [1 × d] về vector điểm trên vocabulary [1 × |V|], đảo chiều với bước embedding.",
+            "[|V| × d], vì chính E được dùng lại nguyên dạng để ánh xạ one-hot sang embedding lần thứ hai ở phía đầu ra của mạng.",
+            "[d × d], vì nó chiếu đầu ra lớp cuối về không gian embedding trước khi so sánh cosine với từng hàng của E.",
+            "[N × |V|], vì nó tạo logits cho toàn bộ N vị trí trong cửa sổ ngữ cảnh cùng lúc chỉ trong một phép nhân ma trận duy nhất."
+          ],
+          "answer": 0,
+          "explain": "SLP3 viết ở đầu vào ma trận embedding [|V| × d] ánh xạ one-hot [1 × |V|] sang embedding [1 × d]; ở language modeling head, \"E^T, the transpose of the embedding matrix (of shape [d × |V|]) is used to map back from an embedding (shape [1 × d]) to a vector over the vocabulary (shape [1 × |V|])\", nên \"We therefore sometimes call the transpose E^T the unembedding layer\"; u = h E^T, y = softmax(u) (công thức 7.47, 7.48). (SLP3 mục 7.5, tr. 195)"
+        },
+        {
+          "id": "w7b4",
+          "type": "mcq",
+          "q": "Figure 7.21 của SLP3 dùng vocabulary 4 token với logits all = 1.2, the = 0.9, your = 0.1, that = -0.5. Xác suất của \"all\" thay đổi thế nào khi temperature τ giảm từ 1 xuống 0.5 rồi 0.1?",
+          "choices": [
+            "Tăng từ .44 lên .50 rồi .55, vì chia logits cho τ chỉ dịch chuyển nhẹ phân phối về phía token có logit cao nhất.",
+            "Tăng từ .44 lên .59 rồi .95, vì chia logits cho τ < 1 đưa giá trị lớn hơn vào softmax, đẩy phân phối về phía greedy decoding.",
+            "Giảm từ .44 xuống .33 rồi .25, vì chia logits cho τ nhỏ làm phân phối tiến về phân phối đều trên 4 token.",
+            "Giữ nguyên .44 ở cả ba giá trị, vì temperature chỉ đổi thứ hạng tương đối giữa các token chứ không đổi xác suất."
+          ],
+          "answer": 1,
+          "explain": "SLP3: \"τ = 1 is the normal softmax, and we can see how setting τ = 0.5 increases the probability of the top candidate from .44 to .59. Setting τ = 0.1 increases the probability of the top candidate to .95, getting us close to greedy decoding.\" Ngược lại τ = 10 và 100 cho .27 và .25, tiến về phân phối đều (high-temperature sampling). Trong code, đây là logits / temperature trước softmax trong hàm generate. (SLP3 mục 7.6.3, tr. 200)"
+        },
+        {
+          "id": "w7b5",
+          "type": "mcq",
+          "q": "Theo UDL mục 12.7.3, masked self-attention đem lại hệ quả gì về tính toán khi decoder sinh văn bản từng token?",
+          "choices": [
+            "Có thể sinh mọi token của câu trong một lần forward duy nhất mà không cần lặp, vì mask đã tách các vị trí độc lập với nhau.",
+            "Mỗi token mới đòi hỏi tính lại toàn bộ embedding của các token trước, vì attention weight của chúng thay đổi khi chuỗi dài thêm.",
+            "Các embedding ở vị trí trước không phụ thuộc token sau, nên phần lớn tính toán trước đó có thể được dùng lại khi sinh token kế tiếp.",
+            "Số phép tính giảm đúng một nửa vì ma trận attention chỉ còn tam giác dưới cần tính, bất kể chuỗi dài bao nhiêu."
+          ],
+          "answer": 2,
+          "explain": "Prince viết: \"The computation can be made quite efficient as prior embeddings do not depend on subsequent ones due to the masked self-attention. Hence, much of the earlier computation can be recycled as we generate subsequent tokens.\" Đây là cơ sở của KV cache mà bạn gặp ở Tuần 12. Việc sinh vẫn phải lặp: chuỗi mở rộng được đưa lại vào decoder để lấy phân phối cho token tiếp theo. (UDL mục 12.7.3, tr. 224)"
+        },
+        {
+          "id": "w7b6",
+          "type": "mcq",
+          "q": "UDL mục 12.7.4 nêu cấu hình của GPT3. Phát biểu nào đúng theo Prince, và hãy tự kiểm tra số head nhân chiều mỗi head có khớp chiều embedding theo quy ước D/H của mục 12.3.3 không?",
+          "choices": [
+            "96 lớp transformer, chiều embedding 12288, 128 head với chiều query/key/value 96, huấn luyện trên 2048 tỷ token.",
+            "96 lớp transformer, chiều embedding 4096, 32 head với chiều query/key/value 128, huấn luyện trên 300 tỷ token.",
+            "48 lớp transformer, chiều embedding 12288, 96 head với chiều query/key/value 64, huấn luyện trên 175 tỷ token.",
+            "96 lớp transformer, chiều embedding 12288, 96 head với chiều query/key/value 128, huấn luyện trên 300 tỷ token."
+          ],
+          "answer": 3,
+          "explain": "Prince: \"In GPT3, the sequence lengths are 2048 tokens long, and the total batch size is 3.2 million tokens. There are 96 transformer layers ..., each processing a word embedding of size 12288. There are 96 heads in the self-attention layers, and the value, query, and key dimension is 128. It is trained with 300 billion tokens and contains 175 billion parameters.\" Kiểm tra: 96 × 128 = 12288, đúng quy ước ở mục 12.3.3 rằng value, query, key có kích cỡ D/H khi có H head. (UDL mục 12.7.4, tr. 224)"
+        },
+        {
+          "id": "w7b7",
+          "type": "open",
+          "q": "SLP3 mục 7.6.2 kết luận \"greedy decoding is too boring, and random sampling is too random\". Hãy giải thích vấn đề của từng phương pháp theo SLP3, và nêu ba phương pháp sampling được đề xuất để đứng giữa hai cực này.",
+          "answer": "Greedy decoding luôn chọn token có xác suất cao nhất nên văn bản sinh ra rất dễ đoán, chung chung và thường lặp lại; nó còn hoàn toàn xác định, cùng ngữ cảnh và cùng model thì luôn cho cùng chuỗi. Random sampling chọn token theo đúng xác suất của model, nhưng phần đuôi phân phối có rất nhiều token xác suất thấp; tuy từng token hiếm, tổng của chúng chiếm một phần không nhỏ nên chúng được chọn đủ thường xuyên để tạo ra câu kỳ quặc. Ba phương pháp sửa random sampling: temperature sampling, top-k sampling và top-p (nucleus) sampling.",
+          "explain": "SLP3 về greedy: \"because the tokens it chooses are (by definition) extremely predictable, the resulting text is generic and often quite repetitive ... greedy decoding is so predictable that it is deterministic\" (tr. 197). Về random sampling: \"there are many odd, low-probability tokens in the tail of the distribution. Even though each one is low-probability, the sum of these rare tokens constitutes a non-trivial portion of the distribution. As a result, these tokens get chosen often enough to result in weird sentences being generated\", và \"There are three standard sampling methods ... Temperature sampling, top-k, and top-p.\" (SLP3 mục 7.6.2, tr. 198)"
+        },
+        {
+          "id": "w7b8",
+          "type": "open",
+          "q": "SLP3 mục 7.2 mô tả transformer bằng ẩn dụ residual stream (Elhage et al. 2021). Hãy giải thích ẩn dụ này, thành phần nào duy nhất đọc thông tin từ stream của token khác, và nội dung của stream thay đổi thế nào từ block thấp đến block cao trong một GPT 12 lớp được train dự đoán token kế tiếp.",
+          "answer": "Residual stream xem việc xử lý token i qua các block là một dòng biểu diễn d chiều cho vị trí i: bắt đầu bằng embedding, các thành phần (layer norm rồi attention, layer norm rồi FFN) đọc từ dòng và cộng đầu ra của mình trở lại dòng. Chỉ multi-head attention lấy thông tin từ các residual stream của token khác; Elhage et al. cho thấy có thể xem attention head như đang chuyển thông tin từ stream của token lân cận vào stream hiện tại (Figure 7.8), nên attention là thành phần token-mixing. Ở các block đầu, stream chủ yếu biểu diễn token hiện tại; ở các block cao nhất, stream thường biểu diễn token kế tiếp, vì ở cuối cùng nó được huấn luyện để dự đoán token đó.",
+          "explain": "SLP3: \"the various components read their input from the residual stream and add their output back into the stream\" (tr. 184); \"the only component that takes as input information from other tokens (other residual streams) is multi-head attention\" và Elhage et al. (2021) \"show that we can view attention heads as literally moving information from the residual stream of a neighboring token into the current stream\" (tr. 187). Về nội dung theo độ sâu: \"At the earlier transformer blocks, the residual stream is representing the current token. At the highest transformer blocks, the residual stream is usually representing the following token, since at the very end it's being trained to predict the next token.\" (SLP3 mục 7.2, tr. 188)"
         },
         {
           "id": "w7adv1",
@@ -837,6 +1548,105 @@ window.QUIZ_DATA = {
           "explain": "SLP3 trang 76: 'the probability of a test set gets smaller the longer the text. It's useful to have a metric that is per-word, normalized by length'. Perplexity là exp của cross-entropy trung bình trên token, đúng công thức ở mục lý thuyết của tuần."
         },
         {
+          "id": "w8b1",
+          "type": "mcq",
+          "q": "SLP3 mục 3.3.1 xét language model B trên vocabulary 3 màu với P(red) = 0.8, P(green) = 0.1, P(blue) = 0.1 và tập test T = \"red red red red blue\". Perplexity của B trên T bằng bao nhiêu, và so với model A phân bố đều thì sao?",
+          "choices": [
+            "Bằng 3, giống model A, vì perplexity chỉ phụ thuộc branching factor của ngôn ngữ và vocabulary vẫn có đúng 3 màu.",
+            "Bằng 0.527, thấp hơn 3 của model A, vì perplexity là căn bậc năm của xác suất tập test theo model.",
+            "Bằng 5, cao hơn 3 của model A, vì tập test có 5 token và mỗi token đóng góp một đơn vị vào perplexity.",
+            "Bằng 1.89, thấp hơn 3 của model A, vì P_B(T) = 0.8^4 × 0.1 = 0.04096 và perplexity = 0.04096^(-1/5) = 0.527^(-1)."
+          ],
+          "answer": 3,
+          "explain": "SLP3 tính perplexity_A(T) = (1/3)^(-1) = 3 (công thức 3.19) và perplexity_B(T) = P_B(red red red red blue)^(-1/5) = 0.04096^(-1/5) = 0.527^(-1) = 1.89 (công thức 3.21): tuy branching factor vẫn là 3, \"the perplexity or weighted branching factor is smaller\" vì red rất dễ đoán. Bài này cho thấy perplexity là số lựa chọn hiệu dụng có trọng số, chứ không phải kích cỡ vocabulary. (SLP3 mục 3.3.1, tr. 78)"
+        },
+        {
+          "id": "w8b2",
+          "type": "mcq",
+          "q": "SLP3 mục 7.7 nói một cửa sổ ngữ cảnh N token cho N ví dụ huấn luyện chỉ từ một lần forward. Điều gì làm được điều đó?",
+          "choices": [
+            "Vì loss chỉ được tính ở token cuối cùng của cửa sổ nhưng được nhân với N để bù cho các vị trí còn lại chưa được chấm điểm trong lần forward đó.",
+            "Vì đích w_{t+1} đã biết trước ở mọi vị trí và causal mask không cho mỗi vị trí attend tới đích của chính nó, nên N vị trí được chấm điểm cùng lúc.",
+            "Vì mỗi vị trí được đưa qua model N lần với ngữ cảnh dài dần, rồi gradient của N lần đó được cộng dồn trước khi cập nhật.",
+            "Vì ma trận embedding E được cập nhật N lần trong một bước tối ưu, mỗi lần cho một token trong cửa sổ ngữ cảnh, nên tương đương N ví dụ."
+          ],
+          "answer": 1,
+          "explain": "SLP3: \"Parallelism is possible because we know in advance the desired output (w_{t+1}), and the causal mask prevents each position from attending to its own target, allowing the output for each token to be computed separately. This means that all N positions in the context window can be scored at once against their true next tokens, giving N training examples from one pass through the network.\" Loss của batch là trung bình -log ŷ_t[w_{t+1}] trên T vị trí (công thức 7.55). Đó là lý do target trong training loop của bạn là chuỗi dịch một token, không phải một token cuối. (SLP3 mục 7.7, tr. 202)"
+        },
+        {
+          "id": "w8b3",
+          "type": "mcq",
+          "q": "FoLLM (mục 2.2.4) viết scaling law Chinchilla của Hoffmann et al. (2022) dưới dạng L(N, D) = 406.4/N^0.34 + 410.7/D^0.28 + 1.69. Khi N và D cùng tiến ra vô cùng, loss tiến về đâu và số hạng đó có ý nghĩa gì?",
+          "choices": [
+            "Về 406.4 + 410.7 = 817.1, vì các mẫu số N^0.34 và D^0.28 tiến về 1 khi N và D đủ lớn so với các hệ số.",
+            "Về 1.69, số hạng irreducible error: phần loss vẫn còn dù tăng tham số và dữ liệu vô hạn, do các yếu tố không mô hình hóa được.",
+            "Về 0, vì cả hai số hạng lũy thừa đều triệt tiêu và model với đủ tham số và dữ liệu sẽ khớp hoàn hảo phân phối ngôn ngữ.",
+            "Về 0.34 + 0.28 = 0.62, tổng hai số mũ, biểu thị độ dốc chung của power law theo cả số tham số và lượng dữ liệu."
+          ],
+          "answer": 1,
+          "explain": "FoLLM viết dạng tổng quát L(x) = a x^b + ε_∞, \"where ε_∞ is the irreducible error that accounts for the error due to unknown variables, which is present even as x → ∞\" (công thức 2.37), và ghi rõ trong công thức 2.39 hai số hạng đầu là model scaling và dataset scaling, còn 1.69 là irreducible error. Khi so loss pretrain 124M của bạn với các con số này, hãy nhớ loss có sàn khác 0. (FoLLM mục 2.2.4, tr. 65)"
+        },
+        {
+          "id": "w8b4",
+          "type": "mcq",
+          "q": "Fleuret (mục 3.7) nói test loss cải thiện theo lượng dữ liệu theo scaling law với một điều kiện đi kèm, và nêu yếu tố cho phép huấn luyện trên dataset lớn hơn bộ nhớ thiết bị nhiều bậc. Điều kiện và yếu tố đó là gì?",
+          "choices": [
+            "Learning rate phải giảm tương ứng với lượng dữ liệu; mixed precision cho phép nạp toàn bộ dataset vào bộ nhớ GPU dưới dạng số 16 bit.",
+            "Kích cỡ model phải tăng tương ứng; stochastic gradient descent chỉ cần một phần dữ liệu mỗi lần nên dataset có thể lớn hơn bộ nhớ thiết bị nhiều bậc.",
+            "Số epoch phải tăng tương ứng với lượng dữ liệu; gradient accumulation cho phép batch hiệu dụng lớn hơn bộ nhớ của thiết bị.",
+            "Độ dài ngữ cảnh phải tăng tương ứng với lượng dữ liệu; KV cache cho phép xử lý các chuỗi dài hơn nhiều so với bộ nhớ của thiết bị."
+          ],
+          "answer": 1,
+          "explain": "Fleuret: hiệu năng \"improves with the amount of data according to remarkable scaling laws, as long as the model size increases correspondingly [Kaplan et al., 2020]\" (Figure 3.6). Việc khai thác được scaling law trong vùng hàng tỷ mẫu là nhờ cấu trúc model có thể mở rộng và \"stochastic gradient descent, which requires only a fraction of the data at a time and can operate with datasets whose size is orders of magnitude greater than that of the computing device's memory.\" (Fleuret mục 3.7, tr. 52)"
+        },
+        {
+          "id": "w8b5",
+          "type": "mcq",
+          "q": "UDL mục 9.2.2 suy ra hàm mất mát hiệu chỉnh L̃_SGD của stochastic gradient descent. So với gradient descent thường, SGD thêm một số hạng regularization ẩn tương ứng với đại lượng nào?",
+          "choices": [
+            "Phương sai của gradient các loss theo batch, nên SGD ưu tiên vùng mà mọi batch đồng ý về độ dốc, nơi toàn bộ dữ liệu đều khớp tốt.",
+            "Entropy của phân phối đầu ra model, khiến model tránh các dự đoán quá tự tin và nhờ đó tổng quát hóa tốt hơn.",
+            "Bình phương chuẩn gradient của loss trên toàn bộ dữ liệu, khiến quỹ đạo bị đẩy khỏi những vùng mà mặt loss dốc.",
+            "Chuẩn L2 của vector tham số, tương đương weight decay với hệ số α/4, khiến các trọng số nhỏ dần trong quá trình huấn luyện."
+          ],
+          "answer": 0,
+          "explain": "Prince viết công thức 9.9 \"reveals an extra regularization term, which corresponds to the variance of the gradients of the batch losses L_b. In other words, SGD implicitly favors places where the gradients are stable (where all the batches agree on the slope).\" Số hạng bình phương chuẩn gradient (α/4)‖∂L/∂ϕ‖² là phần đã có sẵn ở gradient descent thường (công thức 9.8), không phải phần thêm của SGD. Đây là một lời giải thích vì sao batch nhỏ thường tổng quát hóa tốt hơn (Figure 9.5b). (UDL mục 9.2.2, tr. 143)"
+        },
+        {
+          "id": "w8b6",
+          "type": "mcq",
+          "q": "SLP3 mục 3.3 nêu điều kiện để perplexity của hai language model có thể so sánh được và cảnh báo về tập test. Điều kiện đó là gì?",
+          "choices": [
+            "Hai model phải dùng vocabulary giống hệt nhau, và model không được xây dựng với bất kỳ tri thức nào về tập test, nếu không perplexity thấp giả tạo.",
+            "Hai model phải đạt cùng loss trên tập train trước khi đo, và tập test phải được tokenize lại theo tokenizer của model tốt hơn.",
+            "Hai model phải có cùng số tham số và cùng độ dài ngữ cảnh, và tập test phải được lấy từ cùng nguồn văn bản với tập train của cả hai.",
+            "Hai model phải được train cùng số epoch trên cùng phần cứng, và tập test phải có ít nhất một triệu token để ước lượng ổn định."
+          ],
+          "answer": 0,
+          "explain": "SLP3: \"in computing perplexities, the language model must be constructed without any knowledge of the test set, or else the perplexity will be artificially low. And the perplexity of two language models is only comparable if they use identical vocabularies.\" Ví dụ trong cùng mục: unigram, bigram, trigram train trên 38 triệu từ WSJ cho perplexity 962, 170, 109 trên cùng tập test 1.5 triệu từ. Khi so pretrain 124M của bạn với một baseline, hãy kiểm tra hai điều kiện này trước. (SLP3 mục 3.3, tr. 77)"
+        },
+        {
+          "id": "w8b7",
+          "type": "open",
+          "q": "SLP3 mục 3.7 định nghĩa cross-entropy H(p, m) của model m trên phân phối thật p (công thức 3.39) rồi rút gọn nhờ định lý Shannon-McMillan-Breiman. Vì sao có thể ước lượng cross-entropy từ một chuỗi test đủ dài thay vì tổng trên mọi chuỗi, và bất đẳng thức nào cho phép dùng H(p, m) để so hai model?",
+          "answer": "Định nghĩa gốc lấy kỳ vọng theo p của -log m trên mọi chuỗi độ dài n rồi cho n ra vô cùng. Với quá trình dừng và ergodic, định lý Shannon-McMillan-Breiman cho H(p, m) = lim -(1/n) log m(w_1 ... w_n), tức chỉ cần một chuỗi đủ dài: chuỗi dài chứa nhiều chuỗi con lặp lại theo đúng xác suất của chúng. Vì vậy loss trung bình trên tập test dài chính là ước lượng cross-entropy. Bất đẳng thức H(p) ≤ H(p, m) nói cross-entropy luôn là cận trên của entropy thật; model càng chính xác thì H(p, m) càng gần H(p), nên model có cross-entropy (và perplexity) thấp hơn là model gần p hơn. Giả định dừng không đúng hoàn toàn với ngôn ngữ tự nhiên nên đây chỉ là xấp xỉ.",
+          "explain": "SLP3: \"following the Shannon-McMillan-Breiman theorem, for a stationary ergodic process: H(p, m) = lim −(1/n) log m(w_1 w_2 ... w_n)\" (công thức 3.40), nên \"we can estimate the cross-entropy of a model m on some distribution p by taking a single sequence that is long enough\"; \"the cross-entropy H(p, m) is an upper bound on the entropy H(p)\" (3.41) và \"the difference between H(p, m) and H(p) is a measure of how accurate a model is\". Cùng mục ghi ngôn ngữ tự nhiên không dừng nên các model chỉ xấp xỉ. (SLP3 mục 3.7, tr. 87)"
+        },
+        {
+          "id": "w8b8",
+          "type": "open",
+          "q": "FoLLM mục 2.2.1 liệt kê các vấn đề khi chuẩn bị dữ liệu pretraining. Hãy nêu ít nhất ba vấn đề, dẫn con số hay ví dụ cụ thể mà Xiao và Zhu đưa ra cho vấn đề chất lượng và vấn đề đa dạng, và liên hệ với việc bạn chọn corpus công khai cho lần pretrain 124M.",
+          "answer": "Bốn vấn đề: chất lượng dữ liệu, đa dạng dữ liệu, thiên lệch trong dữ liệu, và quyền riêng tư. Về chất lượng: dữ liệu web thô chứa lỗi và nội dung không phù hợp, train trên dữ liệu chưa lọc là có hại (Raffel et al. 2020); Penedo et al. (2023) cho thấy sau các bước xử lý có thể loại bỏ 90% dữ liệu web đã thu thập. Về đa dạng: đưa mã nguồn vào dữ liệu train không chỉ cải thiện khả năng lập trình mà còn cải thiện suy luận cho bài toán phức tạp; đa dạng ngôn ngữ giúp một model xử lý nhiều ngôn ngữ nhưng chất lượng với ngôn ngữ ít tài nguyên phụ thuộc lượng và chất dữ liệu của ngôn ngữ đó. Với lần pretrain 124M, điều này nghĩa là ưu tiên corpus mở đã được lọc và trộn nhiều nguồn, kiểm tra license, và loại dữ liệu cá nhân trước khi train.",
+          "explain": "FoLLM: \"A first issue is the quality of data ... Researchers have found that training LLMs on unfiltered data is harmful [Raffel et al., 2020] ... Penedo et al. [2023] show that by adopting a number of data processing techniques, 90% of their web-scraped data can be removed for LLM training\" (tr. 56-57); \"A second issue is the diversity of data ... incorporating programming code into training data has been found to be beneficial ... also in improving reasoning for complex problems\"; \"A third issue is the bias in training data\"; \"Another issue with collecting large-scale data is the privacy concern.\" (FoLLM mục 2.2.1, tr. 57)"
+        },
+        {
+          "id": "w8b9",
+          "type": "open",
+          "q": "SLP3 mục 7.7 gọi cách huấn luyện language model là self-supervised và mô tả teacher forcing. Hãy giải thích hai khái niệm này và chỉ ra chúng tương ứng với dòng nào trong training loop của bạn (cách tạo inputs và targets từ một chuỗi token).",
+          "answer": "Self-supervised: không cần nhãn vàng do người gán; chuỗi từ tự nhiên là giám sát của chính nó, tại mỗi vị trí t model được yêu cầu dự đoán token kế tiếp và loss là -log ŷ_t[w_{t+1}]. Teacher forcing: khi chuyển sang vị trí t+1, ta bỏ qua token model vừa dự đoán và luôn đưa chuỗi đúng w_{1:t+1} vào để dự đoán w_{t+2}, tức model luôn nhận lịch sử đúng thay vì dự đoán của chính nó. Trong training loop, điều này tương ứng với inputs = tokens[:-1] và targets = tokens[1:] (hay x = buf[:-1], y = buf[1:]) rồi cross_entropy(logits, targets): inputs luôn là dữ liệu thật, không phải đầu ra được sinh ra.",
+          "explain": "SLP3: \"We call such a model self-supervised because we don't have to add any special gold labels to the data; the natural sequence of words is its own supervision!\"; loss tại vị trí t là L_CE = −log ŷ_t[w_{t+1}] (công thức 7.54); \"we ignore what the model predicted for the next word and instead use the correct sequence of tokens w_{1:t+1} to get the model to estimate the probability of token w_{t+2}. This idea that we always give the model the correct history sequence to predict the next word ... is called teacher forcing.\" (SLP3 mục 7.7, tr. 201)"
+        },
+        {
           "id": "w8adv1",
           "type": "mcq",
           "level": "advanced",
@@ -856,7 +1666,7 @@ window.QUIZ_DATA = {
           "level": "advanced",
           "q": "Xiao và Zhu mô tả đường cong scaling law có ba pha theo lượng dữ liệu (Hestness et al. 2017). Ba pha đó là gì và lần pretrain 124M của bạn nằm ở đâu?",
           "answer": "Khi dữ liệu còn ít, hiệu năng cải thiện chậm; sau đó vào pha cải thiện nhanh theo dạng power-law; cuối cùng chậm lại khi thêm dữ liệu không còn tăng nhiều (FoLLM mục 2.2.4, trang 63). Lần chạy 124M trên một mẫu FineWeb-Edu nằm ở quy mô rất nhỏ so với các model trong paper; mục tiêu của nó là hiểu cơ chế và đọc loss curve, không phải đuổi số.",
-          "explain": "Fleuret mục 3.7 (trang 51) nói cùng ý và dẫn Kaplan et al. 2020; hai paper Scaling Laws và Chinchilla trong kệ paper là nguồn gốc con số."
+          "explain": "Fleuret mục 3.7 (trang 52) nói cùng ý và dẫn Kaplan et al. 2020; hai paper Scaling Laws và Chinchilla trong kệ paper là nguồn gốc con số."
         }
       ]
     },
@@ -935,6 +1745,98 @@ window.QUIZ_DATA = {
           ],
           "answer": 1,
           "explain": "Mục 4 của 01_theory_notes.md: optimizer state của AdamW đi theo tham số TRAIN ĐƯỢC, không theo tổng tham số, W đóng băng thì không tốn moment. Đây là lý do bảng so sánh full FT vs LoRA của deliverable phải đo cả VRAM đỉnh (torch.cuda.max_memory_allocated())."
+        },
+        {
+          "id": "w9b1",
+          "type": "mcq",
+          "q": "Theo Fleuret, khi khởi tạo LoRA adapter, ma trận A được khởi tạo bằng giá trị Gaussian ngẫu nhiên còn B được đặt bằng 0. Mục đích của cách khởi tạo này là gì?",
+          "choices": [
+            "Để hạng của BA đúng bằng R ngay từ bước đầu, tránh suy biến xuống hạng thấp hơn trong quá trình học",
+            "Để tích BA bằng 0 lúc bắt đầu, nên model lúc khởi đầu fine-tune tính ra đúng output của model gốc",
+            "Để chuẩn hóa scale của W + BA về cùng độ lớn với W, tránh activation bùng nổ ở các layer sâu",
+            "Để gradient của A lớn hơn gradient của B, nhờ đó A học phần lớn thông tin mới trong vài bước đầu"
+          ],
+          "answer": 1,
+          "explain": "Fleuret viết: \"The matrix A is initialized with random Gaussian values, and B is set to zero, so that the fine-tuning starts with a model that computes an output identical to that of the original one.\" Với B = 0 thì X(W + BA)^T = XW^T, nên fine-tune xuất phát từ đúng hành vi của base model. (Fleuret mục 8.3, tr. 156)"
+        },
+        {
+          "id": "w9b2",
+          "type": "mcq",
+          "q": "Jurafsky và Martin viết rằng LoRA \"doesn't add any time during inference\". Lý do là gì?",
+          "choices": [
+            "Vì LoRA chỉ áp dụng lên các lớp attention, vốn chiếm phần nhỏ trong tổng thời gian suy luận",
+            "Vì r rất nhỏ nên phép nhân xAB gần như không tốn thời gian so với phép nhân xW trong forward pass",
+            "Vì tích AB có cùng kích thước với W nên có thể cộng thẳng vào trọng số pretrained trước khi suy luận",
+            "Vì A và B chỉ được dùng trong backward pass, còn forward pass lúc suy luận vẫn chỉ tính xW như cũ"
+          ],
+          "answer": 2,
+          "explain": "SLP3: \"The weight updates can be simply added in to the pretrained weights, since AB is the same size as W. That means it doesn't add any time during inference.\" Cùng lý do đó, có thể xây LoRA module cho từng domain rồi cộng vào hoặc trừ ra khỏi W để đổi module. (SLP3 mục 8.2, tr. 215)"
+        },
+        {
+          "id": "w9b3",
+          "type": "mcq",
+          "q": "Khi đánh giá model đã instruction-tune, SLP3 đề nghị leave-one-out theo cụm (cluster) tác vụ chứ không theo từng dataset. Vì sao?",
+          "choices": [
+            "Vì các cụm tác vụ có kích thước cân bằng hơn, giúp ước lượng phương sai của điểm số ổn định hơn",
+            "Vì số dataset quá lớn nên leave-one-out theo từng dataset đòi hỏi quá nhiều lần huấn luyện lại model",
+            "Vì template sinh instruction được viết theo cụm tác vụ, nên chỉ có thể tách dữ liệu ở mức cụm",
+            "Vì nhiều dataset rất giống nhau; nếu giữ dataset cùng loại trong tập train thì bài kiểm tra không còn là tác vụ mới"
+          ],
+          "answer": 3,
+          "explain": "Mục tiêu đánh giá là khả năng theo instruction trên tác vụ chưa gặp. SLP3: \"Because many tasks are similar (Super-NaturalInstructions includes 25 separate textual entailment datasets!) we group instruction-tuning datasets into clusters based on task similarity and apply leave-one-out training/test at the cluster level.\" Ví dụ để đánh giá sentiment analysis thì bỏ toàn bộ dataset sentiment khỏi tập train. (SLP3 mục 8.1.2, tr. 213)"
+        },
+        {
+          "id": "w9b4",
+          "type": "mcq",
+          "q": "Instruction tuning dùng đúng objective dự đoán token kế tiếp, vốn được coi là self-supervised. Vậy vì sao Jurafsky và Martin vẫn gọi nó là supervised fine-tuning (SFT)?",
+          "choices": [
+            "Vì SFT cập nhật toàn bộ tham số của model, còn pretraining thường chỉ cập nhật một phần tham số",
+            "Vì mỗi instruction trong dữ liệu đi kèm một đáp án đúng, tức một mục tiêu có giám sát, điều pretraining không có",
+            "Vì dữ liệu instruction luôn do người viết tay, khác với dữ liệu web được thu thập tự động khi pretraining",
+            "Vì loss được tính trên cả instruction lẫn response, nên tín hiệu huấn luyện dày hơn so với pretraining"
+          ],
+          "answer": 1,
+          "explain": "SLP3: \"we call this method supervised fine-tuning (or SFT) because unlike in pretraining, each instruction or question in the instruction tuning data has a supervised objective: a correct answer to the question or a response to the instruction.\" Lựa chọn về loss trên instruction sai vì cùng đoạn viết \"here we train only on the response\". (SLP3 mục 8.1, tr. 210)"
+        },
+        {
+          "id": "w9b5",
+          "type": "mcq",
+          "q": "Theo Fleuret, ngoài việc giảm số tham số trainable, LoRA còn giảm đáng kể dấu chân bộ nhớ của optimizer như Adam. Cơ chế cụ thể là gì?",
+          "choices": [
+            "Adam có thể lưu trạng thái ở độ chính xác thấp khi tham số là các ma trận hạng thấp như A và B",
+            "Adam bỏ qua các tham số bị đóng băng nhưng vẫn giữ trạng thái cho chúng, chỉ không cập nhật nữa",
+            "Adam lưu hai trung bình động cho mỗi tham số được tối ưu, nên khi chỉ tối ưu A và B thì phần trạng thái này co lại theo",
+            "Adam chỉ cần lưu một trung bình động thay vì hai khi ma trận trọng số được phân rã thành tích BA"
+          ],
+          "answer": 2,
+          "explain": "Fleuret: \"Since fine-tuning with LoRA adapters drastically reduces the number of trainable parameters, it reduces the memory footprint required by optimizers such as Adam, which generally store two running averages per parameter to optimize.\" Ngoài ra backward pass cũng nhẹ đi một chút. Đây là lý do VRAM khi train giảm mạnh hơn tỷ lệ tham số trainable. (Fleuret mục 8.3, tr. 157)"
+        },
+        {
+          "id": "w9b6",
+          "type": "mcq",
+          "q": "Về quy mô dữ liệu, SLP3 so sánh instruction tuning với pretraining như thế nào?",
+          "choices": [
+            "Instruction tuning thường chạy vài epoch trên dataset nhiều nhất là hàng triệu mẫu, thay vì hàng nghìn tỷ token",
+            "Instruction tuning cần nhiều token hơn pretraining vì mỗi mẫu gồm cả instruction và response dài",
+            "Cả hai đều cần hàng nghìn tỷ token, nhưng instruction tuning chỉ chạy đúng một epoch trên dữ liệu",
+            "Hai giai đoạn dùng lượng dữ liệu tương đương, chỉ khác ở việc có mask phần prompt khỏi loss hay không"
+          ],
+          "answer": 0,
+          "explain": "SLP3: \"Rather than trillions of tokens, training typically involves several epochs over instruction datasets with at most millions of examples. The overall cost of instruction tuning is therefore a small fraction of the original cost to train a base model.\" (SLP3 mục 8.1, tr. 211)"
+        },
+        {
+          "id": "w9b7",
+          "type": "open",
+          "q": "Bạn cần một dataset instruction cho domain ngân hàng nhưng không có ngân sách thuê người viết. Dựa trên SLP3 mục 8.1.1, hãy nêu hai cách tạo dữ liệu rẻ hơn và một ví dụ cho thấy lượng nhỏ dữ liệu có chủ đích vẫn thay đổi được hành vi model.",
+          "answer": "Cách thứ nhất là tái sử dụng các dataset NLP có giám sát sẵn có (phân loại, QA, dịch), tách các trường và nhãn thành cặp key/value rồi đổ vào template để tạo instruction, và dùng language model sinh paraphrase cho prompt để đa dạng cách diễn đạt. Cách thứ hai, được SLP3 gọi là phổ biến nhất, là để chính language model viết dữ liệu instruction dựa trên các dataset khác nhau. Ví dụ Bianchi et al. (2024a) chọn câu hỏi có hại, dùng LM sinh paraphrase và câu trả lời an toàn, duyệt tay rồi trộn vào dataset; chỉ 500 safety instruction đã đủ giảm đáng kể tính có hại của model.",
+          "explain": "SLP3 mô tả việc template hóa từ các dataset như SQuAD và Super-NaturalInstructions (Fig. 8.3, 8.4) và viết: \"The most common way to generate instruction-tuning datasets is to have language models write them, based on various datasets.\" Về Bianchi et al.: \"even 500 safety instructions mixed in with a large instruction tuning dataset was enough to substantially reduce the harmfulness of models.\" (SLP3 mục 8.1.1, tr. 212-213)"
+        },
+        {
+          "id": "w9b8",
+          "type": "open",
+          "q": "Khi cấu hình target_modules cho LoRA, bạn phân vân giữa chỉ gắn adapter vào attention hay gắn cả vào feed-forward. Hai cuốn sách nói gì về cách làm gốc và cách làm tiêu chuẩn, và điều đó gợi ý gì cho quyết định của bạn?",
+          "answer": "SLP3 cho biết bản LoRA gốc chỉ áp dụng lên các ma trận trong attention (WQ, WK, WV, WO) và có nhiều biến thể khác. Fleuret cũng mô tả thủ tục tiêu chuẩn là chỉ đổi các ma trận trọng số trong attention block và giữ MLP của feed-forward không đổi; tổng tham số cần tối ưu thường chỉ vài phần trăm model gốc. Vậy cấu hình chỉ attention là điểm xuất phát có căn cứ trong sách; mở rộng sang feed-forward là biến thể bạn cần tự đo lường vì hai sách không đưa số liệu so sánh.",
+          "explain": "SLP3: \"In its original version LoRA was applied just to the matrices in the attention computation (the WQ, WK, WV, and WO layers). Many variants of LoRA exist.\" Fleuret: \"The standard procedure to fine-tune a transformer with such adapters is to change only the weight matrices in the attention blocks, and to keep the MLP of the feed-forward blocks unchanged.\" (SLP3 mục 8.2, tr. 215; Fleuret mục 8.3, tr. 157)"
         },
         {
           "id": "w9adv1",
@@ -1052,6 +1954,85 @@ window.QUIZ_DATA = {
           "explain": "Mục 7 của 01_theory_notes.md. Cùng bài học với 'metric bị game' (nâng cao I5): hệ tối ưu chỉ tối ưu cái nó thấy. Red-teaming (Ganguli et al. 2022, arXiv 2209.07858) là dạng eval cho trục an toàn, không đo thì không biết."
         },
         {
+          "id": "w10b1",
+          "type": "mcq",
+          "q": "Trong mô hình Bradley-Terry mà SLP3 dùng để mô hình hóa preference, nếu hai output có reward gần bằng nhau thì P(oi ≻ oj | x) xấp xỉ bao nhiêu và điều đó phản ánh gì?",
+          "choices": [
+            "Xấp xỉ 0.5, phản ánh preference yếu hoặc không có preference giữa hai output",
+            "Xấp xỉ 1, phản ánh rằng model luôn phải chọn ra một bên thắng rõ ràng trong mỗi cặp",
+            "Không xác định, vì Bradley-Terry chỉ được định nghĩa khi hai reward khác nhau rõ rệt",
+            "Xấp xỉ 0, phản ánh rằng cặp dữ liệu này bị coi là nhiễu và không đóng góp vào loss"
+          ],
+          "answer": 0,
+          "explain": "P(oi ≻ oj | x) = σ(zi − zj). SLP3: \"very small differences in scores yield probabilities near 0.5, reflecting either weak or no preference between the items, larger differences rapidly approach values of 1 or 0\". Đạo hàm của sigmoid cũng giúp học bằng binary cross-entropy. (SLP3 mục 8.3.2, tr. 218)"
+        },
+        {
+          "id": "w10b3",
+          "type": "mcq",
+          "q": "Jurafsky và Martin nêu hai khác biệt then chốt giữa RL truyền thống và RL dùng cho alignment LLM. Cặp nào đúng?",
+          "choices": [
+            "Không gian hành động là liên tục thay vì rời rạc, và mỗi episode chỉ có đúng một bước quyết định",
+            "Reward model chỉ là surrogate nhiễu của reward thật, và học bắt đầu từ model đã mạnh nên chỉ cần đẩy nhẹ hành vi",
+            "Không cần hàm giá trị vì reward cho cả chuỗi, và trajectory ngắn hơn nhiều so với các bài toán game",
+            "Reward đến từ môi trường và phản ánh sự thật quan sát được, và policy được học từ khởi tạo ngẫu nhiên"
+          ],
+          "answer": 1,
+          "explain": "SLP3: \"With preference learning, the learned reward model only serves as a noisy surrogate for a true reward model.\" và \"Here, we begin with models that are already performing at a high level ... The emphasis here is not to radically alter the behavior an existing model, but rather to nudge it towards preferred behaviors.\" Lựa chọn đầu mô tả RL truyền thống, không phải alignment. (SLP3 mục 8.4, tr. 220-221)"
+        },
+        {
+          "id": "w10b4",
+          "type": "mcq",
+          "q": "Theo SLP3, DPO phải duy trì bao nhiêu model trong lúc huấn luyện so với PPO, và điều này có ý nghĩa gì khi bạn chạy alignment trên GPU 8GB?",
+          "choices": [
+            "3 model so với 5 của PPO; chênh lệch nhỏ nên VRAM không phải lý do chính để chọn DPO",
+            "1 model so với 3 của PPO; nhờ vậy DPO chạy được cả khi không có reference policy trong bộ nhớ",
+            "2 model so với 2 của PPO; khác biệt chỉ nằm ở hàm loss chứ không nằm ở bộ nhớ",
+            "2 model so với 4 của PPO; ít model hơn và không cần sampling online nên nhẹ hơn về bộ nhớ và tính toán"
+          ],
+          "answer": 3,
+          "explain": "SLP3: \"DPO only incurs the cost of maintaining 2 LLMs during training, as opposed to the 4 models needed for PPO.\" và \"DPO learns directly from the preferences contained in D without the need for computationally expensive online sampling from πθ.\" Hai model của DPO là policy πθ và reference πref. (SLP3 mục 8.4.2, tr. 223)"
+        },
+        {
+          "id": "w10b5",
+          "type": "mcq",
+          "q": "Trong cập nhật REINFORCE θ ← θ + α G ∇π(A|S,θ) / π(A|S,θ), Sutton và Barto giải thích vì sao phải chia cho xác suất hành động π(A|S,θ)?",
+          "choices": [
+            "Để các hành động được chọn thường xuyên không có lợi thế chỉ vì được cập nhật theo hướng của chúng nhiều lần hơn",
+            "Để cập nhật hội tụ về policy xác định, vì hành động có xác suất nhỏ sẽ bị đẩy về 0 nhanh hơn",
+            "Để biến return G thành advantage, loại bỏ phần phương sai do thiếu baseline gây ra trong ước lượng",
+            "Để chuẩn hóa gradient về độ dài đơn vị, giúp step size α không phụ thuộc vào thang đo của bài toán"
+          ],
+          "answer": 0,
+          "explain": "Sutton và Barto: \"The latter makes sense because otherwise actions that are selected frequently are at an advantage (the updates will be more often in their direction) and might win out even if they do not yield the highest return.\" Vector ∇π/π tương đương ∇ln π(A|S,θ) và được gọi là eligibility vector. (Sutton và Barto mục 13.3, tr. 327-328)"
+        },
+        {
+          "id": "w10b6",
+          "type": "mcq",
+          "q": "Sutton và Barto nêu một lợi thế của policy softmax theo action preferences (eq. 13.2) so với chọn hành động ε-greedy trên action value. Lợi thế đó là gì?",
+          "choices": [
+            "Policy softmax luôn khám phá nhiều hơn vì mọi hành động đều giữ một xác suất tối thiểu bằng ε",
+            "Policy softmax có thể tiến tới policy xác định, còn ε-greedy luôn giữ xác suất ε chọn hành động ngẫu nhiên",
+            "Policy softmax hội tụ nhanh hơn vì action preferences tiến về đúng giá trị thật của action value",
+            "Policy softmax cần ít tham số hơn vì không phải ước lượng action value riêng cho từng hành động"
+          ],
+          "answer": 1,
+          "explain": "Sutton và Barto: \"One advantage of parameterizing policies according to the soft-max in action preferences is that the approximate policy can approach a deterministic policy, whereas with ε-greedy action selection over action values there is always an ε probability of selecting a random action.\" Action preferences không tiến về giá trị cụ thể mà được đẩy để sinh ra policy ngẫu nhiên tối ưu. (Sutton và Barto mục 13.1, tr. 322-323)"
+        },
+        {
+          "id": "w10b7",
+          "type": "open",
+          "q": "FoLLM mô tả DPO là một dạng offline RL còn PPO là online RL. Hãy nêu lợi ích mà FoLLM gán cho mỗi bên và cho biết vì sao online RL vẫn được xem là có giá trị với LLM dù DPO đơn giản hơn.",
+          "answer": "DPO học từ một dataset preference cố định, không cần quá trình sampling tốn kém như PPO nên đơn giản và sample-efficient hơn, đồng thời bỏ được việc huấn luyện reward model riêng, vốn khó và có thể làm hỏng policy learning nếu reward model kém. Ngược lại, online RL như PPO khám phá trạng thái mới qua tương tác với môi trường (reward model làm proxy), không bị giới hạn bởi dữ liệu tĩnh, có thể tìm ra chiến lược giải quyết mới và bao phủ nhiều cặp state-action hơn. FoLLM cho rằng điểm cuối này giúp cải thiện generalization, một khía cạnh được coi là then chốt với LLM.",
+          "explain": "FoLLM: \"DPO can broadly be viewed as an offline reinforcement learning method, where the training data is pre-collected and fixed, and there is no exploration.\" và \"exploration can help the agent cover a wider range of state-action pairs, thus improving generalization. This could be an important advantage for LLMs\". Về reward model: \"a poorly trained reward model can greatly affect the outcome of policy learning\". (FoLLM mục 4.4.2, tr. 193, 196)"
+        },
+        {
+          "id": "w10b8",
+          "type": "open",
+          "q": "Sutton và Barto đưa ra quy tắc chung để vẽ ranh giới giữa agent và environment, và nói riêng về việc tính reward. Hãy nêu quy tắc đó và giải thích vì sao trong RLHF reward model phải được coi là phần của environment chứ không phải của policy.",
+          "answer": "Quy tắc là bất cứ thứ gì agent không thể thay đổi tùy ý thì nằm ngoài agent, tức thuộc environment; ranh giới này thường gần agent hơn ranh giới vật lý (motor và cảm biến của robot được coi là environment). Riêng reward luôn được coi là bên ngoài agent, kể cả khi agent biết cách reward được tính, vì reward định nghĩa nhiệm vụ nên phải nằm ngoài khả năng sửa đổi tùy ý của agent. Áp vào RLHF: nếu policy có thể sửa reward model thì nó sẽ tự chấm điểm cao thay vì học hành vi được ưa thích; vì vậy reward model được cố định và đóng vai trò môi trường chấm điểm, còn LLM là policy.",
+          "explain": "Sutton và Barto: \"The general rule we follow is that anything that cannot be changed arbitrarily by the agent is considered to be outside of it and thus part of its environment.\" và \"we always consider the reward computation to be external to the agent because it defines the task facing the agent and thus must be beyond its ability to change arbitrarily.\" FoLLM cũng viết environment trong LLM là khung mà LLM nhận feedback và học. (Sutton và Barto mục 3.1, tr. 50; FoLLM mục 4.3.1, tr. 174)"
+        },
+        {
           "id": "w10adv1",
           "type": "mcq",
           "level": "advanced",
@@ -1146,6 +2127,98 @@ window.QUIZ_DATA = {
           "explain": "Đây là 'ngưỡng kích hoạt cloud' của roadmap; verify bằng smoke test ngắn trước khi cam kết run dài."
         },
         {
+          "id": "w11b1",
+          "type": "mcq",
+          "q": "Fleuret giải thích vì sao model có thể chạy suy luận ở 4 đến 6 bit mỗi tham số mà vẫn tốt, trong khi huấn luyện vẫn cần 16 hoặc 32 bit. Lý do là gì?",
+          "choices": [
+            "Sai số lượng tử hóa khi suy luận bị bù bởi softmax cuối cùng, còn khi huấn luyện gradient không đi qua softmax",
+            "Suy luận chỉ dùng trọng số attention còn huấn luyện dùng toàn bộ trọng số, nên nhạy hơn với sai số làm tròn",
+            "Activation là tổng của nhiều hạng tử nên sai số lượng tử hóa được trung bình hóa, còn huấn luyện cần tích lũy các thay đổi rất nhỏ",
+            "Suy luận có thể giải lượng tử về FP16 trước mỗi phép nhân ma trận, còn huấn luyện không có thời gian làm việc đó"
+          ],
+          "answer": 2,
+          "explain": "Fleuret: \"The precision it provides is necessary for training, to allow gradual changes to accumulate. However, since activations are the sums of many terms, quantization during inference is mitigated by an averaging effect.\" Điều này càng đúng với kiến trúc lớn; model 6 hay 4 bit \"exhibit remarkable performance\". Đây cũng là nền của QLoRA: base quantized, adapter không quantized. (Fleuret mục 8.2, tr. 153)"
+        },
+        {
+          "id": "w11b2",
+          "type": "mcq",
+          "q": "Fleuret lấy Q4_1 của llama.cpp làm ví dụ: mỗi khối 32 trọng số được lưu bằng một scale d và một bias m ở FP16 cộng 32 giá trị 4 bit. Kích thước khối trước và sau lượng tử hóa là bao nhiêu?",
+          "choices": [
+            "64 byte xuống 16 byte, vì d và m được gộp chung vào một byte cùng với bit dấu",
+            "64 byte xuống 24 byte, gồm 8 byte cho d và m cộng 16 byte cho 32 giá trị 4 bit",
+            "64 byte xuống 20 byte, gồm 4 byte cho d và m cộng 16 byte cho 32 giá trị 4 bit",
+            "128 byte xuống 20 byte, vì trọng số gốc của các model này được lưu ở FP32"
+          ],
+          "answer": 2,
+          "explain": "Fleuret: \"Such a block was encoded originally as 32 values in FP16, hence 64 bytes, while the quantized version needs 4 bytes for d and m and 32 · 4 bits = 16 bytes for the entries, hence a total of 20 bytes.\" Giá trị giải lượng tử là x̃ = dq + m với q trong {0, ..., 2^4 − 1}. (Fleuret mục 8.2, tr. 154-155)"
+        },
+        {
+          "id": "w11b3",
+          "type": "mcq",
+          "q": "Fleuret phân biệt Post-Training Quantization và Quantization-Aware Training. Điểm khác cốt lõi của QAT là gì?",
+          "choices": [
+            "QAT lượng tử hóa cả tham số lẫn gradient trong lúc huấn luyện để tiết kiệm bộ nhớ tối đa trên GPU nhỏ",
+            "QAT huấn luyện lại toàn bộ model từ đầu ở 4 bit, không tái sử dụng trọng số pretrained của base model",
+            "QAT áp dụng lượng tử hóa trong forward pass nhưng giữ tham số và gradient ở độ chính xác cao, backward pass lan truyền như không có lượng tử hóa",
+            "QAT chỉ lượng tử hóa sau khi huấn luyện xong nhưng dùng dữ liệu hiệu chuẩn để chọn scale cho từng khối"
+          ],
+          "answer": 2,
+          "explain": "Fleuret: \"An alternative to Post-Training Quantization is Quantization-Aware Training that applies quantization during the forward pass but keeps high-precision encoding of parameters and gradients, and propagates the gradients during the backward pass as if there was no quantization\". (Fleuret mục 8.2, tr. 155)"
+        },
+        {
+          "id": "w11b4",
+          "type": "mcq",
+          "q": "Bảng 1.1 của The State of Open Source AI tách quyền sử dụng một model thành ba cột riêng. Ba cột đó là gì, và quan sát nào được rút ra?",
+          "choices": [
+            "Code, giấy phép và điều khoản dịch vụ; code thường mở còn điều khoản dịch vụ thường cấm dùng thương mại",
+            "Trọng số, dữ liệu huấn luyện và output sinh ra; trọng số thường không bị giữ kín, còn dữ liệu huấn luyện hiếm khi được công bố",
+            "Trọng số, checkpoint trung gian và log huấn luyện; chỉ trọng số cuối cùng được công bố rộng rãi",
+            "Kiến trúc, tokenizer và benchmark; kiến trúc thường mở còn kết quả benchmark nội bộ thường bị giấu"
+          ],
+          "answer": 1,
+          "explain": "Bảng 1.1 có ba cột Weights, Training Data và Output. Các quan sát của sách: \"Pre-trained model weights are typically not closely guarded\", \"Generated outputs often are usable commercially, but with conditions\", \"Training data is seldom available\". Khi chọn base model để QLoRA, cần kiểm tra riêng từng cột này tại thời điểm dùng. (State of Open Source AI mục 1.1, tr. 9-10)"
+        },
+        {
+          "id": "w11b5",
+          "type": "mcq",
+          "q": "Theo The State of Open Source AI, từ góc độ pháp lý, giấy phép \"open\" chia thành ba nhóm nhỏ. Nhóm nào yêu cầu tác phẩm phái sinh phải dùng cùng giấy phép?",
+          "choices": [
+            "Copyleft, với ví dụ GPL-3.0 và CC-BY-SA-4.0, ràng buộc cả bản phái sinh",
+            "Community licence, với ví dụ giấy phép riêng của một số model lớn",
+            "Permissive, với ví dụ Apache-2.0 và CC-BY-4.0, chỉ cần ghi tên tác giả",
+            "Public Domain, với ví dụ Unlicence và CC0-1.0, mức tối thiểu theo luật"
+          ],
+          "answer": 0,
+          "explain": "Table 1.2: Public Domain (mức tối thiểu theo luật, về kỹ thuật không phải giấy phép), Permissive (ghi tên tác giả gốc), Copyleft với điều kiện \"Derivatives use the same licence\", ví dụ GPL-3.0 và CC-BY-SA-4.0. Sách cũng lưu ý từ \"open\" đứng một mình là mơ hồ vì có thể chỉ open licence hoặc open source code. (State of Open Source AI mục 1.3, tr. 10)"
+        },
+        {
+          "id": "w11b6",
+          "type": "mcq",
+          "q": "FoLLM tóm tắt các kỹ thuật suy luận hiệu quả bằng hai trade-off chính. Quantization và pruning thuộc trade-off nào, và mặt trái mà FoLLM nêu là gì?",
+          "choices": [
+            "Trade-off throughput và latency; mặt trái là batch lớn làm tăng thời gian chờ của từng request",
+            "Trade-off bộ nhớ và tính toán; mặt trái là phải tính lại self-attention cho các token đã qua",
+            "Trade-off độ dài ngữ cảnh và bộ nhớ; mặt trái là mất thông tin ở các token xa vị trí hiện tại",
+            "Trade-off tốc độ và độ chính xác; mặt trái là có thể gây suy giảm nhỏ về chất lượng của model"
+          ],
+          "answer": 3,
+          "explain": "FoLLM: \"One important trade-off is between inference speed and accuracy. For example, techniques like quantization, pruning, and knowledge distillation can significantly reduce computational overhead and latency but may introduce minor degradations in model performance.\" Trade-off thứ hai là memory-compute, ví dụ KV cache đổi bộ nhớ lấy việc không phải tính lại attention. (FoLLM mục 5.2.4, tr. 233)"
+        },
+        {
+          "id": "w11b7",
+          "type": "open",
+          "q": "The State of Open Source AI cho rằng một model ML có thể đồng thời chịu nhiều giấy phép thuộc các nhóm khác nhau. Hãy giải thích lập luận này và nêu hệ quả thực tế khi bạn chọn base model và dataset cho QLoRA.",
+          "answer": "Sách lập luận rằng một model được định nghĩa một phần bằng code (kiến trúc, quy trình huấn luyện) và một phần bằng tham số, mà tham số lại được định nghĩa ngầm bởi dữ liệu huấn luyện; do đó trọng số là sản phẩm của cả code lẫn dữ liệu và phải chịu cùng lúc giấy phép cho code và giấy phép cho nội dung, hai loại giấy phép vốn không được thiết kế để dùng chung và có thể không tương thích. Hệ quả là khi chọn base model và dataset, bạn phải kiểm tra riêng giấy phép trọng số, tình trạng dữ liệu huấn luyện và điều khoản với output, và ghi ngày tra cứu vì các điều khoản này thay đổi nhanh. Sách nêu ví dụ Falcon đổi sang Apache-2.0 và LLaMA-2 community licence chỉ vài tuần sau khi có người tuyên bố thời kỳ open AI sắp kết thúc.",
+          "explain": "State of Open Source AI: \"A working model is defined partially in code (architecture & training regimen) and partially by its parameters (trained weights, i.e. a list of numbers). The latter is implicitly defined by the training data ... One could therefore argue that models must be simultaneously bound by multiple licences for multiple different domains. Such licences were not designed to work simultaneously, and may not even be compatible.\" Mục 1.2 nói thêm điều này \"may be problematic or even nonsensical\". (State of Open Source AI mục 1.1-1.2, tr. 9-10)"
+        },
+        {
+          "id": "w11b8",
+          "type": "open",
+          "q": "Fleuret nhận xét rằng triển khai LLM cho một người dùng thường là single-stream inference. Vì sao đặc điểm này làm lượng tử hóa vừa giảm bộ nhớ vừa tăng tốc, và điều đó nối với khung prefill/decode của FoLLM thế nào?",
+          "answer": "Theo Fleuret, single-stream inference bị giới hạn bởi dung lượng và tốc độ bộ nhớ nhiều hơn là bởi tính toán, nên khi mỗi tham số chỉ còn 4 đến 6 bit thì lượng dữ liệu phải đọc mỗi bước giảm theo, và tốc độ suy luận tăng đáng kể chứ không chỉ tiết kiệm VRAM. Điều này khớp với FoLLM: giai đoạn decoding sinh từng token và truy cập KV cache liên tục nên là memory-bound, trong khi prefilling xử lý cả prompt song song và là compute-bound. Nối hai nguồn lại thì phần được lợi về tốc độ khi chạy model 4-bit local là giai đoạn decode; đây là suy luận nối hai nguồn, bạn cần tự đo prefill và decode riêng để xác nhận.",
+          "explain": "Fleuret: \"deployment of a Large Language Model for individual use requires generally single-stream inference, which is bounded by memory size and speed far more than by computation\" và \"In addition to reducing the memory footprint, quantization also improves inference speed significantly.\" FoLLM: \"the prefilling process is considered compute-bound\" còn decoding \"is memory-bound due to its frequent access to the KV cache\". (Fleuret mục 8.2, tr. 153; FoLLM mục 5.1.2, tr. 209-210)"
+        },
+        {
           "id": "w11adv1",
           "type": "mcq",
           "level": "advanced",
@@ -1232,6 +2305,98 @@ window.QUIZ_DATA = {
           "q": "Mô tả quy trình kiểm tra catastrophic forgetting song ngữ bắt buộc của repo (mục 5 theory notes) và làm gì khi phát hiện suy giảm.",
           "answer": "1) TRƯỚC khi fine-tune: chốt bộ 10 prompt cố định (5 tiếng Việt + 5 tiếng Anh, có cả nghiệp vụ lẫn thường thức), sinh và lưu output của base. 2) SAU fine-tune: chạy đúng 10 prompt đó ở temperature 0, so từng cặp output. 3) Nếu suy giảm rõ ở tiếng Anh: giảm tỷ lệ data một chiều, trộn thêm data tiếng Anh rồi train lại. Bộ 10 prompt giữ cố định vĩnh viễn, là 'bài kiểm tra sức khỏe song ngữ' cho mọi model sau này của dự án (kể cả mọi bản merge ở mục 7).",
           "explain": "Mục 5 của 01_theory_notes.md. Chỗ dựa từ paper: Biderman et al. 2024 (arXiv 2405.09673) đo được full fine-tuning quên kiến thức ngoài domain đích nhiều hơn hẳn LoRA, mức quên PHỤ THUỘC cách fine-tune, nên chỉ có đo mới biết mình ở đâu trên trade-off."
+        },
+        {
+          "id": "w12b1",
+          "type": "mcq",
+          "q": "Theo FoLLM, vì sao prefilling được coi là compute-bound còn decoding là memory-bound?",
+          "choices": [
+            "Prefilling xử lý cả chuỗi x trong một lần self-attention song song nên nút thắt là năng lực tính toán; decoding sinh từng token và truy cập KV cache liên tục nên nút thắt là bộ nhớ",
+            "Prefilling chạy trên CPU để chuẩn bị embedding và mask cho toàn bộ prompt; decoding chạy trên GPU nơi dung lượng bộ nhớ là giới hạn chính của hệ thống",
+            "Prefilling không dùng KV cache nên phải tính lại attention cho mọi cặp token; decoding lưu toàn bộ activation của mọi layer nên bộ nhớ tăng theo số token sinh ra",
+            "Prefilling phải tính softmax trên toàn bộ vocabulary cho mọi vị trí của prompt nên nặng về tính toán; decoding chỉ tính một softmax mỗi bước nên phần còn lại là chi phí đọc trọng số"
+          ],
+          "answer": 0,
+          "explain": "FoLLM: \"since the entire sequence x is input into the model all at once, all queries can be packed together and the self-attention operation is performed on x in parallel ... the prefilling process is considered compute-bound.\" và \"the decoding process is memory-bound due to its frequent access to the KV cache.\" Table 5.1 tóm tắt Resource Limitation: Compute-bound so với Memory-bound. (FoLLM mục 5.1.2, tr. 209-211)"
+        },
+        {
+          "id": "w12b2",
+          "type": "mcq",
+          "q": "FoLLM so sánh giai đoạn prefilling với BERT. Điểm giống và điểm khác là gì?",
+          "choices": [
+            "Giống ở việc mã hóa chuỗi đầu vào thành biểu diễn ngữ cảnh (ở đây là KV cache) thay vì sinh token; khác ở việc prefilling là một chiều",
+            "Giống ở việc dùng masked language modeling để học biểu diễn; khác ở việc prefilling không có lớp softmax đầu ra",
+            "Giống ở việc dùng một encoder riêng cho input; khác ở việc prefilling chia sẻ tham số với decoder sinh token",
+            "Giống ở việc xử lý toàn bộ chuỗi song song trên GPU; khác ở việc BERT không dùng self-attention nhân quả"
+          ],
+          "answer": 0,
+          "explain": "FoLLM: \"it can be considered an encoding process. This is because our goal is not to generate tokens, but to build a context representation (i.e., the KV cache) ... it is similar to BERT ... On the other hand, unlike BERT which generates bidirectional sequence representations, prefilling is based on standard language modeling tasks, and is thus unidirectional.\" Mask trong eq. 5.13 đặt −∞ cho các vị trí tương lai. (FoLLM mục 5.1.2, tr. 209)"
+        },
+        {
+          "id": "w12b3",
+          "type": "mcq",
+          "q": "Khi benchmark inference trên Mac và trên 3070 Ti, metric nào của FoLLM phản ánh chủ yếu chi phí prefilling, và metric nào phản ánh hiệu quả decoding?",
+          "choices": [
+            "Tokens Per Second phản ánh prefilling; Resource Utilization phản ánh decoding",
+            "Request Latency phản ánh prefilling; Throughput phản ánh decoding",
+            "Throughput phản ánh prefilling; Request Latency phản ánh decoding",
+            "Time to First Token phản ánh prefilling; Inter-token Latency phản ánh decoding"
+          ],
+          "answer": 3,
+          "explain": "FoLLM: \"If data transmission does not consume too much time, then TTFT is mainly the time for prefilling and predicting the first token.\" và ITL \"refers to the time taken to generate each subsequent token after the first one. It reflects the efficiency of the decoding process.\" (FoLLM mục 5.1.4, tr. 222)"
+        },
+        {
+          "id": "w12b4",
+          "type": "mcq",
+          "q": "Trong mục 2.3.3.1, FoLLM nêu các cách làm KV cache có kích thước cố định. Cách nào chỉ cần lưu một cặp key-value duy nhất trong lúc suy luận?",
+          "choices": [
+            "Trung bình động có trọng số của nc cặp gần nhất với các hệ số β tăng dần theo vị trí",
+            "Trung bình cộng dồn của toàn bộ key và value tới vị trí hiện tại, cập nhật theo công thức đệ quy",
+            "Một mạng neural làm bộ nhớ, nhận đầu ra bộ nhớ trước và trạng thái hiện tại để sinh đầu ra mới",
+            "Cửa sổ trượt gồm nc cặp key-value gần nhất, được xem là một dạng local attention"
+          ],
+          "answer": 1,
+          "explain": "Với cumulative average, Mem_i = ((k_i, v_i) + i · Mem_{i−1}) / (i + 1) (eq. 2.57); FoLLM: \"An advantage of this model is that we only need to store a single key-value pair during inference, rather than storing all the key-value pairs.\" Cửa sổ nc cặp (eq. 2.53) vẫn phải lưu nc cặp và \"can be seen as a type of local attention model\". (FoLLM mục 2.3.3.1, tr. 72-73)"
+        },
+        {
+          "id": "w12b5",
+          "type": "mcq",
+          "q": "FoLLM mô tả trade-off khi chọn batch size trong inference. Phát biểu nào đúng?",
+          "choices": [
+            "Batch nhỏ cho throughput cao hơn vì ít padding hơn; batch lớn cho latency thấp hơn nhờ các chuỗi chia sẻ chung một KV cache",
+            "Batch nhỏ cho latency thấp hơn nhưng để GPU nhàn rỗi; batch lớn tận dụng song song tốt hơn nhưng phải padding và chờ chuỗi dài nhất xong",
+            "Batch nhỏ và batch lớn cho cùng throughput trên GPU; khác biệt chỉ nằm ở lượng VRAM dành cho KV cache của mỗi chuỗi",
+            "Batch lớn luôn tốt hơn về cả latency và throughput miễn là còn đủ VRAM; batch nhỏ chỉ dùng khi hết bộ nhớ"
+          ],
+          "answer": 1,
+          "explain": "FoLLM: \"If we choose a smaller batch size, the latency would be lower ... However, this low-latency advantage comes at the cost of underutilizing parallel computing resources, as the parallelism of GPUs remains largely idle during sequential processing.\" Với batch 4, chuỗi ngắn được left padding và \"the generation process continues until the longest sequence reaches completion\". (FoLLM mục 5.2.2, tr. 224-225)"
+        },
+        {
+          "id": "w12b6",
+          "type": "mcq",
+          "q": "Hệ thống của bạn dùng một system prompt dài giống nhau cho mọi request. Kỹ thuật nào trong FoLLM mục 5.2.1 giúp tránh tính lại phần này, và nó hoạt động thế nào?",
+          "choices": [
+            "Continuous batching: gộp các request có cùng system prompt vào một batch để tính attention chung một lần",
+            "Fixed-size KV cache: cắt bỏ phần system prompt khỏi cache ngay sau khi prefilling xong để tiết kiệm bộ nhớ",
+            "Prefix cache: lưu KV cache của các tiền tố; request mới có chung tiền tố x<k thì khởi tạo KV cache bằng cache<k và chỉ tính các token còn lại",
+            "Sequence-level cache: lưu cặp query-response, có tác dụng khi input mới trùng khớp chính xác với một query đã lưu"
+          ],
+          "answer": 2,
+          "explain": "FoLLM: \"if a new input x′ has x′<k = x<k for some k ≤ m, we can initialize the KV cache with cache<k and only compute the hidden states for the remaining tokens x′≥k.\" Tra cứu bằng hash của các token tiền tố; hệ thống thực tế thường dùng LRU để cân bằng bộ nhớ. Sequence-level cache chỉ dùng được khi input \"exactly matches a cached query\". (FoLLM mục 5.2.1, tr. 223)"
+        },
+        {
+          "id": "w12b7",
+          "type": "open",
+          "q": "FoLLM viết log Pr(y|x) = log Pr([x, y]) − log Pr(x) rồi nói trong cài đặt thực tế người ta tính trực tiếp theo cách khác. Hãy nêu cách tính trực tiếp đó và hai bài toán con mà FoLLM tách ra từ bài toán inference.",
+          "answer": "Trong cài đặt thông thường không cần tính log-xác suất của input; ta tính thẳng log Pr(y|x) bằng tổng từ i = 1 đến n của log Pr(yi | x, y<i), trong đó [x, y<i] là ngữ cảnh để dự đoán yi (eq. 5.4). Hai bài toán con là Model Computation, tức mô hình hóa và tính Pr(yi | x, y<i) hiệu quả bằng Transformer decoder với softmax chỉ lấy tại vị trí m + i, và Search, tức tìm chuỗi output tối ưu hoặc gần tối ưu theo log Pr(y|x) bằng các thuật toán decoding ở mục 5.1.3.",
+          "explain": "FoLLM eq. 5.2 đến 5.4 và đoạn: \"Now, we have two sub-problems in addressing the inference issue described in Eq. (5.1): Model Computation: we model Pr(yi|x, y<i) and compute it in an efficient manner. Search: we find the optimal (or sub-optimal) output sequence in terms of log Pr(y|x).\" (FoLLM mục 5.1.1, tr. 204-205)"
+        },
+        {
+          "id": "w12b8",
+          "type": "open",
+          "q": "So sánh request-level scheduling và continuous batching theo FoLLM. Vì sao continuous batching giảm lãng phí khi các response trong batch có độ dài rất khác nhau?",
+          "answer": "Với request-level scheduling, khi một batch đã được gửi vào inference engine thì không thể ngắt; scheduler phải chờ cả batch xong mới xử lý batch tiếp theo. Continuous batching (dùng trong hệ thống Orca) là iteration-based scheduling: một iteration là toàn bộ prefilling hoặc một bước decoding, và batch có thể được điều chỉnh giữa các iteration, thêm chuỗi mới hoặc bỏ chuỗi đã hoàn thành ngay cả khi batch chưa xong. Nhờ đó chuỗi ngắn kết thúc sớm nhường chỗ cho request mới, thay vì GPU tiếp tục tính cho các vị trí vô nghĩa cho tới khi chuỗi dài nhất hoàn tất như trong batching tĩnh.",
+          "explain": "FoLLM: \"once a batch is filled and sent to the engine, the processing of the entire batch cannot be interrupted.\" và \"In this method, an iteration refers to either the entire prefilling procedure or a single decoding step ... we can either add a new input sequence to the batch, or remove a complete sequence from the batch at some iteration, even if the batch processing is not yet finished.\" (FoLLM mục 5.2.2.1-5.2.2.2, tr. 225-226)"
         },
         {
           "id": "w12adv1",
@@ -1341,6 +2506,98 @@ window.QUIZ_DATA = {
           "explain": "SLP3 mục 11.3 trang 264: 'they work only if there is exact overlap of words between the query and document'. Vì thế Tuần 14 dùng cả hai trong hybrid search: BM25 bắt từ khóa chính xác, dense bắt đồng nghĩa."
         },
         {
+          "id": "w13b1",
+          "type": "mcq",
+          "q": "IR-book dùng ví dụ hai từ try và insurance trong tập Reuters để giải thích vì sao idf dựa trên document frequency (df) thay vì collection frequency (cf). Lập luận là gì?",
+          "choices": [
+            "cf phụ thuộc vào độ dài tài liệu nên phải chuẩn hóa trước khi dùng, còn df thì độc lập với độ dài tài liệu",
+            "cf của hai từ gần bằng nhau nhưng df khác nhau nhiều; ta muốn số ít tài liệu chứa insurance được tăng điểm hơn số đông tài liệu chứa try",
+            "cf của hai từ khác nhau nhiều nhưng df gần bằng nhau, nên df là thống kê ổn định hơn để chuẩn hóa trọng số",
+            "df dễ tính hơn cf vì chỉ cần đọc inverted index một lần, không cần đếm số lần xuất hiện của từng term trong tài liệu"
+          ],
+          "answer": 1,
+          "explain": "Figure 6.7: try có cf 10422 và df 8760; insurance có cf 10440 và df 3997. IR-book: \"the cf values for both try and insurance are roughly equal, but their df values differ significantly. Intuitively, we want the few documents that contain insurance to get a higher boost for a query on insurance than the many documents containing try get from a query on try.\" Từ đó idf_t = log(N/df_t) (eq. 6.7). (IR-book mục 6.2.1, tr. 118)"
+        },
+        {
+          "id": "w13b2",
+          "type": "mcq",
+          "q": "IR-book tóm tắt trọng số tf-idf của term t trong tài liệu d bằng ba tính chất. Trường hợp nào cho trọng số cao nhất?",
+          "choices": [
+            "Term xuất hiện đúng một lần trong hầu hết tài liệu của collection",
+            "Term xuất hiện ít lần trong d nhưng có mặt ở rất nhiều tài liệu khác",
+            "Term xuất hiện nhiều lần trong một số ít tài liệu của collection",
+            "Term xuất hiện nhiều lần trong gần như mọi tài liệu của collection"
+          ],
+          "answer": 2,
+          "explain": "IR-book: tf-idf_{t,d} là \"1. highest when t occurs many times within a small number of documents (thus lending high discriminating power to those documents); 2. lower when the term occurs fewer times in a document, or occurs in many documents (thus offering a less pronounced relevance signal); 3. lowest when the term occurs in virtually all documents.\" (IR-book mục 6.2.2, tr. 119)"
+        },
+        {
+          "id": "w13b3",
+          "type": "mcq",
+          "q": "IR-book cân nhắc dùng độ lớn của hiệu hai vector tài liệu làm độ tương đồng rồi bác bỏ. Lý do và cách khắc phục là gì?",
+          "choices": [
+            "Hiệu vector tốn bộ nhớ vì phải lưu ma trận hiệu cho mọi cặp tài liệu trong collection; khắc phục bằng inverted index để chỉ so các tài liệu có chung ít nhất một term",
+            "Hai tài liệu nội dung rất giống nhau vẫn có hiệu vector lớn chỉ vì một tài liệu dài hơn nhiều; khắc phục bằng cosine similarity, tức dot product của hai vector đã chuẩn hóa độ dài",
+            "Hiệu vector không xác định khi hai tài liệu có từ vựng khác nhau, vì các term vắng mặt không có tọa độ; khắc phục bằng cách thêm smoothing cho mọi term trong từ điển trước khi trừ",
+            "Hiệu vector nhạy với thứ tự từ trong tài liệu nên hai câu đảo trật tự cho kết quả khác nhau; khắc phục bằng cách chuyển sang biểu diễn bag-of-words rồi mới tính hiệu"
+          ],
+          "answer": 1,
+          "explain": "IR-book: \"two documents with very similar content can have a significant vector difference simply because one is much longer than the other ... To compensate for the effect of document length, the standard way of quantifying the similarity between two documents d1 and d2 is to compute the cosine similarity\" sim(d1, d2) = V(d1)·V(d2) / (|V(d1)| |V(d2)|) (eq. 6.10); mẫu số length-normalize hai vector về vector đơn vị. (IR-book mục 6.3.1, tr. 121)"
+        },
+        {
+          "id": "w13b4",
+          "type": "mcq",
+          "q": "SLP3 trình bày hai kiến trúc dense retrieval: encoder chung cho query và document (Fig. 11.11a) và bi-encoder (Fig. 11.11b). Vì sao kiến trúc chung hầu như chỉ dùng để rerank?",
+          "choices": [
+            "Vì mỗi query đến phải đưa toàn bộ tài liệu trong collection qua encoder cùng với query, quá tốn kém; bi-encoder mã hóa tài liệu trước một lần rồi chỉ tính dot product",
+            "Vì nó bị giới hạn 512 token nên không xử lý được tài liệu dài hơn một passage, còn bi-encoder mã hóa từng phần tài liệu riêng nên không có giới hạn độ dài đầu vào",
+            "Vì nó cần dữ liệu huấn luyện có nhãn relevance cho từng cặp query và document, còn bi-encoder có thể học không giám sát trực tiếp từ corpus tài liệu mà không cần nhãn",
+            "Vì điểm số của nó là softmax nên không so sánh được giữa các query khác nhau, còn bi-encoder cho điểm dot product có thể so sánh và sắp hạng trên toàn collection"
+          ],
+          "answer": 0,
+          "explain": "SLP3: \"every time we get a query, we have to pass every single document in our entire collection through a BERT encoder jointly with the new query! This enormous use of resources is impractical for real cases.\" Bi-encoder \"encode the documents in the collection only one time\", điểm là zq · zd (eq. 11.19), rẻ hơn nhưng kém chính xác hơn vì không thấy tương tác giữa token của query và document. (SLP3 mục 11.3, tr. 265)"
+        },
+        {
+          "id": "w13b5",
+          "type": "mcq",
+          "q": "SLP3 nói retrieval thường không chạy trên cả tài liệu. Cách chia và ràng buộc độ dài được mô tả là gì?",
+          "choices": [
+            "Chia tài liệu thành các passage cố định không chồng lấn, ví dụ 100 token; query và document phải cùng nằm gọn trong cửa sổ 512 token của BERT, ví dụ cắt query còn 64 token",
+            "Chia theo câu rồi gộp lại thành passage tối đa 512 token; query giữ nguyên độ dài và được nối vào sau passage bằng token [SEP]",
+            "Chia theo đoạn văn tự nhiên với 50 token chồng lấn giữa hai passage liền kề; query cắt còn 128 token để chừa chỗ cho passage",
+            "Không chia tài liệu thành passage; tài liệu dài được tóm tắt bằng một LLM xuống dưới 512 token rồi mới mã hóa cùng query trong một cửa sổ BERT duy nhất"
+          ],
+          "answer": 0,
+          "explain": "SLP3: \"documents are broken up into smaller passages, such as non-overlapping fixed-length chunks of say 100 tokens ... The query and document have to be made to fit in the BERT 512-token window, for example by truncating the query to 64 tokens and truncating the document if necessary so that it, the query, [CLS], and [SEP] fit in 512 tokens.\" (SLP3 mục 11.3, tr. 264)"
+        },
+        {
+          "id": "w13b6",
+          "type": "mcq",
+          "q": "SLP3 mô tả thuật toán RAG cơ bản gồm ba bước và nhấn mạnh một đặc điểm của phiên bản này. Đặc điểm đó là gì?",
+          "choices": [
+            "Nó để LLM tự quyết định khi nào cần gọi retrieval và gọi vào collection nào tùy nhu cầu người dùng",
+            "Nó yêu cầu instruction-tune LLM trên bộ câu hỏi kèm passage để LLM học cách chọn passage hữu ích",
+            "Nó không cần huấn luyện gì: dùng LLM có sẵn, đưa passage và prompt vào rồi kỳ vọng LLM tự nhận ra passage hữu ích",
+            "Nó luôn có bước rerank passage trước khi tạo prompt để xử lý nhiễu trong kết quả retrieval"
+          ],
+          "answer": 2,
+          "explain": "Ba bước: gọi retriever trả về top-k passage R(q), tạo prompt gồm q và các passage, gọi LLM. SLP3: \"The basic version of RAG described above involves no training; we take an off-the-shelf LLM, and give it the passages and a prompt and hope that it will correctly figure out which passages are useful or relevant in generating the answer.\" Reranker, agent-based RAG và instruction-tuning cho RAG là các mở rộng. (SLP3 mục 11.4, tr. 268-269)"
+        },
+        {
+          "id": "w13b7",
+          "type": "open",
+          "q": "SLP3 dùng 1 + log10 count(t, d) thay cho số đếm thô khi tính tf, và idf bằng 0 cho các từ như good hoặc sweet trong corpus Shakespeare. Hãy giải thích trực giác của hai lựa chọn này và hệ quả cho việc xếp hạng chunk trong RAG pipeline dùng tf-idf.",
+          "answer": "Về tf, SLP3 lập luận rằng một từ xuất hiện 100 lần không làm nó có khả năng liên quan gấp 100 lần, nên dùng log để nén: 1 lần cho tf = 1, 10 lần cho tf = 2, 100 lần cho tf = 3, và count 0 cho tf = 0 vì không lấy được log của 0. Về idf, idf_t = log10(N/df_t) nên từ xuất hiện trong mọi tài liệu (df = N, như good và sweet có mặt trong cả 37 vở) nhận trọng số 0, vì từ có mặt khắp collection không giúp phân biệt tài liệu. Hệ quả cho RAG: từ lặp lại nhiều trong một chunk không được thưởng tuyến tính, và từ có mặt trong mọi chunk của corpus (ví dụ tên tổ chức xuất hiện ở mọi văn bản) gần như không đóng góp vào điểm tf-idf dù có trong query.",
+          "explain": "SLP3: \"The intuition is that a word appearing 100 times in a document doesn't make that word 100 times more likely to be relevant to the meaning of the document.\" (eq. 11.4); \"The fewer documents in which a term occurs, the higher this weight; the lowest weight of 0 is assigned to terms that occur in every document.\" với bảng từ Romeo df 1 idf 1.57 tới good và sweet df 37 idf 0. (SLP3 mục 11.1.2, tr. 257)"
+        },
+        {
+          "id": "w13b8",
+          "type": "open",
+          "q": "Ngoài RAG cơ bản, SLP3 nêu các hướng cải thiện khi passage được truy hồi có nhiễu hoặc retriever không được tối ưu cho RAG. Hãy nêu ít nhất ba hướng và giải thích \"mismatch\" mà SLP3 chỉ ra ở phía IR engine.",
+          "answer": "SLP3 nêu: thêm reranker để sắp lại passage sau retrieval; kiến trúc multi-hop dùng kết quả truy hồi lần một nối vào query để truy hồi lần hai; instruction-tune LLM trên dataset câu hỏi kèm passage và đáp án đúng; dùng test-time compute để LLM vừa trả lời vừa sinh reflection về passage nào hữu ích; và huấn luyện end-to-end cả IR engine cùng LLM. Mismatch là IR engine thường chưa được huấn luyện, hoặc chỉ được huấn luyện cho IR đơn giản hay factoid QA, không phải cho kịch bản RAG nơi passage truy hồi được một LLM khác dùng để sinh văn bản; huấn luyện end-to-end trên tập câu hỏi và đáp án là cách SLP3 đề xuất để khép khoảng cách này. SLP3 cũng khuyến nghị đưa knowledge citation (URL hoặc tham chiếu) vào output, cách đơn giản nhất là yêu cầu ngay trong prompt.",
+          "explain": "SLP3: \"the IR engine itself has not been optimized for the RAG scenario. It might not have been trained, or if it was, it was likely trained for simple IR or factoid question-answering tasks, not for the RAG scenario where the retrieved passages are specifically to be used by another LLM for generating texts. We can address this mismatch for trainable IR algorithms by doing end-to-end training of the entire architecture on some set of questions and answers\". (SLP3 mục 11.4, tr. 269)"
+        },
+        {
           "id": "w13adv1",
           "type": "mcq",
           "level": "advanced",
@@ -1440,6 +2697,92 @@ window.QUIZ_DATA = {
           "q": "Theo IR-book mục 11.4.3, BM25 được thiết kế để mô hình xác suất nhạy với hai đại lượng nào mà mô hình nhị phân độc lập bỏ qua, và điều đó liên quan gì đến cách bạn chunk tài liệu ở Tuần 13?",
           "answer": "Hai đại lượng là tần suất từ trong tài liệu (term frequency) và độ dài tài liệu (document length); BM25 chuẩn hóa điểm theo độ dài bằng tham số b và bão hòa tần suất bằng tham số k₁. Chunk dài ngắn không đều sẽ bị chuẩn hóa độ dài kéo điểm lên xuống, nên khi dùng BM25 trong hybrid search cần chunk tương đối đều hoặc hiểu rõ ảnh hưởng của b.",
           "explain": "IR-book trang 232 nói BM25 'sensitive to these quantities while not introducing too many additional parameters'. Hiểu hai tham số này giúp bạn không coi rank_bm25 là hộp đen khi đo lại RAGAS."
+        },
+        {
+          "id": "w14b1",
+          "type": "mcq",
+          "q": "Trong công thức BM25 (IR-book, phương trình 11.32), nếu bạn đặt tham số k1 = 0 cho tầng sparse retrieval của hệ hybrid search, điểm số của mỗi term thay đổi thế nào?",
+          "choices": [
+            "Không còn phụ thuộc vào tần suất term trong tài liệu, mô hình trở về dạng nhị phân chỉ còn trọng số idf",
+            "Không còn chuẩn hóa theo độ dài tài liệu, mọi chunk dài hay ngắn đều được tính điểm như nhau",
+            "Không còn thành phần idf, mọi term hiếm hay phổ biến đều đóng góp một lượng bằng nhau",
+            "Không còn trọng số cho term trong query, mọi term của câu hỏi được coi là xuất hiện một lần"
+          ],
+          "answer": 0,
+          "explain": "IR-book viết về k1 trong phương trình 11.32: \"A k1 value of 0 corresponds to a binary model (no term frequency), and a large value corresponds to using raw term frequency.\" Chuẩn hóa độ dài do b điều khiển, trọng số term trong query do k3 điều khiển (phương trình 11.33), còn idf là thừa số log(N/df_t) độc lập với k1. (IR-book mục 11.4.3, tr. 233)"
+        },
+        {
+          "id": "w14b2",
+          "type": "mcq",
+          "q": "Bộ chunk của bạn ở Tuần 13 có độ dài rất chênh lệch (một số chunk dài gấp năm lần trung bình). Theo IR-book, tham số nào của BM25 kiểm soát mức phạt theo độ dài tài liệu, và hai giá trị biên của nó có ý nghĩa gì?",
+          "choices": [
+            "b trong khoảng 0 đến 1; b = 0 là không chuẩn hóa độ dài, b = 1 là chuẩn hóa hoàn toàn theo độ dài",
+            "k1 trong khoảng 0 đến vô cùng; k1 = 0 là không chuẩn hóa độ dài, k1 lớn là chuẩn hóa hoàn toàn",
+            "Lave, độ dài trung bình; Lave = 0 là không chuẩn hóa độ dài, Lave lớn là chuẩn hóa hoàn toàn",
+            "k3 trong khoảng 0 đến vô cùng; k3 = 0 là không chuẩn hóa độ dài, k3 lớn là chuẩn hóa hoàn toàn"
+          ],
+          "answer": 0,
+          "explain": "IR-book: \"b is another tuning parameter (0 ≤ b ≤ 1) which determines the scaling by document length: b = 1 corresponds to fully scaling the term weight by the document length, while b = 0 corresponds to no length normalization.\" Thừa số L_d/L_ave trong mẫu số nhân với b, nên khi chunk dài hơn trung bình, điểm tf bị giảm theo mức b chọn. (IR-book mục 11.4.3, tr. 233)"
+        },
+        {
+          "id": "w14b3",
+          "type": "open",
+          "q": "Khi xây eval set cho RAG, một đồng nghiệp đề xuất đo retriever bằng accuracy (tỷ lệ chunk được phân loại đúng là liên quan hoặc không liên quan). IR-book phản đối cách này vì lý do gì, và điều đó áp dụng thế nào cho corpus của bạn?",
+          "answer": "IR-book chỉ ra dữ liệu IR cực kỳ lệch: thường trên 99,9% tài liệu là không liên quan, nên một hệ thống gán nhãn tất cả tài liệu là không liên quan vẫn đạt accuracy rất cao mà vô dụng với người dùng. Precision và recall tập trung vào true positives, hỏi bao nhiêu phần tài liệu liên quan đã tìm được và kèm bao nhiêu false positives. Với corpus hàng nghìn chunk mà mỗi câu hỏi chỉ có vài chunk liên quan, accuracy của retriever sẽ luôn gần 1 và không phân biệt được retriever tốt hay xấu, nên phải dùng precision, recall hoặc F.",
+          "explain": "Nguyên văn IR-book: \"In almost all circumstances, the data is extremely skewed: normally over 99.9% of the documents are in the nonrelevant category. A system tuned to maximize accuracy can appear to perform well by simply deeming all documents nonrelevant to all queries.\" Accuracy được định nghĩa là (tp + tn)/(tp + fp + fn + tn), trong đó tn áp đảo. (IR-book mục 8.3, tr. 155)"
+        },
+        {
+          "id": "w14b4",
+          "type": "mcq",
+          "q": "Vì sao IR-book định nghĩa F measure bằng trung bình điều hòa (harmonic mean) của precision và recall thay vì trung bình cộng?",
+          "choices": [
+            "Vì trung bình điều hòa cho phép cộng trực tiếp điểm F của nhiều query thành một điểm tổng, còn trung bình cộng phải chuẩn hóa theo số tài liệu trả về",
+            "Vì trung bình điều hòa luôn lớn hơn trung bình cộng nên điểm F cao hơn, giúp so sánh hai hệ thống có precision và recall cùng thấp dễ dàng hơn",
+            "Vì trung bình cộng chỉ định nghĩa được khi precision và recall cùng khác không, còn trung bình điều hòa xử lý được cả trường hợp một trong hai bằng không",
+            "Vì trả về toàn bộ tài liệu cho mọi query luôn đạt recall 100% và do đó trung bình cộng đạt 50%, trong khi trung bình điều hòa gần với giá trị nhỏ hơn trong hai số"
+          ],
+          "answer": 3,
+          "explain": "IR-book: trả về mọi tài liệu luôn đạt recall 100% nên trung bình cộng luôn có thể đạt 50%, \"This strongly suggests that the arithmetic mean is an unsuitable measure to use.\" Với giả định 1 trong 10.000 tài liệu liên quan, trung bình điều hòa của chiến lược đó chỉ là 0,02%. \"When the values of two numbers differ greatly, the harmonic mean is closer to their minimum than to their arithmetic mean.\" (IR-book mục 8.3, tr. 157)"
+        },
+        {
+          "id": "w14b5",
+          "type": "mcq",
+          "q": "RAG của bạn lấy top 5 chunk cho mỗi câu hỏi, nhưng nhiều câu trong eval set chỉ có đúng 1 chunk liên quan nên precision at 5 không bao giờ vượt 0,2. IR-book nêu độ đo nào để xử lý đúng vấn đề này, và vì sao?",
+          "choices": [
+            "Precision at k với k nhỏ hơn, vì IR-book cho rằng đây là độ đo ổn định nhất và không cần biết số tài liệu liên quan",
+            "11-point interpolated average precision, vì nó thay số tài liệu liên quan bằng 11 mức recall cố định",
+            "Recall at k, vì độ đo này không đổi theo số tài liệu liên quan và hệ thống hoàn hảo luôn đạt 1 với mọi k",
+            "R-precision, vì nó tính precision trên đúng |Rel| kết quả đầu nên hệ thống hoàn hảo có thể đạt 1 cho mọi query"
+          ],
+          "answer": 3,
+          "explain": "IR-book nói precision at k có nhược điểm \"it is the least stable of the commonly used evaluation measures and that it does not average well, since the total number of relevant documents for a query has a strong influence on precision at k.\" R-precision \"adjusts for the size of the set of relevant documents: A perfect system could score 1 on this metric for each query, whereas, even a perfect system could only achieve a precision at 20 of 0.4 if there were only 8 documents in the collection relevant\". Sách cũng ghi R-precision trùng với break-even point và tương quan cao với MAP. (IR-book mục 8.4, tr. 161)"
+        },
+        {
+          "id": "w14b6",
+          "type": "open",
+          "q": "SLP3 tính average precision (AP) cho một query như thế nào, và vì sao AP phản ánh chất lượng xếp hạng tốt hơn precision at k? Dùng ví dụ Fig. 11.7 (25 tài liệu, 9 liên quan) để minh họa con số sách đưa ra.",
+          "answer": "Theo SLP3, ta đi xuống danh sách xếp hạng và chỉ ghi lại precision tại những vị trí gặp tài liệu liên quan (ví dụ hạng 1, 3, 5, 6 nhưng không phải 2 hay 4), rồi lấy trung bình các giá trị đó trên tập tài liệu liên quan (phương trình 11.16). MAP là trung bình AP trên tập query (phương trình 11.17). Với Fig. 11.7, sách cho biết AP (cũng là MAP vì chỉ một query) bằng 0,6. AP thưởng cho hệ thống đưa tài liệu liên quan lên cao vì precision tại các vị trí đó lớn, còn precision at k chỉ nhìn một điểm cắt cố định và bỏ qua thứ tự bên trong top k.",
+          "explain": "SLP3: \"we again descend through the ranked list of items, but now we note the precision only at those points where a relevant item has been encountered (for example at ranks 1, 3, 5, 6 but not 2 or 4 in Fig. 11.7).\" và \"The MAP for the single query (hence = AP) in Fig. 11.7 is 0.6.\" (SLP3 mục 11.2, tr. 263)"
+        },
+        {
+          "id": "w14b7",
+          "type": "mcq",
+          "q": "IR-book định nghĩa interpolated precision tại mức recall r là precision cao nhất tìm được ở bất kỳ mức recall r' >= r (phương trình 8.7). Sách biện minh định nghĩa này bằng lập luận nào?",
+          "choices": [
+            "Vì MAP được định nghĩa dựa trên interpolated precision nên hai độ đo phải dùng cùng một quy ước làm trơn",
+            "Vì precision tại recall bằng 0 không xác định được, nên phải mượn giá trị từ các mức recall cao hơn để vẽ đủ 11 điểm",
+            "Vì gần như ai cũng sẵn sàng xem thêm vài tài liệu nếu điều đó làm tăng tỷ lệ tài liệu liên quan trong tập đã xem",
+            "Vì đường precision-recall của các hệ thống khác nhau chỉ so sánh được khi chúng đơn điệu giảm trên cùng trục recall"
+          ],
+          "answer": 2,
+          "explain": "IR-book: \"The justification is that almost anyone would be prepared to look at a few more documents if it would increase the percentage of the viewed set that were relevant (that is, if the precision of the larger set is higher).\" Sách cũng ghi MAP không dùng nội suy: \"Using MAP, fixed recall levels are not chosen, and there is no interpolation.\" (tr. 160), nên phương án cuối sai. (IR-book mục 8.4, tr. 159)"
+        },
+        {
+          "id": "w14b8",
+          "type": "open",
+          "q": "Bạn cần chọn k1 và b cho BM25 trên corpus văn bản pháp luật ngân hàng tiếng Việt. IR-book khuyến nghị quy trình nào để đặt hai tham số này, và nếu chưa có tập phát triển thì dùng giá trị nào?",
+          "answer": "IR-book nói các tham số nên được đặt bằng cách tối ưu hiệu năng trên một development test collection tách riêng (tìm thủ công hoặc bằng grid search hay phương pháp tối ưu khác), rồi mới dùng các giá trị đó trên test collection thật. Khi không có bước tối ưu như vậy, thực nghiệm cho thấy giá trị hợp lý là k1 và k3 trong khoảng 1,2 đến 2 và b = 0,75. Với eval set RAG của bạn, điều này nghĩa là phải tách một phần câu hỏi làm dev set để dò k1, b, không dò trực tiếp trên tập dùng để báo cáo kết quả.",
+          "explain": "Nguyên văn: \"The tuning parameters of these formulas should ideally be set to optimize performance on a development test collection\" và \"In the absence of such optimization, experiments have shown reasonable values are to set k1 and k3 to a value between 1.2 and 2 and b = 0.75.\" (IR-book mục 11.4.3, tr. 233)"
         },
         {
           "id": "w14adv1",
@@ -1543,6 +2886,98 @@ window.QUIZ_DATA = {
           "explain": "Đây là checklist trước khi cho agent chạy tự động bất kỳ việc gì, kể cả trong CornAgents.AI."
         },
         {
+          "id": "w15b1",
+          "type": "mcq",
+          "q": "Theo Xiao và Zhu (FoLLM), prompt template là gì, và nó khác prompt ở điểm nào?",
+          "choices": [
+            "Template là bản prompt đã được LLM tối ưu tự động trên tập validation, còn prompt là bản người viết tay trước khi tối ưu",
+            "Template là đoạn văn bản có chỗ trống hoặc biến được điền thông tin cụ thể để tạo prompt, còn prompt là văn bản đầu vào x của LLM",
+            "Template là phần system information mô tả vai trò và ràng buộc của LLM, còn prompt là phần nội dung người dùng nhập vào sau đó",
+            "Template là tập demonstration dùng cho in-context learning của một tác vụ, còn prompt là câu hỏi cuối cùng mà người dùng gõ vào"
+          ],
+          "answer": 1,
+          "explain": "FoLLM định nghĩa prompt là \"the input text to an LLM, denoted by x\" và LLM sinh y bằng cách tối đa Pr(y|x). \"A template is a piece of text containing placeholders or variables, where each placeholder can be filled with specific information.\" Ví dụ template \"If {*premise*}, what are your suggestions for a fun weekend.\" (FoLLM mục 3.1.1, tr. 97)"
+        },
+        {
+          "id": "w15b2",
+          "type": "mcq",
+          "q": "Agent của bạn dùng few-shot prompt để đọc thuật ngữ pháp lý tiếng Việt chuyên ngành nhưng kết quả vẫn kém dù đã thêm nhiều demonstration. FoLLM đưa ra nhận định nào cho tình huống tương tự (ví dụ dịch tiếng Inuktitut)?",
+          "choices": [
+            "Nếu LLM thiếu dữ liệu pre-training về ngôn ngữ đó thì nên chuyển sang zero-shot vì demonstration sai làm nhiễu mô hình",
+            "Nếu LLM thiếu dữ liệu pre-training về ngôn ngữ đó thì cần tiếp tục huấn luyện với thêm dữ liệu, thay vì cố tìm prompt tốt hơn",
+            "Nếu LLM thiếu dữ liệu pre-training về ngôn ngữ đó thì cần tăng số demonstration lên vài chục để bù kiến thức nền",
+            "Nếu LLM thiếu dữ liệu pre-training về ngôn ngữ đó thì nên đổi định dạng prompt sang code-style để mô hình dễ đọc"
+          ],
+          "answer": 1,
+          "explain": "FoLLM: in-context learning được xem là cách \"efficiently activate and reorganize the knowledge learned in pre-training\", nên nó phụ thuộc năng lực nền của mô hình. Với ví dụ Inuktitut: \"If the LLM lacks pre-training on Inuktitut data ... it will be difficult for the model to perform well in translation regardless of how we prompt it. In this case, we need to continue training the LLM with more Inuktitut data, rather than trying to find better prompts.\" (FoLLM mục 3.1.2, tr. 99-101)"
+        },
+        {
+          "id": "w15b3",
+          "type": "open",
+          "q": "FoLLM mục 3.1.3 nêu bốn nguyên tắc viết prompt. Hãy kể tên và cho biết bạn sẽ áp dụng từng nguyên tắc thế nào khi viết system prompt cho agent tra cứu quy định ngân hàng.",
+          "answer": "Bốn nguyên tắc: (1) mô tả nhiệm vụ rõ ràng nhất có thể, ví dụ nêu đích danh loại văn bản, phạm vi và giới hạn độ dài trả lời thay vì câu chung chung; (2) hướng LLM suy nghĩ, ví dụ yêu cầu liệt kê các bước tra cứu trước khi kết luận hoặc dùng vòng thứ hai để tự kiểm tra; (3) cung cấp thông tin tham chiếu, tức đưa đoạn văn bản pháp luật đã retrieve vào prompt và yêu cầu trả lời dựa trên đó; (4) chú ý định dạng prompt, tách các trường bằng nhãn, dấu phân cách hoặc XML tag và quy định cấu trúc đầu ra. FoLLM lưu ý hiệu năng rất nhạy với prompt, đổi thứ tự câu cũng có thể đổi kết quả.",
+          "explain": "Danh sách trong sách: \"Describing the task as clearly as possible\", \"Guiding LLMs to think\", \"Providing reference information\", \"Paying attention to prompt formats\" (tr. 102 đến 105). Với nguyên tắc 3, sách nêu RAG là ví dụ: \"the relevant text for the user query is provided by calling an IR system, and we prompt LLMs to generate responses based on this provided relevant text.\" (FoLLM mục 3.1.3, tr. 102-105)"
+        },
+        {
+          "id": "w15b4",
+          "type": "mcq",
+          "q": "Trong kiến trúc ReAct mà SLP3 mô tả, kết quả quan sát (observation) trả về từ tool được xử lý thế nào ở vòng lặp tiếp theo?",
+          "choices": [
+            "Được dùng để cập nhật trọng số của model qua một bước gradient nhỏ trước khi model suy luận tiếp",
+            "Được tóm tắt bởi một model thứ hai rồi thay thế toàn bộ lịch sử trước đó trong prompt của vòng sau",
+            "Được nối vào lịch sử dưới dạng văn bản ngữ cảnh, rồi model lặp lại reason, act, observe cho đến khi xong",
+            "Được lưu vào bộ nhớ ngoài và chỉ nạp lại khi model sinh một action đọc bộ nhớ ở vòng sau"
+          ],
+          "answer": 2,
+          "explain": "SLP3: \"the model continuously loops over three stages, Reason-Action-Observation, until it solves the user problem ... All this history is then treated as textual context, and the model loops again, reasoning, acting, and observing, until the user's task is accomplished.\" Không có cập nhật trọng số; ở mục 1.8 sách nhấn mạnh trực giác vẫn là dự đoán token. (SLP3 mục 1.8, tr. 25)"
+        },
+        {
+          "id": "w15b5",
+          "type": "mcq",
+          "q": "Prompt ReAct mẫu trong SLP3 (Fig. 1.17) định nghĩa ba action: Search[entity], Lookup[keyword] và Finish[answer]. Điều gì đáng chú ý về vai trò của Finish khi bạn thiết kế agent loop của mình?",
+          "choices": [
+            "Finish là action bắt buộc phải đi sau Lookup, vì Lookup mới cung cấp câu trả lời cuối để Finish trả về",
+            "Finish là action chỉ có ở prompt mẫu, còn trong thực tế agent kết thúc khi model ngừng sinh token",
+            "Finish là một action mà model tự sinh ra như các action khác, vừa trả câu trả lời vừa kết thúc nhiệm vụ",
+            "Finish là action do hệ thống bên ngoài gọi khi số vòng lặp vượt ngưỡng, không phải do model sinh ra"
+          ],
+          "answer": 2,
+          "explain": "Nguyên văn prompt: \"(3) Finish[answer], which returns the answer and finishes the task.\" Trong trace Fig. 1.16, model tự sinh \"Act 4: Finish[keyboard function keys]\" sau bốn vòng Thought, Act, Obs. Theo mục 1.8, tập action được thêm vào tập token có thể sinh, nên điều kiện dừng cũng là một token action do model quyết định. (SLP3 mục 1.8, tr. 25)"
+        },
+        {
+          "id": "w15b6",
+          "type": "open",
+          "q": "FoLLM đưa ra hai mức prompt RAG khác nhau về độ ràng buộc với ngữ cảnh được cung cấp. Hai mức đó là gì và sách gợi ý dùng mức chặt hơn khi nào?",
+          "answer": "Mức thứ nhất yêu cầu LLM sinh câu trả lời dựa trên context information do hệ IR trả về và diễn đạt bằng lời của mình, không chỉ chép lại. Mức thứ hai chặt hơn: chỉ được trả lời bằng đúng thông tin trong context (ví dụ một bảng mà mỗi dòng là một bản ghi hữu ích). FoLLM nói mức chặt này áp dụng khi context information có độ tin cậy cao. Với agent ngân hàng, khi nguồn là văn bản pháp luật đã xác minh thì dùng mức chặt; khi nguồn là kết quả tìm kiếm chung thì nên giữ mức mềm hơn và cho phép mô hình từ chối.",
+          "explain": "FoLLM: \"If the context information is highly reliable, we can even restrict LLMs to answering using only the provided text.\" Prompt mức chặt viết \"Please generate an answer using only this context information\" (tr. 105), còn prompt mức đầu viết \"Please generate an answer based on this context information ... not just copy from the context provided.\" (FoLLM mục 3.1.3, tr. 104)"
+        },
+        {
+          "id": "w15b7",
+          "type": "mcq",
+          "q": "FoLLM nhận xét rằng hiệu năng LLM rất nhạy với prompt, thậm chí đổi thứ tự câu cũng có thể đổi kết quả. Sách gợi ý cách nào để prompt dễ đọc và giảm mơ hồ?",
+          "choices": [
+            "Rút gọn prompt xuống một câu duy nhất, bỏ mọi ví dụ và mô tả vai trò để giảm số cách hiểu",
+            "Lặp lại yêu cầu quan trọng ở cả đầu và cuối prompt để bù cho việc model nhạy với vị trí câu",
+            "Chia prompt thành các trường riêng, dùng dấu phân cách hoặc XML tag và nêu rõ định dạng vào ra mong muốn",
+            "Viết toàn bộ prompt bằng tiếng Anh vì model được pre-train chủ yếu trên dữ liệu tiếng Anh"
+          ],
+          "answer": 2,
+          "explain": "FoLLM: \"One example is that we define several fields for prompts and fill different information in each field. Another example is we can use code-style prompts\" và \"This allows us to use control characters, XML tags, and specific formatting to represent complex data. And it is useful to specify how the input and output should be formatted or structured.\" Sách cũng nêu ví dụ báo cho model rằng văn bản đầu vào được bao trong dấu ngoặc kép. (FoLLM mục 3.1.3, tr. 105)"
+        },
+        {
+          "id": "w15b8",
+          "type": "mcq",
+          "q": "Bước phân loại ý định (routing) trong agent của bạn yêu cầu LLM trả về một trong ba nhãn, nhưng model thường trả về cả câu như \"Yêu cầu này có thể được xếp vào nhóm khiếu nại\". FoLLM gợi ý cách nào để lấy nhãn ổn định?",
+          "choices": [
+            "Đặt bài toán thành dạng cloze và giới hạn dự đoán trong tập từ nhãn Y, chọn nhãn có xác suất cao nhất theo label = argmax Pr(y|x)",
+            "Tăng temperature khi sinh để model đa dạng hơn rồi lấy nhãn xuất hiện nhiều nhất trong nhiều lần chạy",
+            "Thêm một LLM thứ hai đọc câu trả lời của LLM thứ nhất và dịch nó thành nhãn, tránh sửa prompt gốc đã hoạt động",
+            "Huấn luyện lại toàn bộ LLM với dữ liệu gán nhãn vì prompt không thể thay đổi cách model biểu đạt đầu ra"
+          ],
+          "answer": 0,
+          "explain": "FoLLM giải thích LLM \"are designed to generate text but not to assign labels\", nên cần label mapping. Một cách là đặt thành cloze task rồi \"constrain the prediction to the set of label words and select the one with the highest probability\", tức label = argmax_{y∈Y} Pr(y|x) (phương trình 3.1). Cách khác sách nêu là ràng buộc bằng prompt \"Just answer: positive, negative, or neutral.\" Fine-tune chỉ được sách gợi ý khi bài toán rất khó và có dữ liệu gán nhãn. (FoLLM mục 3.1.4.1, tr. 107)"
+        },
+        {
           "id": "w15adv1",
           "type": "mcq",
           "level": "advanced",
@@ -1642,6 +3077,52 @@ window.QUIZ_DATA = {
           "q": "'Artifact contract' giữa các agent là gì và vì sao reviewer nên trả 'criterion-level defects' thay vì 'looks good'?",
           "answer": "Artifact contract = mỗi handoff giữa hai agent là một artifact có schema rõ (user story JSON, defect list, test file) thay vì đoạn văn tự do, giúp validate tự động, test từng mắt xích, và audit. Reviewer trả defect theo từng tiêu chí (đúng/sai ở tiêu chí nào, bằng chứng gì) vì 'looks good' không cho downstream agent hay con người thông tin hành động được; defect có cấu trúc thì gate được (đếm, chặn, escalate) và đo được chất lượng review theo thời gian.",
           "explain": "Từ mục VI.D của Karpathy-Loop PDF: 'Every handoff should be an artifact contract. A reviewer returns criterion-level defects, not looks-good.'"
+        },
+        {
+          "id": "w16b1",
+          "type": "mcq",
+          "q": "FoLLM nêu khung tổng quát của problem decomposition gồm hai thành phần. Khi map sang orchestrator-workers trong CornAgents.AI, hai thành phần đó là gì?",
+          "choices": [
+            "Prompt ensembling và output ensembling: chạy nhiều prompt hoặc lấy nhiều mẫu đầu ra rồi kết hợp chúng thành dự đoán cuối cùng",
+            "Prediction và refinement: sinh câu trả lời ban đầu rồi thu phản hồi và dùng phản hồi đó để sửa dần cho tới khi đầu ra đạt yêu cầu",
+            "Reasoning path search và verifier: tìm nhiều đường suy luận rồi chấm điểm từng bước để chọn đường tốt nhất trong không gian tìm kiếm",
+            "Sub-problem generation và sub-problem solving: tách bài toán thành các bài con, rồi giải từng bài con để rút ra kết luận trung gian và cuối"
+          ],
+          "answer": 3,
+          "explain": "FoLLM: \"A general framework for problem decomposition involves two elements. Sub-problem Generation. This involves decomposing the input problem into a number of sub-problems. Sub-problem Solving. This involves solving each sub-problem and deriving intermediate and final conclusions through reasoning.\" Các phương án khác là self-refinement (3.2.3) và ensembling (3.2.4). (FoLLM mục 3.2.2, tr. 120)"
+        },
+        {
+          "id": "w16b2",
+          "type": "mcq",
+          "q": "FoLLM phân biệt sinh toàn bộ bài con một lần ({p1,...,pn} = G(p0), phương trình 3.2) với sinh từng bài con theo bước (pi = Gi(p0, {p<i, a<i}), phương trình 3.5). Orchestrator của bạn nên sinh sub-task theo cách thứ hai trong trường hợp nào?",
+          "choices": [
+            "Khi các bước suy luận không cố định và mỗi bước phụ thuộc kết quả bước trước, nên đường giải phải được điều chỉnh trong lúc giải",
+            "Khi muốn chạy các bài con song song để giảm chi phí tính toán, vì sinh theo bước cho phép phân phối đều tải giữa các worker",
+            "Khi bài toán có tính hợp thành rõ như viết tài liệu theo dàn ý, vì mỗi phần có thể được viết độc lập với các phần trước nó",
+            "Khi cần giảm số lần gọi LLM, vì sinh theo bước gộp việc sinh bài con và việc giải bài con vào cùng một lượt dự đoán duy nhất"
+          ],
+          "answer": 0,
+          "explain": "FoLLM: cách hai bước (sinh hết rồi giải) \"assumes that the problem is compositional, making it more suitable for tasks like writing and code generation\"; ngược lại với bài toán suy luận phức tạp \"the reasoning steps may not be fixed ... each step of reasoning may depend on the outcomes of prior steps. In such cases, it is undesirable to use fixed sub-problem generation in advance\" (tr. 120 đến 121). Phương trình 3.5 cho phép \"the reasoning paths are not fixed in advance, and the models can choose and adapt their reasoning strategies during problem-solving.\" (FoLLM mục 3.2.2, tr. 120-123)"
+        },
+        {
+          "id": "w16b3",
+          "type": "open",
+          "q": "Reviewer agent trong CornAgents.AI chạy vòng lặp sửa dần. FoLLM mô tả khung self-refinement ba bước của Madaan et al. như thế nào, và sách cảnh báo hai vấn đề gì riêng của phương pháp lặp mà bạn phải xử lý khi thiết kế vòng lặp này?",
+          "answer": "Ba bước: Prediction (LLM sinh đầu ra ban đầu), Feedback Collection (thu phản hồi về đầu ra, có thể do người, reward model hay chính LLM tạo), Refinement (LLM sửa đầu ra dựa trên phản hồi); hai bước sau có thể lặp nhiều lần và chất lượng phản hồi cụ thể, chi tiết là yếu tố quyết định. FoLLM cảnh báo phương pháp lặp có hai vấn đề không có ở phương pháp một lượt: lỗi ở bước sớm có thể ảnh hưởng xấu tới các bước sau, và việc quyết định khi nào dừng lặp thường cần thêm công sức kỹ thuật. Với reviewer agent, điều này nghĩa là phản hồi phải chỉ ra lỗi cụ thể theo tiêu chí và phải có điều kiện dừng rõ (số vòng tối đa hoặc ngưỡng chất lượng).",
+          "explain": "FoLLM: \"A general framework of self-refinement with LLMs involves three steps [Madaan et al., 2024]. Prediction ... Feedback Collection ... Refinement\" và \"receiving accurate and detailed feedback is critical\". Về phương pháp lặp (tr. 129 đến 130): \"errors in earlier steps may negatively impact subsequent problem-solving, and determining when to stop iterating often requires additional engineering effort.\" (FoLLM mục 3.2.3, tr. 126-130)"
+        },
+        {
+          "id": "w16b4",
+          "type": "mcq",
+          "q": "Theo FoLLM, khác biệt then chốt giữa tool use và RAG là gì, và điểm chung nào khiến sách gọi cả hai là cùng một việc dưới góc nhìn language modeling?",
+          "choices": [
+            "Trong tool use, model tự quyết định có gọi hay không; trong RAG, hệ IR luôn được gọi cho mọi câu hỏi; cả hai đều được FoLLM xếp vào nhóm self-refinement vì đều sửa câu trả lời ban đầu bằng thông tin lấy từ bên ngoài",
+            "Trong tool use, hàm ngoài được gọi ngay trong lúc suy luận; trong RAG, văn bản truy hồi được cung cấp trước khi dự đoán bắt đầu; cả hai đều dùng hệ ngoài để tạo ngữ cảnh đủ và liên quan trước khi sinh kết quả cuối",
+            "Tool use trả kết quả có cấu trúc còn RAG trả văn bản tự do; cả hai đều được đánh giá bằng exact match trên câu trả lời cuối, và FoLLM xếp cả hai vào nhóm phương pháp chain of thought nhiều vòng",
+            "Tool use chỉ dùng cho tính toán số còn RAG chỉ dùng cho văn bản; cả hai đều cần fine-tune model để sinh marker gọi hệ ngoài trước khi trả lời, và FoLLM xếp cả hai vào nhóm phương pháp ensembling"
+          ],
+          "answer": 1,
+          "explain": "FoLLM: \"A key difference between the tool use examples here and the previously discussed RAG examples is that in tool use, external functions can be called during inference. In contrast, in RAG, the retrieved texts are provided before the prediction process begins. However, from the language modeling perspective, they are actually doing the same thing: before generating the final result, we use external tools ... to obtain sufficient and relevant context.\" Sách xếp RAG vào khung problem decomposition (tr. 137), không phải self-refinement. (FoLLM mục 3.2.5, tr. 138)"
         },
         {
           "id": "w16adv1",
@@ -1745,6 +3226,98 @@ window.QUIZ_DATA = {
           "explain": "Trí tuệ của loop nằm ở chất lượng environmental feedback, không nằm trong model."
         },
         {
+          "id": "w17b1",
+          "type": "mcq",
+          "q": "Bạn muốn biết giữa hai thực thể trong knowledge graph có bao nhiêu đường đi độ dài 2 (ví dụ cùng chịu một văn bản pháp luật). Theo Ma và Tang (Theorem 2.14), đại lượng nào cho con số đó?",
+          "choices": [
+            "Phần tử (i, j) của ma trận Laplacian L = D - A, vì nó trừ số cạnh trực tiếp khỏi bậc của nút",
+            "Phần tử (i, j) của (I - αA)^-1, vì chuỗi lũy thừa của A đếm walk mọi độ dài có trọng số",
+            "Phần tử (i, j) của ma trận D^2, vì bậc bình phương đếm số cặp láng giềng có thể nối hai nút",
+            "Phần tử (i, j) của A^2, vì phần tử (i, j) của A^n bằng số walk độ dài n từ v_i đến v_j"
+          ],
+          "answer": 3,
+          "explain": "Theorem 2.14: \"we use A^n to denote the n-th power of the adjacency matrix. The i, j-th element of the matrix A^n equals to the number of v_i-v_j walks of length n.\" Chứng minh bằng quy nạp qua phương trình 2.2. Lưu ý sách định nghĩa walk có thể lặp nút, khác path (Definition 2.10 và 2.12). (Ma và Tang mục 2.3.2, tr. 21)"
+        },
+        {
+          "id": "w17b2",
+          "type": "mcq",
+          "q": "Trong ví dụ đồ thị 5 nút của Ma và Tang (Figure 2.1), ba nút v2, v3, v4 đều có degree 2 nhưng eigenvector centrality của v4 (0,806) cao hơn v2 và v3 (0,675). Điều này minh họa điểm gì khi bạn xếp hạng thực thể quan trọng trong knowledge graph?",
+          "choices": [
+            "Eigenvector centrality đo khoảng cách trung bình tới các nút khác, nên nút gần trung tâm hình học được xếp cao hơn",
+            "Eigenvector centrality tăng theo số shortest path đi qua nút, nên nút nằm giữa hai cụm được xếp cao hơn",
+            "Eigenvector centrality bị lệch bởi hằng số β cộng thêm cho mỗi nút, nên cần chuẩn hóa lại theo degree",
+            "Eigenvector centrality không coi mọi láng giềng ngang nhau; nối với láng giềng có centrality cao thì chính nút đó cũng cao hơn"
+          ],
+          "answer": 3,
+          "explain": "Ma và Tang: degree centrality \"treats all the neighbors equally. However, the neighbors themselves can have different importance\". Eigenvector centrality định nghĩa c_e = (1/λ) A c_e (phương trình 2.3), chọn λ là trị riêng lớn nhất theo Perron-Frobenius. Example 2.25: trị riêng lớn nhất 2,481, vector riêng [1, 0,675, 0,675, 0,806, 1]; v4 cao hơn \"as it directly connects to nodes v1 and v5 whose eigenvector centrality is high.\" Đếm shortest path là betweenness, hằng số β là Katz. (Ma và Tang mục 2.3.3, tr. 24)"
+        },
+        {
+          "id": "w17b3",
+          "type": "open",
+          "q": "Betweenness centrality theo Ma và Tang được định nghĩa và chuẩn hóa thế nào, vì sao cần chuẩn hóa, và độ đo này giúp gì khi bạn tìm thực thể cầu nối giữa các cụm trong knowledge graph của multi-agent?",
+          "answer": "Betweenness của nút v_i là tổng trên mọi cặp (v_s, v_t) của tỷ số σ_st(v_i)/σ_st, trong đó σ_st là số shortest path từ v_s tới v_t và σ_st(v_i) là số path trong đó đi qua v_i (phương trình 2.6). Vì tổng lấy trên mọi cặp nút nên giá trị tăng theo kích thước đồ thị; để so sánh giữa các đồ thị, sách chia cho giá trị lớn nhất có thể là (N-1)(N-2)/2 (số cặp nút trong đồ thị vô hướng), thu được normalized betweenness. Trong Example 2.27, v1 và v5 có betweenness 3/2 (chuẩn hóa 1/4), v4 có betweenness 0. Với knowledge graph, nút có betweenness cao là nút mà nhiều đường đi ngắn nhất giữa các thực thể khác phải đi qua, tức thực thể cầu nối mà agent nên ưu tiên giữ chính xác khi extraction.",
+          "explain": "Ma và Tang: \"if there are many paths passing through a node, it is at an important position in the graph\", định nghĩa c_b(v_i) = Σ σ_st(v_i)/σ_st (phương trình 2.6, tr. 25). Về chuẩn hóa: \"the magnitude of the betweenness centrality score scales as the size of graph scales ... There are, in total, (N-1)(N-2)/2 pairs of nodes in an undirected graph. Hence, the maximum betweenness centrality score is (N-1)(N-2)/2.\" (Ma và Tang mục 2.3.3, tr. 26)"
+        },
+        {
+          "id": "w17b4",
+          "type": "mcq",
+          "q": "Sau bước entity resolution, bạn nghi knowledge graph bị tách thành nhiều cụm rời nhau. Theo Ma và Tang (Theorem 2.31), đại lượng phổ nào cho biết đúng số connected component?",
+          "choices": [
+            "Bội của trị riêng 0 của ma trận Laplacian L bằng đúng số connected component của đồ thị",
+            "Trị riêng lớn nhất của ma trận kề A, làm tròn xuống, bằng đúng số connected component của đồ thị",
+            "Số trị riêng âm của ma trận Laplacian L bằng đúng số connected component của đồ thị",
+            "Hạng của ma trận bậc D trừ hạng của ma trận kề A bằng đúng số connected component của đồ thị"
+          ],
+          "answer": 0,
+          "explain": "Theorem 2.31: \"the number of 0 eigenvalues of its Laplacian matrix L (the multiplicity of the 0 eigenvalue) equals to the number of connected components in the graph.\" Chứng minh dựng K vector chỉ báo của K thành phần, mỗi vector là vector riêng ứng với 0 và trực giao nhau. Theorem 2.30 cho biết mọi trị riêng của L đều không âm nên phương án về trị riêng âm sai. (Ma và Tang mục 2.4.2, tr. 28)"
+        },
+        {
+          "id": "w17b5",
+          "type": "mcq",
+          "q": "Ma và Tang định nghĩa knowledge graph là G = (V, E, R) với mỗi cạnh là bộ ba (s, r, t). Sách nói khác biệt lớn nhất so với đồ thị đơn là gì, và có hai hướng nào để đưa GNN lên knowledge graph?",
+          "choices": [
+            "Khác biệt là số nút rất lớn; hai hướng là lấy mẫu láng giềng khi tính filter, hoặc gộp các nút cùng loại thực thể thành siêu nút để thu nhỏ đồ thị trước khi học",
+            "Khác biệt là thuộc tính trên nút; hai hướng là học embedding riêng cho từng loại thuộc tính, hoặc nối thuộc tính vào vector đặc trưng nút rồi dùng filter cho đồ thị đơn",
+            "Khác biệt là thông tin quan hệ trên cạnh; hai hướng là đưa thông tin quan hệ vào thiết kế graph filter, hoặc biến knowledge graph thành đồ thị đơn vô hướng có giữ thông tin quan hệ",
+            "Khác biệt là đồ thị có hướng; hai hướng là bỏ chiều của mọi cạnh để dùng filter thường, hoặc thêm cạnh ngược cho mọi cạnh gốc rồi học tham số riêng cho hai chiều"
+          ],
+          "answer": 2,
+          "explain": "Ma và Tang: \"The major difference between the knowledge graphs and simple graphs is the relational information, which is important to consider when designing graph neural networks for knowledge graphs.\" và \"there are majorly two ways to deal with the relational edges in knowledge graphs: 1) incorporating the relational information of the edges into the design of graph filters; and 2) transforming the relational knowledge graph into a simple undirected graph by capturing the relational information.\" (Ma và Tang mục 10.7, tr. 216)"
+        },
+        {
+          "id": "w17b6",
+          "type": "open",
+          "q": "Katz centrality khác eigenvector centrality ở điểm nào, khi nào hai độ đo trùng nhau, và Ma và Tang cảnh báo gì về việc chọn tham số α?",
+          "answer": "Katz centrality thêm một hằng số β cho chính nút đang xét: c_k(v_i) = α Σ_j A_ij c_k(v_j) + β (phương trình 2.4), dạng ma trận (I - αA) c_k = β. Nó trùng eigenvector centrality khi α = 1/λ_max và β = 0. Về α: α lớn có thể làm ma trận I - αA ill-conditioned, α nhỏ làm mọi nút nhận điểm gần bằng β nên vô dụng; thực tế thường chọn α < 1/λ_max để I - αA khả nghịch và tính c_k = (I - αA)^-1 β. Trong Example 2.26 với β = 1, α = 1/5, v1 và v5 được 2,16, v2 và v3 được 1,79, v4 được 1,87.",
+          "explain": "Ma và Tang: \"The Katz centrality is a variant of the eigenvector centrality, which not only considers the centrality scores of the neighbors but also includes a small constant for the central node itself\"; \"the Katz centrality is equivalent to the eigenvector centrality if we set α = 1/λ_max and β = 0\"; \"a large α may make the matrix I - α·A ill-conditioned while a small α may make the centrality scores useless since it will assign very similar scores close to β to all nodes.\" (Ma và Tang mục 2.3.3, tr. 25)"
+        },
+        {
+          "id": "w17b7",
+          "type": "mcq",
+          "q": "Ma và Tang chứng minh f^T L f = (1/2) Σ_{v_i} Σ_{v_j ∈ N(v_i)} (f[i] - f[j])^2 (phương trình 2.10). Nếu f là một điểm số gán cho từng thực thể trong knowledge graph, đại lượng này đo điều gì và suy ra tính chất nào của L?",
+          "choices": [
+            "Đo tổng bậc có trọng số f của các nút, suy ra định thức của L bằng tích các bậc nút",
+            "Đo khoảng cách từ f tới vector hằng, nên L khả nghịch khi f không phải là vector hằng",
+            "Đo mức khác biệt giữa giá trị của các nút kề nhau, luôn không âm nên L là nửa xác định dương",
+            "Đo số walk độ dài 2 có trọng số f giữa các nút, suy ra L có cùng phổ trị riêng với A^2"
+          ],
+          "answer": 2,
+          "explain": "Ma và Tang: \"f^T L f is the sum of the squares of the differences between adjacent nodes. In other words, it measures how different the values of adjacent nodes are. It is easy to verify that f^T L f is always non-negative for any possible choice of a real vector f, which indicates that the Laplacian matrix is positive semi-definite.\" Ở mục 2.5 sách gọi giá trị này là độ trơn (smoothness) của tín hiệu đồ thị. L không khả nghịch vì luôn có trị riêng 0 (tr. 28). (Ma và Tang mục 2.4.1, tr. 27)"
+        },
+        {
+          "id": "w17b8",
+          "type": "mcq",
+          "q": "Knowledge graph của bạn thiếu nhiều liên kết vì extraction ưu tiên precision. Ma và Tang mô tả bài toán knowledge graph completion và hàm chấm điểm DistMult thế nào?",
+          "choices": [
+            "Dự đoán quan hệ giữa hai nút bằng so khớp văn bản mô tả; điểm là token F1 giữa hai mô tả thực thể, huấn luyện bằng các cặp mô tả đã gán nhãn cùng quan hệ",
+            "Dự đoán bộ ba (s, r, t) có thật hay không; điểm f(s, r, t) = F_s^T R_r F_t với R_r là ma trận chéo của quan hệ r, huấn luyện bằng negative sampling",
+            "Dự đoán nút bị thiếu trong một connected component; điểm là số walk độ dài 2 giữa hai nút theo A^2, huấn luyện bằng cách che ngẫu nhiên một số nút trong đồ thị",
+            "Dự đoán nhãn loại thực thể cho nút mới xuất hiện; điểm là cosine giữa embedding nút và embedding trung bình của các nút cùng loại, huấn luyện bằng cross-entropy"
+          ],
+          "answer": 1,
+          "explain": "Ma và Tang: \"Knowledge graph completion, which aims to predict the relation between a pair of disconnected entities ... the task is to predict whether a given triplet (s, r, t) is a real relation or not.\" DistMult: f(s, r, t) = F_s^(L)T R_r F_t^(L), với R_r \"a diagonal matrix corresponding to the relation r to be learned during training\"; huấn luyện bằng cross-entropy với k mẫu âm sinh bằng cách \"randomly replacing either its subject or object with another entity.\" (Ma và Tang mục 10.7.3, tr. 218)"
+        },
+        {
           "id": "w17adv1",
           "type": "mcq",
           "level": "advanced",
@@ -1818,6 +3391,52 @@ window.QUIZ_DATA = {
           "q": "Viết retrospective 'nối về Phase 1' nghĩa là gì?",
           "answer": "Sau khi ship capstone, nhìn lại và giải thích VÌ SAO các lựa chọn kỹ thuật hoạt động, dựa trên hiểu biết internals từ Phase 1: vì sao một model nhỏ fine-tuned đủ cho sub-task, vì sao context dài tốn KV cache, vì sao quantization 4-bit chấp nhận được, vì sao RAG cần grounding... Mục tiêu là khép vòng học: từ 'biết dùng' sang 'hiểu tại sao', biến cả roadmap thành kiến thức nền vững chứ không chỉ là làm theo công thức.",
           "explain": "Đây là deliverable 03_retrospective.md, mục tiêu thật sự của toàn lộ trình."
+        },
+        {
+          "id": "w18b1",
+          "type": "mcq",
+          "q": "Eval set capstone của bạn được xây từ chính các văn bản đã dùng để fine-tune model 7B ở Tuần 11. SLP3 gọi hiện tượng này là gì, hệ quả lên metric là gì, và sách nêu cách giảm nhẹ nào?",
+          "choices": [
+            "Overfitting; metric sẽ thấp hơn thực tế vì model học thuộc dữ liệu huấn luyện; giảm nhẹ bằng regularization và early stopping khi fine-tune",
+            "Goodhart's Law; metric mất ý nghĩa khi bị tối ưu trực tiếp làm mục tiêu; giảm nhẹ bằng cách đổi metric định kỳ và giữ nhiều metric song song",
+            "Data contamination; metric sẽ thổi phồng hiệu năng thật; giảm nhẹ bằng cách công khai dữ liệu huấn luyện hoặc báo cáo phần trùng với test set",
+            "Label leakage; metric sẽ dao động mạnh giữa các lần chạy vì nhãn lọt vào input; giảm nhẹ bằng cách tăng kích cỡ test set và chạy nhiều seed"
+          ],
+          "answer": 2,
+          "explain": "SLP3: \"data contamination, the name for the situation where a test dataset makes its way into our training set ... If those questions are used for evaluation, the metric will overstate the performance of the language model\" (tr. 26). \"One way to mitigate data contamination is to make available the exact training data used to train a model (or at least to report training overlap with specific test sets\". Goodhart's Law là chuyện khác, ở mục 1.9.4. (SLP3 mục 1.9.1, tr. 27)"
+        },
+        {
+          "id": "w18b2",
+          "type": "open",
+          "q": "Bạn dùng LLM-as-a-judge để chấm groundedness cho capstone. SLP3 khuyên phải làm gì để tin được phán xét của judge, phân biệt hai chế độ chấm nào, và Goodhart's Law cảnh báo gì khi bạn tối ưu agent theo điểm judge?",
+          "answer": "SLP3 nói prompt cho LLM judge phải được viết cẩn thận và thường phải so LLM với chuyên gia người trên một mẫu nhỏ để kiểm tra phán xét của LLM khớp với chuẩn của người. Có hai chế độ: chấm đơn (single, một đầu ra nhận một điểm) và chấm cặp (pairwise, hai đầu ra và quyết định cái nào tốt hơn). Goodhart's Law: khi một độ đo trở thành mục tiêu thì nó không còn là độ đo tốt; nếu bạn tinh chỉnh agent để tối đa điểm judge, agent có thể học các đặc điểm ngẫu nhiên mà judge thưởng thay vì mục tiêu thật, nên cần giữ một tập kiểm tra do người chấm để đối chiếu định kỳ.",
+          "explain": "SLP3: \"The prompts for the LLM judge must be carefully written, and often we compare the LLM to expert humans on a small sample of data to ensure that the LLM judgments on the task match a human benchmark. For both humans and LLMs as judges, we can evaluate singly or pairwise.\" Goodhart's Law được trích: \"When a measure becomes a target, it ceases to be a good measure.\" (SLP3 mục 1.9.3, tr. 28)"
+        },
+        {
+          "id": "w18b3",
+          "type": "mcq",
+          "q": "Agent capstone trả lời \"Lãi suất tối đa là 6,5% một năm\" trong khi đáp án chuẩn là \"6,5%/năm\". Theo SLP3 mục 11.6, độ đo nào phù hợp cho câu trả lời dạng văn bản tự do như vậy và nó được tính thế nào?",
+          "choices": [
+            "Mean average precision, xếp hạng các token dự đoán theo xác suất rồi tính precision tại mỗi token trùng với đáp án và lấy trung bình",
+            "Perplexity, tính xác suất model gán cho đáp án chuẩn khi cho trước câu hỏi; câu trả lời dài hơn đáp án thì perplexity thấp hơn",
+            "Exact match, vì mọi câu hỏi có đáp án chuẩn đều phải khớp từng ký tự với đáp án; câu trả lời này bị tính 0 điểm dù đúng về nội dung",
+            "Token F1, coi câu dự đoán và đáp án chuẩn là hai túi token, tính F1 cho từng câu hỏi rồi lấy trung bình trên toàn bộ câu hỏi"
+          ],
+          "answer": 3,
+          "explain": "SLP3: exact match dùng cho câu hỏi trắc nghiệm như MMLU; với câu trả lời tự do như Natural Questions, \"we commonly evaluated with token F1 score to roughly measure the partial string overlap between the answer and the reference answer: ... Treat the prediction and gold as a bag of tokens, and compute F1 for each question, then return the average F1 over all questions.\" (SLP3 mục 11.6, tr. 271)"
+        },
+        {
+          "id": "w18b4",
+          "type": "mcq",
+          "q": "Người dùng thử capstone phàn nàn agent \"đứng im khá lâu rồi mới bắt đầu trả lời\", còn khi đã trả lời thì chữ hiện đều. Theo FoLLM mục 5.1.4, metric hiệu năng nào phản ánh đúng phàn nàn này và nó chủ yếu đo giai đoạn gì?",
+          "choices": [
+            "Inter-token Latency (ITL), là thời gian sinh mỗi token sau token đầu tiên, phản ánh hiệu suất của giai đoạn decoding trên GPU",
+            "Resource Utilization, là mức sử dụng CPU, GPU và bộ nhớ của model trong quá trình suy luận, đo trên toàn bộ vòng đời của request",
+            "Time to First Token (TTFT), chủ yếu là thời gian prefilling và dự đoán token đầu tiên nếu truyền dữ liệu không tốn nhiều thời gian",
+            "Throughput, là số token hoặc số request mà model xử lý được mỗi giây trên toàn hệ thống phục vụ, gồm cả prefilling và decoding"
+          ],
+          "answer": 2,
+          "explain": "FoLLM: \"Time to First Token (TTFT). This metric measures the time it takes from the beginning of a request being sent to the generation of the first token of the response. If data transmission does not consume too much time, then TTFT is mainly the time for prefilling and predicting the first token.\" Chữ hiện đều sau đó nghĩa là ITL bình thường. Sách cũng nhắc khung đánh giá đầy đủ phải gồm cả metric chất lượng và metric hiệu năng. (FoLLM mục 5.1.4, tr. 222)"
         },
         {
           "id": "w18adv1",

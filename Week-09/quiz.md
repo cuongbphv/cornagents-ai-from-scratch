@@ -1,6 +1,6 @@
 # Tuần 9, Quiz: Instruction fine-tuning (classification + instruction-following + LoRA)
 
-> Tự kiểm tra **trước** khi xem solution. Tổng **8** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
+> Tự kiểm tra **trước** khi xem solution. Tổng **16** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
 > _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
 
 ## Câu 1 (Trắc nghiệm)
@@ -51,6 +51,68 @@ LoRA r=16 trên ma trận 4096×4096 chỉ train ~0.78% tham số, nhưng vì sa
 - **B.** Vì AdamW giữ 2 giá trị moment cho MỖI tham số được train, LoRA cắt số tham số train ~50-100× nên cắt luôn optimizer state tương ứng, thường là phần ăn VRAM lớn nhất khi full FT
 - **C.** Vì LoRA bỏ không lưu activation
 - **D.** Vì LoRA tự động quantize base model xuống 4-bit
+
+## Câu 7 (Trắc nghiệm)
+
+Theo Fleuret, khi khởi tạo LoRA adapter, ma trận A được khởi tạo bằng giá trị Gaussian ngẫu nhiên còn B được đặt bằng 0. Mục đích của cách khởi tạo này là gì?
+
+- **A.** Để hạng của BA đúng bằng R ngay từ bước đầu, tránh suy biến xuống hạng thấp hơn trong quá trình học
+- **B.** Để tích BA bằng 0 lúc bắt đầu, nên model lúc khởi đầu fine-tune tính ra đúng output của model gốc
+- **C.** Để chuẩn hóa scale của W + BA về cùng độ lớn với W, tránh activation bùng nổ ở các layer sâu
+- **D.** Để gradient của A lớn hơn gradient của B, nhờ đó A học phần lớn thông tin mới trong vài bước đầu
+
+## Câu 8 (Trắc nghiệm)
+
+Jurafsky và Martin viết rằng LoRA "doesn't add any time during inference". Lý do là gì?
+
+- **A.** Vì LoRA chỉ áp dụng lên các lớp attention, vốn chiếm phần nhỏ trong tổng thời gian suy luận
+- **B.** Vì r rất nhỏ nên phép nhân xAB gần như không tốn thời gian so với phép nhân xW trong forward pass
+- **C.** Vì tích AB có cùng kích thước với W nên có thể cộng thẳng vào trọng số pretrained trước khi suy luận
+- **D.** Vì A và B chỉ được dùng trong backward pass, còn forward pass lúc suy luận vẫn chỉ tính xW như cũ
+
+## Câu 9 (Trắc nghiệm)
+
+Khi đánh giá model đã instruction-tune, SLP3 đề nghị leave-one-out theo cụm (cluster) tác vụ chứ không theo từng dataset. Vì sao?
+
+- **A.** Vì các cụm tác vụ có kích thước cân bằng hơn, giúp ước lượng phương sai của điểm số ổn định hơn
+- **B.** Vì số dataset quá lớn nên leave-one-out theo từng dataset đòi hỏi quá nhiều lần huấn luyện lại model
+- **C.** Vì template sinh instruction được viết theo cụm tác vụ, nên chỉ có thể tách dữ liệu ở mức cụm
+- **D.** Vì nhiều dataset rất giống nhau; nếu giữ dataset cùng loại trong tập train thì bài kiểm tra không còn là tác vụ mới
+
+## Câu 10 (Trắc nghiệm)
+
+Instruction tuning dùng đúng objective dự đoán token kế tiếp, vốn được coi là self-supervised. Vậy vì sao Jurafsky và Martin vẫn gọi nó là supervised fine-tuning (SFT)?
+
+- **A.** Vì SFT cập nhật toàn bộ tham số của model, còn pretraining thường chỉ cập nhật một phần tham số
+- **B.** Vì mỗi instruction trong dữ liệu đi kèm một đáp án đúng, tức một mục tiêu có giám sát, điều pretraining không có
+- **C.** Vì dữ liệu instruction luôn do người viết tay, khác với dữ liệu web được thu thập tự động khi pretraining
+- **D.** Vì loss được tính trên cả instruction lẫn response, nên tín hiệu huấn luyện dày hơn so với pretraining
+
+## Câu 11 (Trắc nghiệm)
+
+Theo Fleuret, ngoài việc giảm số tham số trainable, LoRA còn giảm đáng kể dấu chân bộ nhớ của optimizer như Adam. Cơ chế cụ thể là gì?
+
+- **A.** Adam có thể lưu trạng thái ở độ chính xác thấp khi tham số là các ma trận hạng thấp như A và B
+- **B.** Adam bỏ qua các tham số bị đóng băng nhưng vẫn giữ trạng thái cho chúng, chỉ không cập nhật nữa
+- **C.** Adam lưu hai trung bình động cho mỗi tham số được tối ưu, nên khi chỉ tối ưu A và B thì phần trạng thái này co lại theo
+- **D.** Adam chỉ cần lưu một trung bình động thay vì hai khi ma trận trọng số được phân rã thành tích BA
+
+## Câu 12 (Trắc nghiệm)
+
+Về quy mô dữ liệu, SLP3 so sánh instruction tuning với pretraining như thế nào?
+
+- **A.** Instruction tuning thường chạy vài epoch trên dataset nhiều nhất là hàng triệu mẫu, thay vì hàng nghìn tỷ token
+- **B.** Instruction tuning cần nhiều token hơn pretraining vì mỗi mẫu gồm cả instruction và response dài
+- **C.** Cả hai đều cần hàng nghìn tỷ token, nhưng instruction tuning chỉ chạy đúng một epoch trên dữ liệu
+- **D.** Hai giai đoạn dùng lượng dữ liệu tương đương, chỉ khác ở việc có mask phần prompt khỏi loss hay không
+
+## Câu 13 (Tự luận)
+
+Bạn cần một dataset instruction cho domain ngân hàng nhưng không có ngân sách thuê người viết. Dựa trên SLP3 mục 8.1.1, hãy nêu hai cách tạo dữ liệu rẻ hơn và một ví dụ cho thấy lượng nhỏ dữ liệu có chủ đích vẫn thay đổi được hành vi model.
+
+## Câu 14 (Tự luận)
+
+Khi cấu hình target_modules cho LoRA, bạn phân vân giữa chỉ gắn adapter vào attention hay gắn cả vào feed-forward. Hai cuốn sách nói gì về cách làm gốc và cách làm tiêu chuẩn, và điều đó gợi ý gì cho quyết định của bạn?
 
 ---
 

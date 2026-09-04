@@ -62,10 +62,10 @@ Langfuse/LangSmith ghi lại mỗi request theo chuỗi: query, rồi các chunk
 
 ## 7. Tiếng Việt trong tuần này
 
-- BM25 với tiếng Việt buộc phải nghĩ về tách từ. Tiếng Việt viết rời từng âm tiết, nên tokenize theo khoảng trắng biến "ngân hàng" thành 2 term `ngân` + `hàng`, match nhầm với "hàng hóa", "hàng không". Hai hướng xử lý: (a) word segmentation trước khi index BM25 (thư viện tách từ tiếng Việt, kiểm tra license trước khi thêm vào repo theo chính sách CLAUDE.md); (b) chấp nhận âm tiết + dựa vào **cụm từ trong query** và vế vector của hybrid bù lại. [Suy luận] Với corpus văn bản pháp luật nhiều thuật ngữ cố định, (a) thường cải thiện precision, nhưng đây là giả thuyết để BẠN kiểm bằng eval set, không phải kết luận.
+- BM25 với tiếng Việt buộc phải nghĩ về tách từ. Tiếng Việt viết rời từng âm tiết, nên tokenize theo khoảng trắng biến "ngân hàng" thành 2 term `ngân` + `hàng`, match nhầm với "hàng hóa", "hàng không". Hai hướng xử lý: (a) word segmentation trước khi index BM25 (thư viện tách từ tiếng Việt, kiểm tra license trước khi thêm vào repo theo chính sách CLAUDE.md); (b) chấp nhận âm tiết + dựa vào **cụm từ trong query** và vế vector của hybrid bù lại. Với corpus văn bản pháp luật nhiều thuật ngữ cố định, giả thuyết để bạn kiểm bằng eval set là (a) cải thiện precision vì term khớp đúng cụm thay vì từng âm tiết; chưa đo thì chưa kết luận.
 - Nhớ chuẩn hóa NFC trước khi index BM25 (Tuần 13 mục 6): `"tín"` NFC và NFD là hai term khác nhau, corpus trộn hai dạng làm BM25 "mất" document một cách âm thầm.
 - Eval set phải là câu hỏi tiếng Việt nghiệp vụ thật (README: tối thiểu 20-30 câu để bắt đầu, mục tiêu 50-100 khi có thời gian, kèm điều khoản nguồn, không benchmark công khai nào thay được). Ground truth dẫn về số Điều/Khoản cụ thể.
-- Với judge chấm văn bản tiếng Việt, chọn judge model đọc tiếng Việt tốt và giữ cố định. [Suy luận] Các thiên vị ở mục 5 được nghiên cứu chủ yếu trên tiếng Anh, mức độ trên tiếng Việt chưa rõ, càng thêm lý do kiểm tay một mẫu nhỏ.
+- Với judge chấm văn bản tiếng Việt, chọn judge model đọc tiếng Việt tốt và giữ cố định. Các thiên vị ở mục 5 được Zheng et al. đo trên MT-Bench và Chatbot Arena, dữ liệu tiếng Anh, nên mức độ trên tiếng Việt chưa có số; càng thêm lý do kiểm tay một mẫu nhỏ.
 
 ## 8. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 

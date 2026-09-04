@@ -6,7 +6,7 @@
 
 - **Do not study all of this before starting.** The 18-week roadmap re-teaches most of it: math and learning theory in Weeks 1-3 (Phase 0, cited by page from the book shelf in [`../docs/books/README.md`](../docs/books/README.md)), PyTorch in Week 4, autograd in Week 5. This file is for (a) self-assessing gaps, (b) knowing which source to open when a specific gap shows up, and (c) collecting the background areas (DSA, OCR, big data, design patterns...) that do not fit neatly into any week.
 - The table uses three levels. "Required" means that without it Weeks 1-6 stall, so check with the §4 checklist before starting. "Needed before Week X" can be caught up right before that week, not before Week 1. "Awareness" means understanding the concept and knowing the tool exists; the roadmap does not require deep practice.
-- `[Inference]` The Required / Needed / Awareness ratings are my judgment based on the content of the weeks in this repo, not an objective standard.
+- The Required / Needed / Awareness ratings are the author's judgment based on the content of the weeks in this repo, not an objective standard.
 
 ## 2. Map: background area, which weeks need it, level
 
@@ -65,7 +65,7 @@ Real business documents are often **scanned PDFs** that must be OCR'd before chu
 - **VietOCR** ([github.com/pbcquoc/vietocr](https://github.com/pbcquoc/vietocr), Apache-2.0): a Vietnamese-specific OCR model (TransformerOCR), aimed at exactly the tone and diacritic marks that multilingual OCR often gets wrong.
 - **OpenCV** ([docs.opencv.org](https://docs.opencv.org/), Apache-2.0): image preprocessing before OCR (deskew, threshold, denoise).
 
-`[Inference]` For Vietnamese text, OCR errors in tone marks ("lãi suất" becoming "lai suat" or "lãi suắt") damage both BM25 and embeddings in Weeks 13-14, so an OCR quality check plus Unicode NFC normalization (see `Week-13/01_theory_notes.md`) belongs before the chunking step. Enough when: you can run one of the tools above on one scanned PDF and judge the output by eye.
+For Vietnamese text, OCR errors in tone marks ("lãi suất" becoming "lai suat" or "lãi suắt") damage both BM25 and embeddings in Weeks 13-14: BM25 only matches exact spellings ("they work only if there is exact overlap of words between the query and document", SLP3 section 11.3, p. 264), and an embedding model's tokenizer splits a misspelled word into different pieces; so an OCR quality check plus Unicode NFC normalization (see `Week-13/01_theory_notes.md`) belongs before the chunking step. Enough when: you can run one of the tools above on one scanned PDF and judge the output by eye.
 
 ### 3.6 Big data and data pipelines (awareness)
 

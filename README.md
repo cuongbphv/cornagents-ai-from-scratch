@@ -224,7 +224,7 @@ report/           Portal web (bản online: https://cuongbphv.github.io/cornagen
                   deploy bằng .github/workflows/pages.yml): roadmap 4 phase, checklist theo tuần, ghi chú lý thuyết
                   nhúng (thu gọn), quiz flip-card, kệ sách
                   (mở report/index.html; tiến độ lưu local trong trình duyệt)
-scripts/          quiz_bank.json (nguồn sự thật, 161 câu (36 câu nâng cao))
+scripts/          quiz_bank.json (nguồn sự thật, 304 câu (36 câu nâng cao))
                   generate_quiz.py (sinh lại quiz Week-XX + data portal)
                   build_theory_data.py (nhúng theory notes vào portal)
 ```

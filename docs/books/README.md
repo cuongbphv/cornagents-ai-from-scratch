@@ -70,26 +70,26 @@ Mỗi dòng ghi chương hoặc mục cần đọc và số trang in, để bạ
 | 3 | Nguyễn Thanh Tuấn | 12.3 Bias và variance (tr. 181-183) | Định nghĩa bias và variance bằng tiếng Việt. |
 | 3 | Roberts & Yaida | 0.1 An Effective Theory Approach (tr. 2-4) | Vì sao cần lý thuyết deep learning khác lý thuyết học cổ điển. |
 | 4 | UDL | 5.1 Maximum likelihood (tr. 56), 5.2 Recipe for constructing loss functions (tr. 60), 5.7 Cross-entropy loss (tr. 71); Ch.6: 6.1 GD (tr. 77), 6.2 SGD (tr. 83), 6.3 Momentum (tr. 86), 6.4 Adam (tr. 88) | Cross-entropy là cực tiểu KL giữa phân phối thực nghiệm và model; các optimizer bạn gọi trong training loop. |
-| 4 | Fleuret | 3.1 Losses (tr. 25) | Cross-entropy tính từ logit, nói ngắn. |
+| 4 | Fleuret | 3.1 Losses (tr. 26) | Cross-entropy tính từ logit, nói ngắn. |
 | 4 | Goodfellow | Ch.5 Machine Learning Basics; Ch.6 Deep Feedforward Networks (HTML) | Bản đầy đủ của cùng nội dung. |
 | 5 | UDL | 7.4 Backpropagation algorithm (tr. 103); 7.5 Parameter initialization (tr. 107) | Backprop trình bày bằng hình, đối chiếu micrograd. |
 | 5 | Nielsen | Ch.2 "How the backpropagation algorithm works" (HTML) | Backprop viết thành bốn phương trình ma trận. |
 | 5 | Bishop; Goodfellow | PRML 5.3 Error Backpropagation; DL 6.5 Back-Propagation and Other Differentiation Algorithms (HTML) | Hai bản kinh điển. |
 | 6 | SLP3 | 2.4 Subword Tokenization: Byte-Pair Encoding (tr. 42); 5.4 Cosine for Measuring Similarity (tr. 134); 7.1 Attention (tr. 179); 7.4 embeddings for token and position (tr. 191) | Vì sao cần tokenization và attention, giải thích bằng ví dụ ngôn ngữ. |
 | 6 | UDL | 12.2 Dot-product self-attention (tr. 208); 12.3 Extensions (tr. 213) | Attention viết bằng ma trận: value, query, key, scaled dot product, multi-head. |
-| 6 | Fleuret | 4.8 Attention layers (tr. 89); 4.9 Token embedding; 4.10 Positional encoding | Vì sao cần phép toán kết hợp thông tin ở vị trí xa. |
+| 6 | Fleuret | 4.8 Attention layers (tr. 90); 4.9 Token embedding; 4.10 Positional encoding | Vì sao cần phép toán kết hợp thông tin ở vị trí xa. |
 | 7 | SLP3 | 7.2 Transformer Blocks (tr. 184); 7.3 một ma trận X (tr. 188); 7.5 The Language Modeling Head (tr. 193); 7.6 Decoding (tr. 196) | Cùng các khối bạn lắp trong `02_gpt_model.py`, và các phương pháp decoding. |
 | 7 | UDL | 12.4 Transformer layers (tr. 215); 12.7 Decoder model example: GPT3 (tr. 222) | GPT như ví dụ decoder. |
 | 8 | SLP3 | 3.3 Perplexity (tr. 76); 3.7 Perplexity's relation to entropy (tr. 85); 7.7 Pretraining Transformer LLMs (tr. 201, eq. 7.53) | Perplexity chuẩn hóa theo độ dài; pretraining là self-supervised với cross-entropy trên vocab. |
 | 8 | FoLLM | 2.2 Training at Scale: 2.2.1 data preparation, scaling laws (tr. 56) | Dữ liệu và scale khi pretrain. |
-| 8 | Fleuret | 3.7 The benefits of scale (tr. 51) | Scaling laws, dẫn Kaplan et al. 2020. |
+| 8 | Fleuret | 3.7 The benefits of scale (tr. 52) | Scaling laws, dẫn Kaplan et al. 2020. |
 | 8 | MacKay; Goodfellow; UDL; Roberts & Yaida | ITILA Ch.4 Source Coding Theorem; DL Ch.8 Optimization (HTML); UDL 9.2 Implicit regularization (tr. 141); PDLT Ch.1, 2, 7 | Nền lý thuyết của bits per byte, optimization và regularization ở mạng sâu. |
 | 9 | SLP3 | 8.1 Instruction Tuning (tr. 210); 8.2 Parameter Efficient Fine Tuning (tr. 213) | Instruction tuning là supervised learning với cùng objective; PEFT trong bối cảnh. |
-| 9 | Fleuret | 8.3 Adapters (tr. 155) | LoRA là phương pháp adapter thống trị. |
+| 9 | Fleuret | 8.3 Adapters (tr. 156) | LoRA là phương pháp adapter thống trị. |
 | 10 | SLP3 | 8.3 Learning from Preferences (tr. 215); 8.4 LLM Alignment via Preference-Based Learning (tr. 219) | Alignment đứng trên khung RL của Sutton và Barto. |
 | 10 | Sutton & Barto | 3.1 The Agent-Environment Interface (tr. 47); 13.1 Policy Approximation (eq. 13.2, tr. 322); 13.3 REINFORCE (tr. 326) | Khung RL gốc; softmax policy; tổ tiên của PPO và GRPO. |
 | 10 | FoLLM | 4.3 RLHF (tr. 172); 4.4.2 Direct Preference Optimization (tr. 193) | Vì sao cần RLHF, và DPO bỏ reward model tường minh. |
-| 11 | Fleuret | 8.2 Quantization (tr. 154); 8.3 Adapters (tr. 155) | Hai nửa của QLoRA. |
+| 11 | Fleuret | 8.2 Quantization (tr. 155); 8.3 Adapters (tr. 156) | Hai nửa của QLoRA. |
 | 11 | FoLLM | 5.2 Efficient Inference Techniques (tr. 222) | Giảm bộ nhớ và tăng tốc: quantization, pruning. |
 | 11 | State of Open Source AI | Ch.1 Licences (1.3 Meaning of "Open"); Ch.2 Evaluation & Datasets | Bối cảnh licence model mở khi chọn base model. |
 | 12 | FoLLM | 5.1 Prefilling and Decoding (tr. 204); 2.3.3.1 Fixed-size KV Cache | Khung prefill và decode; vì sao KV cache là nút thắt VRAM. |

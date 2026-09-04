@@ -112,7 +112,7 @@ Cách nhìn thứ ba là decoding. Sinh text là chọn token từ phân phối 
 - Top-k: cắt phân phối còn k token lớn nhất, chuẩn hóa lại, rồi sample. Khi k = 1 chính là greedy. Điểm yếu SLP3 nêu: k cố định nhưng hình dạng phân phối đổi theo ngữ cảnh; có ngữ cảnh 10 token đầu đã chiếm gần hết xác suất, có ngữ cảnh phân phối phẳng và 10 token chỉ chiếm phần nhỏ.
 - Top-p, còn gọi nucleus sampling (Holtzman et al. 2020): giữ phần đầu chiếm p phần trăm khối xác suất thay vì k token, nên số ứng viên tự co giãn theo ngữ cảnh.
 
-Temperature chia logits trước softmax để làm phân phối nhọn hơn hoặc phẳng hơn; mục nâng cao B2 bàn kỹ. Khi kiểm tra kiến trúc bằng cách load trọng số GPT-2 và sinh text, hãy dùng greedy hoặc temperature thấp trước. [Suy luận] Nếu output vô nghĩa ngay ở chế độ greedy thì lỗi nhiều khả năng nằm ở kiến trúc hoặc mapping trọng số, không phải ở sampling.
+Temperature chia logits trước softmax để làm phân phối nhọn hơn hoặc phẳng hơn; mục nâng cao B2 bàn kỹ. Khi kiểm tra kiến trúc bằng cách load trọng số GPT-2 và sinh text, hãy dùng greedy hoặc temperature thấp trước. Greedy chọn argmax nên không có yếu tố ngẫu nhiên; nếu output vô nghĩa ngay ở chế độ này thì lỗi nằm ở kiến trúc hoặc mapping trọng số, không thể đổ cho sampling.
 
 ## Đọc thêm từ kệ sách
 

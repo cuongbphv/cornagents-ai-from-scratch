@@ -54,11 +54,11 @@ Thí nghiệm `lln` với xúc xắc công bằng (μ = 3.5, P(mặt 6) = 1/6 �
 | 1 000 | 3.5030 | 0.1610 |
 | 100 000 | 3.4999 | 0.1659 |
 
-Nối sang training: loss trên một batch là trung bình mẫu của loss kỳ vọng trên phân phối dữ liệu. Batch nhỏ thì ước lượng nhiễu, batch lớn thì sát hơn, đúng theo phương sai σ²/n. [Suy luận] Đây là một lý do loss curve ở Tuần 8 nhấp nhô; các nguồn nhiễu khác (learning rate, dữ liệu không đồng nhất) bàn ở tuần đó.
+Nối sang training: loss trên một batch là trung bình mẫu của loss kỳ vọng trên phân phối dữ liệu. Batch nhỏ thì ước lượng nhiễu, batch lớn thì sát hơn, đúng theo phương sai σ²/n. Vì loss mỗi batch là một trung bình mẫu với phương sai σ²/n, loss curve ở Tuần 8 nhấp nhô ngay cả khi model không đổi; các nguồn nhiễu khác (learning rate, dữ liệu không đồng nhất) bàn ở tuần đó.
 
 ### B5. Định lý giới hạn trung tâm
 
-Chuẩn hóa (Sₙ − nμ)/(σ√n) tiến về phân phối chuẩn N(0, 1) (EP4A Theorem 4.9, trang 95). Durrett cho bảng Φ(1) = 0.8413, nên P(−1 ≤ Z ≤ 1) = 2Φ(1) − 1 = 0.6826. Thí nghiệm `clt` với tổng 50 xúc xắc, 20 000 lần, cho 0.7015. [Suy luận] Con số lệch khoảng 0.02 có thể do n = 50 chưa lớn và biến rời rạc; bạn tự kiểm bằng cách tăng n trong lab và xem sai lệch có giảm không. Đây là ví dụ để bạn tập nhìn sai số mô phỏng thay vì tin một số duy nhất.
+Chuẩn hóa (Sₙ − nμ)/(σ√n) tiến về phân phối chuẩn N(0, 1) (EP4A Theorem 4.9, trang 95). Durrett cho bảng Φ(1) = 0.8413, nên P(−1 ≤ Z ≤ 1) = 2Φ(1) − 1 = 0.6826. Thí nghiệm `clt` với tổng 50 xúc xắc, 20 000 lần, cho 0.7015. Con số lệch khoảng 0.02 không phải nhiễu mô phỏng: với 20 000 lần thử, độ lệch chuẩn của một tỉ lệ quanh 0.68 là √(0.68 · 0.32 / 20000) ≈ 0.0033, nhỏ hơn mức lệch nhiều lần. Phần lệch đến từ việc định lý chỉ đúng ở giới hạn n tiến ra vô cùng trong khi n = 50, và từ việc so một biến rời rạc với phân phối liên tục; bạn tự kiểm bằng cách tăng n trong lab và xem sai lệch có giảm không. Đây là ví dụ để bạn tập nhìn sai số mô phỏng thay vì tin một số duy nhất.
 
 ### B6. Gaussian và MLE
 

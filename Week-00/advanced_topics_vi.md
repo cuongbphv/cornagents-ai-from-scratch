@@ -131,7 +131,7 @@ Attention đầy đủ tốn O(n²) theo độ dài chuỗi (mục C1). Mistral 
 
 Cửa sổ trượt "ngây thơ" có một chỗ gãy: khi hội thoại dài vượt kích thước cache và các token *đầu tiên* bị đẩy khỏi KV cache, chất lượng sụp, abstract mô tả window attention thất bại "when the text length surpasses the cache size". Phát hiện của paper: chỉ cần **giữ lại KV của các token đầu tiên** là "will largely recover the performance of window attention", dù các token đó *không quan trọng về ngữ nghĩa*. Paper gọi hiện tượng này là **attention sink**: các token đầu hút một lượng attention lớn bất thường.
 
-[Suy luận] Cách giải thích trực giác (dựa trên lập luận trong paper, không nằm trong abstract): softmax buộc tổng attention = 1, nên khi một head "không cần nhìn đâu cả" nó vẫn phải đổ trọng số đi đâu đó, và chỗ đổ ổn định nhất là các vị trí đầu tiên, vì *mọi* token về sau đều nhìn thấy chúng trong attention nhân quả. Rút chúng khỏi cache là rút mất "chỗ xả" mà model đã học cách dựa vào.
+Paper giải thích cơ chế ngay ở mục 1: "We attribute the reason to the Softmax operation, which requires attention scores to sum up to one for all contextual tokens"; khi query không khớp mạnh với token nào, model vẫn phải đổ phần attention dư đi đâu đó, và các token đầu chuỗi là nơi ổn định nhất vì "initial tokens are visible to almost all subsequent tokens because of the autoregressive language modeling nature" (Xiao et al. 2023, mục 1, đọc PDF 2026-09-04). Rút chúng khỏi cache là rút mất chỗ xả mà model đã học cách dựa vào.
 
 Công thức window + sink của StreamingLLM: KV cache = **vài token sink đầu chuỗi** (giữ cố định) **+ cửa sổ trượt \(w\) token gần nhất**: không cần fine-tune. Abstract: cách này cho model train với attention window hữu hạn "generalize to infinite sequence lengths without any fine-tuning", chạy tới "4 million tokens and more", nhanh hơn baseline sliding-window-có-tính-lại tới **22.2×**. Paper còn ghi nhận: thêm một placeholder token làm sink chuyên dụng ngay từ pretraining giúp streaming tốt hơn nữa. Lưu ý phạm vi: đây là kỹ thuật *streaming/bộ nhớ cache*, không phải mở rộng context "thật", model vẫn không nhớ nội dung đã rơi khỏi cửa sổ (khác với A1.1, nơi model thật sự attend được cả context dài).
 
@@ -155,13 +155,13 @@ Cái giá là bộ nhớ. Kích thước cache tỉ lệ với số lớp, số 
 
 $$ \text{KV cache} \approx 2 \cdot n_{\text{layers}} \cdot n_{\text{kv\_heads}} \cdot d_{\text{head}} \cdot n_{\text{tokens}} \cdot \text{bytes} $$
 
-`[Suy luận]` Công thức này là đếm trực tiếp số phần tử cần lưu; nó giải thích vì sao GQA (giảm n_kv_heads), MLA (giảm chiều lưu), và sliding window (chặn n_tokens) đều nhắm vào cùng một tích. Với card 8GB, đây là con số bạn nên tính trước khi chọn độ dài ngữ cảnh ở Tuần 12. Leviathan et al. nhắc điểm nền: "inference from large models is often not bottlenecked on arithmetic operations, but rather on memory bandwidth and communication" (arXiv 2211.17192, mục 1); Fleuret nói cùng ý cho single-stream inference (*Little Book*, mục 8.2, trang 154).
+Công thức này là đếm trực tiếp số phần tử cần lưu, nên ba kỹ thuật ở mục A đều là cách thu nhỏ một thừa số của tích: GQA giảm n_kv_heads (A4, Ainslie et al. 2023), MLA giảm chiều lưu bằng nén hạng thấp (A5, DeepSeek-V2 mục 2.1.2), sliding window chặn n_tokens (A6, Mistral 7B mục 2). Với card 8GB, đây là con số bạn nên tính trước khi chọn độ dài ngữ cảnh ở Tuần 12. Leviathan et al. nhắc điểm nền: "inference from large models is often not bottlenecked on arithmetic operations, but rather on memory bandwidth and communication" (arXiv 2211.17192, mục 1); Fleuret nói cùng ý cho single-stream inference (*Little Book*, mục 8.2, trang 155).
 
 ### B2. Sampling
 
 Khi có phân phối trên vocab, cách chọn token quyết định phong cách đầu ra. Jurafsky và Martin mô tả greedy là chọn token xác suất lớn nhất; top-k cắt phân phối còn k token lớn nhất rồi chuẩn hóa lại và lấy mẫu, với k = 1 trùng greedy; điểm yếu là k cố định trong khi hình dạng phân phối đổi theo ngữ cảnh. Top-p, còn gọi nucleus sampling theo Holtzman et al. 2020, giữ tập token nhỏ nhất chiếm p phần khối xác suất, nên số ứng viên tự co giãn (SLP3 mục 7.6.4, trang 200). Temperature chia logits cho T trước softmax: T nhỏ hơn 1 làm phân phối nhọn, T lớn hơn 1 làm phẳng.
 
-Cho RAG ở Tuần 13: `[Suy luận]` câu trả lời cần bám tài liệu nên ưu tiên temperature thấp và top-p vừa; nhưng đây là siêu tham số phải đo bằng eval set của Tuần 14, không phải quy tắc.
+Cho RAG ở Tuần 13: câu trả lời cần bám tài liệu nên bắt đầu với temperature thấp: chia logit cho τ ∈ (0, 1) làm phân phối nhọn hơn và dồn xác suất vào các token vốn đã có xác suất cao (SLP3 mục 7.6.3, trang 198), tức ít lấy các token đuôi dễ sinh chi tiết không có trong tài liệu; giá trị cụ thể của temperature và top-p vẫn là siêu tham số phải đo bằng eval set của Tuần 14.
 
 ### B3. Speculative decoding
 
@@ -177,7 +177,7 @@ GPTQ là quantization sau huấn luyện, "a new one-shot weight quantization me
 
 AWQ xuất phát từ quan sát "not all weights in an LLM are equally important. Protecting only 1% salient weights can greatly reduce quantization error", và để nhận ra kênh quan trọng "we should refer to the activation distribution, not weights"; thay vì trộn độ chính xác, AWQ nhân scale các kênh đó và không cần backpropagation (Lin et al., arXiv 2306.00978, abstract).
 
-GGUF không phải thuật toán mà là định dạng file của dự án llama.cpp, thứ Ollama và LM Studio load ở Tuần 12; Fleuret nhắc llama.cpp là framework post-training quantization cho phần cứng tiêu dùng (*Little Book*, mục 8.2, trang 154). `[Chưa xác minh]` trong phiên này: bảng tên các mức quant trong GGUF (Q4_K_M, Q8_0...), hãy tra docs llama.cpp khi export.
+GGUF không phải thuật toán mà là định dạng file của dự án llama.cpp, thứ Ollama và LM Studio load ở Tuần 12; Fleuret nhắc llama.cpp là framework post-training quantization cho phần cứng tiêu dùng (*Little Book*, mục 8.2, trang 155). `[Chưa xác minh]` trong phiên này: bảng tên các mức quant trong GGUF (Q4_K_M, Q8_0...), hãy tra docs llama.cpp khi export.
 
 Vì sao 4-bit chạy được: Fleuret giải thích activation là tổng của nhiều số hạng nên sai số quantization được trung bình hóa, và "models quantized down to 6 or 4 bits per parameter exhibit remarkable performance" (mục 8.2, trang 154). Cách đo đúng là perplexity của bản quantize so với bản gốc trên cùng held-out (mục H).
 
@@ -216,7 +216,7 @@ Các can thiệp dưới đây đều có trong `nanoGPT/train.py` với giá tr
 | Mixed precision | `dtype = 'bfloat16'` nếu GPU hỗ trợ, ngược lại `'float16'` "will auto implement a GradScaler" | Nhanh và đỡ VRAM |
 | Gradient accumulation | `gradient_accumulation_steps = 5 * 8`, comment "used to simulate larger batch sizes" | Chìa khóa cho card 8GB: effective batch lớn trên VRAM nhỏ |
 
-Weight tying (chia sẻ ma trận embedding và unembedding) nằm trong `nanoGPT/model.py`, dòng `self.transformer.wte.weight = self.lm_head.weight`, đã dẫn ở Tuần 7. Bài học phương pháp luận quan trọng nhất của mục này không nằm trong config: `[Suy luận]` nhiều "cải thiện" khi thay đổi một siêu tham số nằm trong khoảng nhiễu giữa các lần chạy khác seed; nếu bạn không chạy ít nhất hai seed, bạn chưa biết mình thấy tín hiệu hay nhiễu.
+Weight tying (chia sẻ ma trận embedding và unembedding) nằm trong `nanoGPT/model.py`, dòng `self.transformer.wte.weight = self.lm_head.weight`, đã dẫn ở Tuần 7. Bài học phương pháp luận quan trọng nhất của mục này không nằm trong config: chỉ đổi seed đã đủ làm kết quả dao động; Picard quét tới 10⁴ seed trên CIFAR-10 và kết luận "it is surprisingly easy to find an outlier that performs much better or much worse than the average" (arXiv 2109.08203, abstract, kiểm 2026-09-04). Vì vậy một "cải thiện" khi đổi một siêu tham số chỉ đáng tin khi lớn hơn khoảng dao động giữa các seed, và nếu chưa chạy ít nhất hai seed thì bạn chưa biết mình thấy tín hiệu hay nhiễu.
 
 ### D1. Optimizer: AdamW và Muon
 
@@ -244,7 +244,7 @@ Cách đo tokenizer tốt hay không: compression, số byte mỗi token trên c
 
 Có bốn trục để chia việc train khi một GPU không đủ. Data parallelism nhân bản model trên mỗi GPU, mỗi GPU xử lý một phần batch, rồi gộp gradient bằng all-reduce; đây là mức đầu tiên cần biết và là cách nanoGPT chạy multi-GPU qua `torchrun`. Tensor parallelism chia một phép nhân ma trận trong một lớp ra nhiều GPU, cho model không vừa một card. Pipeline parallelism chia model theo lớp thành các giai đoạn nối tiếp. Sharding kiểu ZeRO hay FSDP chia optimizer state, gradient và tham số qua các GPU để giảm bộ nhớ mỗi card. Xiao và Zhu bàn các kỹ thuật này dưới mục Distributed Training của chương về training at scale (*Foundations of LLMs*, mục 2.2.3, trang 60).
 
-Với một GPU 8GB, kỹ thuật bạn dùng thật là gradient accumulation (mục D); data parallelism chỉ xuất hiện khi thuê node nhiều GPU cho lần pretrain. Khi đọc log của một lần chạy phân tán, hai con số cần hiểu là throughput (token mỗi giây) và tỉ lệ FLOP thực dùng so với FLOP lý thuyết của phần cứng, thường gọi là MFU; `[Suy luận]` MFU thấp thường báo hiệu nút thắt ở dữ liệu hoặc giao tiếp, không phải ở phép tính.
+Với một GPU 8GB, kỹ thuật bạn dùng thật là gradient accumulation (mục D); data parallelism chỉ xuất hiện khi thuê node nhiều GPU cho lần pretrain. Khi đọc log của một lần chạy phân tán, hai con số cần hiểu là throughput (token mỗi giây) và tỉ lệ FLOP thực dùng so với FLOP lý thuyết của phần cứng, thường gọi là MFU; PaLM định nghĩa MFU là tỉ số giữa throughput quan sát (token mỗi giây) và throughput lý thuyết khi hệ chạy ở đỉnh FLOP (Chowdhery et al. 2022, arXiv 2204.02311, mục 4.1 và Phụ lục B, kiểm 2026-09-04); theo định nghĩa đó, MFU thấp nghĩa là GPU có nhiều thời gian không tính, tức nút thắt nằm ngoài phép tính: nạp dữ liệu, giao tiếp giữa GPU hay băng thông bộ nhớ.
 
 ---
 
@@ -330,7 +330,7 @@ Anthropic phân biệt workflow, "Systems where LLMs and tools are orchestrated 
 
 Chi phí có số đo. Trong bài về hệ nghiên cứu đa agent, Anthropic báo hệ với Claude Opus 4 làm lead và Claude Sonnet 4 làm subagent "outperformed single-agent Claude Opus 4 by 90.2% on our internal research eval", đồng thời "agents typically use about 4× more tokens than chat interactions, and multi-agent systems use about 15× more tokens than chats", và "token usage by itself explains 80% of the variance" trong hiệu năng (*How we built our multi-agent research system*). Hệ quả cho thiết kế: tách vai khi bài toán có nhiều hướng độc lập và chuyên môn hóa thêm tín hiệu, và luôn định nghĩa bước gộp (reducer) trước khi fan-out.
 
-PDF Karpathy-Loop mô tả hướng dynamic workflows, trong đó model sinh script orchestration và spawn sub-agent với context tươi, có "hard cap of 1,000 per workflow" (PDF, mục về dynamic workflows); ranh giới trừu tượng dịch lên nhưng người thiết kế vẫn phải định nghĩa objective, phạm vi file, output contract, quyền, chính sách verification, budget và quy tắc rollback. `[Suy luận]` Task cần một mạch tư duy liền, như thiết kế kiến trúc hay viết một văn bản dài, thường tệ hơn khi bị chia thành đơn vị cô lập; và các worker song song có thể mắc cùng một lỗi nếu cùng prompt và cùng bằng chứng, nên reviewer cần prompt và bằng chứng khác.
+PDF Karpathy-Loop mô tả hướng dynamic workflows, trong đó model sinh script orchestration và spawn sub-agent với context tươi, có "hard cap of 1,000 per workflow" (PDF, mục về dynamic workflows); ranh giới trừu tượng dịch lên nhưng người thiết kế vẫn phải định nghĩa objective, phạm vi file, output contract, quyền, chính sách verification, budget và quy tắc rollback. Anthropic, trong bài về hệ multi-agent research đã dẫn ở I3, ghi rằng cách này kém phù hợp với các lĩnh vực đòi mọi agent chia sẻ cùng ngữ cảnh hoặc có nhiều phụ thuộc lẫn nhau, và lấy phần lớn việc lập trình làm ví dụ; vì thế task cần một mạch tư duy liền, như thiết kế kiến trúc hay viết một văn bản dài, không nên chia thành đơn vị cô lập. Các worker song song nhận cùng prompt và cùng bằng chứng thì sai cùng kiểu, vì đầu vào giống nhau cho lỗi tương quan, nên reviewer cần prompt và bằng chứng khác với bên sinh.
 
 ### I4. Knowledge graph ở quy mô production
 
@@ -372,7 +372,7 @@ Batching tĩnh: gom N request thành một batch, chạy đến khi **cả batch
 
 ### J3. So với Ollama / LM Studio
 
-Ollama/LM Studio (backend llama.cpp) tối ưu cho **single-user local**: load GGUF, một request một lúc, chạy được trên CPU/GPU consumer, đúng cái bạn cần ở Tuần 12. vLLM tối ưu cho **multi-user trên GPU server**: PagedAttention + continuous batching chỉ phát huy khi có nhiều request đồng thời. [Suy luận] Với lộ trình này bạn không cần dựng vLLM thật; cái cần mang theo là cách đặt câu hỏi: khi ai đó nói "serve model cho cả team", bạn biết bài toán đổi từ "VRAM có đủ không" (B1) sang "GPU có chạy đầy tải không" (J2) và "KV cache có lãng phí không" (J1).
+Ollama/LM Studio (backend llama.cpp) tối ưu cho **single-user local**: load GGUF, một request một lúc, chạy được trên CPU/GPU consumer, đúng cái bạn cần ở Tuần 12. vLLM tối ưu cho **multi-user trên GPU server**: PagedAttention + continuous batching chỉ phát huy khi có nhiều request đồng thời. Với lộ trình này, khuyến nghị của người viết là không cần dựng vLLM thật; cái cần mang theo là cách đặt câu hỏi: khi ai đó nói "serve model cho cả team", bạn biết bài toán đổi từ "VRAM có đủ không" (B1) sang "GPU có chạy đầy tải không" (J2) và "KV cache có lãng phí không" (J1).
 
 ## K. Test-time compute và reasoning model
 
@@ -404,15 +404,15 @@ Tài liệu ngân hàng thật có bảng scan, con dấu và chữ ký, nên s�
 
 ### L1. CLIP: contrastive pretraining
 
-Train **hai encoder** (ảnh và text) sao cho embedding của một ảnh và caption *đúng* của nó gần nhau, còn các cặp *sai* xa nhau (contrastive). Abstract: train trên **400 triệu cặp (ảnh, text)** thu từ internet, và model transfer zero-shot sang nhiều task qua prompt ngôn ngữ tự nhiên (tra 2026-08-16). CLIP cho một không gian embedding chung cho ảnh và text. [Suy luận] Đó là nền của phần lớn VLM sau này; LLaVA ở L2 là một ví dụ.
+Train **hai encoder** (ảnh và text) sao cho embedding của một ảnh và caption *đúng* của nó gần nhau, còn các cặp *sai* xa nhau (contrastive). Abstract: train trên **400 triệu cặp (ảnh, text)** thu từ internet, và model transfer zero-shot sang nhiều task qua prompt ngôn ngữ tự nhiên (tra 2026-08-16). CLIP cho một không gian embedding chung cho ảnh và text, và chính encoder ảnh của nó được LLaVA ở L2 dùng lại: "we consider the pre-trained CLIP visual encoder ViT-L/14" (Liu et al. 2023, mục 4.1, đọc PDF 2026-09-04).
 
 ### L2. Kiến trúc VLM phổ biến: vision encoder + projector + LLM
 
-Công thức LLaVA (abstract: "connects a vision encoder and LLM"): lấy **vision encoder** đã train sẵn (thường là phía ảnh của CLIP), nối vào một **projector** (phép chiếu học được) map đặc trưng ảnh thành chuỗi "token thị giác" nằm trong không gian embedding của LLM, rồi LLM đọc chuỗi trộn [token ảnh + token text] như thường. [Suy luận] Cái hay của công thức này là *tái dùng* hai model đã train riêng, chỉ học lớp nối ở giữa, rẻ hơn nhiều so với train multimodal from scratch; đó là lý do nó phổ biến.
+Công thức LLaVA (abstract: "connects a vision encoder and LLM"): lấy **vision encoder** đã train sẵn (thường là phía ảnh của CLIP), nối vào một **projector** (phép chiếu học được) map đặc trưng ảnh thành chuỗi "token thị giác" nằm trong không gian embedding của LLM, rồi LLM đọc chuỗi trộn [token ảnh + token text] như thường. Điểm tiết kiệm của công thức này là tái dùng hai model đã train riêng và chỉ học lớp nối: LLaVA giữ encoder ảnh đóng băng trong cả hai giai đoạn train ("We always keep the visual encoder weights frozen", mục 4.2), nên phần phải học mới nhỏ hơn nhiều so với train một model multimodal từ đầu.
 
 ### L3. Vì sao OCR pipeline ở prerequisites KHÔNG phải multimodal modeling
 
-OCR pipeline đi từ ảnh sang *text* (bước OCR tất định), rồi model **chỉ thấy text**. VLM: biểu diễn ảnh đi **thẳng vào model**, không qua bước chuyển chữ. Khác biệt hệ quả: OCR làm mất layout/hình/con dấu nhưng đơn giản, debug được từng bước, và mọi thứ downstream (RAG, KG) vẫn là bài text bạn đã học; VLM giữ được thông tin thị giác nhưng kéo theo cả một stack train/eval khác. [Suy luận] Với dự án học thuật 1-GPU-8GB này, OCR-rồi-text là lựa chọn đúng; VLM chỉ đáng cân nhắc khi thông tin *thị giác* (vị trí chữ ký, cấu trúc bảng phức tạp) thật sự quyết định đáp án.
+OCR pipeline đi từ ảnh sang *text* (bước OCR tất định), rồi model **chỉ thấy text**. VLM: biểu diễn ảnh đi **thẳng vào model**, không qua bước chuyển chữ. Khác biệt hệ quả: OCR làm mất layout/hình/con dấu nhưng đơn giản, debug được từng bước, và mọi thứ downstream (RAG, KG) vẫn là bài text bạn đã học; VLM giữ được thông tin thị giác nhưng kéo theo cả một stack train/eval khác. Với dự án học thuật một GPU 8GB này, người viết chọn OCR rồi text; VLM chỉ đáng cân nhắc khi thông tin *thị giác* (vị trí chữ ký, cấu trúc bảng phức tạp) thật sự quyết định đáp án.
 
 ## Ưu tiên nếu thời gian hẹp
 
