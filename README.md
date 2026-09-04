@@ -34,11 +34,11 @@ Chi tiết tuần-by-tuần (mục tiêu, nguồn, deliverable, giờ ước lư
 
 ## 1. Đây là gì, dành cho ai
 
-Repo này là lộ trình tự học có cấu trúc. Bạn bắt đầu bằng ba tuần nền tảng toán và lý thuyết học máy trích từ kệ sách giáo trình, rồi đi từ gọi API LLM, sang tự build model (backprop, attention, GPT-2-class bằng pure PyTorch), rồi RAG và fine-tuning thực chiến, cuối cùng dựng framework cá nhân CornAgents.AI (agentic SDLC + knowledge graph), neo domain Finance Banking.
+Repo này là lộ trình tự học có cấu trúc. Bạn bắt đầu bằng ba tuần nền tảng toán và lý thuyết học máy trích từ kệ sách giáo trình, rồi đi từ gọi API LLM sang tự build model (backprop, attention, GPT-2-class bằng pure PyTorch), tiếp theo là RAG và fine-tuning thực chiến, cuối cùng dựng framework cá nhân CornAgents.AI (agentic SDLC + knowledge graph), neo domain Finance Banking.
 
 Lịch học: 18 tuần, khoảng 10-15 giờ/tuần (~4-4.5 tháng bán thời gian). Ba tuần đầu là Phase 0 (nền tảng), có thể nén còn một tuần nếu bạn đã vững toán. Mỗi tuần có thư mục riêng: README, skeleton code, template ghi chú, quiz tự kiểm.
 
-Phù hợp nếu bạn đã gọi được LLM API và muốn hiểu phần dưới trước khi build hệ thống quanh model. Phong cách gần các lộ trình from-scratch kiểu [FareedKhan-dev/train-llm-from-scratch](https://github.com/FareedKhan-dev/train-llm-from-scratch) (Data → Model → Align), nhưng repo này mở thêm Phase 2 (RAG/QLoRA) và Phase 3 (Agentic SDLC / Graph Engineering).
+Phù hợp nếu bạn đã gọi được LLM API và muốn hiểu phần dưới trước khi build hệ thống quanh model. Phong cách gần các lộ trình from-scratch kiểu [FareedKhan-dev/train-llm-from-scratch](https://github.com/FareedKhan-dev/train-llm-from-scratch) (đi từ Data sang Model rồi Align), nhưng repo này mở thêm Phase 2 (RAG/QLoRA) và Phase 3 (Agentic SDLC / Graph Engineering).
 
 Trước Tuần 1: tự đánh giá nền tảng ở [Week-00/prerequisites_vi.md](Week-00/prerequisites_vi.md). Chỉ vá các lỗ hổng checklist chỉ ra; phần toán và ML cơ bản đã có Tuần 1 đến 3 dạy lại có hệ thống.
 
@@ -46,7 +46,7 @@ Trước Tuần 1: tự đánh giá nền tảng ở [Week-00/prerequisites_vi.m
 
 ## 2. Tư duy lộ trình: Pipeline
 
-18 tuần là lịch theo thời gian. Pipeline là khung tư duy end-to-end: cùng một hành trình, nhìn từ góc "chữ ký dữ liệu → hệ thống quanh model". Hai khung chạy song song, không thay thế nhau.
+18 tuần là lịch theo thời gian. Pipeline là khung tư duy end-to-end: cùng một hành trình, nhìn từ góc đi từ chữ ký dữ liệu đến hệ thống quanh model. Hai khung chạy song song, không thay thế nhau.
 
 Một dòng (mở rộng từ ý tham chiếu FareedKhan + Phase 2-3 của repo này):
 
@@ -133,7 +133,7 @@ Mental model Phase 1 - attention stack tối giản:
 Alignment (neo FareedKhan + Tuần 10):
 
 <p align="center">
-  <img src="docs/diagrams/04-alignment-flow.svg" alt="Alignment: SFT → Reward Model → DPO/PPO → GRPO" width="880"/>
+  <img src="docs/diagrams/04-alignment-flow.svg" alt="Alignment theo thứ tự SFT, Reward Model, DPO/PPO, GRPO" width="880"/>
 </p>
 
 `SFT → Reward Model → DPO / PPO → GRPO`
@@ -162,7 +162,7 @@ Xây multi-agent software-delivery assistant, neo domain của bạn.
 | 17 | Graph Engineering: knowledge graph làm shared memory / grounding / world model |
 | 18 | Capstone: một workflow end-to-end + evaluation & observability |
 
-Bạn nắm 5 tầng Prompt→…→Graph, dựng agent graph SDLC, chạy KG pipeline, và ship một workflow có eval.
+Bạn nắm năm tầng engineering từ Prompt đến Graph, dựng agent graph SDLC, chạy KG pipeline, và ship một workflow có eval.
 
 ---
 
@@ -240,7 +240,7 @@ scripts/          quiz_bank.json (nguồn sự thật, 161 câu (36 câu nâng c
    python scripts/generate_quiz.py            # regenerate everything
    python scripts/generate_quiz.py --week 6   # one week only
    ```
-5. Nâng cao đúng lúc: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) ([EN](Week-00/advanced_topics_en.md)) - bảng neo tuần → mục, mỗi mục có nguồn paper hoặc code cụ thể; mỗi `Week-XX/README.md` có block "Bổ sung nâng cao" trỏ ngược lại. Quiz mỗi tuần có phần nâng cao riêng.
+5. Nâng cao đúng lúc: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) ([EN](Week-00/advanced_topics_en.md)) - bảng neo từ tuần sang mục, mỗi mục có nguồn paper hoặc code cụ thể; mỗi `Week-XX/README.md` có block "Bổ sung nâng cao" trỏ ngược lại. Quiz mỗi tuần có phần nâng cao riêng.
 6. Dataset domain: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) - chỉ license mở đã xác minh tại ngày tra cứu. Điểm kiến trúc chính: kiến thức quy định thuộc RAG và knowledge graph, không nhồi vào trọng số fine-tune. Fine-tune cho hành vi, format, thuật ngữ song ngữ. Kiểm lại license lúc dùng.
 7. Theo dõi tiến độ: mở [`report/index.html`](report/index.html).
 8. Claude như co-learner: tự implement trước rồi nhờ review; dán loss curve / stack trace để debug; rubber-duck kiến trúc Phase 3.

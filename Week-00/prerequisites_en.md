@@ -1,14 +1,11 @@
 # Prerequisites: what to have in place before Week 1
 
-> **Disclaimer:** personal academic, research-only, non-commercial project. This file lists only **open learning sources whose license was verified on the lookup date** (table in §5). Sources under a non-commercial license (CC BY-NC-SA) are used **through the link only**; no content is copied into the repo. See [CLAUDE.md](../CLAUDE.md). Vietnamese version: [prerequisites_vi.md](prerequisites_vi.md).
+> Disclaimer: personal academic, research-only, non-commercial project. This file lists only **open learning sources whose license was verified on the lookup date** (table in §5). Sources under a non-commercial license (CC BY-NC-SA) are used **through the link only**; no content is copied into the repo. See [CLAUDE.md](../CLAUDE.md). Vietnamese version: [prerequisites_vi.md](prerequisites_vi.md).
 
 ## 1. How to use this file
 
 - **Do not study all of this before starting.** The 18-week roadmap re-teaches most of it: math and learning theory in Weeks 1-3 (Phase 0, cited by page from the book shelf in [`../docs/books/README.md`](../docs/books/README.md)), PyTorch in Week 4, autograd in Week 5. This file is for (a) self-assessing gaps, (b) knowing which source to open when a specific gap shows up, and (c) collecting the background areas (DSA, OCR, big data, design patterns...) that do not fit neatly into any week.
-- Three levels are used in the table:
-  - **Required**: without it Weeks 1-6 stall; check with the §4 checklist before starting.
-  - **Needed before Week X**: can be caught up right before that week, not before Week 1.
-  - **Awareness**: understand the concept and know the tool exists; the roadmap does not require deep practice.
+- The table uses three levels. "Required" means that without it Weeks 1-6 stall, so check with the §4 checklist before starting. "Needed before Week X" can be caught up right before that week, not before Week 1. "Awareness" means understanding the concept and knowing the tool exists; the roadmap does not require deep practice.
 - `[Inference]` The Required / Needed / Awareness ratings are my judgment based on the content of the weeks in this repo, not an objective standard.
 
 ## 2. Map: background area, which weeks need it, level
@@ -94,7 +91,7 @@ Enough when: you can define a DAG and do a topological sort by hand on 5-6 nodes
 
 - **The System Design Primer** ([github.com/donnemartin/system-design-primer](https://github.com/donnemartin/system-design-primer), CC BY 4.0): caching, queues, load balancing, consistency versus availability trade-offs; the base for designing CornAgents.AI with tracing and HITL gates (Weeks 15-18).
 - **The Architecture of Open Source Applications** ([aosabook.org](https://aosabook.org/), CC BY 3.0): real architectures of open-source systems, a case-study way to learn system design.
-- **Design patterns (GoF)**: per-pattern overview on Wikipedia ([Software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern), CC BY-SA 4.0, overview level). Patterns you will meet again in Phase 3: *Strategy* (choosing model or prompt per route), *Observer* (Langfuse tracing callbacks), *Chain of Responsibility* (prompt chaining), *Facade* (a tool interface wrapping an API).
+- A per-pattern overview of the GoF design patterns is on Wikipedia ([Software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern), CC BY-SA 4.0, overview level). Patterns you will meet again in Phase 3: *Strategy* (choosing model or prompt per route), *Observer* (Langfuse tracing callbacks), *Chain of Responsibility* (prompt chaining), *Facade* (a tool interface wrapping an API).
 - Transparency note: the popular `faif/python-patterns` repo **has no LICENSE file** (checked 2026-08-12) and is excluded under this repo's source policy. I could not verify any other in-depth design-pattern resource with a clear open license in that lookup.
 
 Enough when: you can recognize and name a pattern when you meet it in agent framework code; system design at the level of a one-page diagram with data flow and failure points (exactly the Week 15 deliverable `03_cornagents_architecture.md`).

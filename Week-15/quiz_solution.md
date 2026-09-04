@@ -1,6 +1,6 @@
 # Tuần 15, Đáp án & Giải thích: Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Tự luận)
 
@@ -15,7 +15,7 @@ Mô tả 'agent loop' cơ bản.
 MCP (Model Context Protocol) là gì?
 
 - **A.** Một model ngôn ngữ
-- **B.** Một chuẩn mở để kết nối model với tool/nguồn dữ liệu qua server/client (GitHub, Postgres, Slack, filesystem...) ✅
+- **B.** Một chuẩn mở để kết nối model với tool/nguồn dữ liệu qua server/client (GitHub, Postgres, Slack, filesystem...) (đáp án đúng)
 - **C.** Một thuật toán RL
 - **D.** Một định dạng file
 
@@ -28,7 +28,7 @@ MCP (Model Context Protocol) là gì?
 Khác biệt chính giữa LangGraph và CrewAI?
 
 - **A.** LangGraph chỉ cho vision, CrewAI cho text
-- **B.** LangGraph: graph có trạng thái, tường minh, auditable; CrewAI: crew theo vai (role) prototype nhanh ✅
+- **B.** LangGraph: graph có trạng thái, tường minh, auditable; CrewAI: crew theo vai (role) prototype nhanh (đáp án đúng)
 - **C.** Cả hai giống hệt nhau
 - **D.** CrewAI không hỗ trợ tool
 
@@ -49,7 +49,7 @@ Vì sao workflow tài chính có quy định nên ưu tiên LangGraph?
 Human-in-the-loop (HITL) gate nghĩa là gì?
 
 - **A.** Agent chạy hoàn toàn tự động không cần người
-- **B.** Điểm dừng yêu cầu con người phê duyệt/sửa trước khi agent đi tiếp ✅
+- **B.** Điểm dừng yêu cầu con người phê duyệt/sửa trước khi agent đi tiếp (đáp án đúng)
 - **C.** Một loại tool
 - **D.** Cách tính token
 
@@ -62,7 +62,7 @@ Human-in-the-loop (HITL) gate nghĩa là gì?
 Mô hình 5 tầng engineering (docs/5-layers-multi-agent.jpg) xếp theo thứ tự nào, từ trong ra ngoài?
 
 - **A.** Prompt → Harness → Context → Graph → Loop
-- **B.** Prompt → Context → Harness → Loop → Graph ✅
+- **B.** Prompt → Context → Harness → Loop → Graph (đáp án đúng)
 - **C.** Context → Prompt → Loop → Harness → Graph
 - **D.** Loop → Prompt → Context → Graph → Harness
 
@@ -87,7 +87,7 @@ Bốn điều kiện nào làm loop autoresearch của Karpathy chạy được,
 Anthropic phân biệt workflow và agent thế nào, và khuyến nghị nào của họ về framework?
 
 - **A.** Workflow là agent chạy nhanh hơn; nên dùng framework nặng
-- **B.** Workflow là hệ trong đó LLM và tool được điều phối qua các đường code định trước; agent là hệ trong đó LLM tự điều khiển quy trình và cách dùng tool; các triển khai thành công nhất dùng các pattern đơn giản, ghép được, không dùng framework phức tạp ✅
+- **B.** Workflow là hệ trong đó LLM và tool được điều phối qua các đường code định trước; agent là hệ trong đó LLM tự điều khiển quy trình và cách dùng tool; các triển khai thành công nhất dùng các pattern đơn giản, ghép được, không dùng framework phức tạp (đáp án đúng)
 - **C.** Agent luôn tốt hơn workflow
 - **D.** Không có khác biệt
 

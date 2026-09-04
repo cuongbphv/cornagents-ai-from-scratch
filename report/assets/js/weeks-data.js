@@ -284,7 +284,7 @@ window.WEEKS_DATA = [
    <h5>Complexity budget + metric</h5>
    <ul><li>Khai báo trước: max calls, max sub-agents, max tokens/cost, max retries</li><li><b>Success rate</b>: tỉ lệ hoàn thành đúng yêu cầu</li><li><b>Human-override rate</b>: tần suất người phải sửa</li><li><b>Groundedness</b>: bám tài liệu nguồn (chống bịa)</li></ul>
    <p>Thước đo hệ thống đáng tin: <i>"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."</i></p>
-   <p>🎓 Đây là mục tiêu thật của cả roadmap, nối ngược về internals Phase 1 để hiểu <i>vì sao</i> nó hoạt động.</p>
+   <p>Đây là mục tiêu thật của cả roadmap, nối ngược về internals Phase 1 để hiểu <i>vì sao</i> nó hoạt động.</p>
    <div class="tagrow"><span class="kt">capstone</span><span class="kt">RAG+KG+agents</span><span class="kt">complexity budget</span><span class="kt">groundedness</span><span class="kt">retrospective</span></div>`,
   check:["Đọc 01_theory_notes.md, điền được assembly map của chính mình","Chốt 1 use case Finance Banking (spec-to-stories + review, giữ tổng quát)","Ghép RAG (Tuần 13-14) + agents (Tuần 16) + KG (Tuần 17) thành 1 luồng","(Tùy chọn) cắm model fine-tuned (Tuần 11/12) cho sub-task","Khai báo complexity budget trước khi chạy","Instrument tracing (Langfuse/LangSmith)","Viết eval rubric → 02_eval_rubric.md","Đo: success rate, human-override rate, groundedness","Kiểm tra 'every output can be traced...' với demo","Demo end-to-end (script / video ngắn)","Viết 03_retrospective.md (nối về Phase 1)"]
  }

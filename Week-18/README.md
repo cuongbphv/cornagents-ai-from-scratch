@@ -51,34 +51,34 @@ Khi câu này đúng với capstone của bạn, loops/swarms/graphs là cơ ch�
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md`: khai báo complexity budget bằng số trước khi chạy
-- [ ] Chốt 1 use case Finance Banking (spec-to-stories + review)
-- [ ] Ghép RAG (Tuần 13-14) + agents (Tuần 16) + knowledge graph (Tuần 17) thành 1 luồng
-- [ ] (Tùy chọn) cắm model fine-tuned (Tuần 11/12) cho sub-task hẹp
-- [ ] Khai báo complexity budget (calls, tokens, cost, retries) trước khi chạy
-- [ ] Instrument tracing (Langfuse/LangSmith)
-- [ ] Viết eval rubric → `02_eval_rubric.md`
-- [ ] Đo: success rate, human-override rate, groundedness
-- [ ] Kiểm tra câu "every important output can be traced..." với demo của bạn
-- [ ] Demo end-to-end (script hoặc video ngắn)
-- [ ] Viết `03_retrospective.md` (nối về Phase 1: vì sao nó hoạt động)
+- [ ] Đọc `01_theory_notes.md` và khai báo complexity budget bằng số trước khi chạy.
+- [ ] Chốt 1 use case Finance Banking (spec-to-stories + review).
+- [ ] Ghép RAG (Tuần 13-14), agents (Tuần 16) và knowledge graph (Tuần 17) thành 1 luồng.
+- [ ] (Tùy chọn) cắm model fine-tuned (Tuần 11/12) cho sub-task hẹp.
+- [ ] Khai báo complexity budget (calls, tokens, cost, retries) trước khi chạy.
+- [ ] Instrument tracing (Langfuse/LangSmith).
+- [ ] Viết eval rubric vào `02_eval_rubric.md`.
+- [ ] Đo success rate, human-override rate và groundedness.
+- [ ] Kiểm tra câu "every important output can be traced..." với demo của bạn.
+- [ ] Demo end-to-end (script hoặc video ngắn).
+- [ ] Viết `03_retrospective.md` (nối về Phase 1: vì sao nó hoạt động).
 
-## 🚀 Bổ sung nâng cao (kỷ luật trước khi "ship")
+## Bổ sung nâng cao (kỷ luật trước khi "ship")
 
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I5** (và ôn lại **H**, **I4**):
 
-- **I5 · Complexity budget**: khai báo *trước* khi chạy: max calls, max sub-agents, max concurrent workers, max wall-clock, max tokens/chi phí, max retries, và bằng chứng tối thiểu để được finalize. Hết budget → trả artifact tốt nhất + issue chưa xử lý + **lý do dừng**; không giấu partial failure sau một câu trả lời trôi chảy.
-- **I5 · Metric bị game**: ratchet chỉ cải thiện thứ nó *thấy được*: có thể giảm loss mà tăng chi phí inference hoặc overfit chính eval set. Giữ ràng buộc phụ.
-- **H · Cạm bẫy LLM-as-judge**: áp trực tiếp vào `02_eval_rubric.md` của bạn.
-- **I5 · Thước đo cuối**: *"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."* Tự kiểm câu này với capstone, đúng thì kiến trúc của bạn compose được; sai thì thêm agent chỉ tăng độ mờ đục.
+- Mục I5 yêu cầu khai báo complexity budget *trước* khi chạy: max calls, max sub-agents, max concurrent workers, max wall-clock, max tokens/chi phí, max retries, và bằng chứng tối thiểu để được finalize. Hết budget thì trả artifact tốt nhất kèm issue chưa xử lý và **lý do dừng**; không giấu partial failure sau một câu trả lời trôi chảy.
+- Cũng ở I5 là cảnh báo metric bị game: ratchet chỉ cải thiện thứ nó *thấy được*, có thể giảm loss mà tăng chi phí inference hoặc overfit chính eval set. Giữ ràng buộc phụ.
+- Mục H về cạm bẫy LLM-as-judge áp trực tiếp vào `02_eval_rubric.md` của bạn.
+- Thước đo cuối của I5 là câu *"Every important output can be traced to an objective, a plan, an artifact, a source, a graph path, an evaluator decision, and a bounded execution record."* Tự kiểm câu này với capstone, đúng thì kiến trúc của bạn compose được; sai thì thêm agent chỉ tăng độ mờ đục.
 
 > Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục VII-IX + Table VI (Production Checklist).
 
-## 📦 Dữ liệu cho tuần này
+## Dữ liệu cho tuần này
 
 Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md): mục **4** (bộ eval, chú ý license non-commercial), mục **9** (benchmark), mục **10** (dòng Tuần 18).
 
-Metric bắt buộc có: **groundedness**: mọi câu trả lời có dẫn được về điều khoản/tài liệu nguồn hay không. Trong domain có quy định, đây là chỉ số quan trọng hơn cả success rate.
+Metric bắt buộc phải có là **groundedness**, tức mọi câu trả lời có dẫn được về điều khoản/tài liệu nguồn hay không. Trong domain có quy định, đây là chỉ số quan trọng hơn cả success rate.
 
 ## File trong folder
 
@@ -92,4 +92,4 @@ Số ở đầu tên file = thứ tự học.
 | 3 | `03_retrospective.md` | Template retrospective nối về internals (deliverable) |
 | 4 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
 
-> 🎓 Đây là mục tiêu thật của cả roadmap. Nếu trễ tiến độ, ưu tiên bảo vệ Tuần 5-8 (core from-scratch) và Tuần 15-18 (mục tiêu agentic-SDLC).
+> Đây là mục tiêu thật của cả roadmap. Nếu trễ tiến độ, ưu tiên bảo vệ Tuần 5-8 (core from-scratch) và Tuần 15-18 (mục tiêu agentic-SDLC).

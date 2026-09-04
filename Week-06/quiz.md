@@ -80,4 +80,4 @@ GQA (arXiv 2305.13245) là gì, và vì sao nó làm giảm KV cache nhưng khô
 FlashAttention được gọi là exact attention. Nó thay đổi điều gì và không thay đổi điều gì so với cách bạn cài attention ở tuần này?
 
 ---
-> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.
+> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

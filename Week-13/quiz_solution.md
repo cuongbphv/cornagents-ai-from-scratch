@@ -1,13 +1,13 @@
 # Tuần 13, Đáp án & Giải thích: Xây dựng RAG pipeline end-to-end
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
 Thứ tự đúng của một pipeline RAG cơ bản?
 
 - **A.** Generate → retrieve → embed → chunk
-- **B.** Load → chunk → embed → vector store → retrieve top-k → generate ✅
+- **B.** Load → chunk → embed → vector store → retrieve top-k → generate (đáp án đúng)
 - **C.** Embed → generate → chunk → store
 - **D.** Retrieve → generate → embed
 
@@ -28,7 +28,7 @@ Vì sao khi chunking cần 'overlap' giữa các đoạn?
 Retrieval trong RAG thường xếp hạng tài liệu bằng độ đo nào?
 
 - **A.** Khoảng cách Hamming
-- **B.** Cosine similarity giữa embedding của query và document ✅
+- **B.** Cosine similarity giữa embedding của query và document (đáp án đúng)
 - **C.** Số ký tự trùng
 - **D.** Thứ tự alphabet
 
@@ -41,7 +41,7 @@ Retrieval trong RAG thường xếp hạng tài liệu bằng độ đo nào?
 Chroma đóng vai trò gì trong pipeline?
 
 - **A.** Mô hình sinh text
-- **B.** Vector store (lưu & truy vấn nearest-neighbor các embedding): tốt cho dev ✅
+- **B.** Vector store (lưu & truy vấn nearest-neighbor các embedding): tốt cho dev (đáp án đúng)
 - **C.** Tokenizer
 - **D.** Reranker
 
@@ -62,7 +62,7 @@ Vì sao RAG giúp giảm hallucination so với hỏi LLM trực tiếp?
 Embedding model làm gì?
 
 - **A.** Sinh câu trả lời cuối
-- **B.** Biến văn bản thành vector số nắm bắt ngữ nghĩa, để so sánh tương đồng ✅
+- **B.** Biến văn bản thành vector số nắm bắt ngữ nghĩa, để so sánh tương đồng (đáp án đúng)
 - **C.** Cắt tài liệu thành chunk
 - **D.** Lượng tử hoá model
 
@@ -75,7 +75,7 @@ Embedding model làm gì?
 Jurafsky và Martin gọi khiếm khuyết cốt lõi của tf-idf và BM25 là 'vocabulary mismatch problem'. Khiếm khuyết đó là gì và dense retrieval giải quyết ra sao?
 
 - **A.** tf-idf và BM25 quá chậm với corpus lớn; dense retrieval nhanh hơn nhờ GPU
-- **B.** tf-idf và BM25 chỉ hoạt động khi query và tài liệu dùng chung đúng từ, nên người hỏi phải đoán từ người viết đã dùng; dense embedding xử lý được từ đồng nghĩa vì so nghĩa thay vì so chuỗi ký tự ✅
+- **B.** tf-idf và BM25 chỉ hoạt động khi query và tài liệu dùng chung đúng từ, nên người hỏi phải đoán từ người viết đã dùng; dense embedding xử lý được từ đồng nghĩa vì so nghĩa thay vì so chuỗi ký tự (đáp án đúng)
 - **C.** tf-idf và BM25 không chấm được tài liệu dài; dense retrieval cắt chunk
 - **D.** tf-idf và BM25 cần nhãn huấn luyện; dense retrieval thì không
 
@@ -92,7 +92,7 @@ Jurafsky và Martin gọi khiếm khuyết cốt lõi của tf-idf và BM25 là 
 Jurafsky và Martin gọi khiếm khuyết của tf-idf và BM25 là 'vocabulary mismatch problem'. Trong hybrid search ở Tuần 14, vì sao vẫn giữ BM25 dù đã có dense retrieval?
 
 - **A.** Vì BM25 nhanh hơn nên thay được embedding
-- **B.** Vì dense bắt đồng nghĩa nhưng có thể trượt các chuỗi cần khớp chính xác như số hiệu văn bản hay mã điều khoản, thứ BM25 làm tốt; hai nhánh bù khuyết cho nhau rồi gộp bằng RRF ✅
+- **B.** Vì dense bắt đồng nghĩa nhưng có thể trượt các chuỗi cần khớp chính xác như số hiệu văn bản hay mã điều khoản, thứ BM25 làm tốt; hai nhánh bù khuyết cho nhau rồi gộp bằng RRF (đáp án đúng)
 - **C.** Vì embedding không chạy được trên CPU
 - **D.** Vì RAGAS bắt buộc dùng BM25
 

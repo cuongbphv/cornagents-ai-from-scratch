@@ -2,7 +2,7 @@
 
 > Điền các chỗ ______. Map từng stage SDLC sang agent với I/O contract rõ ràng.
 
-## 1. Map SDLC → Agent
+## 1. Map SDLC sang Agent
 
 | Stage SDLC | Agent | Input | Output | Tool được phép |
 |-----------|-------|-------|--------|----------------|

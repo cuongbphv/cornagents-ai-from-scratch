@@ -1,28 +1,28 @@
 # Lộ trình 18 tuần làm chủ LLM: Từ nội tại Transformer đến Agentic SDLC & Graph Engineering
 
-> **Tuyên bố:** dự án học thuật, nghiên cứu cá nhân, không thương mại hóa. Tài liệu chỉ tham chiếu nguồn mở (repo GitHub công khai, paper truy cập mở, tài liệu chính thức của công cụ, dataset license mở đã xác minh). Xem [CLAUDE.md](../CLAUDE.md).
+> Đây là dự án học thuật, nghiên cứu cá nhân, không thương mại hóa. Tài liệu chỉ tham chiếu nguồn mở (repo GitHub công khai, paper truy cập mở, tài liệu chính thức của công cụ, dataset license mở đã xác minh). Xem [CLAUDE.md](../CLAUDE.md).
 >
-> **Chưa chắc phần nền tảng?** Tự đánh giá trước bằng [prerequisites_vi.md](prerequisites_vi.md): bản đồ mảng nền (Python, DSA, ML, data science, OCR/vision, big data, DAG, design pattern, system design) → tuần nào cần, kèm nguồn học license mở đã xác minh.
+> Nếu chưa chắc phần nền tảng, tự đánh giá trước bằng [prerequisites_vi.md](prerequisites_vi.md). File đó là bản đồ từ từng mảng nền (Python, DSA, ML, data science, OCR/vision, big data, DAG, design pattern, system design) sang tuần cần đến nó, kèm nguồn học license mở đã xác minh.
 
 ## Tóm tắt nhanh (TL;DR)
 
-- **Khả thi trong ~4-4.5 tháng học bán thời gian (10-15 giờ/tuần)**, kiến thức được chia đều 18 tuần để không tuần nào quá tải: Tuần 1-3 dựng nền toán và lý thuyết học máy từ kệ sách giáo trình (đại số tuyến tính, giải tích, xác suất, tối ưu, ERM và generalization; chỉ NumPy); Tuần 4-10 tự xây và pretrain một model cỡ GPT-2 from scratch (các repo mã nguồn mở micrograd/makemore/nanoGPT/nanochat + `train-llm-from-scratch` + paper mở; instruction fine-tuning và alignment giờ là hai tuần riêng); Tuần 11-14 làm phần ứng dụng RAG và fine-tuning bằng QLoRA/MLX; Tuần 15-18 xây một agentic SDLC assistant, gồm một tuần riêng về **Graph Engineering** (knowledge graph làm shared memory cho multi-agent, theo tài liệu trong `docs/`). Ràng buộc khó nhất là chiếc RTX 3070 Ti 8GB, rất tốt cho việc code/train ở quy mô học tập và fine-tuning QLoRA model 7B-8B, nhưng pretraining GPT-2 đầy đủ và mọi tác vụ 13B+ nên đẩy lên cloud GPU giá rẻ.
+- Lộ trình khả thi trong ~4-4.5 tháng học bán thời gian (10-15 giờ/tuần), kiến thức được chia đều 18 tuần để không tuần nào quá tải. Tuần 1-3 dựng nền toán và lý thuyết học máy từ kệ sách giáo trình (đại số tuyến tính, giải tích, xác suất, tối ưu, ERM và generalization; chỉ NumPy). Tuần 4-10 tự xây và pretrain một model cỡ GPT-2 from scratch (các repo mã nguồn mở micrograd/makemore/nanoGPT/nanochat + `train-llm-from-scratch` + paper mở; instruction fine-tuning và alignment giờ là hai tuần riêng). Tuần 11-14 làm phần ứng dụng RAG và fine-tuning bằng QLoRA/MLX. Tuần 15-18 xây một agentic SDLC assistant, gồm một tuần riêng về **Graph Engineering** (knowledge graph làm shared memory cho multi-agent, theo tài liệu trong `docs/`). Ràng buộc khó nhất là chiếc RTX 3070 Ti 8GB, rất tốt cho việc code/train ở quy mô học tập và fine-tuning QLoRA model 7B-8B, nhưng pretraining GPT-2 đầy đủ và mọi tác vụ 13B+ nên đẩy lên cloud GPU giá rẻ.
 
-- **Phân vai phần cứng:** Dùng 3070 Ti cho việc code from scratch / train nhỏ và QLoRA 7B qua Unsloth; dùng MacBook Pro 24GB (MLX) cho local inference các model quantized 7B-14B và fine-tune LoRA nhỏ; thuê RunPod/Lambda cho lần pretrain GPT-2 một lần duy nhất (~$15-35) và các fine-tune nặng hơn.
+- Về phân vai phần cứng, dùng 3070 Ti cho việc code from scratch / train nhỏ và QLoRA 7B qua Unsloth; dùng MacBook Pro 24GB (MLX) cho local inference các model quantized 7B-14B và fine-tune LoRA nhỏ; thuê RunPod/Lambda cho lần pretrain GPT-2 một lần duy nhất (~$15-35) và các fine-tune nặng hơn.
 
-- **"CornAgents.AI" là khái niệm của riêng bạn, không phải một sản phẩm có sẵn phải mua.** Hãy coi CornAgents.AI là agentic-SDLC framework cá nhân của bạn, xây trên nền Claude Agent SDK + MCP + LangGraph/CrewAI (và một lớp knowledge graph ở Tuần 17), neo vào domain Finance Banking / BA của bạn.
+- "CornAgents.AI" là khái niệm của riêng bạn, không phải một sản phẩm có sẵn phải mua. Coi CornAgents.AI là agentic-SDLC framework cá nhân của bạn, xây trên nền Claude Agent SDK + MCP + LangGraph/CrewAI (và một lớp knowledge graph ở Tuần 17), neo vào domain Finance Banking / BA của bạn.
 
 ---
 
 ## Các phát hiện chính
 
-**Bộ xương sống của lộ trình là các repo mã nguồn mở công khai và paper truy cập mở.** Chuỗi repo from-scratch của Karpathy (`micrograd` → `makemore` → `nanoGPT` → `llm.c`) phủ trọn đường đi từ backprop đến pretrain GPT-2; các paper mở (Attention Is All You Need, GPT-2, LoRA, DPO...) là nguồn lý thuyết gốc; *The Annotated Transformer* (Harvard NLP) là bản cài đặt có chú giải theo paper.
+**Bộ xương sống của lộ trình là các repo mã nguồn mở công khai và paper truy cập mở.** Chuỗi repo from-scratch của Karpathy (`micrograd`, rồi `makemore`, `nanoGPT`, cuối cùng là `llm.c`) phủ trọn đường đi từ backprop đến pretrain GPT-2; các paper mở (Attention Is All You Need, GPT-2, LoRA, DPO...) là nguồn lý thuyết gốc; *The Annotated Transformer* (Harvard NLP) là bản cài đặt có chú giải theo paper.
 
-Repo FareedKhan-dev hiện mở rộng vượt ra ngoài pretraining để có một bộ alignment from scratch đầy đủ (Base → SFT → Reward Model → PPO/DPO → GRPO) viết bằng pure PyTorch trên các dataset thật (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
+Repo FareedKhan-dev hiện mở rộng vượt ra ngoài pretraining để có một bộ alignment from scratch đầy đủ (từ Base sang SFT, Reward Model, PPO/DPO rồi GRPO) viết bằng pure PyTorch trên các dataset thật (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
 
-**Hệ sinh thái repo mở của Karpathy phát triển theo hướng giúp ích trực tiếp cho bạn.** Tháng 10/2025 anh phát hành **nanochat** (`github.com/karpathy/nanochat`), một pipeline full-stack ~8.000 dòng tái tạo một bản clone của ChatGPT (tokenizer → pretrain → midtrain → SFT → GRPO → web UI): vốn là capstone dự kiến của khóa LLM101n vẫn đang phát triển của anh. Tính đến giữa 2026, Karpathy đã gia nhập Anthropic. Theo nanochat repo, "bạn có thể train một LLM ở năng lực GPT-2 (vốn tốn ~$43.000 để train vào năm 2019) chỉ với $48 (~2 giờ trên một node 8×H100)"; toàn bộ `speedrun.sh` mất ~3 giờ và "trên spot instance, tổng chi phí có thể gần ~$15" (node 8×H100 "tốn của chúng tôi khoảng ~$24/giờ"). Vậy với bạn, nanochat chủ yếu là một tài liệu *để đọc/fork* và là một capstone cloud tùy chọn, không phải việc làm local.
+**Hệ sinh thái repo mở của Karpathy phát triển theo hướng giúp ích trực tiếp cho bạn.** Tháng 10/2025 anh phát hành **nanochat** (`github.com/karpathy/nanochat`), một pipeline full-stack ~8.000 dòng tái tạo một bản clone của ChatGPT, đi lần lượt qua tokenizer, pretrain, midtrain, SFT, GRPO rồi web UI: vốn là capstone dự kiến của khóa LLM101n vẫn đang phát triển của anh. Tính đến giữa 2026, Karpathy đã gia nhập Anthropic. Theo nanochat repo, "bạn có thể train một LLM ở năng lực GPT-2 (vốn tốn ~$43.000 để train vào năm 2019) chỉ với $48 (~2 giờ trên một node 8×H100)"; toàn bộ `speedrun.sh` mất ~3 giờ và "trên spot instance, tổng chi phí có thể gần ~$15" (node 8×H100 "tốn của chúng tôi khoảng ~$24/giờ"). Vậy với bạn, nanochat chủ yếu là một tài liệu *để đọc/fork* và là một capstone cloud tùy chọn, không phải việc làm local.
 
-**Trên chiếc RTX 3070 Ti 8GB của bạn, đây là những gì thực sự khả thi:** Fine-tuning QLoRA 4-bit cho model 7B (≈5GB) và 8B (≈6GB) vừa thoải mái theo bảng VRAM chính thức của Unsloth; tới ~11B (7.5GB) là ở mức giới hạn; 14B (8.5GB) thì vừa vặn vượt qua 8GB. Config thực tế: batch size 1-2, sequence length ≤1024, bật gradient checkpointing. Pretraining một GPT-2 small (124M) from scratch về mặt kỹ thuật là làm được ở local nhưng chậm, `[Suy luận]` một card 8GB chỉ vừa ~batch 1-2 với gradient accumulation rất nặng, dự phóng vượt xa 48 giờ cho token budget cỡ GPT-2-small, nên hãy làm lần pretraining này trên cloud.
+**Trên chiếc RTX 3070 Ti 8GB của bạn, phạm vi thực sự khả thi như sau.** Fine-tuning QLoRA 4-bit cho model 7B (≈5GB) và 8B (≈6GB) vừa thoải mái theo bảng VRAM chính thức của Unsloth; tới ~11B (7.5GB) là ở mức giới hạn; 14B (8.5GB) thì vừa vặn vượt qua 8GB. Config thực tế: batch size 1-2, sequence length ≤1024, bật gradient checkpointing. Pretraining một GPT-2 small (124M) from scratch về mặt kỹ thuật là làm được ở local nhưng chậm, `[Suy luận]` một card 8GB chỉ vừa ~batch 1-2 với gradient accumulation rất nặng, dự phóng vượt xa 48 giờ cho token budget cỡ GPT-2-small, nên hãy làm lần pretraining này trên cloud.
 
 **Cloud rất rẻ cho lần pretrain một lần duy nhất.** Theo trang RTX 4090 chính thức của RunPod (kiểm tra lại 24/05/2026), Community Cloud từ $0.34/giờ. Karpathy tái tạo GPT-2 124M (12-layer, 10B FineWeb tokens, seq len 1024) trên "một node 8×A100 80GB SXM [trong] ~90 phút… trên Lambda node này có giá ~$14/giờ, nên tổng chi phí… khoảng $20" (`karpathy/llm.c` Discussion #481).
 
@@ -34,19 +34,19 @@ Repo FareedKhan-dev hiện mở rộng vượt ra ngoài pretraining để có m
 
 Bạn có subscription Claude đang hoạt động và muốn dùng Claude làm bạn học. Những cách dùng cụ thể, đòn bẩy cao:
 
-- **Giải thích phần toán:** Dán một công thức từ paper gốc (ví dụ scaled dot-product attention trong "Attention Is All You Need", cross-entropy, KL divergence trong paper DPO) và yêu cầu Claude derive từng bước, rồi quiz lại bạn. Dùng như một gia sư kiểu Socratic: "Hỏi tôi ba câu để kiểm tra xem tôi đã hiểu causal masking chưa."
+- Để hiểu phần toán, dán một công thức từ paper gốc (ví dụ scaled dot-product attention trong "Attention Is All You Need", cross-entropy, KL divergence trong paper DPO) và yêu cầu Claude derive từng bước, rồi quiz lại bạn. Dùng như một gia sư kiểu Socratic: "Hỏi tôi ba câu để kiểm tra xem tôi đã hiểu causal masking chưa."
 
-- **Review code from scratch của bạn:** Sau khi *tự bạn* implement một attention block hay một training loop, hãy dán vào và yêu cầu Claude so sánh với bản canonical trong các repo mở (micrograd, nanoGPT), chỉ ra bug, và giải thích chỗ khác biệt. Đừng để nó viết bản nháp đầu tiên, implement trước, review sau. (Lưu ý: chính Karpathy báo rằng các coding agent gặp khó với nanochat vì repo "quá xa khỏi data distribution"; hãy lường trước Claude mạnh nhất với các pattern PyTorch chuẩn và yếu hơn với các thủ thuật from scratch lạ.)
+- Để review code from scratch của bạn, sau khi *tự bạn* implement một attention block hay một training loop, hãy dán vào và yêu cầu Claude so sánh với bản canonical trong các repo mở (micrograd, nanoGPT), chỉ ra bug, và giải thích chỗ khác biệt. Đừng để nó viết bản nháp đầu tiên, implement trước, review sau. (Lưu ý: chính Karpathy báo rằng các coding agent gặp khó với nanochat vì repo "quá xa khỏi data distribution"; hãy lường trước Claude mạnh nhất với các pattern PyTorch chuẩn và yếu hơn với các thủ thuật from scratch lạ.)
 
-- **Debug các lần train:** Dán loss curve, OOM stack trace, hoặc output `nvidia-smi` và yêu cầu Claude chẩn đoán (batch size, gradient accumulation, mixed precision, memory fragmentation, ví dụ `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`).
+- Để debug các lần train, dán loss curve, OOM stack trace, hoặc output `nvidia-smi` và yêu cầu Claude chẩn đoán (batch size, gradient accumulation, mixed precision, memory fragmentation, ví dụ `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`).
 
-- **Tạo bài tập luyện và spaced repetition:** Yêu cầu Claude tạo bài tập tự kiểm tra theo từng chủ đề trong tuần, hoặc flashcard về các thuật ngữ (RoPE, GQA, MoE, MLA).
+- Để tạo bài tập luyện và spaced repetition, yêu cầu Claude tạo bài tập tự kiểm tra theo từng chủ đề trong tuần, hoặc flashcard về các thuật ngữ (RoPE, GQA, MoE, MLA).
 
-- **Rubber-duck các quyết định kiến trúc** trong Phase 3: mô tả agent graph CornAgents.AI của bạn và để Claude phản biện về orchestration, ranh giới tool, và các failure mode.
+- Để rubber-duck các quyết định kiến trúc trong Phase 3, mô tả agent graph CornAgents.AI của bạn và để Claude phản biện về orchestration, ranh giới tool, và các failure mode.
 
-- **Dùng Claude Code làm pair-programmer** cho các phase ứng dụng (RAG/agents), nhưng trong Phase 1 hãy ưu tiên tự tay code để xây trực giác thật.
+- Dùng Claude Code làm pair-programmer cho các phase ứng dụng (RAG/agents), nhưng trong Phase 1 hãy ưu tiên tự tay code để xây trực giác thật.
 
-- **Việt ↔ Anh:** nhờ Claude giải thích một đoạn tiếng Anh khó bằng tiếng Việt, rồi chuyển ngược lại các thuật ngữ kỹ thuật tiếng Anh.
+- Giữa tiếng Việt và tiếng Anh, nhờ Claude giải thích một đoạn tiếng Anh khó bằng tiếng Việt, rồi chuyển ngược lại các thuật ngữ kỹ thuật tiếng Anh.
 
 ---
 
@@ -93,15 +93,15 @@ Ba tuần này đi đúng thứ tự chương của hai giáo trình chính tron
 **Tuần 5: Backprop from scratch + mental model của transformer.**
 - *Mục tiêu:* Hiểu thật sự backpropagation; xây mental model cấp cao về transformer và attention trước khi code chúng.
 - *Nguồn:* Repo mở `karpathy/micrograd` và `karpathy/makemore` (đọc code + README, tự cài lại); *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu) cho mental model; paper gốc "Attention Is All You Need" (arXiv 1706.03762).
-- *Task:* Đọc code micrograd rồi tự build lại from scratch; bắt đầu makemore (bigram → MLP).
+- *Task:* Đọc code micrograd rồi tự build lại from scratch; bắt đầu makemore (từ bigram sang MLP).
 - *Phần cứng:* 3070 Ti / Mac, CPU/GPU đều ổn.
 - *Deliverable:* Repo micrograd của riêng bạn; một bản giải thích (được Claude review) về việc tại sao attention là permutation-equivariant và cần positional info.
 - *Thời gian:* ~12-15 giờ.
 
 **Tuần 6: Tokenization, embeddings, attention from scratch.**
-- *Mục tiêu:* Tự tay implement BPE/data loading, token + positional embeddings, và self-attention → causal → multi-head.
+- *Mục tiêu:* Tự tay implement BPE/data loading, token + positional embeddings, và attention theo ba bước: self-attention, rồi causal, rồi multi-head.
 - *Nguồn:* Paper BPE "Neural Machine Translation of Rare Words with Subword Units" (arXiv 1508.07909) + repo mở `openai/tiktoken`, `karpathy/minbpe`; *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu); "Attention Is All You Need"; code attention trong `karpathy/nanoGPT` (`model.py`).
-- *Task:* Tự code toàn bộ attention stack (self → causal → multi-head); kiểm tra shape đối chiếu với `nanoGPT/model.py`.
+- *Task:* Tự code toàn bộ attention stack (self, rồi causal, rồi multi-head); kiểm tra shape đối chiếu với `nanoGPT/model.py`.
 - *Phần cứng:* 3070 Ti.
 - *Deliverable:* Một file `02_multihead_attention.py` bạn viết from scratch với shape test pass; ghi chú code-review từ Claude.
 - *Thời gian:* ~12-15 giờ (đây là điểm then chốt về khái niệm, hãy đi chậm).
@@ -130,15 +130,15 @@ Ba tuần này đi đúng thứ tự chương của hai giáo trình chính tron
 - *Deliverable:* Một mini-model biết làm theo instruction để bạn chat thử; ghi chú full FT vs LoRA.
 - *Thời gian:* ~10-12 giờ.
 
-**Tuần 10: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO (FareedKhan + paper mở).**
-- *Mục tiêu:* Hiểu pipeline alignment (SFT → reward model → PPO/DPO → GRPO) ở mức khái niệm và chạy ít nhất một stage from scratch. (Tách khỏi tuần 9 cũ để lộ trình bớt dồn.)
+**Tuần 10: Nhập môn alignment: từ SFT qua Reward Model và DPO/PPO đến GRPO (FareedKhan + paper mở).**
+- *Mục tiêu:* Hiểu pipeline alignment (SFT, rồi reward model, rồi PPO/DPO, rồi GRPO) ở mức khái niệm và chạy ít nhất một stage from scratch. (Tách khỏi tuần 9 cũ để lộ trình bớt dồn.)
 - *Nguồn:* FareedKhan-dev/train-llm-from-scratch `src/post_training/` (SFT/RM/PPO/DPO/GRPO trong pure PyTorch trên Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K); paper DPO (arXiv 2305.18290), InstructGPT/RLHF (arXiv 2203.02155), GRPO trong paper DeepSeekMath (arXiv 2402.03300).
 - *Task:* Đọc hiểu cấu trúc SFT/RM/DPO; chạy một stage alignment (bắt đầu bằng SFT hoặc DPO) scaled-down từ repo FareedKhan.
 - *Phần cứng:* 3070 Ti cho stage scaled-down; cloud nếu bạn đẩy lên base lớn hơn hoặc full PPO/GRPO (dev box của FareedKhan dùng 2×H100 với DDP + bf16, hãy tái tạo ở quy mô nhỏ hơn hoặc đi thuê).
 - *Deliverable:* Log/checkpoint một stage alignment đã chạy; ghi chú phân biệt SFT vs. DPO vs. GRPO.
 - *Thời gian:* ~10-12 giờ.
 
-> **Nếu Phase 1 bị bó thời gian:** các tuần giá trị nhất là 5-8 (backprop, attention, lắp ráp GPT, pretraining). Bạn có thể nén Tuần 10 alignment xuống mức hiểu *khái niệm* + một lần chạy DPO, và để dành phần reasoning-model/GRPO sâu cho sau lộ trình.
+> Nếu Phase 1 bị bó thời gian, các tuần giá trị nhất là 5-8 (backprop, attention, lắp ráp GPT, pretraining). Bạn có thể nén Tuần 10 alignment xuống mức hiểu *khái niệm* + một lần chạy DPO, và để dành phần reasoning-model/GRPO sâu cho sau lộ trình.
 
 ---
 
@@ -163,7 +163,7 @@ Ba tuần này đi đúng thứ tự chương của hai giáo trình chính tron
 **Tuần 13: Xây một RAG pipeline end-to-end.**
 - *Mục tiêu:* Chunking, embeddings, vector store, retrieval, generation, trên chính tài liệu (Finance Banking) của bạn.
 - *Nguồn:* Docs của LlamaIndex và LangChain (mỗi bên đều có tutorial RAG end-to-end chính thức); NirDiamant/RAG_Techniques và sosanzma/rag-techniques-handbook trên GitHub; paper gốc RAG (arXiv 2005.11401) cho nền lý thuyết.
-- *Task:* Build một RAG baseline trên một corpus tài liệu nghiệp vụ Finance Banking của bạn: load PDF → `RecursiveCharacterTextSplitter` (chunk ~800, overlap ~100) → embed → lưu vào **Chroma** (dev) → retrieve top-k → generate bằng một model Ollama local hoặc Claude. Dùng **pgvector/Qdrant** nếu muốn store cấp production.
+- *Task:* Build một RAG baseline trên một corpus tài liệu nghiệp vụ Finance Banking của bạn: load PDF, tách bằng `RecursiveCharacterTextSplitter` (chunk ~800, overlap ~100), embed, lưu vào **Chroma** (dev), retrieve top-k, rồi generate bằng một model Ollama local hoặc Claude. Dùng **pgvector/Qdrant** nếu muốn store cấp production.
 - *Phần cứng:* Mac hoặc 3070 Ti cho embeddings/inference local; embeddings nhẹ.
 - *Deliverable:* Một RAG app trả lời được câu hỏi trên tài liệu Finance Banking của bạn.
 - *Thời gian:* ~12 giờ.
@@ -181,15 +181,15 @@ Ba tuần này đi đúng thứ tự chương của hai giáo trình chính tron
 ### PHASE 3: Ứng dụng SDLC / CornAgents.AI (Tuần 15-18)
 
 **Tuần 15: Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP, và một framework.**
-- *Mục tiêu:* Nắm mô hình 5 tầng Prompt → Context → Harness → Loop → Graph engineering (`docs/5-layers-multi-agent.jpg`); hiểu agent loop, tools, subagents, và MCP; build loop có đo lường đầu tiên kiểu Karpathy autoresearch; chọn lớp orchestration của bạn.
+- *Mục tiêu:* Nắm mô hình 5 tầng engineering đi từ Prompt qua Context, Harness, Loop đến Graph (`docs/5-layers-multi-agent.jpg`); hiểu agent loop, tools, subagents, và MCP; build loop có đo lường đầu tiên kiểu Karpathy autoresearch; chọn lớp orchestration của bạn.
 - *Nguồn:* Claude Agent SDK docs (code.claude.com/docs/en/agent-sdk) và bài "Building agents with the Claude Agent SDK" của Anthropic; docs Model Context Protocol (200+ server: GitHub, Postgres, Slack, Jira); `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (mục II autoresearch, mục VI.A-B build path Day 1-2); docs LangGraph và CrewAI (bạn đang khám phá cả hai); AutoGen làm phương án thay thế.
-- *Task:* Build một agent tối thiểu bằng Claude Agent SDK đọc một repo, chạy một tool, và trả về structured output; kết nối một MCP server (ví dụ GitHub hoặc filesystem). Build một **reflective loop**: generate → evaluator với tiêu chí tường minh → revise → stopping rule (max rounds + budget): hiểu 4 điều kiện làm loop chạy được (output verifiable, action reversible, horizon ngắn, environment bounded). Quyết định stack CornAgents.AI: Claude Agent SDK làm harness, MCP cho truy cập tool/data, LangGraph (stateful graphs) hoặc CrewAI (role-based crews) cho orchestration nhiều agent.
+- *Task:* Build một agent tối thiểu bằng Claude Agent SDK đọc một repo, chạy một tool, và trả về structured output; kết nối một MCP server (ví dụ GitHub hoặc filesystem). Build một **reflective loop** gồm bốn bước: generate, rồi evaluator với tiêu chí tường minh, rồi revise, rồi stopping rule (max rounds + budget); hiểu 4 điều kiện làm loop chạy được (output verifiable, action reversible, horizon ngắn, environment bounded). Quyết định stack CornAgents.AI: Claude Agent SDK làm harness, MCP cho truy cập tool/data, LangGraph (stateful graphs) hoặc CrewAI (role-based crews) cho orchestration nhiều agent.
 - *Phần cứng:* Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude của bạn (lưu ý: từ 15/06/2026, việc dùng headless Agent SDK trên các gói subscription rút từ một pool riêng theo tuần, automation nặng có thể cần API credits).
 - *Deliverable:* Một single agent hoạt động + một kết nối MCP; một reflective loop chạy được; một sơ đồ kiến trúc CornAgents.AI một trang.
 - *Thời gian:* ~12 giờ.
 
 **Tuần 16: Map LLM vào các stage của SDLC; xây agent graph CornAgents.AI.**
-- *Mục tiêu:* Thiết kế các agent chuyên biệt cho requirements → design → code → review → test → docs, có human-in-the-loop gate.
+- *Mục tiêu:* Thiết kế các agent chuyên biệt cho chuỗi stage từ requirements qua design, code, review, test đến docs, có human-in-the-loop gate.
 - *Nguồn:* `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` mục IV (5 workflow patterns của Anthropic: Prompt Chaining, Routing, Parallelization, Orchestrator-Workers, Evaluator-Optimizer + Dynamic Workflows) và mục VIII (decision framework 6 câu hỏi); các tài liệu ngành về agentic SDLC (hướng dẫn agentic-SDLC của CodeRabbit, framework AC/DC của Sonar, case study VelocityAI của GlobalLogic) để lấy pattern và quality gate; ví dụ code-review của Claude Agent SDK (đọc PR, flag bug/security, post comment).
 - *Task:* Implement 2-3 agent trong framework bạn chọn: ví dụ một **Requirements Analyst agent** (sở trường BA của bạn, biến một feature request Finance Banking thành user story/acceptance criteria có cấu trúc, được grounding bởi RAG Tuần 13-14 trên tài liệu nghiệp vụ nội bộ), một **Code Review agent**, và một **Test-Generation agent**. Thêm các checkpoint phê duyệt của con người và scoping tool theo nguyên tắc least-privilege.
 - *Phần cứng:* Bất kỳ; orchestration + API.
@@ -198,8 +198,8 @@ Ba tuần này đi đúng thứ tự chương của hai giáo trình chính tron
 
 **Tuần 17: Graph Engineering: knowledge graph làm shared memory cho multi-agent.**
 - *Mục tiêu:* Hiểu vì sao multi-agent cần lớp hạ tầng graph (mỗi agent chết theo context window; graph là nơi facts sống xuyên session); tự xây knowledge graph pipeline 4 bước hoàn toàn bằng Claude API; phân biệt RAG (single-hop retrieval) vs knowledge graph (multi-hop reasoning): bổ trợ, không thay thế nhau.
-- *Nguồn:* `docs/Graph-Engineering-Athropic-Playbook.pdf` (pipeline extraction → resolution → assembly → querying, prompt đầy đủ, evaluation vs gold set, scaling guidance); `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (Loop → Chain → Swarm → DAG → Knowledge Graph; commit DAG vs knowledge graph); Anthropic Knowledge Graph Construction Cookbook; NetworkX docs.
-- *Task:* Build KG pipeline trên 5-10 tài liệu Finance Banking của bạn: Extraction (Haiku + structured outputs, Pydantic schema là "training data" duy nhất) → Resolution (Sonnet cluster surface forms, descriptions làm ngữ cảnh) → Assembly (NetworkX MultiDiGraph, mọi edge mang provenance) → Querying (serialize k-hop subgraph, grounded answer có cite edges). Chạy graph diagnostics; so sánh grounded vs ungrounded; lập mini gold set và chạy evaluation feedback loop (đổi prompt → chạy scorer → xem F1). Cắm graph vào workflow Tuần 16 làm shared memory + grounding layer cho evaluator.
+- *Nguồn:* `docs/Graph-Engineering-Athropic-Playbook.pdf` (pipeline bốn bước extraction, resolution, assembly, querying; prompt đầy đủ, evaluation vs gold set, scaling guidance); `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (tiến trình từ Loop sang Chain, Swarm, DAG rồi Knowledge Graph; commit DAG vs knowledge graph); Anthropic Knowledge Graph Construction Cookbook; NetworkX docs.
+- *Task:* Build KG pipeline trên 5-10 tài liệu Finance Banking của bạn theo bốn bước: Extraction (Haiku + structured outputs, Pydantic schema là "training data" duy nhất), Resolution (Sonnet cluster surface forms, descriptions làm ngữ cảnh), Assembly (NetworkX MultiDiGraph, mọi edge mang provenance), rồi Querying (serialize k-hop subgraph, grounded answer có cite edges). Chạy graph diagnostics; so sánh grounded vs ungrounded; lập mini gold set và chạy evaluation feedback loop (đổi prompt, chạy lại scorer, xem F1). Cắm graph vào workflow Tuần 16 làm shared memory + grounding layer cho evaluator.
 - *Phần cứng:* Bất kỳ; việc API (Haiku cho volume, Sonnet cho reasoning): chi phí thấp nhờ prompt caching.
 - *Deliverable:* `02_kg_pipeline.py` chạy được trên corpus của bạn + ghi chú diagnostics/eval/grounded-vs-ungrounded.
 - *Thời gian:* ~10-12 giờ.
@@ -212,48 +212,48 @@ Ba tuần này đi đúng thứ tự chương của hai giáo trình chính tron
 - *Deliverable:* Một capstone CornAgents.AI demo được + một báo cáo evaluation + một bản retrospective viết lại, gắn ngược về phần internals của Phase 1 (giờ bạn đã hiểu *vì sao* nó hoạt động).
 - *Thời gian:* ~12-15 giờ.
 
-> **Chỗ nào thời gian là bó / cái gì có thể để dành:** Độ sâu alignment ở Phase 1 (full PPO/GRPO from scratch, Tuần 10) là dễ để dành nhất. Tuần advanced-RAG (11) và capstone (15) mỗi cái có thể tràn thêm vài ngày. Nếu bị tụt lại, hãy bảo vệ Tuần 5-8 (phần lõi from-scratch không thể thay thế) và Tuần 15-18 (mục tiêu thực sự của bạn), và cắt gọn Tuần 12 (Mac/MLX) xuống chỉ còn inference.
+> Về chỗ nào thời gian bị bó và cái gì có thể để dành: độ sâu alignment ở Phase 1 (full PPO/GRPO from scratch, Tuần 10) là dễ để dành nhất. Tuần advanced-RAG (11) và capstone (15) mỗi cái có thể tràn thêm vài ngày. Nếu bị tụt lại, hãy bảo vệ Tuần 5-8 (phần lõi from-scratch không thể thay thế) và Tuần 15-18 (mục tiêu thực sự của bạn), và cắt gọn Tuần 12 (Mac/MLX) xuống chỉ còn inference.
 
 ---
 
 ## Khuyến nghị
 
-1. **Đi đủ Tuần 1-5 dù chúng có vẻ cơ bản** (ba tuần nền toán và lý thuyết học, rồi PyTorch và backprop): phần thưởng là attention (Tuần 6) và pretraining (Tuần 8) sẽ "thông" thay vì gây ức chế. *Ngưỡng để nhảy cóc:* nếu bạn đã tự implement được backprop và một training loop không cần trợ giúp, hãy nén Tuần 4-5 còn 3-4 ngày.
+1. Đi đủ Tuần 1-5 dù chúng có vẻ cơ bản (ba tuần nền toán và lý thuyết học, rồi PyTorch và backprop): phần thưởng là attention (Tuần 6) và pretraining (Tuần 8) sẽ "thông" thay vì gây ức chế. Ngưỡng để nhảy cóc: nếu bạn đã tự implement được backprop và một training loop không cần trợ giúp, hãy nén Tuần 4-5 còn 3-4 ngày.
 
-2. **Làm lần pretraining GPT-2 trên cloud, không phải local.** Dự trù ~$15-35 một lần trên RunPod (RTX 4090 đơn từ $0.34/giờ) hoặc Lambda (8×A100, node ~$14/giờ; ~$20 cho lần chạy llm.c 90 phút theo Discussion #481 của Karpathy). Chỉ dùng 3070 Ti để validate loop trên một dataset tí hon trước. *Điều kiện kích hoạt đi cloud:* ngay khi lần chạy local của bạn dự phóng vượt ~24 giờ.
+2. Làm lần pretraining GPT-2 trên cloud, không phải local. Dự trù ~$15-35 một lần trên RunPod (RTX 4090 đơn từ $0.34/giờ) hoặc Lambda (8×A100, node ~$14/giờ; ~$20 cho lần chạy llm.c 90 phút theo Discussion #481 của Karpathy). Chỉ dùng 3070 Ti để validate loop trên một dataset tí hon trước. Điều kiện kích hoạt đi cloud là ngay khi lần chạy local của bạn dự phóng vượt ~24 giờ.
 
-3. **Với fine-tuning, mặc định dùng Unsloth QLoRA trên 3070 Ti cho 7B-8B; dùng Mac/MLX khi cần 13B-14B hoặc muốn chạy yên tĩnh ở local; chỉ thuê A100 khi cần full fine-tuning hoặc iterate nhanh.** *Ngưỡng:* nếu một lần fine-tune cần >24 giờ ở local hoặc OOM ở batch size 1, hãy chuyển sang 4090/A100 thuê.
+3. Với fine-tuning, mặc định dùng Unsloth QLoRA trên 3070 Ti cho 7B-8B; dùng Mac/MLX khi cần 13B-14B hoặc muốn chạy yên tĩnh ở local; chỉ thuê A100 khi cần full fine-tuning hoặc iterate nhanh. Ngưỡng chuyển: nếu một lần fine-tune cần >24 giờ ở local hoặc OOM ở batch size 1, hãy chuyển sang 4090/A100 thuê.
 
-4. **Neo mọi artifact ứng dụng vào domain Finance Banking/BA của bạn.** Corpus RAG, dataset fine-tune, và capstone của bạn đều nên là tài liệu nghiệp vụ Finance Banking (ở mức tổng quát, không gắn sản phẩm cụ thể). Đây là điểm khác biệt của bạn và làm portfolio đáng tin.
+4. Neo mọi artifact ứng dụng vào domain Finance Banking/BA của bạn. Corpus RAG, dataset fine-tune, và capstone của bạn đều nên là tài liệu nghiệp vụ Finance Banking (ở mức tổng quát, không gắn sản phẩm cụ thể). Đây là điểm khác biệt của bạn và làm portfolio đáng tin.
 
-5. **Xây CornAgents.AI trên Claude Agent SDK + MCP + (LangGraph hoặc CrewAI).** Bắt đầu với LangGraph nếu bạn muốn stateful control tường minh, audit được (tốt hơn cho workflow tài chính có ràng buộc quy định); CrewAI nếu bạn thích prototype nhanh theo role. Thêm human-in-the-loop gate và tool least-privilege ngay từ ngày đầu.
+5. Xây CornAgents.AI trên Claude Agent SDK + MCP + (LangGraph hoặc CrewAI). Bắt đầu với LangGraph nếu bạn muốn stateful control tường minh, audit được (tốt hơn cho workflow tài chính có ràng buộc quy định); CrewAI nếu bạn thích prototype nhanh theo role. Thêm human-in-the-loop gate và tool least-privilege ngay từ ngày đầu.
 
-6. **Dùng Claude làm co-learner một cách có chủ đích:** implement-trước-rồi-review trong Phase 1; pair-program trong Phase 2-3. *Thước đo:* nếu bạn không giải thích được một component cho Claude bằng ngôn ngữ của chính mình, nghĩa là bạn chưa học được, đó là tín hiệu để đi chậm lại.
+6. Dùng Claude làm co-learner một cách có chủ đích: implement-trước-rồi-review trong Phase 1; pair-program trong Phase 2-3. Thước đo là nếu bạn không giải thích được một component cho Claude bằng ngôn ngữ của chính mình, nghĩa là bạn chưa học được, đó là tín hiệu để đi chậm lại.
 
 ---
 
 ## Cảnh báo (Caveats)
 
-- **Ước lượng thời gian phần cứng cho 3070 Ti là phép ngoại suy**, không phải benchmark đo thực tế: `[Suy luận]` chúng được suy ra từ các con số single-GPU trong tài liệu nanoGPT/llm.c (vốn giả định card ≥24GB). Card 8GB của bạn với batch 1-2 + gradient accumulation nặng sẽ chậm hơn cho cùng token budget. Hãy verify lại bằng một smoke test local ngắn trước khi cam kết một lần chạy dài.
+- Ước lượng thời gian phần cứng cho 3070 Ti là phép ngoại suy, không phải benchmark đo thực tế: `[Suy luận]` chúng được suy ra từ các con số single-GPU trong tài liệu nanoGPT/llm.c (vốn giả định card ≥24GB). Card 8GB của bạn với batch 1-2 + gradient accumulation nặng sẽ chậm hơn cho cùng token budget. Hãy verify lại bằng một smoke test local ngắn trước khi cam kết một lần chạy dài.
 
-- **Giá cloud là biến động theo thời gian thực.** RunPod/Vast.ai vận hành theo marketplace; hãy verify giá lúc deploy. Các con số trích dẫn (RTX 4090 từ $0.34/giờ Community, ~$0.69/giờ Secure; A100 ~$1.49/giờ; node 8×A100 của Lambda ~$14/giờ) là số kiểm tra năm 2026 và sẽ trôi.
+- Giá cloud là biến động theo thời gian thực. RunPod/Vast.ai vận hành theo marketplace; hãy verify giá lúc deploy. Các con số trích dẫn (RTX 4090 từ $0.34/giờ Community, ~$0.69/giờ Secure; A100 ~$1.49/giờ; node 8×A100 của Lambda ~$14/giờ) là số kiểm tra năm 2026 và sẽ trôi.
 
-- **Lưu ý vùng Việt Nam:** truy cập cloud GPU (RunPod, Lambda, Vast.ai, Colab) hoạt động được từ Việt Nam; cản trở chính là phương thức thanh toán (thẻ quốc tế) và latency tới region US/EU, không đáng kể cho batch training. Chọn region Asia-Pacific khi có để làm việc tương tác.
+- Về vùng Việt Nam, truy cập cloud GPU (RunPod, Lambda, Vast.ai, Colab) hoạt động được từ Việt Nam; cản trở chính là phương thức thanh toán (thẻ quốc tế) và latency tới region US/EU, không đáng kể cho batch training. Chọn region Asia-Pacific khi có để làm việc tương tác.
 
-- **Cơ chế tính subscription đã đổi:** từ 15/06/2026, việc dùng headless Claude Agent SDK trên gói Pro/Max rút từ một pool token riêng theo tuần; hãy dự trù API credits cho automation agentic nặng ở Phase 3.
+- Cơ chế tính subscription đã đổi: từ 15/06/2026, việc dùng headless Claude Agent SDK trên gói Pro/Max rút từ một pool token riêng theo tuần; hãy dự trù API credits cho automation agentic nặng ở Phase 3.
 
-- **Tên "CornAgents.AI" là khái niệm học tập của riêng bạn**, không gắn với sản phẩm thương mại nào, cứ coi nó là tên của framework agentic-SDLC cá nhân bạn xây trong Phase 3. ("VelocityAI SDLC" của GlobalLogic là một case study doanh nghiệp riêng biệt, chỉ hữu ích như tham chiếu pattern.)
+- Tên "CornAgents.AI" là khái niệm học tập của riêng bạn, không gắn với sản phẩm thương mại nào, cứ coi nó là tên của framework agentic-SDLC cá nhân bạn xây trong Phase 3. ("VelocityAI SDLC" của GlobalLogic là một case study doanh nghiệp riêng biệt, chỉ hữu ích như tham chiếu pattern.)
 
 ---
 
 ## Danh sách nguồn hợp nhất / Tech Stack
 
-**Kệ sách mở (mọi phase):** [`../docs/books/README.md`](../docs/books/README.md), 25 cuốn có link chính thức, điều khoản đã kiểm và map chương sang tuần; ghi chú lý thuyết mỗi tuần có mục "Đọc thêm từ kệ sách".
+Kệ sách mở dùng cho mọi phase nằm ở [`../docs/books/README.md`](../docs/books/README.md): 25 cuốn có link chính thức, điều khoản đã kiểm và map chương sang tuần; ghi chú lý thuyết mỗi tuần có mục "Đọc thêm từ kệ sách".
 
-**Phase 1 (internals):** Repo mở của Karpathy, `micrograd`, `makemore`, `minbpe`, `nanoGPT`, `llm.c`, `nanochat`; FareedKhan-dev `train-llm-from-scratch`; *The Annotated Transformer* (Harvard NLP); PyTorch official tutorials; paper mở, "Attention Is All You Need", GPT-2, BPE, LoRA, InstructGPT, DPO, DeepSeekMath (GRPO); HF Ultra-Scale Playbook.
+Phase 1 (internals) dựa trên repo mở của Karpathy, `micrograd`, `makemore`, `minbpe`, `nanoGPT`, `llm.c`, `nanochat`; FareedKhan-dev `train-llm-from-scratch`; *The Annotated Transformer* (Harvard NLP); PyTorch official tutorials; paper mở, "Attention Is All You Need", GPT-2, BPE, LoRA, InstructGPT, DPO, DeepSeekMath (GRPO); HF Ultra-Scale Playbook.
 
-**Phase 2 (applied):** Unsloth + HF PEFT/TRL; MLX-LM / mlx-tune / MLX LoRA Studio; Ollama, LM Studio, llama.cpp, vLLM; LangChain, LlamaIndex; Chroma (dev), Qdrant/Weaviate/pgvector (prod); BGE reranker (mã nguồn mở); RAGAS; NirDiamant/RAG_Techniques.
+Phase 2 (applied) dùng Unsloth + HF PEFT/TRL; MLX-LM / mlx-tune / MLX LoRA Studio; Ollama, LM Studio, llama.cpp, vLLM; LangChain, LlamaIndex; Chroma (dev), Qdrant/Weaviate/pgvector (prod); BGE reranker (mã nguồn mở); RAGAS; NirDiamant/RAG_Techniques.
 
-**Phase 3 (SDLC/CornAgents.AI):** Claude Agent SDK + Claude Code; Model Context Protocol; LangGraph, CrewAI, AutoGen; NetworkX + Anthropic Knowledge Graph Construction Cookbook (Tuần 17); Langfuse/LangSmith, promptfoo; hai tài liệu trong `docs/` (Graph-Engineering Playbook + Karpathy Loop) và sơ đồ 5 tầng `docs/5-layers-multi-agent.jpg`.
+Phase 3 (SDLC/CornAgents.AI) dùng Claude Agent SDK + Claude Code; Model Context Protocol; LangGraph, CrewAI, AutoGen; NetworkX + Anthropic Knowledge Graph Construction Cookbook (Tuần 17); Langfuse/LangSmith, promptfoo; hai tài liệu trong `docs/` (Graph-Engineering Playbook + Karpathy Loop) và sơ đồ 5 tầng `docs/5-layers-multi-agent.jpg`.
 
-**Vai trò phần cứng:** 3070 Ti (8GB) → code from scratch, train nhỏ/validate loop, QLoRA 7B-8B. MacBook 24GB → local inference các model quantized 7B-14B, MLX LoRA tới ~14B, fine-tune yên tĩnh. Cloud (RunPod/Lambda/Vast.ai/Colab) → pretrain GPT-2 một lần (~$15-35), full fine-tune, capstone nanochat tùy chọn (~$15-48 trên 8×H100).
+Vai trò phần cứng chia như sau. 3070 Ti (8GB) dùng cho code from scratch, train nhỏ/validate loop, QLoRA 7B-8B. MacBook 24GB dùng cho local inference các model quantized 7B-14B, MLX LoRA tới ~14B, fine-tune yên tĩnh. Cloud (RunPod/Lambda/Vast.ai/Colab) dùng cho pretrain GPT-2 một lần (~$15-35), full fine-tune, capstone nanochat tùy chọn (~$15-48 trên 8×H100).

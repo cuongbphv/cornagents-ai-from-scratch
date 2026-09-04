@@ -1,6 +1,6 @@
 # Tuần 13: Xây dựng RAG pipeline end-to-end
 
-> Phase 2: Applied. Chunking → embeddings → vector store → retrieval → generation, trên tài liệu Finance Banking của bạn.
+> Phase 2: Applied. Đi từ chunking sang embeddings, vector store, retrieval rồi generation, trên tài liệu Finance Banking của bạn.
 
 ## Mục tiêu
 
@@ -21,7 +21,7 @@ Build baseline RAG đầy đủ trên corpus tài liệu nghiệp vụ Finance B
 
 ## Nhiệm vụ (Task)
 
-Load PDFs → `RecursiveCharacterTextSplitter` (chunk ~800, overlap ~100) → embed → **Chroma** (dev) → retrieve top-k → generate bằng Ollama local hoặc Claude. Dùng **pgvector/Qdrant** nếu muốn production-grade.
+Load PDF, cắt bằng `RecursiveCharacterTextSplitter` (chunk ~800, overlap ~100), embed, lưu vào **Chroma** (dev), retrieve top-k, rồi generate bằng Ollama local hoặc Claude. Dùng **pgvector/Qdrant** nếu muốn production-grade.
 
 ## Deliverable
 
@@ -39,32 +39,32 @@ Mac hoặc 3070 Ti cho embeddings/inference local; embeddings nhẹ.
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md`: nhớ normalize NFC ngay từ bước load
-- [ ] Thu thập corpus (PDF tài liệu nghiệp vụ nội bộ) vào `data/`
-- [ ] Load + parse PDF (PyPDF / Unstructured)
-- [ ] Chunk: RecursiveCharacterTextSplitter (size ~800, overlap ~100)
-- [ ] Chọn embedding model (BGE / e5 / OpenAI / nomic): local được
-- [ ] Index vào Chroma (persist xuống đĩa)
-- [ ] Retrieve top-k + lắp prompt context
-- [ ] Generate bằng Ollama (Tuần 12) hoặc Claude
-- [ ] Test 10 câu hỏi domain → kiểm tra câu trả lời có grounding
-- [ ] (Chuẩn bị Tuần 14) lưu lại baseline để so sánh sau khi thêm rerank
+- [ ] Đọc `01_theory_notes.md` và nhớ normalize NFC ngay từ bước load.
+- [ ] Thu thập corpus (PDF tài liệu nghiệp vụ nội bộ) vào `data/`.
+- [ ] Load và parse PDF bằng PyPDF hoặc Unstructured.
+- [ ] Chunk bằng RecursiveCharacterTextSplitter (size ~800, overlap ~100).
+- [ ] Chọn embedding model (BGE / e5 / OpenAI / nomic); chạy local được.
+- [ ] Index vào Chroma (persist xuống đĩa).
+- [ ] Retrieve top-k và lắp prompt context.
+- [ ] Generate bằng Ollama (Tuần 12) hoặc Claude.
+- [ ] Test 10 câu hỏi domain rồi kiểm tra câu trả lời có grounding.
+- [ ] (Chuẩn bị Tuần 14) lưu lại baseline để so sánh sau khi thêm rerank.
 
-## 🚀 Bổ sung nâng cao (sampling quyết định độ "bịa")
+## Bổ sung nâng cao (sampling quyết định độ "bịa")
 
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **B2 Sampling**:
 
 Cùng một context retrieve được, `temperature` và `top-p` vẫn quyết định câu trả lời bám nguồn hay bắt đầu suy diễn. Với RAG trên tài liệu nghiệp vụ, mặc định nên **hạ temperature** (≤0.3) và giữ top-p vừa phải, ưu tiên groundedness hơn sự "mượt".
 
-> ➡️ Tuần 14 sẽ đọc mục **H** đầy đủ để biết cách *đo* điều này thay vì cảm nhận.
+> Tuần 14 sẽ đọc mục **H** đầy đủ để biết cách *đo* điều này thay vì cảm nhận.
 
-## 📦 Dữ liệu cho tuần này
+## Dữ liệu cho tuần này
 
 Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md): mục **1** (nguồn quy định tiếng Việt) và mục **9** (chọn embedding model).
 
-Corpus khuyến nghị: `th1nhng0/vietnamese-legal-documents` (CC BY 4.0, 171k văn bản scrape từ **vbpl.vn** của Bộ Tư pháp) → **filter riêng phần NHNN**. Chọn embedding model tham chiếu **VN-MTEB**.
+Corpus khuyến nghị: `th1nhng0/vietnamese-legal-documents` (CC BY 4.0, 171k văn bản scrape từ **vbpl.vn** của Bộ Tư pháp), rồi **filter riêng phần NHNN**. Chọn embedding model tham chiếu **VN-MTEB**.
 
-> ⚠️ Đọc mục **6** về pháp lý trước khi tải: ưu tiên nguồn chính thức (vbpl.vn) hơn aggregator thương mại có paywall; và giữ lại metadata nguồn + ngày hiệu lực của từng văn bản, bạn sẽ cần chúng làm provenance ở Tuần 17.
+> Đọc mục **6** về pháp lý trước khi tải: ưu tiên nguồn chính thức (vbpl.vn) hơn aggregator thương mại có paywall; và giữ lại metadata nguồn + ngày hiệu lực của từng văn bản, bạn sẽ cần chúng làm provenance ở Tuần 17.
 
 ## File trong folder
 

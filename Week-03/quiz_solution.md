@@ -1,13 +1,13 @@
 # Tuần 3, Đáp án & Giải thích: Nền tảng ML và lý thuyết học
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
 Trong khung học thống kê của Shalev-Shwartz và Ben-David, learner được biết gì và không được biết gì?
 
 - **A.** Biết phân phối D và hàm nhãn f, chỉ không biết tập test
-- **B.** Biết training data S gồm các cặp (x, y); không biết phân phối D sinh ra x và hàm gán nhãn f ✅
+- **B.** Biết training data S gồm các cặp (x, y); không biết phân phối D sinh ra x và hàm gán nhãn f (đáp án đúng)
 - **C.** Biết phân phối D nhưng không biết training data
 - **D.** Biết mọi thứ trừ kích thước mẫu m
 
@@ -20,7 +20,7 @@ Trong khung học thống kê của Shalev-Shwartz và Ben-David, learner đư�
 Empirical Risk Minimization trên toàn bộ các hàm có thể có thì dẫn đến hậu quả gì, và lý thuyết đề xuất cách khắc phục nào?
 
 - **A.** Dẫn đến underfitting; khắc phục bằng cách tăng learning rate
-- **B.** Dẫn đến overfitting vì một hàm nhớ hết mẫu có lỗi mẫu bằng 0 nhưng lỗi thật cao; khắc phục bằng cách giới hạn trước lớp giả thuyết H, gọi là inductive bias ✅
+- **B.** Dẫn đến overfitting vì một hàm nhớ hết mẫu có lỗi mẫu bằng 0 nhưng lỗi thật cao; khắc phục bằng cách giới hạn trước lớp giả thuyết H, gọi là inductive bias (đáp án đúng)
 - **C.** Không có hậu quả gì nếu dữ liệu đủ sạch
 - **D.** Dẫn đến chi phí tính toán cao; khắc phục bằng GPU
 
@@ -41,7 +41,7 @@ Hãy viết công thức tách lỗi của giả thuyết ERM thành approximati
 Trong định nghĩa PAC learnability, hai tham số ε và δ lần lượt mang ý nghĩa gì?
 
 - **A.** ε là learning rate, δ là kích thước batch
-- **B.** ε là độ chính xác cho phép của giả thuyết trả về (phần 'approximately correct'), δ là xác suất thất bại được chấp nhận (phần 'probably') ✅
+- **B.** ε là độ chính xác cho phép của giả thuyết trả về (phần 'approximately correct'), δ là xác suất thất bại được chấp nhận (phần 'probably') (đáp án đúng)
 - **C.** ε là số mẫu, δ là số chiều của dữ liệu
 - **D.** ε là lỗi trên training set, δ là lỗi trên test set
 
@@ -54,7 +54,7 @@ Trong định nghĩa PAC learnability, hai tham số ε và δ lần lượt man
 Điều gì tuyệt đối không được làm với validation data, và vì sao?
 
 - **A.** Không được vẽ đồ thị trên validation data vì tốn thời gian
-- **B.** Không được dùng validation data để ước lượng hay chọn tham số model, vì khi đó ước lượng lỗi trên nó không còn độc lập và không còn là ước lượng không chệch của lỗi thật ✅
+- **B.** Không được dùng validation data để ước lượng hay chọn tham số model, vì khi đó ước lượng lỗi trên nó không còn độc lập và không còn là ước lượng không chệch của lỗi thật (đáp án đúng)
 - **C.** Không được chia validation data ngẫu nhiên vì làm mất thứ tự thời gian
 - **D.** Không được để validation data nhỏ hơn 50% dữ liệu
 
@@ -79,7 +79,7 @@ Logistic regression khác linear regression ở những điểm nào về đầu
 Shalev-Shwartz và Ben-David tách lỗi của giả thuyết ERM thành ε_app + ε_est. Khi bạn tăng hạng r của LoRA ở Tuần 11, thành phần nào của phân tích này có xu hướng thay đổi theo hướng nào?
 
 - **A.** Cả hai đều giảm vì model mạnh hơn
-- **B.** ε_app giảm vì lớp giả thuyết rộng hơn, còn ε_est có xu hướng tăng vì mẫu hữu hạn phải ước lượng nhiều tham số hơn ✅
+- **B.** ε_app giảm vì lớp giả thuyết rộng hơn, còn ε_est có xu hướng tăng vì mẫu hữu hạn phải ước lượng nhiều tham số hơn (đáp án đúng)
 - **C.** Chỉ ε_est giảm
 - **D.** Không thành phần nào đổi vì LoRA không đổi lớp giả thuyết
 

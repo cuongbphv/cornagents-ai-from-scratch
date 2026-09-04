@@ -62,4 +62,4 @@ Rolling buffer cache của Mistral 7B hoạt động thế nào và cho tiết k
 Khi đo tốc độ inference trên Mac và trên 3070 Ti, vì sao nên tách tốc độ prefill và tốc độ decode thay vì báo một con số tokens mỗi giây?
 
 ---
-> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.
+> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

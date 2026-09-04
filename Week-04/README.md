@@ -53,7 +53,7 @@ Nếu bạn vừa học xong Tuần 1 đến 3, mục toán trong `02_theory_not
 ## Deliverables
 
 1. `05_train_mlp.py` chạy được: logistic regression rồi MLP, in accuracy held-out của cả hai và một câu giải thích vì sao khác nhau.
-2. Một **cheat sheet 1 trang** tự viết → `03_math_cheat_sheet.md`: mỗi công thức ghi rõ học ở tuần nào và API PyTorch tương ứng.
+2. Một **cheat sheet 1 trang** tự viết, lưu vào `03_math_cheat_sheet.md`: mỗi công thức ghi rõ học ở tuần nào và API PyTorch tương ứng.
 
 ## Thời lượng
 
@@ -69,10 +69,10 @@ RTX 3070 Ti (hoặc Mac MPS): khối lượng tính toán rất nhẹ.
 
 - [ ] (Tùy chọn) Làm `00_math_bridge.md` + `00_math_bridge_practice.py` nếu ký hiệu toán còn lạ
 - [ ] Đọc bảng "Bạn đến đây với gì" ở trên; mở lại mục Tuần 1-3 nào còn mơ hồ trước khi đi tiếp
-- [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
+- [ ] Làm PyTorch tutorial "Learn the Basics" (tensor, rồi autograd, rồi training loop)
 - [ ] Đọc docs autograd + `nn.Module` của PyTorch
-- [x] Chạy `01_check_gpu.py` → xác nhận CUDA/MPS hoạt động
-  - ✅ 2026-08-11, CUDA khả dụng: RTX 3070 Ti, VRAM 8.0 GB, torch 2.5.1+cu121, Windows. Log: [`../journal/evidence/W04/check_gpu_2026-08-11.log`](../journal/evidence/W04/check_gpu_2026-08-11.log)
+- [x] Chạy `01_check_gpu.py` để xác nhận CUDA/MPS hoạt động
+  - Xác nhận 2026-08-11, CUDA khả dụng: RTX 3070 Ti, VRAM 8.0 GB, torch 2.5.1+cu121, Windows. Log: [`../journal/evidence/W04/check_gpu_2026-08-11.log`](../journal/evidence/W04/check_gpu_2026-08-11.log)
   - Ghi chú cũ trong file này: "MPS khả dụng, macOS arm64, torch 2.12.1". `[Chưa xác minh]`: không có log kèm theo trong repo.
 - [ ] Đọc `02_theory_notes.md`: chạy lại được mọi snippet trong đó
 - [ ] `05_train_mlp.py` phần 2: logistic regression bằng PyTorch; gradient autograd khớp gradient tay của Tuần 3
@@ -83,13 +83,13 @@ RTX 3070 Ti (hoặc Mac MPS): khối lượng tính toán rất nhẹ.
 
 ## Cách dùng Claude làm bạn học (Tuần 4)
 
-- **Giải thích toán:** dán một công thức (vd. cross-entropy) và nhờ Claude dẫn dắt từng bước, rồi nhờ Claude ra 3 câu hỏi kiểm tra.
-- **Review code:** sau khi TỰ code MLP, dán code nhờ Claude so sánh với cách chuẩn, bắt bug. Đừng để Claude viết bản nháp đầu tiên, tự code trước, review sau.
-- **Tạo flashcard/bài tập** tự kiểm tra theo từng chủ đề của tuần.
+- Để được giải thích toán, dán một công thức (vd. cross-entropy) và nhờ Claude dẫn dắt từng bước, rồi nhờ Claude ra 3 câu hỏi kiểm tra.
+- Để review code, sau khi TỰ code MLP, dán code nhờ Claude so sánh với cách chuẩn, bắt bug. Đừng để Claude viết bản nháp đầu tiên, tự code trước, review sau.
+- Nhờ Claude tạo flashcard hoặc bài tập tự kiểm tra theo từng chủ đề của tuần.
 
 > Tiêu chí tự đánh giá: **nếu chưa giải thích được một thành phần cho Claude bằng lời của mình, nghĩa là chưa học xong**: đó là tín hiệu để đi chậm lại.
 
-## 🚀 Bổ sung nâng cao
+## Bổ sung nâng cao
 
 **Tuần này cố ý KHÔNG có mục nâng cao nào.** Bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) để trống cho Tuần 4-5: mọi chủ đề nâng cao (RoPE, GQA, KV cache…) đều cần bạn nắm attention trước, nên đọc sớm chỉ gây tải vô ích.
 

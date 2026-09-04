@@ -1,6 +1,6 @@
 # Tuần 18, Đáp án & Giải thích: Capstone + evaluation/observability
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Tự luận)
 
@@ -15,7 +15,7 @@ Use case capstone khuyến nghị và 3 thành phần kỹ thuật của nó?
 Bộ ba metric đánh giá capstone agentic gồm?
 
 - **A.** Loss, perplexity, BLEU
-- **B.** Success rate, human-override rate, groundedness ✅
+- **B.** Success rate, human-override rate, groundedness (đáp án đúng)
 - **C.** FPS, latency, throughput
 - **D.** Precision, recall, F1 (chỉ vậy)
 
@@ -36,7 +36,7 @@ Vì sao chiến lược 'Claude làm brain + model 7B fine-tuned cho sub-task' l
 'Groundedness' đo điều gì?
 
 - **A.** Tốc độ agent
-- **B.** Mức độ output bám vào/được hỗ trợ bởi tài liệu nguồn (chống bịa) ✅
+- **B.** Mức độ output bám vào/được hỗ trợ bởi tài liệu nguồn (chống bịa) (đáp án đúng)
 - **C.** Số agent dùng
 - **D.** Chi phí token
 
@@ -61,7 +61,7 @@ Viết retrospective 'nối về Phase 1' nghĩa là gì?
 PDF Karpathy-Loop yêu cầu khai báo complexity budget trước mỗi run và làm gì khi hết budget?
 
 - **A.** Chạy tiếp đến khi xong
-- **B.** Trả artifact tốt nhất hiện có kèm danh sách việc chưa xử lý và lý do dừng; không che partial failure sau một câu trả lời trôi chảy ✅
+- **B.** Trả artifact tốt nhất hiện có kèm danh sách việc chưa xử lý và lý do dừng; không che partial failure sau một câu trả lời trôi chảy (đáp án đúng)
 - **C.** Tự động tăng budget
 - **D.** Xóa artifact và báo lỗi
 

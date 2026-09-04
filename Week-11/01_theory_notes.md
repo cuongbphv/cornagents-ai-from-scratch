@@ -18,9 +18,9 @@ Con số thực tế trong [README.md](README.md) (theo bảng requirements củ
 
 ## 2. Ba kỹ thuật trong paper QLoRA: biết để đọc log không hoang mang
 
-1. **NF4 (4-bit NormalFloat)**: 16 mức lượng tử đặt theo phân vị của phân phối chuẩn, paper lập luận đây là lựa chọn tối ưu thông tin cho trọng số phân phối ~chuẩn. Chỉ **base model** bị quantize; adapter LoRA vẫn bf16 và là thứ duy nhất được train.
-2. **Double quantization**: quantize cả các hằng số quantization → tiết kiệm thêm ~0.4 bit/tham số (số của paper).
-3. **Paged optimizers**: đẩy optimizer state sang RAM khi VRAM căng, cứu các cú spike.
+1. NF4 (4-bit NormalFloat) dùng 16 mức lượng tử đặt theo phân vị của phân phối chuẩn; paper lập luận đây là lựa chọn tối ưu thông tin cho trọng số phân phối ~chuẩn. Chỉ **base model** bị quantize; adapter LoRA vẫn bf16 và là thứ duy nhất được train.
+2. Double quantization quantize cả các hằng số quantization, để tiết kiệm thêm ~0.4 bit/tham số (số của paper).
+3. Paged optimizers đẩy optimizer state sang RAM khi VRAM căng, cứu các cú spike.
 
 Điểm bản chất cần nhớ: **gradient không chảy vào trọng số 4-bit**: forward dùng base dequantize từng lớp, backward chỉ cập nhật adapter. Vì thế chất lượng phụ thuộc adapter có đủ dung lượng học (r, target modules) hay không.
 
@@ -28,14 +28,14 @@ Con số thực tế trong [README.md](README.md) (theo bảng requirements củ
 
 Config 8GB trong README (`r=16, α=16, target = toàn bộ attention + MLP projections`) đọc bằng lời:
 
-- **r**: dung lượng học của adapter. r=16 trên ma trận 4096×4096 = 131,072 tham số (0.78%, kiểm chứng Tuần 9). Task hẹp: r=8-16 thường đủ; r to hơn = học được nhiều hơn nhưng dễ overfit dataset nhỏ + tốn VRAM.
-- **α**: hệ số scale `α/r` (Tuần 9). Quy ước phổ biến: α = r hoặc α = 2r; giữ cố định khi thí nghiệm để chỉ xoay một núm.
-- **target modules**: gắn adapter vào đâu. "Tất cả projections" (q,k,v,o + gate/up/down) là khuyến nghị của Unsloth docs; gắn ít hơn → nhẹ hơn nhưng học kém hơn.
-- **Kỷ luật thí nghiệm:** đổi MỘT tham số mỗi lần, giữ seed + dataset + held-out cố định, ghi số vào nhật ký.
+- r là dung lượng học của adapter. r=16 trên ma trận 4096×4096 = 131,072 tham số (0.78%, kiểm chứng Tuần 9). Với task hẹp, r=8-16 thường đủ; r to hơn học được nhiều hơn nhưng dễ overfit dataset nhỏ và tốn VRAM.
+- α là hệ số scale `α/r` (Tuần 9). Quy ước phổ biến là α = r hoặc α = 2r; giữ cố định khi thí nghiệm để chỉ xoay một núm.
+- Target modules quyết định gắn adapter vào đâu. "Tất cả projections" (q,k,v,o + gate/up/down) là khuyến nghị của Unsloth docs; gắn ít hơn thì nhẹ hơn nhưng học kém hơn.
+- Kỷ luật thí nghiệm là đổi MỘT tham số mỗi lần, giữ seed, dataset và held-out cố định, ghi số vào nhật ký.
 
 ## 4. Quy trình chuẩn 8GB: thứ tự chống lãng phí
 
-1. **Smoke test trước** (vài chục step): không OOM + loss giảm → mới chạy full. OOM ở batch 1 + seq 1024 → giảm seq trước, rồi mới nghĩ tới thuê máy (ngưỡng trong README: >24h hoặc OOM batch 1 → 4090/A100).
+1. Smoke test trước (vài chục step); không OOM và loss giảm thì mới chạy full. Nếu OOM ở batch 1 + seq 1024 thì giảm seq trước, rồi mới nghĩ tới thuê máy (ngưỡng trong README: >24h hoặc OOM batch 1 thì chuyển sang 4090/A100).
 2. Theo dõi `torch.cuda.max_memory_allocated()`: ghi số VRAM đỉnh làm bằng chứng.
 3. Lưu adapter (vài chục MB) riêng khỏi base, đây là artifact chính.
 4. Merge + export **GGUF** khi cần chạy Ollama/LM Studio (Tuần 12). GGUF là **định dạng file** của llama.cpp, không phải thuật toán quantize (mục nâng cao B4).
@@ -45,15 +45,15 @@ Config 8GB trong README (`r=16, α=16, target = toàn bộ attention + MLP proje
 - Cắt **held-out set trước khi train**, không bao giờ trộn vào train.
 - So sánh cùng prompt, cùng sampling (temperature 0 khi so nghiêm túc, tái lập được).
 - Loss/perplexity giảm ≠ hữu ích hơn (mục nâng cao H): kèm đánh giá tay trên 10-20 mẫu.
-- So model khác tokenizer → bits-per-byte thay perplexity (Tuần 8, mục 8).
+- So model khác tokenizer thì dùng bits-per-byte thay perplexity (Tuần 8, mục 8).
 - Ghi vào [`03_eval_notes.md`](03_eval_notes.md), giữ held-out này cho mọi lần fine-tune sau.
 
 ## 6. Tiếng Việt trong tuần này
 
-- **Đo tokenizer của base model trên tiếng Việt TRƯỚC khi chọn base**: dùng đúng phương pháp Tuần 6 mục 1.3 (đếm token/từ trên 5-10 câu nghiệp vụ thật). Fertility cao → cùng seq_len 1024 chứa ít nội dung Việt hơn, cùng dataset tốn nhiều compute hơn. Vài dòng code tránh được quyết định sai đắt nhất tuần.
-- Dataset tiếng Việt license sạch đã vet sẵn trong [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) (mục 2, 3, 8): README tuần này gợi ý trộn cụ thể. ⛔ Không thêm nguồn ngoài danh sách đã vet.
-- **Fine-tune dạy hành vi/định dạng, không nhồi kiến thức quy định** (nguyên tắc đã chốt trong README): với văn bản pháp luật VN thay đổi liên tục, kiến thức đi qua RAG (Tuần 13-14); đừng đánh giá model fine-tuned bằng câu hỏi tra cứu điều khoản.
-- Eval held-out nên có **cả câu tiếng Việt lẫn tiếng Anh**: làm nền cho bài kiểm tra catastrophic forgetting ở Tuần 12. Chọn LoRA/QLoRA vốn đã nghiêng về phía giữ song ngữ: Biderman et al. 2024 (PDF trong repo: [`../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf`](../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf)) đo được LoRA "substantially underperforms full finetuning" trong domain đích nhưng "better maintains the base model's performance on tasks outside the target domain", học ít hơn, quên cũng ít hơn. Trade-off này đúng là thứ bạn muốn khi base model gánh cả hai thứ tiếng.
+- Đo tokenizer của base model trên tiếng Việt TRƯỚC khi chọn base, dùng đúng phương pháp Tuần 6 mục 1.3 (đếm token/từ trên 5-10 câu nghiệp vụ thật). Fertility cao nghĩa là cùng seq_len 1024 chứa ít nội dung Việt hơn, và cùng dataset tốn nhiều compute hơn. Vài dòng code tránh được quyết định sai đắt nhất tuần.
+- Dataset tiếng Việt license sạch đã vet sẵn trong [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md) (mục 2, 3, 8): README tuần này gợi ý trộn cụ thể. Không thêm nguồn ngoài danh sách đã vet.
+- Fine-tune dạy hành vi/định dạng, không nhồi kiến thức quy định (nguyên tắc đã chốt trong README). Với văn bản pháp luật VN thay đổi liên tục, kiến thức đi qua RAG (Tuần 13-14); đừng đánh giá model fine-tuned bằng câu hỏi tra cứu điều khoản.
+- Eval held-out nên có **cả câu tiếng Việt lẫn tiếng Anh**, làm nền cho bài kiểm tra catastrophic forgetting ở Tuần 12. Chọn LoRA/QLoRA vốn đã nghiêng về phía giữ song ngữ: Biderman et al. 2024 (PDF trong repo: [`../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf`](../docs/papers/2405.09673_lora-learns-less-forgets-less.pdf)) đo được LoRA "substantially underperforms full finetuning" trong domain đích nhưng "better maintains the base model's performance on tasks outside the target domain", học ít hơn, quên cũng ít hơn. Trade-off này đúng là thứ bạn muốn khi base model gánh cả hai thứ tiếng.
 
 ## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
@@ -67,9 +67,9 @@ Config 8GB trong README (`r=16, α=16, target = toàn bộ attention + MLP proje
 
 ## Sau khi đọc xong
 
-1. Đo fertility tokenizer của 2 base ứng viên trên câu nghiệp vụ VN → chọn base.
-2. Chuẩn bị dataset theo README + cắt held-out.
-3. Smoke test → full run trong [`02_qlora_finetune.py`](02_qlora_finetune.py); ghi VRAM đỉnh + loss.
+1. Đo fertility tokenizer của 2 base ứng viên trên câu nghiệp vụ VN rồi chọn base.
+2. Chuẩn bị dataset theo README và cắt held-out.
+3. Smoke test rồi full run trong [`02_qlora_finetune.py`](02_qlora_finetune.py); ghi VRAM đỉnh + loss.
 4. Eval vào [`03_eval_notes.md`](03_eval_notes.md); export GGUF cho Tuần 12; làm [`quiz.md`](quiz.md).
 
 ## 8. Vì sao quantization 4-bit chạy được, và inference hiệu quả nhìn từ hệ thống
@@ -86,6 +86,6 @@ Cờ `load_in_4bit` của Unsloth gói hai ý tưởng riêng: quantization cho 
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Quantization và adapter là hai nửa của QLoRA.** Fleuret mục 8.2 Quantization (trang 154) và 8.3 Adapters (trang 155) trình bày hai kỹ thuật cạnh nhau trong cùng chương về giới hạn compute; QLoRA ghép cả hai.
-- **Inference hiệu quả.** Xiao và Zhu, *Foundations of LLMs* mục 5.2 (trang 222): tối ưu inference gồm hai loại, "reducing memory requirements and accelerating the system", với quantization và pruning là công cụ. Đọc để đặt cờ 4-bit của Unsloth vào bức tranh chung.
-- **Code tham chiếu mở.** Notebook `chapter12/Chapter 12 - Fine-tuning Generation Models.ipynb` trong repo Hands-On LLM (Apache-2.0) làm SFT và preference tuning bằng TRL, đối chiếu với `02_qlora_finetune.py`.
+- Quantization và adapter là hai nửa của QLoRA. Fleuret mục 8.2 Quantization (trang 154) và 8.3 Adapters (trang 155) trình bày hai kỹ thuật cạnh nhau trong cùng chương về giới hạn compute; QLoRA ghép cả hai.
+- Về inference hiệu quả, Xiao và Zhu, *Foundations of LLMs* mục 5.2 (trang 222) viết rằng tối ưu inference gồm hai loại, "reducing memory requirements and accelerating the system", với quantization và pruning là công cụ. Đọc để đặt cờ 4-bit của Unsloth vào bức tranh chung.
+- Code tham chiếu mở là notebook `chapter12/Chapter 12 - Fine-tuning Generation Models.ipynb` trong repo Hands-On LLM (Apache-2.0) làm SFT và preference tuning bằng TRL, đối chiếu với `02_qlora_finetune.py`.

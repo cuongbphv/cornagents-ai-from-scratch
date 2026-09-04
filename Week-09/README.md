@@ -41,15 +41,15 @@
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md`: chạy lại được mọi snippet trong đó
-- [ ] Classification FT (`01_theory_notes.md` mục 2): chuẩn bị dataset spam + sửa head phân loại
+- [ ] Đọc `01_theory_notes.md` và chạy lại được mọi snippet trong đó
+- [ ] Chuẩn bị dataset spam và sửa head phân loại cho classification FT (`01_theory_notes.md` mục 2)
 - [ ] Fine-tune classifier, đo accuracy train/val/test
-- [ ] Instruction FT (`01_theory_notes.md` mục 3): format instruction dataset (Alpaca-style prompt template)
-- [ ] Instruction fine-tune + sinh phản hồi
-- [ ] Áp dụng LoRA (`01_theory_notes.md` mục 4 + HF PEFT docs): so sánh full FT vs LoRA
-- [ ] Chat thử với mini-model → ghi vài ví dụ
+- [ ] Format instruction dataset theo Alpaca-style prompt template cho instruction FT (`01_theory_notes.md` mục 3)
+- [ ] Instruction fine-tune và sinh phản hồi
+- [ ] Áp dụng LoRA (`01_theory_notes.md` mục 4 + HF PEFT docs) và so sánh full FT vs LoRA
+- [ ] Chat thử với mini-model rồi ghi vài ví dụ
 
-## 🚀 Bổ sung nâng cao (định vị trong pipeline lớn)
+## Bổ sung nâng cao (định vị trong pipeline lớn)
 
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G, chỉ phần sơ đồ pipeline** (đừng đọc hết, phần còn lại là của Tuần 10):
 
@@ -61,7 +61,7 @@ Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR
 
 Mục đích: biết instruction FT của mình nằm ở **đâu** trong pipeline lớn, và **Midtrain** (khái niệm nanochat, không có trong pipeline GPT-2 kinh điển) chen vào trước SFT để dạy format hội thoại + special tokens + tool use.
 
-> ➡️ Tuần 10 sẽ đọc mục **G** đầy đủ (RM, PPO, DPO, GRPO/RLVR).
+> Tuần 10 sẽ đọc mục **G** đầy đủ (RM, PPO, DPO, GRPO/RLVR).
 
 ## File trong folder
 
@@ -74,4 +74,4 @@ Số ở đầu tên file = thứ tự học.
 | 2 | `02_instruction_finetune.py` | Skeleton format dataset + fine-tune loop (TODO) |
 | 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
 
-> ➡️ Tiếp theo: **Tuần 10** đi sâu pipeline alignment (SFT → RM → DPO/PPO → GRPO).
+> Tiếp theo, **Tuần 10** đi sâu pipeline alignment, từ SFT qua RM và DPO/PPO đến GRPO.

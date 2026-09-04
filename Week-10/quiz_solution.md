@@ -1,6 +1,6 @@
 # Tuần 10, Đáp án & Giải thích: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Tự luận)
 
@@ -15,7 +15,7 @@ Phân biệt SFT, DPO và GRPO.
 Reward Model (RM) trong RLHF học để làm gì?
 
 - **A.** Sinh phản hồi cuối cùng cho người dùng
-- **B.** Chấm điểm/so sánh mức ưu tiên giữa các output để hướng dẫn RL ✅
+- **B.** Chấm điểm/so sánh mức ưu tiên giữa các output để hướng dẫn RL (đáp án đúng)
 - **C.** Tokenize dữ liệu
 - **D.** Lưu KV cache
 
@@ -28,7 +28,7 @@ Reward Model (RM) trong RLHF học để làm gì?
 So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 
 - **A.** Bỏ dữ liệu ưu tiên (preference)
-- **B.** Bỏ việc train reward model riêng và vòng lặp PPO, tối ưu thẳng từ cặp ưu tiên ✅
+- **B.** Bỏ việc train reward model riêng và vòng lặp PPO, tối ưu thẳng từ cặp ưu tiên (đáp án đúng)
 - **C.** Bỏ model tham chiếu (reference)
 - **D.** Bỏ tokenizer
 
@@ -49,7 +49,7 @@ So với PPO/RLHF kinh điển, DPO bỏ được thành phần nào?
 [Nâng cao] Bước 'midtrain' (nanochat) nằm ở đâu trong pipeline?
 
 - **A.** Trước pretrain
-- **B.** Giữa pretrain và SFT, dạy format hội thoại, special tokens, tool use ✅
+- **B.** Giữa pretrain và SFT, dạy format hội thoại, special tokens, tool use (đáp án đúng)
 - **C.** Sau GRPO
 - **D.** Thay thế SFT
 
@@ -78,7 +78,7 @@ Jurafsky và Martin viết rằng các phương pháp alignment bằng dữ li�
 Dataset HH-RLHF (Bai et al. 2022) bạn dùng tuần này viết tắt của gì, và điều đó nói gì về nội dung các cặp chosen/rejected?
 
 - **A.** 'Human-Human RLHF', data do hai người chat với nhau
-- **B.** 'Helpful and Harmless', một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn' ✅
+- **B.** 'Helpful and Harmless', một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn' (đáp án đúng)
 - **C.** 'High-quality Human RLHF', data đã lọc chất lượng cao
 - **D.** 'Helpful Hints for RLHF', bộ hướng dẫn gán nhãn
 
@@ -103,7 +103,7 @@ Vì sao nói 'refusal là hành vi được HUẤN LUYỆN, không phải bản 
 GRPO (DeepSeekMath, arXiv 2402.03300) khác PPO ở điểm cốt lõi nào?
 
 - **A.** GRPO không cần reward
-- **B.** GRPO bỏ critic (value network), ước lượng baseline từ điểm của một nhóm output sinh cho cùng prompt ✅
+- **B.** GRPO bỏ critic (value network), ước lượng baseline từ điểm của một nhóm output sinh cho cùng prompt (đáp án đúng)
 - **C.** GRPO không dùng KL
 - **D.** GRPO chỉ dùng cho code
 

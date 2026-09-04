@@ -1,10 +1,10 @@
-# Tuần 10: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
+# Tuần 10: Nhập môn alignment: từ SFT qua Reward Model, DPO/PPO đến GRPO
 
 > Phase 1: Deep Internals (tuần cuối phase). Hiểu pipeline alignment ở mức khái niệm và chạy ít nhất **một stage** from scratch. (Tách từ Tuần 9 cũ để lộ trình bớt dồn.)
 
 ## Mục tiêu
 
-- Hiểu pipeline alignment: **SFT → reward model → PPO/DPO → GRPO** (khái niệm).
+- Hiểu pipeline alignment theo thứ tự **SFT, reward model, PPO/DPO, GRPO** (khái niệm).
 - Chạy **một alignment stage** từ đầu (khuyến nghị bắt đầu với **SFT hoặc DPO**).
 - Phân biệt được SFT vs DPO vs GRPO và biết khi nào dùng cái nào.
 
@@ -30,8 +30,8 @@
 ## Deliverable
 
 - Log/checkpoint của **một stage alignment** đã chạy.
-- Ghi chú phân biệt **SFT vs DPO vs GRPO** → `02_alignment_notes.md`.
-- Loss DPO tự code chạy pass check toy → `03_dpo_skeleton.py`.
+- Ghi chú phân biệt **SFT vs DPO vs GRPO**, viết vào `02_alignment_notes.md`.
+- Loss DPO tự code chạy pass check toy trong `03_dpo_skeleton.py`.
 
 ## Thời lượng
 
@@ -42,32 +42,32 @@
 - 3070 Ti cho stage scaled-down (model nhỏ).
 - Cloud nếu đẩy lên base lớn hơn hoặc full PPO/GRPO (box dev FareedKhan dùng 2×H100 DDP + bf16, chạy scaled-down hoặc thuê).
 
-> **Nếu thiếu thời gian (Phase 1):** nén Tuần 10 còn *hiểu khái niệm* + một lần chạy DPO; hoãn chiều sâu reasoning/GRPO sang sau roadmap.
+> Nếu thiếu thời gian trong Phase 1, nén Tuần 10 còn *hiểu khái niệm* và một lần chạy DPO; hoãn chiều sâu reasoning/GRPO sang sau roadmap.
 
 ---
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md`: tự tính lại được các ví dụ loss trong đó
-- [ ] Vẽ lại pipeline alignment: Pretrain → (Midtrain) → SFT → RM → PPO/DPO → GRPO/RLVR
-- [ ] Đọc FareedKhan `src/post_training/`: hiểu cấu trúc SFT/RM/DPO
+- [ ] Đọc `01_theory_notes.md` và tự tính lại được các ví dụ loss trong đó
+- [ ] Vẽ lại pipeline alignment từ Pretrain qua (Midtrain), SFT, RM, PPO/DPO đến GRPO/RLVR
+- [ ] Đọc FareedKhan `src/post_training/` để hiểu cấu trúc SFT/RM/DPO
 - [ ] Hiểu loss của Reward Model (log-sigmoid của hiệu score)
-- [ ] Hiểu vì sao DPO bỏ được RM riêng + dạng loss DPO
-- [ ] Hiểu GRPO: group-relative advantage, vì sao hợp RLVR (toán/code)
+- [ ] Hiểu vì sao DPO bỏ được RM riêng và dạng loss DPO trông thế nào
+- [ ] Hiểu GRPO, gồm group-relative advantage và vì sao nó hợp RLVR (toán/code)
 - [ ] Chạy MỘT stage alignment (SFT hoặc DPO) scaled-down
-- [ ] Viết `02_alignment_notes.md`: SFT vs DPO vs GRPO
-- [ ] So phản hồi model trước/sau stage đã chạy → ghi ví dụ
+- [ ] Viết `02_alignment_notes.md` so sánh SFT vs DPO vs GRPO
+- [ ] So phản hồi model trước/sau stage đã chạy rồi ghi ví dụ
 
-## 🚀 Bổ sung nâng cao (pipeline alignment đầy đủ)
+## Bổ sung nâng cao (pipeline alignment đầy đủ)
 
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G**:
 
 - Pipeline đầy đủ: `Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR`.
-- **Midtrain** (nanochat): bước *không có* trong pipeline GPT-2 kinh điển: dạy format hội thoại, special tokens, tool use.
-- **GRPO/RLVR**: bỏ critic, chuẩn hoá reward theo nhóm sample; **RLVR** = reward kiểm chứng được (toán đúng/sai, test pass) → nền reasoning model.
-- **Tool-use RL** (nanochat): model học gọi Python để tính/đếm, reward khi kết quả đúng.
+- Midtrain (nanochat) là bước *không có* trong pipeline GPT-2 kinh điển; nó dạy format hội thoại, special tokens, tool use.
+- GRPO/RLVR bỏ critic và chuẩn hoá reward theo nhóm sample; **RLVR** = reward kiểm chứng được (toán đúng/sai, test pass), là nền của reasoning model.
+- Tool-use RL (nanochat) cho model học gọi Python để tính/đếm, reward khi kết quả đúng.
 
-> Nguồn: FareedKhan `src/post_training/` (SFT→RM→PPO→DPO→GRPO pure PyTorch); paper DPO/GRPO; nanochat `chat_sft.py`, `chat_rl.py`.
+> Nguồn: FareedKhan `src/post_training/` (cả năm stage SFT, RM, PPO, DPO, GRPO bằng pure PyTorch); paper DPO/GRPO; nanochat `chat_sft.py`, `chat_rl.py`.
 
 ## File trong folder
 

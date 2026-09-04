@@ -105,7 +105,7 @@ def render_quiz_md(week: dict) -> str:
                     out.append(f"- **{LETTERS[j]}.** {choice}")
                 out.append("")
     out.append("---")
-    out.append("> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, "
+    out.append("> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, "
                "rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.")
     out.append("")
     return "\n".join(out)
@@ -116,7 +116,7 @@ def render_solution_md(week: dict) -> str:
     out = [
         f"# Tuần {n}, Đáp án & Giải thích: {title}",
         "",
-        "> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.",
+        "> Chỉ mở sau khi đã tự trả lời `quiz.md`.",
         "",
     ]
     base = [q for q in qs if q.get("level") != "advanced"]
@@ -135,7 +135,7 @@ def render_solution_md(week: dict) -> str:
         if q.get("type") == "mcq":
             ans_idx = q["answer"]
             for j, choice in enumerate(q["choices"]):
-                mark = " ✅" if j == ans_idx else ""
+                mark = " (đáp án đúng)" if j == ans_idx else ""
                 out.append(f"- **{LETTERS[j]}.** {choice}{mark}")
             out.append("")
             out.append(f"**Đáp án: {LETTERS[ans_idx]}**")

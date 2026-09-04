@@ -26,4 +26,4 @@
 1. Mặc định **Unsloth QLoRA trên 3070 Ti** cho 7B-8B.
 2. Dùng **Mac/MLX** khi cần 13B-14B hoặc chạy im lặng/lâu.
 3. Thuê **A100** chỉ khi cần full fine-tune hoặc lặp nhanh.
-4. *Threshold:* fine-tune > 24h local hoặc OOM ở batch 1 → lên cloud.
+4. Ngưỡng chuyển máy: fine-tune > 24h local hoặc OOM ở batch 1 thì lên cloud.

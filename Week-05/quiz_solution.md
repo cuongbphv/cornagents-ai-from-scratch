@@ -1,6 +1,6 @@
 # Tuần 5, Đáp án & Giải thích: Backprop từ đầu + mental model Transformer
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Tự luận)
 
@@ -15,7 +15,7 @@ Trong micrograd, mỗi đối tượng Value lưu những gì và làm gì khi b
 backward() duyệt đồ thị theo thứ tự nào?
 
 - **A.** Thứ tự ngẫu nhiên
-- **B.** Thứ tự topo NGƯỢC (từ output về input) ✅
+- **B.** Thứ tự topo NGƯỢC (từ output về input) (đáp án đúng)
 - **C.** Theo thứ tự khởi tạo biến
 - **D.** Theo độ lớn của grad
 
@@ -36,7 +36,7 @@ Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta 
 Đạo hàm của tanh(x) là gì (hay gặp khi tự code backward)?
 
 - **A.** tanh(x)
-- **B.** 1 - tanh^2(x) ✅
+- **B.** 1 - tanh^2(x) (đáp án đúng)
 - **C.** x(1-x)
 - **D.** e^x / (1+e^x)
 
@@ -49,7 +49,7 @@ Vì sao self-attention là 'permutation-equivariant' và điều đó buộc ta 
 Khi một biến được dùng ở NHIỀU nhánh của đồ thị, gradient của nó được xử lý thế nào?
 
 - **A.** Lấy gradient lớn nhất
-- **B.** Cộng dồn (+=) gradient từ tất cả các nhánh ✅
+- **B.** Cộng dồn (+=) gradient từ tất cả các nhánh (đáp án đúng)
 - **C.** Ghi đè bằng gradient cuối cùng
 - **D.** Lấy trung bình
 
@@ -82,7 +82,7 @@ Bạn vừa điền xong _backward cho các phép trong micrograd nhưng chưa m
 Backward của micrograd duyệt đồ thị theo thứ tự topo đảo ngược. Vì sao thứ tự này là bắt buộc, không chỉ là tiện?
 
 - **A.** Vì Python yêu cầu duyệt tập hợp theo thứ tự
-- **B.** Vì khi một node phát gradient xuống toán hạng, gradient của chính nó phải đã được cộng đủ từ mọi nhánh phía trên; thứ tự topo đảo ngược bảo toàn điều đó ✅
+- **B.** Vì khi một node phát gradient xuống toán hạng, gradient của chính nó phải đã được cộng đủ từ mọi nhánh phía trên; thứ tự topo đảo ngược bảo toàn điều đó (đáp án đúng)
 - **C.** Vì thứ tự topo giúp giảm bộ nhớ
 - **D.** Vì tanh chỉ khả vi theo thứ tự đó
 

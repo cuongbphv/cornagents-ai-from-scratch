@@ -9,10 +9,10 @@
 
 ## 2. Nối về internals (trả lời bằng lời mình)
 
-- **Attention/transformer** (Tuần 6-7): hiểu biết này giúp tôi quyết định gì ở capstone? (vd. context window, vì sao chunk size quan trọng) ______
-- **Pretraining/cross-entropy** (Tuần 8): vì sao model "biết" những gì nó biết, và giới hạn ở đâu? ______
-- **Fine-tuning/alignment** (Tuần 9-11): khi nào fine-tune thắng prompting? Tôi đã chọn thế nào? ______
-- **RAG vs fine-tune**: tôi quyết định dùng cái nào cho phần nào, vì sao? ______
+- Hiểu biết về attention/transformer (Tuần 6-7) giúp tôi quyết định gì ở capstone? (vd. context window, vì sao chunk size quan trọng) ______
+- Từ pretraining/cross-entropy (Tuần 8), vì sao model "biết" những gì nó biết, và giới hạn ở đâu? ______
+- Từ fine-tuning/alignment (Tuần 9-11), khi nào fine-tune thắng prompting? Tôi đã chọn thế nào? ______
+- Giữa RAG và fine-tune, tôi quyết định dùng cái nào cho phần nào, vì sao? ______
 
 ## 3. Quyết định kiến trúc & đánh đổi
 
@@ -31,4 +31,4 @@
 - Mở rộng CornAgents.AI: ______
 
 ---
-*Tiêu chí tự đánh giá xuyên suốt:* nếu giải thích được mọi thành phần cho Claude bằng lời mình → bạn đã thực sự nắm.
+*Tiêu chí tự đánh giá xuyên suốt:* nếu giải thích được mọi thành phần cho Claude bằng lời mình thì bạn đã thực sự nắm.

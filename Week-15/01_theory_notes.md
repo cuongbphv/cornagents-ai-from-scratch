@@ -13,14 +13,13 @@ while chưa xong:
     gather context → gọi model → model chọn tool → chạy tool → đưa kết quả về model
 ```
 
-- **Tool** = hàm có schema (tên, mô tả, tham số): model không "chạy" gì cả, nó chỉ **sinh yêu cầu gọi tool**; harness của bạn chạy thật rồi trả kết quả vào context. Hiểu điểm này là hiểu một nửa agent engineering: chất lượng agent = chất lượng tool + mô tả tool.
-- **Subagent** = agent con được giao task hẹp, có context riêng, cách chống phình context window của agent chính.
+Tool là hàm có schema (tên, mô tả, tham số). Model không "chạy" gì cả, nó chỉ **sinh yêu cầu gọi tool**; harness của bạn chạy thật rồi trả kết quả vào context. Hiểu điểm này là hiểu một nửa agent engineering: chất lượng agent = chất lượng tool + mô tả tool. Subagent là agent con được giao task hẹp, có context riêng, và là cách chống phình context window của agent chính.
 
 Loop này không phải phát minh của SDK nào, nó là hậu duệ trực tiếp của hai paper (cả hai có PDF trong repo): CoT (Wei et al. 2022, [`../docs/papers/2201.11903_chain-of-thought-prompting.pdf`](../docs/papers/2201.11903_chain-of-thought-prompting.pdf)) cho model "nghĩ thành lời" trước khi trả lời, rồi ReAct (Yao et al. 2022, [`../docs/papers/2210.03629_react-reasoning-acting.pdf`](../docs/papers/2210.03629_react-reasoning-acting.pdf)) đan xen reasoning với **hành động gọi tool** và quan sát kết quả. Đọc ReAct xong sẽ thấy agent loop ở trên chỉ là ReAct được đóng gói tử tế.
 
 ## 2. Năm tầng engineering: bản đồ định vị mọi vấn đề
 
-Từ `docs/5-layers-multi-agent.jpg` (bảng đầy đủ trong [README.md](README.md)): Prompt → Context → Harness → Loop → Graph. Giá trị thực dụng nhất là **chẩn đoán theo tầng** (mục nâng cao I1):
+Từ `docs/5-layers-multi-agent.jpg` (bảng đầy đủ trong [README.md](README.md)): Prompt, Context, Harness, Loop rồi Graph. Giá trị thực dụng nhất là **chẩn đoán theo tầng** (mục nâng cao I1):
 
 | Triệu chứng | Tầng lỗi |
 |-------------|----------|
@@ -34,7 +33,7 @@ Nguyên tắc gốc: **model là commodity, hệ thống quanh nó mới là eng
 
 ## 3. MCP: chuẩn nối agent với thế giới ngoài
 
-Model Context Protocol (modelcontextprotocol.io, xác minh 2026-08-11): chuẩn mở nối AI app với hệ thống ngoài, ví von chính thức của docs là "cổng USB-C cho AI". Kiến trúc: **MCP server** (bọc một nguồn dữ liệu/tool: filesystem, GitHub, Postgres...) ↔ **MCP client** (app AI của bạn) qua transport chuẩn. Giá trị: viết tool một lần, mọi client dùng được, thay vì mỗi framework một kiểu adapter. Task tuần này: nối đúng **một** server (filesystem hoặc GitHub) và gọi được nó từ agent.
+Model Context Protocol (modelcontextprotocol.io, xác minh 2026-08-11): chuẩn mở nối AI app với hệ thống ngoài, ví von chính thức của docs là "cổng USB-C cho AI". Kiến trúc gồm **MCP server** (bọc một nguồn dữ liệu/tool: filesystem, GitHub, Postgres...) nói chuyện hai chiều với **MCP client** (app AI của bạn) qua transport chuẩn. Giá trị: viết tool một lần, mọi client dùng được, thay vì mỗi framework một kiểu adapter. Task tuần này: nối đúng **một** server (filesystem hoặc GitHub) và gọi được nó từ agent.
 
 ## 4. Reflective loop: loop có đo lường, không phải while(true)
 
@@ -44,20 +43,18 @@ Cấu trúc từ `docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf` (mục II, 
 generate → evaluate (tiêu chí tường minh) → revise → check stopping rule → lặp
 ```
 
-- **Evaluator có tiêu chí viết ra được**: "nhìn ổn" không phải tiêu chí; rubric/test/schema mới là.
-- **Stopping rule khai báo trước**: max rounds + budget + điều kiện đạt. Thiếu nó là tầng 4 hỏng.
-- **Lưu mọi artifact mỗi vòng**: để so vòng sau hơn vòng trước thật không (đây là tính "ratchet": chỉ giữ cải thiện).
+Evaluator phải có tiêu chí viết ra được: "nhìn ổn" không phải tiêu chí; rubric/test/schema mới là. Stopping rule phải khai báo trước, gồm max rounds, budget và điều kiện đạt; thiếu nó là tầng 4 hỏng. Mọi artifact mỗi vòng phải được lưu lại để so vòng sau có hơn vòng trước thật không (đây là tính "ratchet": chỉ giữ cải thiện).
 
 Bốn điều kiện làm loop kiểu này chạy được (từ PDF, thuộc lòng): **output verifiable, action reversible, horizon ngắn, environment bounded.** Task nào thiếu điều kiện nào thì bổ sung cơ chế bù (verify bằng gì? undo bằng gì? cắt nhỏ thế nào? giới hạn phạm vi ra sao?) trước khi cho agent tự chạy.
 
 ## 5. Chọn orchestration layer: quyết định của tuần
 
-Khung so sánh cho lựa chọn LangGraph vs CrewAI (tiêu chí từ README): domain tài chính có kiểm soát → ưu tiên **stateful + auditable** (trace lại được ai làm gì, state lưu ngoài transcript, human gate chèn được vào giữa graph). Ghi quyết định + lý do vào [`03_cornagents_architecture.md`](03_cornagents_architecture.md): quyết định sai sửa được, quyết định không ghi lý do thì không học được gì.
+Khung so sánh cho lựa chọn LangGraph vs CrewAI (tiêu chí từ README): domain tài chính có kiểm soát dẫn tới ưu tiên **stateful + auditable** (trace lại được ai làm gì, state lưu ngoài transcript, human gate chèn được vào giữa graph). Ghi quyết định + lý do vào [`03_cornagents_architecture.md`](03_cornagents_architecture.md): quyết định sai sửa được, quyết định không ghi lý do thì không học được gì.
 
 ## 6. Tiếng Việt trong tuần này
 
-- **Quy ước hai lớp ngôn ngữ, giữ nhất quán từ tuần này về sau:** phần "máy đọc" (tên tool, schema, field name, code) bằng tiếng Anh theo quy ước hệ sinh thái; phần "nội dung nghiệp vụ" (system prompt mô tả nghiệp vụ, dữ liệu, output cho người dùng) bằng tiếng Việt. Trộn lẫn hai lớp làm cả người lẫn model khó bảo trì.
-- **Test agent với input tiếng Việt ngay từ tuần này**, đừng đợi capstone: dữ liệu tiếng Việt đi xuyên tool boundary (đọc file → JSON → context) là chỗ lộ lỗi encoding/NFC (Tuần 13 mục 6) sớm nhất. Một test "đọc file .md tiếng Việt có dấu → tóm tắt đúng tên riêng" là đủ làm canary.
+- Quy ước hai lớp ngôn ngữ, giữ nhất quán từ tuần này về sau: phần "máy đọc" (tên tool, schema, field name, code) bằng tiếng Anh theo quy ước hệ sinh thái; phần "nội dung nghiệp vụ" (system prompt mô tả nghiệp vụ, dữ liệu, output cho người dùng) bằng tiếng Việt. Trộn lẫn hai lớp làm cả người lẫn model khó bảo trì.
+- Test agent với input tiếng Việt ngay từ tuần này, đừng đợi capstone: dữ liệu tiếng Việt đi xuyên tool boundary (từ đọc file sang JSON rồi vào context) là chỗ lộ lỗi encoding/NFC (Tuần 13 mục 6) sớm nhất. Một test đọc file .md tiếng Việt có dấu rồi tóm tắt đúng tên riêng là đủ làm canary.
 - [Suy luận] Mô tả tool bằng tiếng Anh nhưng ví dụ trong mô tả nên chứa cả mẫu tiếng Việt nếu tool sẽ nhận dữ liệu Việt, model chọn tool theo mô tả, ví dụ sát thực tế giúp chọn đúng; dựa trên cơ chế tool-choice đọc mô tả, chưa có đo lường riêng cho tiếng Việt.
 
 ## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
@@ -93,6 +90,6 @@ Năm tầng engineering ở mục 1 là khung của repo. Mục này đối chi�
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Prompt engineering có hệ thống.** Xiao và Zhu, *Foundations of LLMs* mục 3.1 General Prompt Design (trang 97) nói rõ prompt phụ thuộc model nên sách không đưa danh sách prompt, chỉ đưa nguyên tắc; mục 3.2 Advanced Prompting Methods là chain-of-thought và các biến thể, cùng paper CoT trong kệ paper. Đây là tầng 1 trong 5 tầng của tuần.
-- **Agents theo giáo trình NLP.** SLP3 mục 1.8 Agents (trang 24) đặt agent trong bức tranh chung của LLM ngay ở chương mở đầu; chương 12 Agents của sách chưa viết xong tại bản nháp 19/08/2026.
-- **Code tham chiếu mở.** Notebook `chapter06/Chapter 6 - Prompt Engineering.ipynb` trong repo Hands-On LLM (Apache-2.0).
+- Prompt engineering có hệ thống nằm ở Xiao và Zhu, *Foundations of LLMs* mục 3.1 General Prompt Design (trang 97): sách nói rõ prompt phụ thuộc model nên không đưa danh sách prompt, chỉ đưa nguyên tắc; mục 3.2 Advanced Prompting Methods là chain-of-thought và các biến thể, cùng paper CoT trong kệ paper. Đây là tầng 1 trong 5 tầng của tuần.
+- Agents theo giáo trình NLP nằm ở SLP3 mục 1.8 Agents (trang 24), đặt agent trong bức tranh chung của LLM ngay ở chương mở đầu; chương 12 Agents của sách chưa viết xong tại bản nháp 19/08/2026.
+- Code tham chiếu mở là notebook `chapter06/Chapter 6 - Prompt Engineering.ipynb` trong repo Hands-On LLM (Apache-2.0).

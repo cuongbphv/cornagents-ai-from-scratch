@@ -66,4 +66,4 @@ Backward của micrograd duyệt đồ thị theo thứ tự topo đảo ngượ
 Weight tying trong nanoGPT gán wte.weight = lm_head.weight. Hãy giải thích ảnh hưởng lên số tham số và lên gradient của ma trận embedding.
 
 ---
-> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.
+> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

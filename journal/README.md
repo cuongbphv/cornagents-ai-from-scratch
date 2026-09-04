@@ -6,8 +6,8 @@ Mỗi tuần một file, đặt tên theo tuần lộ trình + tuần lịch: `W
 
 1. **Không có bằng chứng thì không tick "Done".** Mỗi kết quả phải kèm ít nhất một loại evidence: lệnh đã chạy + output thật, commit hash, đường dẫn file artifact, hoặc số liệu đo được.
 2. **Số liệu phải kèm ngày đo và cách đo** (lệnh, script, dataset, seed nếu có). Số nhớ mang máng → ghi `[Chưa xác minh]`.
-3. **Ghi cả thất bại**: OOM, loss không giảm, kết quả tệ hơn baseline, đây là dữ liệu quý nhất khi nhìn lại.
-4. **Evidence lưu tại chỗ**: output dài thì lưu vào `journal/evidence/W11/` và link tới, không paste 500 dòng vào nhật ký.
+3. Ghi cả thất bại (OOM, loss không giảm, kết quả tệ hơn baseline), vì đây là dữ liệu quý nhất khi nhìn lại.
+4. Evidence lưu tại chỗ: output dài thì lưu vào `journal/evidence/W11/` và link tới, không paste 500 dòng vào nhật ký.
 5. Ghi bằng thì quá khứ, sự việc đã xảy ra, không ghi dự định như thể đã làm.
 
 ## Cấu trúc thư mục

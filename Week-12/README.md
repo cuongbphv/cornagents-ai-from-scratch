@@ -29,7 +29,7 @@ Fine-tune 7B-8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qua 
 
 - Local inference stack hoạt động (Ollama + LM Studio).
 - Một model MLX đã fine-tune.
-- Ghi chú ngắn: khi nào dùng **Mac vs 3070 Ti vs cloud** → `03_hardware_decision.md`.
+- Ghi chú ngắn về khi nào dùng **Mac vs 3070 Ti vs cloud**, viết vào `03_hardware_decision.md`.
 
 ## Thời lượng
 
@@ -43,12 +43,12 @@ Fine-tune 7B-8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qua 
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md`: chốt bộ 10 prompt song ngữ TRƯỚC khi fine-tune
+- [ ] Đọc `01_theory_notes.md` và chốt bộ 10 prompt song ngữ TRƯỚC khi fine-tune
 - [ ] Cài `mlx-lm` (`pip install mlx-lm`) trên Mac
 - [ ] Tải model MLX-format (HF `mlx-community/...`)
 - [ ] LoRA fine-tune: `mlx_lm.lora --model ... --train --data ... --iters 500`
 - [ ] Fuse adapter: `mlx_lm.fuse --model ... --adapter-path ...`
-- [ ] Cài Ollama + tạo Modelfile cho model GGUF (từ Tuần 11) / MLX
+- [ ] Cài Ollama và tạo Modelfile cho model GGUF (từ Tuần 11) / MLX
 - [ ] Cài LM Studio, load model, test chat
 - [ ] So tốc độ Mac vs 3070 Ti trên cùng prompt
 - [ ] Viết `03_hardware_decision.md`
@@ -57,9 +57,9 @@ Fine-tune 7B-8B bằng LoRA/QLoRA trong MLX trên Mac, fuse adapter, chạy qua 
 
 Tuần này bạn serve model thật, nên các mục sau trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) rất sát:
 
-- **B1 KV cache**: bộ nhớ KV cache ≈ `2 · n_layers · n_kv_heads · d_head · seq · dtype`, chính là nút thắt VRAM khi context dài. Đây là lý do GQA/MQA/MLA tồn tại.
-- **B3 Speculative decoding**: model "nháp" nhỏ đề xuất, model lớn verify song song → nhanh hơn mà không đổi phân phối. Tuần này **chạy thử được luôn** trên stack local: cơ chế + flag đã kiểm (llama.cpp `--model-draft`, mlx_lm `--draft-model`) ở [`01_theory_notes.md`](01_theory_notes.md) mục 8, lệnh sẵn dùng ở [`02_mlx_commands.md`](02_mlx_commands.md) mục 6.
-- **B4 GGUF**: nhắc lại cho rõ: GGUF là **định dạng file** của llama.cpp (Q4_K_M, Q5_K_M…), *không phải* thuật toán lượng tử hoá. Đây chính là thứ Ollama/LM Studio load.
+- Mục B1 (KV cache) tính bộ nhớ KV cache ≈ `2 · n_layers · n_kv_heads · d_head · seq · dtype`, chính là nút thắt VRAM khi context dài. Đây là lý do GQA/MQA/MLA tồn tại.
+- Mục B3 (Speculative decoding) mô tả cách model "nháp" nhỏ đề xuất, model lớn verify song song, cho ra tốc độ nhanh hơn mà không đổi phân phối. Tuần này **chạy thử được luôn** trên stack local: cơ chế + flag đã kiểm (llama.cpp `--model-draft`, mlx_lm `--draft-model`) ở [`01_theory_notes.md`](01_theory_notes.md) mục 8, lệnh sẵn dùng ở [`02_mlx_commands.md`](02_mlx_commands.md) mục 6.
+- Mục B4 (GGUF) nhắc lại cho rõ rằng GGUF là **định dạng file** của llama.cpp (Q4_K_M, Q5_K_M…), *không phải* thuật toán lượng tử hoá. Đây chính là thứ Ollama/LM Studio load.
 
 > Nguồn: nanochat `engine.py` (KV cache); docs llama.cpp/GGUF (quantization).
 

@@ -13,7 +13,7 @@ logits = model(xb)                                    # (B, T, V)
 loss = F.cross_entropy(logits.flatten(0, 1), yb.flatten())
 ```
 
-**Perplexity** = `exp(loss)`: loss 3.5 → PPL ≈ 33.1 ("phân vân giữa ~33 lựa chọn"); loss 0 → PPL 1 (kiểm chứng 2026-08-11). Mốc so sánh trong README: GPT-2 gốc loss ~3.5 trên miền dữ liệu tương đương.
+**Perplexity** = `exp(loss)`: loss 3.5 cho PPL ≈ 33.1 ("phân vân giữa ~33 lựa chọn"); loss 0 cho PPL 1 (kiểm chứng 2026-08-11). Mốc so sánh trong README: GPT-2 gốc loss ~3.5 trên miền dữ liệu tương đương.
 
 ## 2. Train/val split: biết mình đang học hay đang thuộc lòng
 
@@ -26,7 +26,7 @@ it < warmup:  lr = max_lr · (it+1)/warmup            (tăng tuyến tính)
 sau đó:       lr = min_lr + 0.5·(1+cos(π·tiến_độ))·(max_lr − min_lr)
 ```
 
-Giá trị kiểm chứng với `max_lr=6e-4, min_lr=6e-5, warmup=100, max_it=1000`: it=0 → 6.0e-6; it=100 → 6.0e-4 (đỉnh); it=550 → 3.3e-4 (lưng chừng cosine); it=1000 → 6.0e-5 (đáy). [Suy luận] Warmup giúp tránh bước cập nhật quá lớn khi các thống kê moment của AdamW chưa ổn định ở những step đầu, lập luận phổ biến, hiệu quả cụ thể phải nhìn loss curve của chính bạn.
+Giá trị kiểm chứng với `max_lr=6e-4, min_lr=6e-5, warmup=100, max_it=1000`: tại it=0 lr là 6.0e-6; tại it=100 là 6.0e-4 (đỉnh); tại it=550 là 3.3e-4 (lưng chừng cosine); tại it=1000 là 6.0e-5 (đáy). [Suy luận] Warmup giúp tránh bước cập nhật quá lớn khi các thống kê moment của AdamW chưa ổn định ở những step đầu, lập luận phổ biến, hiệu quả cụ thể phải nhìn loss curve của chính bạn.
 
 ## 4. Gradient clipping: cầu chì chống loss spike
 
@@ -47,8 +47,7 @@ Số đo từ `torch.finfo` (kiểm chứng 2026-08-11):
 | float16 | 65,504 | 9.8e-4 |
 | bfloat16 | 3.39e38 | 7.8e-3 |
 
-- **fp16**: mịn hơn nhưng max chỉ 65,504 → dễ overflow → cần **GradScaler**.
-- **bf16**: range bằng fp32 → không cần scaler, code đơn giản hơn; đổi lại kém mịn. GPU Ampere (3070 Ti) trở lên hỗ trợ bf16.
+fp16 mịn hơn nhưng max chỉ 65,504, nên dễ overflow và cần **GradScaler**. bf16 có range bằng fp32, nên không cần scaler và code đơn giản hơn; đổi lại kém mịn. GPU Ampere (3070 Ti) trở lên hỗ trợ bf16.
 
 ```python
 with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
@@ -57,7 +56,7 @@ with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
 
 ## 6. Gradient accumulation: batch to trên VRAM nhỏ
 
-Effective batch (token/update) = `micro_batch × seq_len × accum_steps`. Mục tiêu README ~524,288 token/update: với micro-batch 1 × seq 1024 → cần **512** accum steps; micro-batch 2 → 256 (số học, tự kiểm). Cách làm: cộng dồn `loss/accum_steps` qua `backward()` nhiều lần, `step()` + `zero_grad()` mỗi `accum_steps` lần, chính là tận dụng tính chất grad **cộng dồn** đã học ở Tuần 5.
+Effective batch (token/update) = `micro_batch × seq_len × accum_steps`. Mục tiêu README ~524,288 token/update: với micro-batch 1 × seq 1024 cần **512** accum steps; micro-batch 2 cần 256 (số học, tự kiểm). Cách làm: cộng dồn `loss/accum_steps` qua `backward()` nhiều lần, `step()` + `zero_grad()` mỗi `accum_steps` lần, chính là tận dụng tính chất grad **cộng dồn** đã học ở Tuần 5.
 
 ## 7. Checkpointing: không mất công train vì một lần rớt điện/cloud
 
@@ -65,19 +64,19 @@ Lưu đủ 3 thứ mới resume đúng: `model.state_dict()`, `optimizer.state_d
 
 ## 8. Tiếng Việt trong tuần này
 
-- **Model chỉ biết ngôn ngữ có trong corpus pretrain.** FineWeb/FineWeb-Edu trong task tuần này thiên tiếng Anh, model bạn pretrain ra sẽ không đọc được tiếng Việt, và đó là kỳ vọng đúng. Nhân tiện, paper FineWeb (PDF trong repo, xem bảng Nguồn) đáng một buổi đọc: FineWeb là "a 15-trillion token dataset derived from 96 Common Crawl snapshots", FineWeb-Edu là subset giáo dục 1.3T token, và các tác giả tài liệu hóa từng quyết định lọc/dedup của mình, muốn biết một corpus web-scale được "nấu" ra sao thì hiếm chỗ nào kể kỹ hơn. Muốn có khả năng tiếng Việt phải có corpus Việt trong pretrain (hoặc dùng base đa ngôn ngữ rồi fine-tune, hướng của Tuần 11-12; nguồn corpus VN license sạch: xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
-- **Ngân sách token lệch theo ngôn ngữ:** cùng 1 GB văn bản, tiếng Việt sinh ra nhiều token hơn tiếng Anh với tokenizer thiên Anh (fertility đo ở Tuần 6) → "1B token" tiếng Việt chứa **ít nội dung hơn** 1B token tiếng Anh. Khi đọc bất kỳ báo cáo pretrain đa ngôn ngữ nào, hỏi ngay: token đếm bằng tokenizer nào?
-- **So sánh chéo ngôn ngữ/tokenizer thì bỏ perplexity, dùng bits-per-byte** (mục nâng cao H): PPL phụ thuộc tokenizer, cùng một văn bản, tokenizer khác nhau cho PPL khác nhau dù model "giỏi" như nhau; bits-per-byte chuẩn hóa theo byte nên so được.
+- Model chỉ biết ngôn ngữ có trong corpus pretrain. FineWeb/FineWeb-Edu trong task tuần này thiên tiếng Anh, model bạn pretrain ra sẽ không đọc được tiếng Việt, và đó là kỳ vọng đúng. Nhân tiện, paper FineWeb (PDF trong repo, xem bảng Nguồn) đáng một buổi đọc: FineWeb là "a 15-trillion token dataset derived from 96 Common Crawl snapshots", FineWeb-Edu là subset giáo dục 1.3T token, và các tác giả tài liệu hóa từng quyết định lọc/dedup của mình, muốn biết một corpus web-scale được "nấu" ra sao thì hiếm chỗ nào kể kỹ hơn. Muốn có khả năng tiếng Việt phải có corpus Việt trong pretrain (hoặc dùng base đa ngôn ngữ rồi fine-tune, hướng của Tuần 11-12; nguồn corpus VN license sạch: xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)).
+- Ngân sách token lệch theo ngôn ngữ. Cùng 1 GB văn bản, tiếng Việt sinh ra nhiều token hơn tiếng Anh với tokenizer thiên Anh (fertility đo ở Tuần 6), nên "1B token" tiếng Việt chứa **ít nội dung hơn** 1B token tiếng Anh. Khi đọc bất kỳ báo cáo pretrain đa ngôn ngữ nào, hỏi ngay: token đếm bằng tokenizer nào?
+- So sánh chéo ngôn ngữ/tokenizer thì bỏ perplexity, dùng bits-per-byte (mục nâng cao H). PPL phụ thuộc tokenizer, cùng một văn bản, tokenizer khác nhau cho PPL khác nhau dù model "giỏi" như nhau; bits-per-byte chuẩn hóa theo byte nên so được.
 
 ## 9. Scaling laws: compute/data/params trade-off
 
 Hai paper trả lời câu hỏi "model bao nhiêu tham số, train bao nhiêu token thì đáng đồng compute": cả hai đã xác minh abstract trên arXiv ngày 2026-08-16 (link-only trong [`../docs/papers/README.md`](../docs/papers/README.md), gắn Tuần 8).
 
-**Kaplan et al. 2020 (arXiv 2001.08361):** loss của language model giảm theo **power law** với cả 3 đại lượng, số tham số, kích thước dataset, lượng compute, "with some trends spanning more than seven orders of magnitude" (nguyên văn abstract). Kết luận thời đó: model lớn sample-efficient hơn, nên ưu tiên tăng tham số, dừng train trước khi hội tụ.
+Kaplan et al. 2020 (arXiv 2001.08361) cho thấy loss của language model giảm theo **power law** với cả 3 đại lượng, số tham số, kích thước dataset, lượng compute, "with some trends spanning more than seven orders of magnitude" (nguyên văn abstract). Kết luận thời đó: model lớn sample-efficient hơn, nên ưu tiên tăng tham số, dừng train trước khi hội tụ.
 
-**Hoffmann et al. 2022, "Chinchilla" (arXiv 2203.15556):** đo lại kỹ hơn và sửa kết luận trên: "for compute-optimal training, the model size and the number of training tokens should be scaled equally" (nguyên văn abstract): tức đa số model đời trước bị **thiếu token** so với kích thước. Bằng chứng trong paper (Table 1, kiểm bản HTML ar5iv 2026-08-16): Chinchilla 70B tham số / 1.4T token, chia ra đúng **20 token/tham số** (số học, tự kiểm); Table 3 chiếu 67B → 1.5T token ≈ 22 token/tham số. Lưu ý paper **không phát biểu** con số "20 token/param" thành quy tắc, đó là tỷ lệ cộng đồng rút ra từ các bảng trên, và nó chỉ đúng quanh vùng compute paper đã fit.
+Hoffmann et al. 2022, "Chinchilla" (arXiv 2203.15556), đo lại kỹ hơn và sửa kết luận trên: "for compute-optimal training, the model size and the number of training tokens should be scaled equally" (nguyên văn abstract): tức đa số model đời trước bị **thiếu token** so với kích thước. Bằng chứng trong paper (Table 1, kiểm bản HTML ar5iv 2026-08-16): Chinchilla 70B tham số / 1.4T token, chia ra đúng **20 token/tham số** (số học, tự kiểm); Table 3 chiếu 67B tham số ứng với 1.5T token, tức ≈ 22 token/tham số. Lưu ý paper **không phát biểu** con số "20 token/param" thành quy tắc, đó là tỷ lệ cộng đồng rút ra từ các bảng trên, và nó chỉ đúng quanh vùng compute paper đã fit.
 
-**Áp vào chính tuần này** (số học, tự kiểm):
+Áp vào chính tuần này (số học, tự kiểm):
 
 ```
 GPT-2-small:  124M tham số × ~20 token/tham số ≈ 2.5B token  (mốc Chinchilla-optimal)
@@ -93,17 +92,15 @@ Khi đọc README các model đời nay, thấy "8B params, 15T tokens" đừng 
 
 Thuê GPU mới là nửa việc; nửa kia là dữ liệu. Paper FineWeb (PDF local, xem bảng Nguồn; đọc bản PDF ngày 2026-08-16) dành các mục 3.4-3.6 để ablate từng quyết định lọc và dedup.
 
-**Vì sao dedup quan trọng, và không phải "càng dedup càng tốt".** FineWeb §3.4: dedup MinHash **toàn cục** trên cả 96 snapshot loại tới 90% dữ liệu ở các snapshot cũ nhưng model "showed little improvement over a model trained on the non-deduplicated data" (nguyên văn); kiểm tra lại thì phần dữ liệu bị giữ lại của snapshot cũ "contains more ads, incoherent lists of keywords and generally badly formatted text" hơn phần bị loại. Chuyển sang dedup **từng snapshot độc lập** thì điểm benchmark mới cải thiện (Fig. 5). Bài học: dedup là để loại các **cụm trùng lặp khổng lồ**, không phải để vắt kiệt mọi cặp na ná nhau.
+Dedup quan trọng, nhưng không phải "càng dedup càng tốt". FineWeb §3.4: dedup MinHash **toàn cục** trên cả 96 snapshot loại tới 90% dữ liệu ở các snapshot cũ nhưng model "showed little improvement over a model trained on the non-deduplicated data" (nguyên văn); kiểm tra lại thì phần dữ liệu bị giữ lại của snapshot cũ "contains more ads, incoherent lists of keywords and generally badly formatted text" hơn phần bị loại. Chuyển sang dedup **từng snapshot độc lập** thì điểm benchmark mới cải thiện (Fig. 5). Bài học: dedup là để loại các **cụm trùng lặp khổng lồ**, không phải để vắt kiệt mọi cặp na ná nhau.
 
-**Exact vs near-dup:**
-- *Exact dup*: hai document giống hệt nhau sau chuẩn hóa (lowercase, gộp whitespace) → bắt bằng **hash** (SHA-256 trên văn bản chuẩn hóa), chi phí O(n).
-- *Near-dup*: cùng nội dung nhưng lệch vài câu (boilerplate, ngày tháng, template): hash thường bó tay, cần đo **độ giống tập hợp** (Jaccard trên các shingle).
+Cần phân biệt exact dup và near-dup. Exact dup là hai document giống hệt nhau sau chuẩn hóa (lowercase, gộp whitespace), bắt bằng **hash** (SHA-256 trên văn bản chuẩn hóa), chi phí O(n). Near-dup là cùng nội dung nhưng lệch vài câu (boilerplate, ngày tháng, template); hash thường bó tay, cần đo **độ giống tập hợp** (Jaccard trên các shingle).
 
-**MinHash intuition:** so Jaccard trực tiếp mọi cặp document thì quá đắt. Thay vào đó, băm mỗi shingle qua n hàm hash; với mỗi hàm, chỉ giữ **giá trị nhỏ nhất** trên toàn document → được signature n số. Tính chất then chốt: xác suất hai document cho cùng min-value ở một hàm hash **bằng đúng Jaccard** của hai tập shingle, nên tỷ lệ vị trí trùng nhau trong signature là ước lượng Jaccard. FineWeb §3.4 dùng 5-gram (mức từ), 112 hàm hash chia 14 bucket × 8, "targeting documents that are at least 75% similar" (nguyên văn).
+Trực giác của MinHash như sau. So Jaccard trực tiếp mọi cặp document thì quá đắt. Thay vào đó, băm mỗi shingle qua n hàm hash; với mỗi hàm, chỉ giữ **giá trị nhỏ nhất** trên toàn document, để được signature n số. Tính chất then chốt: xác suất hai document cho cùng min-value ở một hàm hash **bằng đúng Jaccard** của hai tập shingle, nên tỷ lệ vị trí trùng nhau trong signature là ước lượng Jaccard. FineWeb §3.4 dùng 5-gram (mức từ), 112 hàm hash chia 14 bucket × 8, "targeting documents that are at least 75% similar" (nguyên văn).
 
-**Quality filter heuristic** (FineWeb §3.6, 3 filter sống sót sau ablation, kèm ngưỡng): loại document có tỷ lệ dòng kết thúc bằng dấu câu ≤ 0.12; tỷ lệ ký tự nằm trong các dòng lặp ≥ 0.1; tỷ lệ dòng ngắn hơn 30 ký tự ≥ 0.67. Cách họ tìm ngưỡng: so **histogram** của metric trên tập "chất lượng cao" vs "thấp" rồi chọn điểm cắt, không phải số thiêng, sang ngôn ngữ/miền khác phải tự tune lại.
+Quality filter heuristic của FineWeb (§3.6, 3 filter sống sót sau ablation, kèm ngưỡng) loại document có tỷ lệ dòng kết thúc bằng dấu câu ≤ 0.12; tỷ lệ ký tự nằm trong các dòng lặp ≥ 0.1; tỷ lệ dòng ngắn hơn 30 ký tự ≥ 0.67. Cách họ tìm ngưỡng: so **histogram** của metric trên tập "chất lượng cao" vs "thấp" rồi chọn điểm cắt, không phải số thiêng, sang ngôn ngữ/miền khác phải tự tune lại.
 
-**Làm thật:** [`05_data_dedup.py`](05_data_dedup.py): pipeline mini đủ 3 tầng (exact dedup → MinHash near-dedup → quality filter) trên file text bất kỳ hoặc mẩu FineWeb-Edu, in số giữ/loại từng bước. Làm **trước** khi thuê cloud: lọc data chính là bước đầu của pretraining thật.
+Phần làm thật nằm ở [`05_data_dedup.py`](05_data_dedup.py): pipeline mini đủ 3 tầng (exact dedup, rồi MinHash near-dedup, rồi quality filter) trên file text bất kỳ hoặc mẩu FineWeb-Edu, in số giữ/loại từng bước. Làm **trước** khi thuê cloud: lọc data chính là bước đầu của pretraining thật.
 
 ## 11. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
@@ -119,7 +116,7 @@ Thuê GPU mới là nửa việc; nửa kia là dữ liệu. Paper FineWeb (PDF 
 
 ## Sau khi đọc xong
 
-1. Điền TODO trong [`02_train_loop.py`](02_train_loop.py): loss → split/eval → schedule → clip → autocast → accumulation → checkpoint (đúng thứ tự đó, chạy được từng tầng rồi mới thêm tầng sau).
+1. Điền TODO trong [`02_train_loop.py`](02_train_loop.py) theo thứ tự loss, split/eval, schedule, clip, autocast, accumulation, checkpoint (đúng thứ tự đó, chạy được từng tầng rồi mới thêm tầng sau).
 2. Smoke test local trên text public-domain nhỏ, bằng chứng: loss giảm qua các step, ghi số vào nhật ký.
 3. Điền TODO trong [`05_data_dedup.py`](05_data_dedup.py) (mục 10) và chạy trên một file text nhỏ; thấy số giữ/loại từng bước, làm trước cloud run.
 4. Chuẩn bị cloud run theo [`03_cloud_run_notes.md`](03_cloud_run_notes.md); train thật; viết [`04_loss_analysis.md`](04_loss_analysis.md) so với GPT-2.
@@ -140,7 +137,7 @@ Mục này gom ba câu hỏi người pretrain lần đầu hay gặp: perplexit
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Perplexity định nghĩa từ đâu.** SLP3 mục 3.3 (trang 76) giải thích vì sao không dùng xác suất thô của tập test: "the probability of a test set gets smaller the longer the text. It's useful to have a metric that is per-word, normalized by length", và perplexity là hàm của xác suất chuẩn hóa đó, dùng cho cả n-gram và LLM. Mục 3.7 (trang 85) nối perplexity với entropy, cùng ý với bits per byte ở mục nâng cao H. MacKay chương 4 Source Coding Theorem là nền lý thuyết của phép nối đó.
-- **Pretraining là self-supervised.** SLP3 mục 7.7 (trang 201): "We call such a model self-supervised because we don't have to add any special gold labels to the data; the natural sequence of words is its own supervision!" Loss là cross-entropy trên vocab, eq. 7.53, đúng loss trong `02_train_loop.py`.
-- **Scale.** Fleuret mục 3.7 (trang 51): hiệu năng "improves with the amount of data according to remarkable scaling laws, as long as the model size increases correspondingly [Kaplan et al., 2020]". Xiao và Zhu, *Foundations of LLMs* mục 2.2 Training at Scale (trang 56): pre-training có thể cần "trillions of tokens" (Table 2.3 của sách), nhưng "larger training datasets do not mean better training results"; mục 2.2.1 bàn chuẩn bị dữ liệu, cùng câu hỏi với paper FineWeb trong kệ paper.
-- **Regularization và optimization ở mạng sâu.** Prince, UDL 9.2 Implicit regularization (trang 141); Goodfellow chương 8 Optimization for Training Deep Models (HTML).
+- Perplexity được định nghĩa từ đâu: SLP3 mục 3.3 (trang 76) giải thích vì sao không dùng xác suất thô của tập test: "the probability of a test set gets smaller the longer the text. It's useful to have a metric that is per-word, normalized by length", và perplexity là hàm của xác suất chuẩn hóa đó, dùng cho cả n-gram và LLM. Mục 3.7 (trang 85) nối perplexity với entropy, cùng ý với bits per byte ở mục nâng cao H. MacKay chương 4 Source Coding Theorem là nền lý thuyết của phép nối đó.
+- Pretraining là self-supervised, theo SLP3 mục 7.7 (trang 201): "We call such a model self-supervised because we don't have to add any special gold labels to the data; the natural sequence of words is its own supervision!" Loss là cross-entropy trên vocab, eq. 7.53, đúng loss trong `02_train_loop.py`.
+- Về scale, Fleuret mục 3.7 (trang 51) viết rằng hiệu năng "improves with the amount of data according to remarkable scaling laws, as long as the model size increases correspondingly [Kaplan et al., 2020]". Xiao và Zhu, *Foundations of LLMs* mục 2.2 Training at Scale (trang 56): pre-training có thể cần "trillions of tokens" (Table 2.3 của sách), nhưng "larger training datasets do not mean better training results"; mục 2.2.1 bàn chuẩn bị dữ liệu, cùng câu hỏi với paper FineWeb trong kệ paper.
+- Regularization và optimization ở mạng sâu được bàn trong Prince, UDL 9.2 Implicit regularization (trang 141) và Goodfellow chương 8 Optimization for Training Deep Models (HTML).

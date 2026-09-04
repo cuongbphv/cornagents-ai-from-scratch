@@ -8,7 +8,7 @@
 
 ### A1. Đạo hàm riêng và gradient
 
-Với hàm f: ℝⁿ → ℝ, đạo hàm riêng theo x_i là tốc độ thay đổi của f khi chỉ x_i nhúc nhích. Gradient gom tất cả đạo hàm riêng lại. MML chọn quy ước gradient là **vector hàng**, và giải thích lý do: "First, we can consistently generalize the gradient to vector-valued functions f: ℝⁿ → ℝᵐ (then the gradient becomes a matrix). Second, we can immediately apply the multi-variate chain rule without paying attention to the dimension of the gradient" (MML mục 5.2, trang 147). PyTorch trả gradient cùng chiều với tham số, tức là vector cột theo cách nhìn này; hai quy ước chỉ khác nhau một phép chuyển vị.
+Với hàm f từ ℝⁿ vào ℝ, đạo hàm riêng theo x_i là tốc độ thay đổi của f khi chỉ x_i nhúc nhích. Gradient gom tất cả đạo hàm riêng lại. MML chọn quy ước gradient là **vector hàng**, và giải thích lý do: "First, we can consistently generalize the gradient to vector-valued functions f: ℝⁿ → ℝᵐ (then the gradient becomes a matrix). Second, we can immediately apply the multi-variate chain rule without paying attention to the dimension of the gradient" (MML mục 5.2, trang 147). PyTorch trả gradient cùng chiều với tham số, tức là vector cột theo cách nhìn này; hai quy ước chỉ khác nhau một phép chuyển vị.
 
 Ví dụ 5.7 trong MML (trang 147): f(x₁, x₂) = x₁² x₂ + x₁ x₂³ có ∂f/∂x₁ = 2x₁x₂ + x₂³ và ∂f/∂x₂ = x₁² + 3x₁x₂². Tại (1, 2), gradient là [12, 13].
 
@@ -22,7 +22,7 @@ Nếu f = g(h(x)) thì df/dx = (dg/dh)(dh/dx). MML tính một ví dụ dài ở
 
 ### A4. Jacobian và ánh xạ tuyến tính
 
-Với f: ℝⁿ → ℝᵐ, gradient là ma trận m×n gọi là Jacobian (MML mục 5.3, trang 149). Với f(x) = A x, Jacobian chính là A. Thí nghiệm `jacobian` xác nhận điều này bằng sai phân. Vì thế backward của một lớp Linear chỉ là nhân gradient với Wᵀ, không có gì bí hiểm.
+Với f từ ℝⁿ vào ℝᵐ, gradient là ma trận m×n gọi là Jacobian (MML mục 5.3, trang 149). Với f(x) = A x, Jacobian chính là A. Thí nghiệm `jacobian` xác nhận điều này bằng sai phân. Vì thế backward của một lớp Linear chỉ là nhân gradient với Wᵀ, không có gì bí hiểm.
 
 ---
 
@@ -44,7 +44,7 @@ Thí nghiệm `bayes`: bệnh có tỉ lệ 1%, xét nghiệm nhạy 95%, dươn
 
 ### B4. Kỳ vọng, phương sai, luật số lớn
 
-Cho X₁, X₂, ... độc lập cùng phân phối, kỳ vọng μ, phương sai σ². Trung bình mẫu X̄ₙ có kỳ vọng μ và phương sai σ²/n. Luật số lớn yếu: với mọi ε > 0, P(|X̄ₙ − μ| > ε) → 0 khi n → ∞ (EP4A Theorem 4.7, trang 93).
+Cho X₁, X₂, ... độc lập cùng phân phối, kỳ vọng μ, phương sai σ². Trung bình mẫu X̄ₙ có kỳ vọng μ và phương sai σ²/n. Luật số lớn yếu: với mọi ε > 0, P(|X̄ₙ − μ| > ε) tiến về 0 khi n tiến ra vô cùng (EP4A Theorem 4.7, trang 93).
 
 Thí nghiệm `lln` với xúc xắc công bằng (μ = 3.5, P(mặt 6) = 1/6 ≈ 0.1667):
 
@@ -111,6 +111,6 @@ Với hàm lồi, mọi cực tiểu cục bộ là cực tiểu toàn cục, n�
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Entropy và KL, định nghĩa chặt.** MacKay định nghĩa entropy của một ensemble là "the average Shannon information content of an outcome", H(X) = Σ P(x) log 1/P(x) (ITILA eq. 2.35, trang 32), và relative entropy D_KL(P‖Q) = Σ P(x) log P(x)/Q(x) thỏa bất đẳng thức Gibbs D_KL ≥ 0 "with equality only if P = Q" (eq. 2.45-2.46, trang 34). Đây là lý do cross-entropy ở mục B6 có đáy: cross-entropy = entropy của dữ liệu + KL, nên nhỏ nhất khi model trùng phân phối thật. Murphy viết cùng định nghĩa bằng kỳ vọng, H(X) = −E[log p(X)] (PML1 eq. 6.1, trang 207), và nhắc KL là divergence chứ không phải metric vì không đối xứng (PML1 6.2, trang 213).
-- **Hàm lồi, định nghĩa gốc.** Boyd và Vandenberghe: f lồi khi miền xác định lồi và f(θx + (1−θ)y) ≤ θf(x) + (1−θ)f(y) với mọi θ ∈ [0, 1] (Convex Optimization eq. 3.1, trang 67); mọi hàm affine vừa lồi vừa lõm. Đây là định nghĩa mà MML 7.3 (mục C3 ở trên) dựa vào.
-- **Information theory theo Bishop.** PRML mục 1.6 (trang 48) và 1.6.1 relative entropy (trang 55) là cách trình bày thứ ba, đi từ "lượng thông tin của một sự kiện" tới KL; đọc nếu hai cách trên chưa thấm.
+- Định nghĩa chặt của entropy và KL nằm ở MacKay: ông định nghĩa entropy của một ensemble là "the average Shannon information content of an outcome", H(X) = Σ P(x) log 1/P(x) (ITILA eq. 2.35, trang 32), và relative entropy D_KL(P‖Q) = Σ P(x) log P(x)/Q(x) thỏa bất đẳng thức Gibbs D_KL ≥ 0 "with equality only if P = Q" (eq. 2.45-2.46, trang 34). Đây là lý do cross-entropy ở mục B6 có đáy: cross-entropy = entropy của dữ liệu + KL, nên nhỏ nhất khi model trùng phân phối thật. Murphy viết cùng định nghĩa bằng kỳ vọng, H(X) = −E[log p(X)] (PML1 eq. 6.1, trang 207), và nhắc KL là divergence chứ không phải metric vì không đối xứng (PML1 6.2, trang 213).
+- Định nghĩa gốc của hàm lồi lấy từ Boyd và Vandenberghe: f lồi khi miền xác định lồi và f(θx + (1−θ)y) ≤ θf(x) + (1−θ)f(y) với mọi θ ∈ [0, 1] (Convex Optimization eq. 3.1, trang 67); mọi hàm affine vừa lồi vừa lõm. Đây là định nghĩa mà MML 7.3 (mục C3 ở trên) dựa vào.
+- Information theory theo cách trình bày của Bishop nằm ở PRML mục 1.6 (trang 48) và 1.6.1 relative entropy (trang 55); đây là cách trình bày thứ ba, đi từ "lượng thông tin của một sự kiện" tới KL; đọc nếu hai cách trên chưa thấm.

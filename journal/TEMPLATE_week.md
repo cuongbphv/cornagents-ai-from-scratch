@@ -43,7 +43,7 @@
 
 | Deliverable | Trạng thái | Bằng chứng |
 |-------------|-----------|------------|
-| ... | ✅ Done / ⏳ Dở / ❌ Bỏ | link file / commit / số liệu + ngày đo |
+| ... |  Done / ⏳ Dở /  Bỏ | link file / commit / số liệu + ngày đo |
 
 ### Số liệu chính của tuần
 

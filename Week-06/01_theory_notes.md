@@ -8,7 +8,7 @@
 
 ### 1.1 Vấn đề
 
-Model chỉ ăn số. Tách theo từ → vocab khổng lồ + từ lạ (OOV); tách theo ký tự → chuỗi quá dài. **BPE là điểm giữa**: đơn vị là "mảnh từ" (subword), đề xuất cho NMT bởi Sennrich et al. 2015 (arXiv 1508.07909).
+Model chỉ ăn số. Tách theo từ cho vocab khổng lồ và từ lạ (OOV); tách theo ký tự cho chuỗi quá dài. **BPE là điểm giữa**: đơn vị là "mảnh từ" (subword), đề xuất cho NMT bởi Sennrich et al. 2015 (arXiv 1508.07909).
 
 ### 1.2 Thuật toán train BPE: ngắn gọn đến bất ngờ
 
@@ -50,12 +50,12 @@ enc = tiktoken.get_encoding("gpt2")
 - Ký tự có dấu là **2-3 byte UTF-8** (`ã` = 2 byte, `ấ` = 3 byte, đã kiểm chứng); vocab `gpt2` không có merge nào cho các cụm tiếng Việt nên rơi về **từng byte thô** (các ô `�` ở trên chính là 3 byte lẻ của `ấ`).
 - Encoding đời mới hơn của tiktoken (`cl100k_base`, `o200k_base`: theo docs repo tiktoken) đỡ hơn hẳn vì vocab lớn hơn và corpus train đa ngôn ngữ hơn, nhưng vẫn đắt hơn tiếng Anh.
 
-**Hệ quả thực tế cho dự án này:**
-1. Cùng context length, văn bản tiếng Việt "ăn" gấp nhiều lần token → chứa được ít nội dung hơn, chi phí inference/train cao hơn.
+Hệ quả thực tế cho dự án này:
+1. Cùng context length, văn bản tiếng Việt "ăn" gấp nhiều lần token, nên chứa được ít nội dung hơn và chi phí inference/train cao hơn.
 2. Khi tự train tokenizer (mục nâng cao E): muốn dùng cho dữ liệu VN banking thì **corpus train BPE phải có tiếng Việt**: đây là lý do trực tiếp để làm mục E chứ không chỉ dùng tiktoken.
 3. Khi chọn base model để fine-tune (Tuần 12+): đo fertility (token/từ) của tokenizer model đó trên chính văn bản tiếng Việt của bạn bằng đúng phương pháp ở bảng trên trước khi chọn, vài dòng code, tránh được quyết định đắt.
 
-📄 **Đọc thêm (paper):** BPE gốc là Sennrich et al. 2015 (PDF trong repo: [`../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf`](../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf)): ý tưởng nguyên bản: "encoding rare and unknown words as sequences of subword units" cho bài toán open-vocabulary. Về mặt trái của tokenization, *Tokenization Falling Short* (arXiv [2406.11687](https://arxiv.org/abs/2406.11687), EMNLP 2024 Findings, abstract tra 2026-08-12) chỉ ra tokenizer "inherently sensitive to typographical errors, length variations, and largely oblivious to the internal structure of tokens", đúng lớp vấn đề mà văn bản tiếng Việt nhiều dấu gặp đậm hơn, và scale model chỉ giảm được một phần.
+Đọc thêm về paper: BPE gốc là Sennrich et al. 2015 (PDF trong repo: [`../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf`](../docs/papers/1508.07909_bpe-neural-mt-rare-words.pdf)): ý tưởng nguyên bản: "encoding rare and unknown words as sequences of subword units" cho bài toán open-vocabulary. Về mặt trái của tokenization, *Tokenization Falling Short* (arXiv [2406.11687](https://arxiv.org/abs/2406.11687), EMNLP 2024 Findings, abstract tra 2026-08-12) chỉ ra tokenizer "inherently sensitive to typographical errors, length variations, and largely oblivious to the internal structure of tokens", đúng lớp vấn đề mà văn bản tiếng Việt nhiều dấu gặp đậm hơn, và scale model chỉ giảm được một phần.
 
 ### 1.4 Data loading: sliding window
 
@@ -90,7 +90,7 @@ x = tok_emb(idx) + pos_emb(torch.arange(T))     # (batch, T, d)
 ## 3. Attention: leo 4 bậc thang
 
 Quy ước shape (thuộc lòng, trùng "Mốc shape cần nhớ" trong [README.md](README.md)):
-input `x: (batch, T, d_in)` → Q/K/V: `(batch, T, d_out)` → scores/weights: `(batch, T, T)` → context: `(batch, T, d_out)`.
+input `x: (batch, T, d_in)` sinh Q/K/V `(batch, T, d_out)`, rồi scores/weights `(batch, T, T)`, rồi context `(batch, T, d_out)`.
 
 ### Bậc 1: simplified self-attention (chưa có gì học được)
 
@@ -115,11 +115,11 @@ weights = torch.softmax(scores, dim=-1)
 context = weights @ V
 ```
 
-**Vì sao chia √d_k:** dot product của hai vector ngẫu nhiên d_k chiều có variance ≈ d_k, đo thực nghiệm 2026-08-11 với d_k=64, 100k cặp: `var(q·k) ≈ 63.9`; sau khi chia √d_k: `≈ 0.998`. Không chia thì score phình theo d_k, softmax bão hòa về one-hot → gradient gần 0, khó train. (Lập luận variance nêu trong chính paper Vaswani et al. 2017, mục 3.2.1.)
+Chia √d_k vì dot product của hai vector ngẫu nhiên d_k chiều có variance ≈ d_k, đo thực nghiệm 2026-08-11 với d_k=64, 100k cặp: `var(q·k) ≈ 63.9`; sau khi chia √d_k: `≈ 0.998`. Không chia thì score phình theo d_k, softmax bão hòa về one-hot, gradient gần 0, khó train. (Lập luận variance nêu trong chính paper Vaswani et al. 2017, mục 3.2.1.)
 
 ### Bậc 3: causal mask + dropout
 
-GPT sinh trái→phải: token i **không được nhìn tương lai** (j > i). Che bằng `-inf` **trước** softmax:
+GPT sinh từ trái sang phải: token i **không được nhìn tương lai** (j > i). Che bằng `-inf` **trước** softmax:
 
 ```python
 mask = torch.triu(torch.ones(T, T), diagonal=1).bool()   # tam giác trên
@@ -167,7 +167,7 @@ Ma trận scores là `(T, T)`: gấp đôi độ dài chuỗi thì compute và b
 
 1. Chạy lại từng snippet ở mục 1-3 (gõ tay).
 2. Tự code [`02_multihead_attention.py`](02_multihead_attention.py) theo đúng 4 bậc, không nhìn nanoGPT khi code lần đầu.
-3. Chạy [`03_test_attention.py`](03_test_attention.py) → pass cả 3 test (2 shape + 1 causal).
+3. Chạy [`03_test_attention.py`](03_test_attention.py) và pass cả 3 test (2 shape + 1 causal).
 4. Dán code nhờ Claude review, đối chiếu `nanoGPT/model.py`.
 5. Làm [`quiz.md`](quiz.md), đối chiếu [`quiz_solution.md`](quiz_solution.md); rồi mới mở mục nâng cao (A1, A4-A5, B1, C1-C2, E).
 
@@ -175,7 +175,7 @@ Ma trận scores là `(T, T)`: gấp đôi độ dài chuỗi thì compute và b
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Vì sao phải tokenize.** Jurafsky và Martin mở đầu mục 2.4 (SLP3, trang 42): "Tokenization, the first stage of natural language processing, is the process of segmenting the running input text into tokens", rồi giải thích chọn đơn vị cỡ morpheme bằng cách data-driven vì từ thì khó định nghĩa hình thức còh ký tự thì quá nhỏ. Thuật toán BPE được trình bày ngay sau đó, cùng thuật toán bạn cài trong tuần này.
-- **Cosine là góc.** SLP3 mục 5.4 (trang 134): "By far the most common similarity metric is the cosine of the angle between the vectors", đúng công thức Tuần 1 mục 4.
-- **Attention bằng ví dụ ngôn ngữ.** SLP3 mục 7.1 (trang 179) dùng hai câu "The chicken didn't cross the road because it was too tired" và "... because it was too wide" để chỉ ra từ *it* cần trộn thông tin từ *chicken* hay *road* tùy ngữ cảnh; đó là việc attention làm. Mục 7.4 (trang 191) mô tả input X kích thước [N × d] là tổng của token embedding và positional embedding, đúng cách GPT-2 làm.
-- **Attention bằng ma trận.** Prince, UDL mục 12.2 Dot-product self-attention (trang 208): khối self-attention nhận N input mỗi cái D × 1, tính value v_m = β_v + Ω_v x_m (eq. 12.2), rồi mỗi output là tổng có trọng số của mọi value. Mục 12.3 (trang 213) là các mở rộng: query, key, scaled dot product, multi-head. Fleuret mục 4.8 Attention layers (trang 89) nói ngắn về lý do cần một phép toán kết hợp thông tin ở các vị trí xa nhau mà fully connected và convolution không làm được.
+- Lý do phải tokenize nằm ngay câu mở đầu mục 2.4 của Jurafsky và Martin (SLP3, trang 42): "Tokenization, the first stage of natural language processing, is the process of segmenting the running input text into tokens", rồi giải thích chọn đơn vị cỡ morpheme bằng cách data-driven vì từ thì khó định nghĩa hình thức còn ký tự thì quá nhỏ. Thuật toán BPE được trình bày ngay sau đó, cùng thuật toán bạn cài trong tuần này.
+- Cosine là góc, theo SLP3 mục 5.4 (trang 134): "By far the most common similarity metric is the cosine of the angle between the vectors", đúng công thức Tuần 1 mục 4.
+- SLP3 mục 7.1 (trang 179) giải thích attention bằng ví dụ ngôn ngữ, dùng hai câu "The chicken didn't cross the road because it was too tired" và "... because it was too wide" để chỉ ra từ *it* cần trộn thông tin từ *chicken* hay *road* tùy ngữ cảnh; đó là việc attention làm. Mục 7.4 (trang 191) mô tả input X kích thước [N × d] là tổng của token embedding và positional embedding, đúng cách GPT-2 làm.
+- Prince viết attention bằng ma trận ở UDL mục 12.2 Dot-product self-attention (trang 208): khối self-attention nhận N input mỗi cái D × 1, tính value v_m = β_v + Ω_v x_m (eq. 12.2), rồi mỗi output là tổng có trọng số của mọi value. Mục 12.3 (trang 213) là các mở rộng: query, key, scaled dot product, multi-head. Fleuret mục 4.8 Attention layers (trang 89) nói ngắn về lý do cần một phép toán kết hợp thông tin ở các vị trí xa nhau mà fully connected và convolution không làm được.

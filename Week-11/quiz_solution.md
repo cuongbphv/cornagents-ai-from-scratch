@@ -1,13 +1,13 @@
 # Tuần 11, Đáp án & Giải thích: QLoRA fine-tuning thực tế (Unsloth)
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
 QLoRA = ?
 
 - **A.** LoRA chạy trên nhiều GPU
-- **B.** Quantize base model xuống 4-bit (NF4, đóng băng) + chỉ train adapter LoRA ở bf16 ✅
+- **B.** Quantize base model xuống 4-bit (NF4, đóng băng) + chỉ train adapter LoRA ở bf16 (đáp án đúng)
 - **C.** Lượng tử hoá cả adapter xuống 4-bit
 - **D.** LoRA cho mô hình vision
 
@@ -20,7 +20,7 @@ QLoRA = ?
 Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?
 
 - **A.** ~2GB
-- **B.** ~5GB ✅
+- **B.** ~5GB (đáp án đúng)
 - **C.** ~12GB
 - **D.** ~24GB
 
@@ -41,7 +41,7 @@ Liệt kê config QLoRA hợp lý cho GPU 8GB.
 [Nâng cao] NF4 (trong QLoRA) là gì?
 
 - **A.** Một định dạng file model
-- **B.** Kiểu lượng tử hoá 4-bit 'normal float', phân bố các mức tối ưu cho trọng số gần Gaussian ✅
+- **B.** Kiểu lượng tử hoá 4-bit 'normal float', phân bố các mức tối ưu cho trọng số gần Gaussian (đáp án đúng)
 - **C.** Một optimizer
 - **D.** Một loại attention
 
@@ -54,7 +54,7 @@ Liệt kê config QLoRA hợp lý cho GPU 8GB.
 [Nâng cao] GGUF là gì?
 
 - **A.** Một thuật toán lượng tử hoá mới
-- **B.** Một ĐỊNH DẠNG FILE của llama.cpp (chứa weight + metadata, các k-quant như Q4_K_M) mà Ollama/LM Studio load ✅
+- **B.** Một ĐỊNH DẠNG FILE của llama.cpp (chứa weight + metadata, các k-quant như Q4_K_M) mà Ollama/LM Studio load (đáp án đúng)
 - **C.** Một benchmark
 - **D.** Một kiểu attention
 
@@ -79,7 +79,7 @@ Khi nào nên ngừng fine-tune local và chuyển lên cloud (4090/A100)?
 AWQ (arXiv 2306.00978) bảo vệ khoảng 1% trọng số 'salient'. Theo paper, tín hiệu nào cho biết kênh nào là salient, và vì sao họ không dùng mixed precision?
 
 - **A.** Độ lớn của trọng số; mixed precision quá đắt để tính
-- **B.** Phân phối activation, không phải trọng số; thay vì trộn độ chính xác (khó tối ưu trên phần cứng) họ nhân scale các kênh salient bằng một phép biến đổi tương đương ✅
+- **B.** Phân phối activation, không phải trọng số; thay vì trộn độ chính xác (khó tối ưu trên phần cứng) họ nhân scale các kênh salient bằng một phép biến đổi tương đương (đáp án đúng)
 - **C.** Gradient khi fine-tune
 - **D.** Entropy của token
 

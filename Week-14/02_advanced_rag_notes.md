@@ -18,9 +18,7 @@ hybrid = EnsembleRetriever(
 )
 ```
 
-- **BM25** mạnh ở keyword/khớp chính xác (mã số, thuật ngữ UCP).
-- **Vector** mạnh ở ngữ nghĩa/diễn giải.
-- Kết hợp thường tốt hơn từng cái riêng.
+BM25 mạnh ở keyword và khớp chính xác (mã số, thuật ngữ UCP); vector mạnh ở ngữ nghĩa và diễn giải. Kết hợp thường tốt hơn từng cái riêng.
 
 ## 2. Reranking (cross-encoder)
 
@@ -35,8 +33,8 @@ def rerank(query, docs, top_k=4):
     return [d for _, d in ranked[:top_k]]
 ```
 
-- Quy trình: retrieve top-N (vd. 20) → rerank → giữ top-k (vd. 4) đưa vào prompt.
-- Cross-encoder chính xác hơn bi-encoder nhưng chậm hơn → chỉ chạy trên N nhỏ.
+- Quy trình: retrieve top-N (vd. 20), rerank, rồi giữ top-k (vd. 4) đưa vào prompt.
+- Cross-encoder chính xác hơn bi-encoder nhưng chậm hơn, nên chỉ chạy trên N nhỏ.
 
 ## 3. Đánh giá RAGAS
 
@@ -51,9 +49,9 @@ result = evaluate(dataset, metrics=[context_precision, context_recall,
 print(result)
 ```
 
-- **context precision/recall**: retrieval lấy đúng đoạn không?
-- **faithfulness**: câu trả lời có bịa ngoài context không?
-- **answer relevancy**: trả lời có đúng trọng tâm câu hỏi không?
+- Context precision và context recall hỏi retrieval có lấy đúng đoạn không.
+- Faithfulness hỏi câu trả lời có bịa ngoài context không.
+- Answer relevancy hỏi câu trả lời có đúng trọng tâm câu hỏi không.
 
 ## 4. Tracing (Langfuse)
 
@@ -63,7 +61,7 @@ handler = CallbackHandler()   # cần LANGFUSE_PUBLIC_KEY / SECRET_KEY
 chain.invoke(query, config={"callbacks": [handler]})
 ```
 
-→ Xem từng bước retrieval/rerank/generate, latency, token, để debug.
+Handler này cho xem từng bước retrieval/rerank/generate, latency, token, để debug.
 
 ## 5. So sánh cần ghi lại
 

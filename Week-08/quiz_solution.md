@@ -1,13 +1,13 @@
 # Tuần 8, Đáp án & Giải thích: Pretraining: training loop + 1 lần chạy GPT-2 thật
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
 Quan hệ giữa cross-entropy loss L và perplexity (PPL)?
 
 - **A.** PPL = L^2
-- **B.** PPL = e^L ✅
+- **B.** PPL = e^L (đáp án đúng)
 - **C.** PPL = log(L)
 - **D.** PPL = 1/L
 
@@ -28,7 +28,7 @@ Gradient accumulation là gì và vì sao quan trọng với GPU 8GB?
 Lịch learning rate điển hình khi pretrain LLM là gì?
 
 - **A.** Giữ LR cố định suốt
-- **B.** Warmup tuyến tính tăng dần → rồi cosine decay giảm dần ✅
+- **B.** Warmup tuyến tính tăng dần → rồi cosine decay giảm dần (đáp án đúng)
 - **C.** Tăng dần đều tới cuối
 - **D.** Giảm rồi tăng (chữ V)
 
@@ -49,7 +49,7 @@ Lịch learning rate điển hình khi pretrain LLM là gì?
 [Nâng cao] Vì sao 'bits-per-byte' (bpb) tốt hơn perplexity khi so sánh các model có tokenizer khác nhau?
 
 - **A.** bpb chạy nhanh hơn
-- **B.** bpb chuẩn hoá loss về mức byte nên không phụ thuộc vocab/tokenizer → so sánh chéo được ✅
+- **B.** bpb chuẩn hoá loss về mức byte nên không phụ thuộc vocab/tokenizer → so sánh chéo được (đáp án đúng)
 - **C.** bpb luôn nhỏ hơn perplexity
 - **D.** bpb không cần dữ liệu validation
 
@@ -62,7 +62,7 @@ Lịch learning rate điển hình khi pretrain LLM là gì?
 [Nâng cao] Optimizer Muon (nanochat) áp dụng cho loại tham số nào?
 
 - **A.** Mọi tham số, thay hẳn AdamW
-- **B.** Các ma trận trọng số 2D (orthogonalize update bằng Newton-Schulz); embedding/head vẫn dùng AdamW ✅
+- **B.** Các ma trận trọng số 2D (orthogonalize update bằng Newton-Schulz); embedding/head vẫn dùng AdamW (đáp án đúng)
 - **C.** Chỉ embedding
 - **D.** Chỉ bias
 
@@ -75,7 +75,7 @@ Lịch learning rate điển hình khi pretrain LLM là gì?
 Mixed precision (bf16) lợi gì khi train?
 
 - **A.** Tăng độ chính xác số học tuyệt đối
-- **B.** Giảm VRAM và tăng tốc tính toán với mất chất lượng không đáng kể ✅
+- **B.** Giảm VRAM và tăng tốc tính toán với mất chất lượng không đáng kể (đáp án đúng)
 - **C.** Loại bỏ nhu cầu gradient
 - **D.** Làm loss luôn giảm
 
@@ -96,7 +96,7 @@ Mixed precision (bf16) lợi gì khi train?
 Vì sao Jurafsky và Martin (SLP3 mục 3.3) không dùng xác suất thô của tập test để đánh giá language model mà dùng perplexity?
 
 - **A.** Vì xác suất thô luôn bằng 1 với model đủ lớn
-- **B.** Vì xác suất của tập test giảm khi văn bản dài hơn, nên cần một số đo tính trên mỗi token, chuẩn hóa theo độ dài, để so được giữa các văn bản khác độ dài ✅
+- **B.** Vì xác suất của tập test giảm khi văn bản dài hơn, nên cần một số đo tính trên mỗi token, chuẩn hóa theo độ dài, để so được giữa các văn bản khác độ dài (đáp án đúng)
 - **C.** Vì perplexity tính nhanh hơn xác suất
 - **D.** Vì xác suất thô chỉ định nghĩa được cho n-gram, không cho LLM
 
@@ -113,7 +113,7 @@ Vì sao Jurafsky và Martin (SLP3 mục 3.3) không dùng xác suất thô của
 Vì sao nanochat báo val_bpb (bits per byte) trên leaderboard thay cho loss thô, theo lập luận của SLP3 về perplexity?
 
 - **A.** Vì bpb luôn nhỏ hơn loss
-- **B.** Vì perplexity và loss tính trên token nên phụ thuộc tokenizer; chia lượng thông tin cho số byte thay cho số token cho phép so sánh chéo các model có vocab khác nhau ✅
+- **B.** Vì perplexity và loss tính trên token nên phụ thuộc tokenizer; chia lượng thông tin cho số byte thay cho số token cho phép so sánh chéo các model có vocab khác nhau (đáp án đúng)
 - **C.** Vì GPU tính byte nhanh hơn token
 - **D.** Vì bpb là metric của MMLU
 

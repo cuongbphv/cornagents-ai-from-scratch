@@ -1,12 +1,12 @@
 # Nguồn dữ liệu cho CornAgents.AI: Finance Banking, song ngữ VI/EN
 
-> **Tuyên bố:** đây là tài liệu của một **dự án học thuật, nghiên cứu, không thương mại hóa**. Danh sách dưới đây **chỉ gồm dataset/model có license mở đã xác minh** (CC BY / CC0 / MIT / Apache 2.0 / BSD / ODC-By) hoặc nguồn chính phủ. Mọi nguồn thương mại, sau paywall, license non-commercial / research-only / cấm train / cấm distill / cấm redistribute / không xác minh được **đã bị loại khỏi tài liệu này** theo chính sách trong [CLAUDE.md](../CLAUDE.md).
+> Tuyên bố: đây là tài liệu của một **dự án học thuật, nghiên cứu, không thương mại hóa**. Danh sách dưới đây **chỉ gồm dataset/model có license mở đã xác minh** (CC BY / CC0 / MIT / Apache 2.0 / BSD / ODC-By) hoặc nguồn chính phủ. Mọi nguồn thương mại, sau paywall, license non-commercial / research-only / cấm train / cấm distill / cấm redistribute / không xác minh được **đã bị loại khỏi tài liệu này** theo chính sách trong [CLAUDE.md](../CLAUDE.md).
 >
-> **Tài liệu này neo vào:** Tuần 11 (QLoRA, dataset fine-tune), Tuần 13-14 (RAG, corpus quy định), Tuần 17 (Knowledge Graph, nguồn tài liệu để extract). Xem [`advanced_topics_vi.md`](advanced_topics_vi.md) mục 🧭 để biết cơ chế neo.
+> Tài liệu này neo vào Tuần 11 (QLoRA, dataset fine-tune), Tuần 13-14 (RAG, corpus quy định), Tuần 17 (Knowledge Graph, nguồn tài liệu để extract). Xem [`advanced_topics_vi.md`](advanced_topics_vi.md) mục  để biết cơ chế neo.
 >
-> **Ngày tra cứu: 2026-08-11.** Mọi dòng có URL đã được fetch và xác nhận truy cập được tại thời điểm đó. Dataset card trên HuggingFace thay đổi liên tục: **kiểm tra lại license trước khi đưa vào pipeline.**
+> Ngày tra cứu: 2026-08-11. Mọi dòng có URL đã được fetch và xác nhận truy cập được tại thời điểm đó. Dataset card trên HuggingFace thay đổi liên tục: **kiểm tra lại license trước khi đưa vào pipeline.**
 >
-> **Bản local:** bộ vừa sức ở [`docs/datasets/`](../docs/datasets/) (`python scripts/download_datasets.py`). Bản đầy đủ các bộ lớn ở `D:\AI\datasets` (`python scripts/download_large_datasets.py`). FineWeb-Edu **sample-10BT** (ODC-By, chủ repo chấp nhận 2026-08-16) ở `D:\AI\datasets\w05_pretrain\fineweb-edu`. Bản default FineWeb-Edu (~6 TB) và SEC-EDGAR (~590 GB) không kéo.
+> Bản local: bộ vừa sức ở [`docs/datasets/`](../docs/datasets/) (`python scripts/download_datasets.py`). Bản đầy đủ các bộ lớn ở `D:\AI\datasets` (`python scripts/download_large_datasets.py`). FineWeb-Edu **sample-10BT** (ODC-By, chủ repo chấp nhận 2026-08-16) ở `D:\AI\datasets\w05_pretrain\fineweb-edu`. Bản default FineWeb-Edu (~6 TB) và SEC-EDGAR (~590 GB) không kéo.
 
 ---
 
@@ -26,12 +26,12 @@ Nếu mục tiêu là "model hiểu Thông tư của NHNN", **fine-tuning là c�
 
 **Vậy fine-tune để làm gì?** Những thứ RAG *không* làm được, vì chúng là **hành vi**, không phải **kiến thức**:
 
-- **Định dạng & văn phong đầu ra**: sinh user story + acceptance criteria đúng template của bạn, mỗi lần đều giống nhau.
-- **Nhất quán thuật ngữ song ngữ**: cùng một khái niệm nghiệp vụ luôn dịch nhất quán VI↔EN (đây là chỗ fine-tune thắng rõ nhất).
-- **Phân loại nghiệp vụ hẹp**: gán nhãn cố định cho một loại văn bản, task lặp lại nhiều, model 7B local rẻ hơn và nhanh hơn gọi API.
-- **Giảm "giọng trợ lý AI"**: bớt rào trước rào sau, trả lời trực tiếp theo phong cách tài liệu nội bộ.
+- Fine-tune giữ định dạng và văn phong đầu ra ổn định: sinh user story + acceptance criteria đúng template của bạn, mỗi lần đều giống nhau.
+- Fine-tune giữ thuật ngữ song ngữ nhất quán: cùng một khái niệm nghiệp vụ luôn dịch nhất quán VI↔EN, và đây là chỗ fine-tune thắng rõ nhất.
+- Fine-tune phù hợp cho phân loại nghiệp vụ hẹp: gán nhãn cố định cho một loại văn bản, task lặp lại nhiều, model 7B local rẻ hơn và nhanh hơn gọi API.
+- Fine-tune giảm "giọng trợ lý AI": bớt rào trước rào sau, trả lời trực tiếp theo phong cách tài liệu nội bộ.
 
-> **Kết luận thực dụng:** kiến thức quy định → **RAG (Tuần 13-14) + KG (Tuần 17)**. Hành vi/định dạng/thuật ngữ → **QLoRA (Tuần 11-12)**. Hai nhánh này dùng **hai loại dataset khác nhau**, nên phần dưới chia theo *mục đích*, không chia theo ngôn ngữ.
+> Kết luận thực dụng: kiến thức quy định giao cho **RAG (Tuần 13-14) + KG (Tuần 17)**; hành vi, định dạng và thuật ngữ giao cho **QLoRA (Tuần 11-12)**. Hai nhánh này dùng **hai loại dataset khác nhau**, nên phần dưới chia theo *mục đích*, không chia theo ngôn ngữ.
 
 ---
 
@@ -39,10 +39,10 @@ Nếu mục tiêu là "model hiểu Thông tư của NHNN", **fine-tuning là c�
 
 | Dataset | URL (đã fetch) | Quy mô | License | Ghi chú |
 |---|---|---|---|---|
-| **vietnamese-legal-documents** (th1nhng0) | https://huggingface.co/datasets/th1nhng0/vietnamese-legal-documents | 171.556 văn bản + 1,03M dòng quan hệ, 4,37 GB; nguồn = **vbpl.vn** (cổng Bộ Tư pháp); cập nhật 2026-07-23 | **CC BY 4.0** | ⭐ Nguồn tốt nhất cho luật/nghị định/thông tư. vbpl.vn **có mục riêng cho NHNN** (đã xác minh: https://vbpl.vn/nganhangnhanuoc/Pages/vanban.aspx?cqbh=55&dvid=326) nên thông tư NHNN nằm trong bản scrape này, nhưng `[CHƯA XÁC MINH]` ở mức từng dòng dữ liệu, phải tự filter và kiểm tra. |
+| **vietnamese-legal-documents** (th1nhng0) | https://huggingface.co/datasets/th1nhng0/vietnamese-legal-documents | 171.556 văn bản + 1,03M dòng quan hệ, 4,37 GB; nguồn = **vbpl.vn** (cổng Bộ Tư pháp); cập nhật 2026-07-23 | **CC BY 4.0** |  Nguồn tốt nhất cho luật/nghị định/thông tư. vbpl.vn **có mục riêng cho NHNN** (đã xác minh: https://vbpl.vn/nganhangnhanuoc/Pages/vanban.aspx?cqbh=55&dvid=326) nên thông tư NHNN nằm trong bản scrape này, nhưng `[CHƯA XÁC MINH]` ở mức từng dòng dữ liệu, phải tự filter và kiểm tra. |
 | **Vietnamese-Legal-Documents** (YuITC) | https://huggingface.co/datasets/YuITC/Vietnamese-Legal-Documents | 119.007 dòng (89,3k train / 29,7k test), 214 MB | **MIT** | Benchmark retrieval (query → văn bản liên quan). Dùng để **đo** retriever của bạn ở Tuần 13-14, không phải làm corpus chính. |
 
-**Nguồn gốc chính thức:** **vbpl.vn**: Cơ sở dữ liệu quốc gia về văn bản pháp luật, do **Bộ Tư pháp** vận hành. Ưu tiên nguồn chính thức này; giữ lại metadata nguồn + ngày hiệu lực của từng văn bản (cần cho provenance ở Tuần 17).
+Nguồn gốc chính thức là **vbpl.vn**, Cơ sở dữ liệu quốc gia về văn bản pháp luật, do **Bộ Tư pháp** vận hành. Ưu tiên nguồn chính thức này; giữ lại metadata nguồn + ngày hiệu lực của từng văn bản (cần cho provenance ở Tuần 17).
 
 ---
 
@@ -50,11 +50,11 @@ Nếu mục tiêu là "model hiểu Thông tư của NHNN", **fine-tuning là c�
 
 | Dataset | URL | Quy mô | License | Dùng làm gì |
 |---|---|---|---|---|
-| **vietnamese-legal-instruct** (duyet) | https://huggingface.co/datasets/duyet/vietnamese-legal-instruct | 233.866 dòng / **467.732 cặp instruction**, 14 loại task | **CC BY 4.0** | ⭐ Món quý nhất cho nhánh fine-tune tiếng Việt. Sinh từ chính bản scrape vbpl.vn ở trên: tóm tắt văn bản, phân loại, QA theo chuỗi căn cứ pháp lý, diễn giải sang ngôn ngữ thường. **Dùng làm khuôn mẫu** để tự sinh bộ instruction cho thông tư NHNN. |
-| **UTS2017_Bank** | https://huggingface.co/datasets/undertheseanlp/UTS2017_Bank | 2.471 mẫu | **Apache 2.0** | ⭐ Dataset hiếm hoi vừa thực sự về ngân hàng VN vừa có license mở đã xác minh. Phản hồi khách hàng thật, 14 khía cạnh nghiệp vụ + sentiment 3 lớp. Nhỏ nhưng dùng ngay được cho task phân loại. |
+| **vietnamese-legal-instruct** (duyet) | https://huggingface.co/datasets/duyet/vietnamese-legal-instruct | 233.866 dòng / **467.732 cặp instruction**, 14 loại task | **CC BY 4.0** |  Món quý nhất cho nhánh fine-tune tiếng Việt. Sinh từ chính bản scrape vbpl.vn ở trên: tóm tắt văn bản, phân loại, QA theo chuỗi căn cứ pháp lý, diễn giải sang ngôn ngữ thường. **Dùng làm khuôn mẫu** để tự sinh bộ instruction cho thông tư NHNN. |
+| **UTS2017_Bank** | https://huggingface.co/datasets/undertheseanlp/UTS2017_Bank | 2.471 mẫu | **Apache 2.0** |  Dataset hiếm hoi vừa thực sự về ngân hàng VN vừa có license mở đã xác minh. Phản hồi khách hàng thật, 14 khía cạnh nghiệp vụ + sentiment 3 lớp. Nhỏ nhưng dùng ngay được cho task phân loại. |
 | vnpdf-financial-reports-dataset | https://huggingface.co/datasets/kiethuynhanh/vnpdf-financial-reports-dataset | 401 dòng (text + ảnh trang) | **MIT** | Báo cáo tài chính VN dạng PDF, nhỏ, dùng để test pipeline trích xuất tài liệu. |
 
-> ⚠️ **Lưu ý về data sinh từ model đóng:** dataset instruction sinh bằng GPT-4/3.5 (hoặc model đóng khác) thường vướng ToS của nhà cung cấp về việc dùng output để train model khác, độc lập với license dataset. Chính sách repo này: **không dùng**. Tự sinh instruction từ corpus license mở ở mục 1 (dùng `vietnamese-legal-instruct` làm khuôn mẫu).
+> **Lưu ý về data sinh từ model đóng:** dataset instruction sinh bằng GPT-4/3.5 (hoặc model đóng khác) thường vướng ToS của nhà cung cấp về việc dùng output để train model khác, độc lập với license dataset. Chính sách repo này: **không dùng**. Tự sinh instruction từ corpus license mở ở mục 1 (dùng `vietnamese-legal-instruct` làm khuôn mẫu).
 
 ---
 
@@ -62,12 +62,12 @@ Nếu mục tiêu là "model hiểu Thông tư của NHNN", **fine-tuning là c�
 
 | Dataset | URL | Quy mô | License | Dùng làm gì |
 |---|---|---|---|---|
-| **Sujet-Finance-Instruct-177k** | https://huggingface.co/datasets/Sujet-AI/Sujet-Finance-Instruct-177k | 177.597 dòng, 337 MB | **Apache 2.0** | ⭐ Gộp 18 nguồn thành 7 loại task, đã dedup, tương đối sạch và có nhãn task. Lựa chọn mặc định. |
+| **Sujet-Finance-Instruct-177k** | https://huggingface.co/datasets/Sujet-AI/Sujet-Finance-Instruct-177k | 177.597 dòng, 337 MB | **Apache 2.0** |  Gộp 18 nguồn thành 7 loại task, đã dedup, tương đối sạch và có nhãn task. Lựa chọn mặc định. |
 | **finance-alpaca** | https://huggingface.co/datasets/gbharti/finance-alpaca | 68.912 dòng | **MIT** | Định dạng Alpaca, gọn, tốt để khởi động hành vi chat tài chính. |
 | **FinGPT** task sets | https://github.com/AI4Finance-Foundation/FinGPT · vd. https://huggingface.co/datasets/flwrlabs/fingpt-sentiment-train | sentiment 76,8k · headline 82,2k · finred 27,6k · fiqa_qa 17,1k | **MIT** | Từng task riêng, định dạng instruction/input/output, dễ trộn chọn lọc. |
 | **PIXIU / FIT** | https://github.com/The-FinAI/PIXIU | ~136k mẫu `[suy ra từ repo]` | **MIT** | Bộ instruction đa task đứng sau model FinMA. |
-| **BANKING77** | https://huggingface.co/datasets/PolyAI/banking77 | 13.083 câu, **77 nhãn intent** | **CC BY 4.0** | ⭐ Chuẩn mực cho phân loại intent khách hàng ngân hàng. Dùng để train **routing**: đúng một trong 5 workflow patterns ở Tuần 16. |
-| Finance-Instruct-500k | https://huggingface.co/datasets/Josephgflowers/Finance-Instruct-500k | 518.185 dòng | **Apache 2.0** | ⚠️ Chính card tự nhận có nhiễu ("malformed portions", PII tổng hợp) → **phải filter**, đừng train thô. |
+| **BANKING77** | https://huggingface.co/datasets/PolyAI/banking77 | 13.083 câu, **77 nhãn intent** | **CC BY 4.0** |  Chuẩn mực cho phân loại intent khách hàng ngân hàng. Dùng để train **routing**: đúng một trong 5 workflow patterns ở Tuần 16. |
+| Finance-Instruct-500k | https://huggingface.co/datasets/Josephgflowers/Finance-Instruct-500k | 518.185 dòng | **Apache 2.0** |  Chính card tự nhận có nhiễu ("malformed portions", PII tổng hợp) → **phải filter**, đừng train thô. |
 
 **Reasoning có dẫn giải** (dùng được cho SFT nhưng **phải tự chuyển** annotation dạng program sang định dạng instruction):
 
@@ -97,11 +97,11 @@ Nguyên tắc: giữ một phần dữ liệu license mở làm **held-out eval*
 | SEC-EDGAR (TeraflopAI) | https://huggingface.co/datasets/TeraflopAI/SEC-EDGAR | 590 GB, ~8,05M filing, 43,7B token | **Apache 2.0** | Corpus tài chính mở lớn nhất đã xác minh. Là **nguồn RAG / pretrain**, không phải instruction data. |
 | edgar-corpus (eloukas) | https://huggingface.co/datasets/eloukas/edgar-corpus | 40,7 GB, 1993-2020, chỉ 10-K, đã tách mục | **Apache 2.0** | Sạch hơn, có cấu trúc mục, dễ chunk cho RAG. |
 
-**Khoảng trống thật:** không tìm thấy corpus quy định ngân hàng quốc tế đóng gói sẵn kiểu EDGAR-CORPUS với license mở. Với dự án học thuật này, corpus quy định lấy từ **vbpl.vn / bản scrape CC BY 4.0 ở mục 1** là đủ.
+Khoảng trống thật là không tìm thấy corpus quy định ngân hàng quốc tế đóng gói sẵn kiểu EDGAR-CORPUS với license mở. Với dự án học thuật này, corpus quy định lấy từ **vbpl.vn / bản scrape CC BY 4.0 ở mục 1** là đủ.
 
 ---
 
-## 6. ⚠️ Nguyên tắc pháp lý & license của dự án
+## 6.  Nguyên tắc pháp lý & license của dự án
 
 ### 6.1 Văn bản pháp luật VN
 
@@ -136,32 +136,32 @@ Lưu ý phân biệt: **text gốc của văn bản pháp luật** (thuộc di�
 
 | Model | License (đã xác minh) | Bằng chứng tiếng Việt | Ghi chú |
 |---|---|---|---|
-| **Qwen2.5-7B-Instruct** | **Apache 2.0** | Card nêu "29+ ngôn ngữ" gồm tiếng Việt nhưng **không có benchmark riêng cho tiếng Việt** | ⭐ Lựa chọn an toàn nhất về pháp lý. Cũng là base của Fin-R1. |
+| **Qwen2.5-7B-Instruct** | **Apache 2.0** | Card nêu "29+ ngôn ngữ" gồm tiếng Việt nhưng **không có benchmark riêng cho tiếng Việt** |  Lựa chọn an toàn nhất về pháp lý. Cũng là base của Fin-R1. |
 | **PhoGPT-4B-Chat** (VinAI) | **BSD-3-Clause** | Pretrain from scratch trên 41GB corpus VN | Nhỏ (4B) → chạy thoải mái trên 8GB. VinAI khuyến nghị bản 4B thay cho 7B5. |
 | Fin-R1 | **Apache 2.0** | Base Qwen2.5-7B-Instruct, SFT+RL cho reasoning tài chính, song ngữ EN/中文 | Đã tài chính hoá sẵn, nhưng **không có tiếng Việt**: cân nhắc như nguồn tham khảo cách làm. |
 
-**Về VRAM trên 3070 Ti 8GB:** `[CHƯA XÁC MINH bằng nguồn kỹ thuật chính thức]`: thực tế: 7B là **ngưỡng trên** cho card 8GB, batch = 1, seq ngắn, bắt buộc gradient checkpointing. Với Mac 24GB: `[CHƯA XÁC MINH]` số cụ thể, phải tự benchmark. Đây đúng là việc của Tuần 11-12.
+`[CHƯA XÁC MINH bằng nguồn kỹ thuật chính thức]` Về VRAM trên 3070 Ti 8GB, thực tế 7B là **ngưỡng trên** cho card 8GB, batch = 1, seq ngắn, bắt buộc gradient checkpointing. Với Mac 24GB: `[CHƯA XÁC MINH]` số cụ thể, phải tự benchmark. Đây đúng là việc của Tuần 11-12.
 
 ---
 
 ## 8. Song ngữ VI/EN: nên trộn hay tách?
 
-**Đã có bằng chứng công bố (không phải folklore):**
+Đã có bằng chứng công bố, không phải folklore:
 
 - Fine-tune model multilingual **chỉ bằng data tiếng Anh** gây **catastrophic forgetting khả năng sinh văn bản ngôn ngữ khác**: hiện tượng có tên, đã công bố (ACL/EMNLP 2022, "Overcoming Catastrophic Forgetting in Zero-Shot Cross-Lingual Generation").
 - *"Multilingual Instruction Tuning With Just a Pinch of Multilinguality"*: chỉ **~40 mẫu multilingual** trộn vào tập tiếng Anh đã cải thiện rõ khả năng làm theo instruction đa ngôn ngữ; model train trên hỗn hợp bằng hoặc hơn model train đơn ngữ dù ít data đích hơn nhiều.
 - *"Monolingual or Multilingual Instruction Tuning"* (Findings EACL 2024): **dưới LoRA thì trộn multilingual tốt hơn**; dưới full fine-tuning thì kết quả lẫn lộn.
 
-`[Suy luận từ các nghiên cứu liền kề, không phải kết luận đã kiểm chứng cho đúng ca của bạn]` Vì bạn dùng **QLoRA** (adapter-based, giống điều kiện LoRA ở trên), nên **trộn VI + EN trong cùng tập SFT** khả năng cao tốt hơn train riêng từng thứ tiếng, và giảm rủi ro làm hỏng tiếng Anh vốn có. Không tìm thấy nghiên cứu nào cho đúng tổ hợp (VI+EN, QLoRA, domain tài chính) → hãy tự đo.
+`[Suy luận từ các nghiên cứu liền kề, không phải kết luận đã kiểm chứng cho đúng ca của bạn]` Vì bạn dùng **QLoRA** (adapter-based, giống điều kiện LoRA ở trên), nên **trộn VI + EN trong cùng tập SFT** khả năng cao tốt hơn train riêng từng thứ tiếng, và giảm rủi ro làm hỏng tiếng Anh vốn có. Không tìm thấy nghiên cứu nào cho đúng tổ hợp (VI+EN, QLoRA, domain tài chính), nên hãy tự đo.
 
-**Nguồn song ngữ license mở / nguồn công quyền:**
+Nguồn song ngữ license mở hoặc nguồn công quyền:
 
 | Nguồn | URL | License | Ghi chú |
 |---|---|---|---|
 | **MTet** | https://arxiv.org/abs/2210.05610 | **CC BY 4.0** | 4,2M cặp VI-EN đa domain. Nguồn parallel sạch license tốt nhất tìm được. |
-| **CFPB Vietnamese-English Glossary of Financial Terms** | https://files.consumerfinance.gov/f/documents/cfpb_adult-fin-ed_vietnamese-style-guide-glossary.pdf | Tác phẩm của cơ quan liên bang Mỹ, công bố 3/2024, `[CHƯA XÁC MINH]` tuyên bố quyền chính xác | ⭐ **Thuật ngữ tài chính VI-EN chuẩn hoá**: đúng thứ cần cho nhất quán thuật ngữ song ngữ. Là glossary, không phải câu song song. |
+| **CFPB Vietnamese-English Glossary of Financial Terms** | https://files.consumerfinance.gov/f/documents/cfpb_adult-fin-ed_vietnamese-style-guide-glossary.pdf | Tác phẩm của cơ quan liên bang Mỹ, công bố 3/2024, `[CHƯA XÁC MINH]` tuyên bố quyền chính xác |  **Thuật ngữ tài chính VI-EN chuẩn hoá**: đúng thứ cần cho nhất quán thuật ngữ song ngữ. Là glossary, không phải câu song song. |
 
-**Khoảng trống:** không có corpus song song **tài chính/ngân hàng** VI-EN nào license mở. Thực tế bạn sẽ tự xây từ dữ liệu công khai license mở + CFPB glossary làm xương sống thuật ngữ.
+Khoảng trống còn lại: không có corpus song song **tài chính/ngân hàng** VI-EN nào license mở. Thực tế bạn sẽ tự xây từ dữ liệu công khai license mở + CFPB glossary làm xương sống thuật ngữ.
 
 ---
 
@@ -191,6 +191,6 @@ Ngoài ra **tự làm eval set riêng** là bắt buộc: ~50-100 câu hỏi ngh
 
 ## 11. Ba việc nên làm trước khi tải bất cứ thứ gì
 
-1. **Kiểm tra lại license tại thời điểm dùng**: dataset card đổi thường xuyên; bảng trên là ảnh chụp ngày 2026-08-11.
-2. **Ưu tiên vbpl.vn (nguồn Bộ Tư pháp)** cho text pháp luật, và giữ lại metadata nguồn + ngày hiệu lực của từng văn bản (bạn sẽ cần nó cho provenance ở Tuần 17).
-3. **Chỉ dùng dữ liệu công khai license mở**: đây là dự án học thuật; dữ liệu nội bộ hay dữ liệu cá nhân không bao giờ được đưa vào.
+1. Kiểm tra lại license tại thời điểm dùng, vì dataset card đổi thường xuyên; bảng trên là ảnh chụp ngày 2026-08-11.
+2. Ưu tiên vbpl.vn (nguồn Bộ Tư pháp) cho text pháp luật, và giữ lại metadata nguồn + ngày hiệu lực của từng văn bản (bạn sẽ cần nó cho provenance ở Tuần 17).
+3. Chỉ dùng dữ liệu công khai license mở, vì đây là dự án học thuật; dữ liệu nội bộ hay dữ liệu cá nhân không bao giờ được đưa vào.

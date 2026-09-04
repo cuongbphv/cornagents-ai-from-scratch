@@ -2,7 +2,7 @@
 
 > Đọc file này trước khi tự build [`02_micrograd.py`](02_micrograd.py). Mọi ví dụ số đã chạy kiểm chứng bằng PyTorch 2.5.1 ngày 2026-08-11 (tự chạy lại từng snippet). Nguồn dẫn ở cuối file, tất cả đã xác minh truy cập được cùng ngày.
 >
-> **Bạn đến đây với gì.** Tuần 2 bạn đã tính gradient bằng tay, kiểm bằng sai phân trung tâm (mục A2) và phát biểu chain rule (mục A3); Tuần 3 bạn tự viết hàm `grad` cho logistic regression; Tuần 4 bạn để `loss.backward()` làm việc đó. Tuần này bạn mở hộp đen `backward()` ra và tự viết nó. Không có toán mới, chỉ có kỹ thuật tổ chức chain rule thành một đồ thị.
+> Bạn đến đây với gì: Tuần 2 bạn đã tính gradient bằng tay, kiểm bằng sai phân trung tâm (mục A2) và phát biểu chain rule (mục A3); Tuần 3 bạn tự viết hàm `grad` cho logistic regression; Tuần 4 bạn để `loss.backward()` làm việc đó. Tuần này bạn mở hộp đen `backward()` ra và tự viết nó. Không có toán mới, chỉ có kỹ thuật tổ chức chain rule thành một đồ thị.
 
 ---
 
@@ -67,11 +67,11 @@ MML nói cùng ý ở mục 5.6 (trang 159): backpropagation là trường hợp
 2. Đặt `output.grad = 1.0` (vì `∂f/∂f = 1`).
 3. Đi **ngược** danh sách topo, gọi `_backward()` của từng node.
 
-Thứ tự topo bảo đảm khi một node phát grad xuống thì grad của chính nó đã được cộng đủ từ mọi nhánh phía trên. Sau khi điền xong TODO trong [`02_micrograd.py`](02_micrograd.py), kiểm hai lớp. Lớp một, không cần PyTorch: dùng đúng hàm sai phân trung tâm bạn viết ở Tuần 2 (mục A2) trên biểu thức bằng `Value`, nhúc nhích `a.data` một lượng ε và so với `a.grad`. Lớp hai: chạy [`03_check_grad.py`](03_check_grad.py): script so sánh grad của bạn với `torch.autograd` trên cùng biểu thức, khớp tới `1e-5` mới đạt. Kiểm bằng sai phân trước để khi PyTorch báo lệch, bạn biết lỗi nằm ở micrograd hay ở cách mình gọi PyTorch.
+Nhờ thứ tự topo, khi một node phát grad xuống thì grad của chính nó đã được cộng đủ từ mọi nhánh phía trên. Sau khi điền xong TODO trong [`02_micrograd.py`](02_micrograd.py), kiểm hai lớp. Lớp một, không cần PyTorch: dùng đúng hàm sai phân trung tâm bạn viết ở Tuần 2 (mục A2) trên biểu thức bằng `Value`, nhúc nhích `a.data` một lượng ε và so với `a.grad`. Lớp hai: chạy [`03_check_grad.py`](03_check_grad.py): script so sánh grad của bạn với `torch.autograd` trên cùng biểu thức, khớp tới `1e-5` mới đạt. Kiểm bằng sai phân trước để khi PyTorch báo lệch, bạn biết lỗi nằm ở micrograd hay ở cách mình gọi PyTorch.
 
 ---
 
-## 2. makemore: bigram → neural net → MLP
+## 2. makemore: từ bigram qua neural net đến MLP
 
 Bài toán: sinh tên người từng ký tự một, tức một **language model tối giản**, cùng bản chất với GPT (Tuần 7-8) chỉ khác quy mô.
 
@@ -93,8 +93,8 @@ Nhận xét then chốt: `one_hot(i) @ W` **chính là lấy hàng i của W**: 
 
 Bigram chỉ nhìn 1 ký tự trước. Paper "A Neural Probabilistic Language Model" (Bengio et al., JMLR 2003, link cuối file) đưa ra khung mà mọi LM hiện đại vẫn theo:
 
-1. Mỗi ký tự → **embedding vector** (bảng tra `C (27×d)`, học được).
-2. Ghép embedding của `k` ký tự ngữ cảnh → MLP → logits 27 lớp.
+1. Mỗi ký tự được ánh xạ thành một **embedding vector** (bảng tra `C (27×d)`, học được).
+2. Ghép embedding của `k` ký tự ngữ cảnh, đưa qua MLP, cho ra logits 27 lớp.
 3. Vẫn cross-entropy + gradient descent.
 
 Ghi kết quả NLL đo được của từng phiên bản vào [`04_makemore_notes.md`](04_makemore_notes.md): số phải là số bạn tự đo, kèm ngày.
@@ -152,6 +152,6 @@ Phân biệt với **permutation-invariant** (sum, mean: đổi thứ tự input
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Backprop trình bày bằng hình.** Prince, UDL mục 7.4 Backpropagation algorithm (trang 103): mỗi đạo hàm ∂ℓ/∂β_k và ∂ℓ/∂ω_k được tính bằng cách nhân ∂ℓ/∂f_k với ∂f_k/∂β_k hoặc ∂f_k/∂ω_k, đúng bảng đạo hàm cục bộ ở mục 1.3. Mục 7.5 (trang 107) về khởi tạo tham số là thứ bạn sẽ cần ở Tuần 8.
-- **Backprop bằng bốn phương trình.** Nielsen, *Neural Networks and Deep Learning* chương 2 (HTML, CC BY-NC 3.0) viết backprop thành bốn phương trình ma trận; đối chiếu chúng với `_backward` của từng phép trong micrograd là bài tập tốt sau khi `03_check_grad.py` đã khớp.
-- **Bản kinh điển.** Bishop, PRML mục 5.3 Error Backpropagation; Goodfellow mục 6.5 Back-Propagation and Other Differentiation Algorithms (HTML). Cả hai đều là chain rule trên đồ thị, cùng nội dung với mục 1 ở trên.
+- Prince trình bày backprop bằng hình ở UDL mục 7.4 Backpropagation algorithm (trang 103): mỗi đạo hàm ∂ℓ/∂β_k và ∂ℓ/∂ω_k được tính bằng cách nhân ∂ℓ/∂f_k với ∂f_k/∂β_k hoặc ∂f_k/∂ω_k, đúng bảng đạo hàm cục bộ ở mục 1.3. Mục 7.5 (trang 107) về khởi tạo tham số là thứ bạn sẽ cần ở Tuần 8.
+- Nielsen, *Neural Networks and Deep Learning* chương 2 (HTML, CC BY-NC 3.0) viết backprop thành bốn phương trình ma trận; đối chiếu chúng với `_backward` của từng phép trong micrograd là bài tập tốt sau khi `03_check_grad.py` đã khớp.
+- Bản kinh điển là Bishop, PRML mục 5.3 Error Backpropagation, và Goodfellow mục 6.5 Back-Propagation and Other Differentiation Algorithms (HTML). Cả hai đều là chain rule trên đồ thị, cùng nội dung với mục 1 ở trên.

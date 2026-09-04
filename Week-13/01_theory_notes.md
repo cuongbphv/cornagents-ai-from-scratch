@@ -16,43 +16,43 @@ Load PDF → Chunk → Embed → Vector store → Retrieve top-k → Generate (k
 
 ## 2. Embeddings + cosine similarity: thước đo "gần nghĩa"
 
-Embedding model biến đoạn văn thành vector; hai đoạn gần nghĩa → vector gần nhau theo **cosine similarity**:
+Embedding model biến đoạn văn thành vector; hai đoạn gần nghĩa cho ra hai vector gần nhau theo **cosine similarity**:
 
 ```
 cos(a, b) = (a·b) / (|a||b|)     ∈ [−1, 1]
 ```
 
-Kiểm chứng 2026-08-11: `cos(a, 2a) = 1.0` (cùng hướng tuyệt đối, cosine bỏ qua độ dài, chỉ đo hướng); hai vector lệch hướng cho 0.378. Retrieval = embed câu hỏi → tìm k chunk có cosine cao nhất trong store. Lưu ý nền từ Tuần 4: đây vẫn chỉ là dot product sau khi chuẩn hóa.
+Kiểm chứng 2026-08-11: `cos(a, 2a) = 1.0` (cùng hướng tuyệt đối, cosine bỏ qua độ dài, chỉ đo hướng); hai vector lệch hướng cho 0.378. Retrieval là embed câu hỏi rồi tìm k chunk có cosine cao nhất trong store. Lưu ý nền từ Tuần 4: đây vẫn chỉ là dot product sau khi chuẩn hóa.
 
-**Embedding model là quyết định chất lượng số 1 của RAG**: nó quyết định "gần nghĩa" nghĩa là gì. Chọn theo benchmark phù hợp ngôn ngữ của corpus (mục 6).
+Embedding model là quyết định chất lượng số 1 của RAG, vì nó quyết định "gần nghĩa" nghĩa là gì. Chọn theo benchmark phù hợp ngôn ngữ của corpus (mục 6).
 
 Đừng coi cosine là chân lý mặc định. Steck et al. 2024 (arXiv [2403.05440](https://arxiv.org/abs/2403.05440), abstract tra 2026-08-12) chỉ ra với embedding học từ model có regularization, "cosine-similarity can yield arbitrary and therefore meaningless 'similarities'", có trường hợp thua cả dot product không chuẩn hóa. Chất lượng retrieval đo bằng eval set của bạn (Tuần 14), không suy ra từ việc "đã dùng đúng công thức".
 
 ## 3. Chunking: cắt tài liệu không làm đứt nghĩa
 
-- Baseline README: `RecursiveCharacterTextSplitter`, size ~800, overlap ~100. Splitter này đếm theo **ký tự** và ưu tiên cắt tại ranh giới tự nhiên (đoạn → câu → từ) theo thứ tự separator.
-- **Ký tự ≠ token.** Đo thật trên một câu thông tư tiếng Việt (cl100k, 2026-08-11): 115 ký tự → 52 token, tức ~**2.2 ký tự/token**: chunk 800 ký tự tiếng Việt ≈ 360 token. Muốn kiểm soát ngân sách context chính xác thì đếm bằng token của đúng model bạn dùng, đừng áng chừng theo ký tự.
+- Baseline trong README là `RecursiveCharacterTextSplitter`, size ~800, overlap ~100. Splitter này đếm theo **ký tự** và ưu tiên cắt tại ranh giới tự nhiên theo thứ tự separator: đoạn trước, rồi câu, rồi từ.
+- Ký tự không phải token. Đo thật trên một câu thông tư tiếng Việt (cl100k, 2026-08-11): 115 ký tự cho ra 52 token, tức ~**2.2 ký tự/token**, nên chunk 800 ký tự tiếng Việt ≈ 360 token. Muốn kiểm soát ngân sách context chính xác thì đếm bằng token của đúng model bạn dùng, đừng áng chừng theo ký tự.
 - Overlap tồn tại để câu nằm vắt qua ranh giới chunk không bị mất ngữ cảnh ở cả hai phía.
 - Với văn bản pháp luật, ranh giới tự nhiên tốt nhất là **Điều/Khoản/Điểm**: cắt theo cấu trúc văn bản (semantic) luôn thắng cắt theo đếm ký tự mù; giữ số hiệu Điều trong metadata của chunk.
 
 ## 4. Vector store + metadata: chỗ provenance bắt đầu
 
-- **Chroma** cho dev (persist xuống đĩa, không cần server); pgvector/Qdrant khi cần production.
+- Dùng **Chroma** cho dev (persist xuống đĩa, không cần server); chuyển sang pgvector/Qdrant khi cần production.
 - Mỗi chunk lưu kèm **metadata: tên văn bản, số hiệu, điều khoản, ngày hiệu lực**: Tuần 17 cần chúng làm provenance, và câu trả lời có dẫn nguồn cần chúng ngay tuần này. Mất metadata lúc ingest là mất vĩnh viễn.
 
 ## 5. Generate: grounding là mục tiêu, không phải văn hay
 
 - Prompt template tối thiểu: *"Chỉ trả lời dựa trên context dưới đây. Không tìm thấy thông tin thì nói không tìm thấy."* + context top-k + câu hỏi.
-- **Temperature ≤ 0.3** cho RAG nghiệp vụ (khuyến nghị trong README, mục nâng cao B2): cùng context đó, temperature cao làm model "suy diễn vượt nguồn" nhiều hơn.
+- Giữ temperature ≤ 0.3 cho RAG nghiệp vụ (khuyến nghị trong README, mục nâng cao B2): cùng context đó, temperature cao làm model "suy diễn vượt nguồn" nhiều hơn.
 - Test 10 câu hỏi domain: với mỗi câu trả lời, tự hỏi **"câu này dẫn về được chunk nào?"**: không dẫn được = chưa grounded, đánh dấu lại làm baseline cho Tuần 14 đo.
 
 ## 6. Tiếng Việt trong tuần này: 3 bẫy có bằng chứng
 
-1. **Unicode NFC vs NFD**: bẫy âm thầm nhất. Kiểm chứng 2026-08-11: ký tự `ế` dạng NFC là **1 codepoint**, dạng NFD là **3 codepoint** (e + dấu mũ + dấu sắc), và hai chuỗi **không bằng nhau** khi so sánh trực tiếp. Corpus scrape từ nhiều nguồn có thể trộn cả hai dạng → cùng một từ thành hai chuỗi khác nhau khi match, đếm ký tự lệch, highlight sai. **Chuẩn hóa `unicodedata.normalize("NFC", text)` ngay tại bước load, trước mọi xử lý khác.**
-2. **Embedding model phải hỗ trợ tiếng Việt thật**: model embedding train chủ yếu tiếng Anh cho cosine similarity kém nghĩa trên tiếng Việt. Chọn theo **VN-MTEB** (benchmark embedding tiếng Việt, mục 9 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)); nghi ngờ thì tự test: 5 cặp câu nghiệp vụ đồng nghĩa + 5 cặp không liên quan, xem cosine có tách hai nhóm không.
-3. **Ngân sách token tiếng Việt**: 2.2 ký tự/token (đo ở mục 3): khi ước lượng "top-k chunk có vừa context window không", tính bằng token thật, nhất là khi generate bằng model local context ngắn.
+1. Unicode NFC và NFD là bẫy âm thầm nhất. Kiểm chứng 2026-08-11: ký tự `ế` dạng NFC là **1 codepoint**, dạng NFD là **3 codepoint** (e + dấu mũ + dấu sắc), và hai chuỗi **không bằng nhau** khi so sánh trực tiếp. Corpus scrape từ nhiều nguồn có thể trộn cả hai dạng, dẫn tới cùng một từ thành hai chuỗi khác nhau khi match, đếm ký tự lệch, highlight sai. **Chuẩn hóa `unicodedata.normalize("NFC", text)` ngay tại bước load, trước mọi xử lý khác.**
+2. Embedding model phải hỗ trợ tiếng Việt thật, vì model embedding train chủ yếu tiếng Anh cho cosine similarity kém nghĩa trên tiếng Việt. Chọn theo **VN-MTEB** (benchmark embedding tiếng Việt, mục 9 của [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banking.md)); nghi ngờ thì tự test: 5 cặp câu nghiệp vụ đồng nghĩa + 5 cặp không liên quan, xem cosine có tách hai nhóm không.
+3. Ngân sách token tiếng Việt tính theo 2.2 ký tự/token (đo ở mục 3): khi ước lượng "top-k chunk có vừa context window không", tính bằng token thật, nhất là khi generate bằng model local context ngắn.
 
-Corpus khuyến nghị + lưu ý pháp lý: xem mục 📦 trong [README.md](README.md) (nguồn vbpl.vn, giữ metadata ngày hiệu lực).
+Corpus khuyến nghị + lưu ý pháp lý: xem mục Dữ liệu cho tuần này trong [README.md](README.md) (nguồn vbpl.vn, giữ metadata ngày hiệu lực).
 
 ## 7. Nguồn (đã xác minh truy cập được ngày 2026-08-11)
 
@@ -87,6 +87,6 @@ Pipeline sáu khâu ở mục 1 là cách một kỹ sư dựng RAG. Mục này 
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **RAG trong dòng lịch sử IR.** SLP3 chương 11: mục 11.1 (trang 254) là IR cổ điển, mục 11.3 (trang 264) chỉ ra khiếm khuyết của tf-idf và BM25: "they work only if there is exact overlap of words between the query and document", gọi là vocabulary mismatch problem, và dense embedding là cách giải. Mục 11.4 (trang 267) định nghĩa RAG gồm hai thành phần retriever và generator, và nêu các mục tiêu: "RAG can help mitigate hallucination, by giving the model a set of trusted documents", dữ liệu riêng, và kiến thức thay đổi theo thời gian. Ba mục tiêu này trùng với lý do repo chọn RAG cho kiến thức quy định.
-- **tf-idf và vector space model.** IR-book mục 6.2.2 Tf-idf weighting (trang 118) và 6.3 (trang 120): điểm giống nhau giữa cosine similarity của embedding và cosine trên vector tf-idf là cùng công thức góc của Tuần 1; khác ở cách dựng vector.
-- **Code tham chiếu mở.** Notebook `chapter08/Chapter 8 - Semantic Search.ipynb` và `chapter10/Chapter 10 - Creating Text Embedding Models.ipynb` trong repo Hands-On LLM (Apache-2.0).
+- SLP3 chương 11 đặt RAG trong dòng lịch sử IR: mục 11.1 (trang 254) là IR cổ điển, mục 11.3 (trang 264) chỉ ra khiếm khuyết của tf-idf và BM25: "they work only if there is exact overlap of words between the query and document", gọi là vocabulary mismatch problem, và dense embedding là cách giải. Mục 11.4 (trang 267) định nghĩa RAG gồm hai thành phần retriever và generator, và nêu các mục tiêu: "RAG can help mitigate hallucination, by giving the model a set of trusted documents", dữ liệu riêng, và kiến thức thay đổi theo thời gian. Ba mục tiêu này trùng với lý do repo chọn RAG cho kiến thức quy định.
+- IR-book mục 6.2.2 Tf-idf weighting (trang 118) và 6.3 (trang 120) trình bày tf-idf và vector space model: điểm giống nhau giữa cosine similarity của embedding và cosine trên vector tf-idf là cùng công thức góc của Tuần 1; khác ở cách dựng vector.
+- Code tham chiếu mở là hai notebook `chapter08/Chapter 8 - Semantic Search.ipynb` và `chapter10/Chapter 10 - Creating Text Embedding Models.ipynb` trong repo Hands-On LLM (Apache-2.0).

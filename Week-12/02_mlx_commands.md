@@ -60,7 +60,7 @@ ollama run my-tf-model "Tóm tắt một quy trình nghiệp vụ ngân hàng tr
 - Tốc độ MLX 8B trên Mac: ______ tok/s
 - Tốc độ 3070 Ti 8B: ______ tok/s
 - Mac fit được tới: ______ B params
-- Khi nào chọn cái nào → xem `03_hardware_decision.md`
+- Khi nào chọn máy nào thì xem `03_hardware_decision.md`
 
 ## 6. Speculative decoding (mở rộng: xem `01_theory_notes.md` mục 8)
 

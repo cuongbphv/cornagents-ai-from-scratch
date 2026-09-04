@@ -12,7 +12,7 @@ Chuẩn hóa **từng vector token** (theo chiều feature) về mean 0, varianc
 LN(x) = γ · (x − μ) / √(σ² + ε) + β        (μ, σ² tính trên chiều d_model của TỪNG token)
 ```
 
-Kiểm chứng: `nn.LayerNorm(8)` trên input mean≈1, std≈3 → output mean ≈ 0.0, std ≈ 1.0 (đã chạy 2026-08-11). Không có LN, qua vài chục layer activation trôi dần → train không ổn định. GPT-2 đặt LN **trước** attention/FFN (**pre-LN**): tự code đúng vị trí này, đặt sau (post-LN) train khó hơn hẳn ở model sâu.
+Kiểm chứng: `nn.LayerNorm(8)` trên input mean≈1, std≈3 cho output mean ≈ 0.0, std ≈ 1.0 (đã chạy 2026-08-11). Không có LN, qua vài chục layer activation trôi dần, train không ổn định. GPT-2 đặt LN **trước** attention/FFN (**pre-LN**): tự code đúng vị trí này, đặt sau (post-LN) train khó hơn hẳn ở model sâu.
 
 ## 2. GELU: ReLU "mượt"
 
@@ -72,7 +72,7 @@ Checklist "verify số tham số ≈ 124M" trong README: `sum(p.numel() for p in
 
 - Từng tên tham số của bạn phải map sang tên trong checkpoint OpenAI; sai map thì model vẫn chạy nhưng sinh rác.
 - Tham chiếu hàm `from_pretrained` trong `nanoGPT/model.py`: đọc kỹ phần nó xử lý **transpose** một số ma trận trước khi copy (nguyên nhân nằm ở cách checkpoint gốc lưu trọng số; tự đối chiếu code thay vì tin trí nhớ).
-- Cách verify rẻ nhất: load xong, sinh text với prompt tiếng Anh đơn giản, **mạch lạc = mapping đúng**; rác = soi lại từng nhóm (emb → attn → ffn → head).
+- Cách verify rẻ nhất: load xong, sinh text với prompt tiếng Anh đơn giản, **mạch lạc = mapping đúng**; rác = soi lại từng nhóm (emb, attn, ffn, rồi head).
 - Sampling khi sinh: greedy để debug (tái lập được), temperature/top-k để chơi (mục nâng cao B2).
 
 ## 7. Tiếng Việt trong tuần này
@@ -93,7 +93,7 @@ Checklist "verify số tham số ≈ 124M" trong README: `sum(p.numel() for p in
 
 ## Sau khi đọc xong
 
-1. Điền TODO trong [`02_gpt_model.py`](02_gpt_model.py) theo thứ tự: LayerNorm → GELU → FFN → Block → GPTModel.
+1. Điền TODO trong [`02_gpt_model.py`](02_gpt_model.py) theo thứ tự LayerNorm, GELU, FFN, Block, rồi GPTModel.
 2. Đếm tham số, đối chiếu bảng mục 5, khớp 124,439,808 mới đi tiếp.
 3. Load trọng số GPT-2 theo [`03_load_weights_notes.md`](03_load_weights_notes.md), sinh text mạch lạc.
 4. Làm [`quiz.md`](quiz.md); sau đó mới mở mục nâng cao (RMSNorm/SwiGLU/MoE).
@@ -102,11 +102,11 @@ Checklist "verify số tham số ≈ 124M" trong README: `sum(p.numel() for p in
 
 Ba khối bạn lắp trong `02_gpt_model.py` (LayerNorm, FFN, attention) đã có ở các mục trên. Mục này bổ ba cách nhìn giúp code không còn là danh sách lớp xếp chồng.
 
-**Residual stream.** Jurafsky và Martin mô tả transformer block gồm self-attention cộng ba loại lớp khác: feedforward, residual connections, và layer norm (SLP3 mục 7.2, trang 184). Cách nghĩ họ khuyên dùng gọi là residual stream, theo Elhage et al. 2021: xem việc xử lý một token ở vị trí i như **một dòng chảy duy nhất của các vector d chiều**; dòng chảy bắt đầu từ embedding của token, rồi từng thành phần (attention, feedforward) **đọc input từ dòng chảy và cộng output của mình trở lại dòng chảy**. Layer norm đứng trước attention và trước feedforward, tức là pre-norm, đúng thứ tự `x = x + Attn(LN(x))` rồi `x = x + FFN(LN(x))` mà bạn viết trong TransformerBlock. Với cách nhìn này, phép cộng residual không phải chi tiết kỹ thuật cho gradient chảy tốt (dù nó có tác dụng đó, xem Mehlig 7.4 và UDL ch.11), mà là **kênh giao tiếp** giữa các lớp: mỗi lớp chỉ ghi thêm một hiệu chỉnh vào vector đang có, không thay thế nó. Khi debug, hãy in norm của phần cộng thêm ở từng lớp so với norm của dòng chảy; nếu một lớp ghi đè hoàn toàn, thường là quên residual.
+Cách nhìn thứ nhất là residual stream. Jurafsky và Martin mô tả transformer block gồm self-attention cộng ba loại lớp khác: feedforward, residual connections, và layer norm (SLP3 mục 7.2, trang 184). Cách nghĩ họ khuyên dùng gọi là residual stream, theo Elhage et al. 2021: xem việc xử lý một token ở vị trí i như **một dòng chảy duy nhất của các vector d chiều**; dòng chảy bắt đầu từ embedding của token, rồi từng thành phần (attention, feedforward) **đọc input từ dòng chảy và cộng output của mình trở lại dòng chảy**. Layer norm đứng trước attention và trước feedforward, tức là pre-norm, đúng thứ tự `x = x + Attn(LN(x))` rồi `x = x + FFN(LN(x))` mà bạn viết trong TransformerBlock. Với cách nhìn này, phép cộng residual không phải chi tiết kỹ thuật cho gradient chảy tốt (dù nó có tác dụng đó, xem Mehlig 7.4 và UDL ch.11), mà là **kênh giao tiếp** giữa các lớp: mỗi lớp chỉ ghi thêm một hiệu chỉnh vào vector đang có, không thay thế nó. Khi debug, hãy in norm của phần cộng thêm ở từng lớp so với norm của dòng chảy; nếu một lớp ghi đè hoàn toàn, thường là quên residual.
 
-**Language modeling head.** SLP3 mục 7.5 (trang 193) dùng chữ head để chỉ "the additional neural circuitry we add on top of the basic transformer architecture" khi áp dụng model đã pretrain vào một tác vụ. Với language modeling, head nhận vector cuối của dòng chảy ở vị trí i, nhân với ma trận unembedding kích thước [d × |V|] để ra logits trên toàn vocab, rồi softmax. Trong nanoGPT, ma trận unembedding dùng chung trọng số với ma trận token embedding (weight tying): `model.py` gán `self.transformer.wte.weight = self.lm_head.weight` (kiểm trên repo karpathy/nanoGPT ngày 2026-09-04), nên khi đếm tham số ở mục 5 bạn không được đếm nó hai lần. Đây là chỗ hay sai khi load trọng số OpenAI: `wte.weight` xuất hiện ở cả đầu vào và đầu ra.
+Cách nhìn thứ hai là language modeling head. SLP3 mục 7.5 (trang 193) dùng chữ head để chỉ "the additional neural circuitry we add on top of the basic transformer architecture" khi áp dụng model đã pretrain vào một tác vụ. Với language modeling, head nhận vector cuối của dòng chảy ở vị trí i, nhân với ma trận unembedding kích thước [d × |V|] để ra logits trên toàn vocab, rồi softmax. Trong nanoGPT, ma trận unembedding dùng chung trọng số với ma trận token embedding (weight tying): `model.py` gán `self.transformer.wte.weight = self.lm_head.weight` (kiểm trên repo karpathy/nanoGPT ngày 2026-09-04), nên khi đếm tham số ở mục 5 bạn không được đếm nó hai lần. Đây là chỗ hay sai khi load trọng số OpenAI: `wte.weight` xuất hiện ở cả đầu vào và đầu ra.
 
-**Decoding.** Sinh text là chọn token từ phân phối y có kích thước [1 × |V|]; SLP3 gọi việc chọn lần lượt trái sang phải, mỗi bước điều kiện trên các token đã chọn, là causal hay autoregressive generation (mục 7.6, trang 196). Ba cách chọn hay dùng, theo mục 7.6.4 (trang 200):
+Cách nhìn thứ ba là decoding. Sinh text là chọn token từ phân phối y có kích thước [1 × |V|]; SLP3 gọi việc chọn lần lượt trái sang phải, mỗi bước điều kiện trên các token đã chọn, là causal hay autoregressive generation (mục 7.6, trang 196). Ba cách chọn hay dùng, theo mục 7.6.4 (trang 200):
 
 - Greedy: lấy token có xác suất lớn nhất. Nhanh nhưng lặp và nhạt.
 - Top-k: cắt phân phối còn k token lớn nhất, chuẩn hóa lại, rồi sample. Khi k = 1 chính là greedy. Điểm yếu SLP3 nêu: k cố định nhưng hình dạng phân phối đổi theo ngữ cảnh; có ngữ cảnh 10 token đầu đã chiếm gần hết xác suất, có ngữ cảnh phân phối phẳng và 10 token chỉ chiếm phần nhỏ.
@@ -118,6 +118,6 @@ Temperature chia logits trước softmax để làm phân phối nhọn hơn ho�
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Transformer block và LM head.** SLP3 mục 7.2 Transformer Blocks (trang 184), 7.3 tính song song bằng một ma trận X (trang 188), 7.5 The Language Modeling Head (trang 193): cùng các khối bạn lắp trong `02_gpt_model.py`, viết bằng ký hiệu ma trận.
-- **Decoding.** SLP3 mục 7.6 (trang 196): "The task of choosing a token to generate based on the model's probabilities is called decoding", và sinh trái sang phải, mỗi token điều kiện trên các token đã chọn, gọi là causal hay autoregressive generation. Các phương pháp sampling ở mục nâng cao B2 được trình bày ở đây.
-- **GPT-3 như ví dụ decoder.** Prince, UDL mục 12.7 Decoder model example: GPT3 (trang 222) và 12.4 Transformer layers (trang 215).
+- Transformer block và LM head theo SLP3: mục 7.2 Transformer Blocks (trang 184), 7.3 tính song song bằng một ma trận X (trang 188), 7.5 The Language Modeling Head (trang 193): cùng các khối bạn lắp trong `02_gpt_model.py`, viết bằng ký hiệu ma trận.
+- Về decoding, SLP3 mục 7.6 (trang 196) viết: "The task of choosing a token to generate based on the model's probabilities is called decoding", và sinh trái sang phải, mỗi token điều kiện trên các token đã chọn, gọi là causal hay autoregressive generation. Các phương pháp sampling ở mục nâng cao B2 được trình bày ở đây.
+- Prince lấy GPT-3 làm ví dụ decoder ở UDL mục 12.7 Decoder model example: GPT3 (trang 222) và 12.4 Transformer layers (trang 215).

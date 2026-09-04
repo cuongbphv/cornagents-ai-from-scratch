@@ -71,4 +71,4 @@ Playbook Graph Engineering dùng blocking trước resolution. Blocking là gì 
 Ma và Tang định nghĩa ma trận kề A ∈ {0,1}^{N×N}. Vì sao knowledge graph của bạn không biểu diễn được bằng một ma trận như vậy, và hệ quả lên precision ở bước extraction là gì?
 
 ---
-> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.
+> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

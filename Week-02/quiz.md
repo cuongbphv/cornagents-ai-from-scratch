@@ -76,4 +76,4 @@ Theo RoFormer (arXiv 2104.09864) và cách MML định nghĩa góc giữa hai ve
 MacKay và Murphy đều định nghĩa KL divergence. Vì sao KL không phải một metric, và điều đó có nghĩa gì khi PPO dùng KL(policy ‖ reference) làm ràng buộc?
 
 ---
-> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.
+> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

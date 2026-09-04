@@ -17,6 +17,9 @@
 - [G. Alignment and reasoning](#g-alignment-and-reasoning)
 - [H. Evaluation](#h-evaluation)
 - [I. Agentic and Graph Engineering (Phase 3)](#i-agentic-and-graph-engineering)
+- [J. Production inference serving: vLLM and PagedAttention](#j-production-inference-serving-vllm-and-pagedattention)
+- [K. Test-time compute and reasoning models](#k-test-time-compute-and-reasoning-models)
+- [L. Multimodal and VLM overview](#l-multimodal-and-vlm-overview)
 
 ---
 
@@ -31,17 +34,18 @@ The first five weeks deliberately have no sections: Weeks 1-3 are math and learn
 | 7: Assembling GPT | A7, B1, B2 | Right after generating text: understand the KV cache and sampling on your own code. |
 | 8: Pretraining | D, D1-D2, F, H (bpb, CORE) | You are running a real training loop; the interventions now mean something. |
 | 9: Instruction fine-tuning | G (pipeline diagram only) | Place your instruction FT as the SFT step of the larger pipeline. |
-| 10: Alignment | G (full) | The alignment week. |
+| 10: Alignment | G (full), K | The alignment week. K is the inference side of the same reasoning problem that GRPO solves on the training side. |
 | 11: QLoRA | B4, H | If you turn on the 4-bit flag you should know how NF4, GPTQ and AWQ differ, and how to evaluate base versus fine-tuned. |
-| 12: Mac, MLX, local inference | B1, B3, B4 (GGUF) | Real serving: the KV cache is the VRAM bottleneck, GGUF is the format you load. |
+| 12: Mac, MLX, local inference | B1, B3, B4 (GGUF), J | Real serving: the KV cache is the VRAM bottleneck, GGUF is the format you load. J shows how serving many users differs from serving one. |
 | 13: RAG pipeline | B2 | Temperature and top-p decide whether a RAG answer fabricates. |
 | 14: Advanced RAG, RAGAS | H (full) | You are measuring quality; know the LLM-as-judge pitfalls before trusting numbers. |
 | 15: Agentic foundations | I1, I2 | The five engineering layers and the ratchet loop are the week's content. |
 | 16: Agent graph for the SDLC | I2, I3 | Which pattern, when to split roles, at what cost. |
 | 17: Graph Engineering | I3, I4 | Scale, storage and monitoring of the KG pipeline you just built. |
 | 18: Capstone | H, I4, I5 | Evaluation, complexity budget and production checklist before shipping. |
+| Further reading, not tied to a week | L | Multimodal is outside the hands-on scope of the roadmap; read it at concept level when someone asks about scanned documents. |
 
-Sections A to H are depth for Phases 1-2 (model internals). Section I is depth for Phase 3, taken from the two PDFs in [`../docs/`](../docs/) and Anthropic's documentation.
+Sections A to H are depth for Phases 1-2 (model internals). Section I is depth for Phase 3, taken from the two PDFs in [`../docs/`](../docs/) and Anthropic's documentation. Sections J to L are later extensions: serving for many users, test-time compute, and multimodal at concept level.
 
 ---
 
@@ -70,6 +74,22 @@ RoFormer proposes Rotary Position Embedding for exactly these two points. Per th
 Three practical consequences. First, RoPE applies to Q and K inside attention, not to V and not to the embedding; the header of `nanochat/gpt.py` says "rotary embeddings (and no positional embeddings)" and `apply_rotary_emb(x, cos, sin)` is called on q and k. Second, because position is encoded as an angle, the base frequency can be changed to stretch context: Llama 3 states "We increase the RoPE base frequency hyperparameter to 500,000" (arXiv 2407.21783, section 3.2), versus 10000 in the original paper. Third, Jurafsky and Martin place RoPE in their section on transformer input embeddings (SLP3 section 7.4, page 191), so this is textbook material now, not a trick.
 
 When implementing in Week 6: write a function taking (B, T, H, D) plus precomputed cos and sin tables for all positions; test it by rotating q at position 5 and k at position 2, then comparing the dot product with the case of positions 8 and 5. The two must match to machine precision.
+
+#### A1.1. Context extension with RoPE: Position Interpolation, NTK-aware scaling, YaRN
+
+> **Sources:** Position Interpolation, Chen et al. 2023 (arXiv [2306.15595](https://arxiv.org/abs/2306.15595), abstract looked up 2026-08-16); YaRN, Peng et al. 2023 (arXiv [2309.00071](https://arxiv.org/abs/2309.00071), abstract and full-text HTML looked up 2026-08-16).
+
+Plain extrapolation fails for a simple reason. The model has only ever seen rotation angles m·θ_i with m inside the training length (for example 0-4095). Pushing m far beyond that range sends attention into angles it has never met; the PI abstract describes extrapolation as something that "may lead to catastrophically high attention scores that completely ruin the self-attention mechanism".
+
+There are three levels of fix, and all of them turn on the question of what to rescale.
+
+Position Interpolation (PI) rescales the position. It linearly compresses the position index m to m·L/L' (L the training length, L' the new length) so that every new position falls back inside the range of angles seen in training: interpolation instead of extrapolation. The PI abstract reports extending LLaMA to 32768 tokens with fine-tuning of under 1000 steps, and that the upper bound of interpolation is smaller than that of extrapolation by "~600×". The drawback, pointed out by the YaRN paper, is that compressing every dimension uniformly loses the high-frequency components, "it removes the high frequency components of RoPE", which blurs the ability to tell apart tokens that are close together.
+
+NTK-aware scaling rescales the frequencies, that is the base, and does so non-uniformly. Instead of compressing every dimension by the same factor s, it changes the base b to b·s^(d/(d−2)); the YaRN full text says "we spread out the interpolation pressure across multiple dimensions by scaling high frequencies less and low frequencies more", so the high-frequency dimensions stay almost unchanged to keep local detail while the low-frequency dimensions are compressed heavily to cover the long context.
+
+YaRN combines NTK-by-parts (interpolation chosen per dimension, based on the ratio of wavelength to context: high-frequency dimensions are left alone and only low-frequency dimensions are interpolated) with attention temperature scaling (an extra temperature t multiplied into the attention softmax, with sqrt(1/t) = 0.1 ln s + 1). The YaRN abstract states that it needs "10x less tokens and 2.5x less training steps than previous methods" to reach the same context extension.
+
+The three sit on one axis: PI pulls positions back into the trained range; NTK-aware scaling pulls frequencies, and pulls them unevenly across dimensions; YaRN makes that selection per dimension and then patches the softmax. All three are cheap because they do not change the architecture: only the computation of the RoPE angle changes, with or without a small amount of fine-tuning.
 
 ### A2. RMSNorm
 
@@ -104,6 +124,16 @@ Link to Week 1: the low-rank compression here is the same SVD intuition as secti
 ### A6. Sliding window attention
 
 Full attention costs O(n²) in sequence length (section C1). Mistral 7B brings it to O(n·W) with sliding window attention: "The hidden state in position i of the layer k, h_i, attends to all hidden states from the previous layer with positions between i − W and i" (arXiv 2310.06825, section 2). Information farther than W still arrives through stacking: after k layers a position "can access tokens from the input layer at a distance of up to W × k tokens"; with W = 4096 over 32 layers the paper states "a theoretical attention span of approximately 131K tokens" (same section). A fixed window also enables a rolling buffer cache: the cache holds only W K, V pairs, the pair for step i goes to slot i mod W, so once i exceeds W the cache overwrites and stops growing; at 32k tokens the paper says this "reduces the cache memory usage by 8x, without impacting the model quality" (section 2, Rolling Buffer Cache). Xiao and Zhu present the same idea as a fixed-size KV cache with a window of the n_c most recent pairs (*Foundations of LLMs*, section 2.3.3.1, page 72).
+
+#### A6.1. Attention sinks and StreamingLLM: why the first few tokens are special
+
+> **Source:** StreamingLLM, Xiao et al. 2023, *Efficient Streaming Language Models with Attention Sinks* (arXiv [2309.17453](https://arxiv.org/abs/2309.17453), abstract looked up 2026-08-16).
+
+A naive sliding window has one breaking point: once a long conversation exceeds the cache size and the first tokens are evicted from the KV cache, quality collapses; the abstract describes window attention failing "when the text length surpasses the cache size". The paper's finding is that simply keeping the KV of the initial tokens "will largely recover the performance of window attention", even though those tokens carry no semantic importance. The paper names this phenomenon the attention sink: the initial tokens absorb an unusually large share of attention.
+
+[Inference] An intuitive explanation (based on the argument in the paper, not in the abstract): softmax forces the attention weights to sum to 1, so when a head has nowhere it needs to look it still has to put its weight somewhere, and the most stable place is the first positions, because every later token sees them under causal attention. Evicting them from the cache removes the outlet the model has learned to rely on.
+
+The StreamingLLM recipe is window plus sink: the KV cache holds a few sink tokens from the start of the sequence, kept permanently, plus a sliding window of the w most recent tokens, with no fine-tuning needed. Per the abstract, this lets a model trained with a finite attention window "generalize to infinite sequence lengths without any fine-tuning", running to "4 million tokens and more", up to 22.2× faster than the sliding-window-with-recomputation baseline. The paper also notes that adding a placeholder token as a dedicated sink from pretraining onward improves streaming further. A note on scope: this is a streaming and cache-memory technique, not a "real" context extension; the model still does not remember content that has fallen out of the window (unlike A1.1, where the model does attend over the whole long context).
 
 ### A7. Mixture of Experts
 
@@ -216,6 +246,22 @@ There are four axes for splitting training when one GPU is not enough. Data para
 
 With a single 8GB GPU the technique you actually use is gradient accumulation (section D); data parallelism appears only when renting a multi-GPU node for the pretraining run. When reading the log of a distributed run, two numbers to understand are throughput (tokens per second) and the fraction of theoretical hardware FLOPs actually used, usually called MFU; `[Inference]` low MFU usually points to a data or communication bottleneck, not to compute.
 
+### F1. ZeRO stages 1/2/3: sharding one kind of state at a time
+
+DDP has a memory limitation: every GPU holds a full copy of the model state, parameters plus gradients plus optimizer states (with mixed-precision AdamW the optimizer states are usually the heaviest part). ZeRO (Zero Redundancy Optimizer; Rajbhandari et al. 2019, arXiv 1910.02054, checked 2026-09-04) removes that redundancy step by step in three cumulative stages, each sharding one more kind of state across N_d GPUs (memory-reduction figures taken from the paper, looked up 2026-08-16):
+
+1. Stage 1, P_os, shards the optimizer states (each GPU holds 1/N_d); the paper: "4x memory reduction, same communication volume as DP", that is, about 4× less memory with unchanged communication.
+2. Stage 2, P_os+g, additionally shards the gradients (reduce-scatter to the GPU responsible for updating the corresponding slice of parameters); the paper: "8x memory reduction, same communication volume as DP".
+3. Stage 3, P_os+g+p, shards the parameters as well: each GPU keeps only its own shard, and whichever layer the forward or backward pass needs is broadcast or gathered just in time and then released; the paper: memory falls linearly with N_d, in exchange for a "~50% increase in communication volume". This is the only stage that breaks the "model must fit on one GPU" limit.
+
+The higher the stage, the more memory is saved and the more communication it costs, so pick the lowest stage that lets the model fit on the machine.
+
+### F2. FSDP: ZeRO-3 style in PyTorch
+
+FSDP (FullyShardedDataParallel) is how PyTorch integrates the ZeRO idea into core: the official docs ([docs.pytorch.org/docs/stable/fsdp.html](https://docs.pytorch.org/docs/stable/fsdp.html), looked up 2026-08-16) describe `ShardingStrategy.FULL_SHARD` as "Parameters, gradients, and optimizer states are sharded", the ZeRO-3 shape; `SHARD_GRAD_OP` shards only gradients and optimizer states (the ZeRO-2 shape; the docs even have a variant named `_HYBRID_SHARD_ZERO2`); `NO_SHARD` behaves like DDP. Moving from DDP to FSDP is therefore not a change of framework, only a change in the strategy for spreading state across GPUs.
+
+As for hands-on work, the repo owner confirmed on 2026-08-16 that renting cloud GPUs is an option, and the DDP/FSDP hands-on has been added to the Week 8 extension (renting a 2×GPU machine); see the extension block in the Week 8 README. Locally, on one 8GB GPU, the main tool remains gradient accumulation (section D); F1 and F2 are what you run for real on the rented machine.
+
 ---
 
 ## G. Alignment and reasoning
@@ -306,6 +352,68 @@ When that sentence holds for your system, loops, swarms, DAGs and knowledge grap
 
 ---
 
+## J. Production inference serving: vLLM and PagedAttention
+
+> **Week** 12 (after running local inference with Ollama/MLX). **Sources:** the vLLM paper, Kwon et al. 2023, *Efficient Memory Management for Large Language Model Serving with PagedAttention* (arXiv [2309.06180](https://arxiv.org/abs/2309.06180), abstract looked up 2026-08-16); the official README of [vllm-project/vllm](https://github.com/vllm-project/vllm) (Apache 2.0, looked up 2026-08-16).
+
+In Week 12 you serve a model to one user, yourself. Production serving is a different problem: many concurrent requests, and GPUs are expensive so they must run at full load. The two vLLM techniques below solve that problem, and both revolve around the KV cache from B1.
+
+### J1. PagedAttention: paging the KV cache like virtual memory
+
+The problem is that the naive way to allocate the KV cache reserves one contiguous block of memory for the maximum length of each request, which wastes a great deal because (a) requests are usually much shorter than the maximum and (b) memory fragments between requests. The vLLM paper borrows from operating-system virtual memory: cut the KV cache into fixed-size blocks, allocate blocks on demand, and keep a logical-to-physical mapping table so the blocks of one sequence can be scattered. Per the abstract (looked up 2026-08-16), this reduces KV cache waste and raises throughput 2-4× over serving systems of the same period at the same latency level.
+
+Do not confuse this with QLoRA's "paged optimizers" (Week 11). The two share the word "paged" but are entirely different: paged optimizers (Dettmers et al., arXiv [2305.14314](https://arxiv.org/abs/2305.14314), abstract looked up 2026-08-16) move optimizer state back and forth between GPU and CPU RAM to "manage memory spikes" during training; PagedAttention pages the KV cache inside VRAM during inference and serving. One is training-side, the other serving-side.
+
+### J2. Continuous batching: throughput versus latency
+
+Static batching gathers N requests into one batch and runs until the whole batch finishes before accepting new requests, so short requests wait for long ones and the GPU sits idle for nothing. Continuous batching (vLLM README: "continuous batching of incoming requests", looked up 2026-08-16) works at each decode step: a request that finishes leaves the batch and a new request takes the free slot immediately, so the GPU stays full. In exchange, continuous batching optimizes throughput (tokens per second for the whole system), while the latency of an individual request may rise slightly because it shares the GPU with other requests. Configure according to which one you prioritize.
+
+### J3. Compared with Ollama / LM Studio
+
+Ollama and LM Studio (llama.cpp backend) are optimized for single-user local use: load a GGUF, one request at a time, running on consumer CPU or GPU, exactly what you need in Week 12. vLLM is optimized for multi-user serving on a GPU server: PagedAttention and continuous batching only pay off when there are many concurrent requests. [Inference] For this roadmap you do not need to stand up a real vLLM; what to carry away is the way of asking the question: when someone says "serve the model to the whole team", you know the problem has shifted from "is there enough VRAM" (B1) to "is the GPU running at full load" (J2) and "is the KV cache being wasted" (J1).
+
+## K. Test-time compute and reasoning models
+
+> **Week** 10 (right after G, GRPO/RLVR). **Sources:** self-consistency, Wang et al. 2022 (arXiv [2203.11171](https://arxiv.org/abs/2203.11171)); s1, Muennighoff et al. 2025 (arXiv [2501.19393](https://arxiv.org/abs/2501.19393)); DeepSeek-R1 (arXiv [2501.12948](https://arxiv.org/abs/2501.12948): already in [`../docs/papers/README.md`](../docs/papers/README.md), anchored to Week 10). All abstracts looked up 2026-08-16.
+
+Week 10 teaches the training-side axis: pour compute into training (RM, DPO, GRPO) so the model gets better. The second axis is inference-side: spend extra compute at inference time, with the same model, to get a better answer. The two axes complement each other, and reasoning models are where they meet.
+
+### K1. CoT sampling and self-consistency
+
+Instead of greedily decoding one chain of reasoning (chain-of-thought), sample several reasoning chains (temperature above 0) and vote on the final answer; the abstract of Wang et al. describes a method that "samples a diverse set of reasoning paths instead of only taking the greedy one, and then selects the most consistent answer". The condition for applying it is that the final answer must be machine-comparable (a number, a multiple-choice answer), the same family of conditions as RLVR.
+
+### K2. Best-of-N with a verifier
+
+Generate N answers, have a verifier score them, and keep the highest-scoring one. The verifier can be a reward model (the very RM from G and Week 10, used at inference instead of training) or a deterministic verifier (run the tests, compare the result). Compared with K1: self-consistency votes by majority, best-of-N trusts a single judge.
+
+### K3. Budget forcing (s1)
+
+This is direct control over how much "thinking" a reasoning model does: the s1 abstract describes "budget forcing to control test-time compute by forcefully terminating the model's thinking process or lengthening it", that is, cutting off early or forcing more thought, and the abstract reports that this lets their 32B model surpass o1-preview on competition math benchmarks (looked up 2026-08-16). Test-time compute is thus a controllable axis, not a black box.
+
+### K4. DeepSeek-R1: where the two axes meet
+
+The R1 abstract states that reasoning ability "can be incentivized through pure reinforcement learning (RL), obviating the need for human-labeled reasoning trajectories", which is the GRPO/RLVR of section G run at real scale. One way to read R1: RLVR (training-side) trains the model to generate long reasoning chains on its own, that is, it moves test-time compute inside the model instead of building an external scaffold as in K1 and K2. After R1 the two axes are no longer separate: train so the model knows how to think long, then regulate how long it thinks with a budget (K3).
+
+## L. Multimodal and VLM overview
+
+> **Week** none; further reading, outside the hands-on scope of the roadmap (this roadmap is text-only). **Sources:** CLIP, Radford et al. 2021 (arXiv [2103.00020](https://arxiv.org/abs/2103.00020)); LLaVA, Liu et al. 2023 (arXiv [2304.08485](https://arxiv.org/abs/2304.08485)). Abstracts looked up 2026-08-16.
+
+Real banking documents contain scanned tables, stamps and signatures, so sooner or later someone will ask why you do not use a model that can read images. This section gives you enough vocabulary to answer that question, and no more.
+
+### L1. CLIP: contrastive pretraining
+
+Train two encoders (image and text) so that the embedding of an image and the embedding of its correct caption are close while wrong pairs are far apart (contrastive). The abstract: trained on 400 million (image, text) pairs collected from the internet, and the model transfers zero-shot to many tasks through natural-language prompts (looked up 2026-08-16). CLIP provides a shared embedding space for images and text. [Inference] That is the foundation of most later VLMs; LLaVA in L2 is one example.
+
+### L2. The common VLM architecture: vision encoder, projector, LLM
+
+The LLaVA recipe (abstract: "connects a vision encoder and LLM"): take a pretrained vision encoder (usually the image side of CLIP), then a projector (a learned projection) maps the image features into a sequence of "visual tokens" living in the LLM's embedding space, and the LLM reads the mixed sequence of image tokens and text tokens as usual. [Inference] The appeal of this recipe is that it reuses two separately trained models and learns only the connecting layer in between, far cheaper than training multimodal from scratch; that is why it is widespread.
+
+### L3. Why the OCR pipeline in the prerequisites is NOT multimodal modelling
+
+The OCR pipeline goes from image to text (a deterministic OCR step) to a model that sees only text. In a VLM the image representation goes straight into the model, with no transcription step. The consequences differ: OCR loses layout, figures and stamps, but it is simple, every step can be debugged, and everything downstream (RAG, KG) remains the text problem you have already learned; a VLM keeps the visual information but drags in an entirely different training and evaluation stack. [Inference] For this academic project on one 8GB GPU, OCR-then-text is the right choice; a VLM is worth considering only when visual information (the position of a signature, a complex table structure) genuinely decides the answer.
+
+---
+
 ## Priorities if time is short
 
-Must: KV cache (B1), RoPE (A1), RMSNorm and SwiGLU (A2, A3), GQA (A4), gradient accumulation (D), bits per byte (H); for Phase 3: the five layers (I1), the four ratchet-loop conditions (I2), the complexity budget (I5). Should: MoE (A7), quantization internals (B4), Muon (D1), the full alignment pipeline (G), BPE training (E), the five workflow patterns (I3), blocking and incremental updates for KGs (I4). Later: MLA (A5), sliding window (A6), speculative decoding (B3), tensor and pipeline parallelism (F), large-scale dynamic workflows (I3).
+Must: KV cache (B1), RoPE (A1), RMSNorm and SwiGLU (A2, A3), GQA (A4), gradient accumulation (D), bits per byte (H); for Phase 3: the five layers (I1), the four ratchet-loop conditions (I2), the complexity budget (I5). Should: MoE (A7), quantization internals (B4), Muon (D1), the full alignment pipeline (G), BPE training (E), the five workflow patterns (I3), blocking and incremental updates for KGs (I4). Later: MLA (A5), sliding window (A6), speculative decoding (B3), tensor and pipeline parallelism (F), large-scale dynamic workflows (I3). Nice to have, after G and B1: production serving with vLLM (J) and test-time compute (K); read when needed: the multimodal overview (L).

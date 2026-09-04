@@ -10,8 +10,8 @@
 
 ## 2. Resolution
 
-- Số surface forms → số canonical entities (compression ratio): ______
-- Ví dụ merge đúng mà string similarity sẽ bỏ lỡ (kiểu "Edwin Aldrin" → "Buzz Aldrin"): ______
+- Từ số surface forms xuống số canonical entities (compression ratio): ______
+- Ví dụ merge đúng mà string similarity sẽ bỏ lỡ (kiểu gom "Edwin Aldrin" về "Buzz Aldrin"): ______
 - Có case over-merge (hai thứ khác nhau bị gộp)? Xử lý thế nào? ______
 
 ## 3. Graph diagnostics

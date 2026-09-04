@@ -1,17 +1,14 @@
 # Kiến thức nền tảng (Prerequisites): chuẩn bị trước khi vào Tuần 1
 
-> **Tuyên bố:** dự án học thuật, nghiên cứu cá nhân, không thương mại hóa. File này chỉ liệt kê nguồn học **mở, license đã xác minh tại ngày tra cứu** (ghi trong bảng §5). Nguồn license non-commercial (CC BY-NC-SA) chỉ dùng **để học qua link**, không sao chép nội dung vào repo. Xem [CLAUDE.md](../CLAUDE.md).
+> Tuyên bố: dự án học thuật, nghiên cứu cá nhân, không thương mại hóa. File này chỉ liệt kê nguồn học **mở, license đã xác minh tại ngày tra cứu** (ghi trong bảng §5). Nguồn license non-commercial (CC BY-NC-SA) chỉ dùng **để học qua link**, không sao chép nội dung vào repo. Xem [CLAUDE.md](../CLAUDE.md).
 
 ## 1. Cách dùng file này
 
 - **Không học hết file này trước rồi mới bắt đầu.** Roadmap 18 tuần tự dạy lại phần lớn: toán và lý thuyết học máy ở Tuần 1-3 (Phase 0, trích dẫn sách theo trang trong [`../docs/books/README.md`](../docs/books/README.md)), PyTorch ở Tuần 4, autograd ở Tuần 5. File này để: (a) tự đánh giá lỗ hổng, (b) biết mở nguồn nào khi hổng đúng chỗ đó, (c) gom các mảng nền (DSA, OCR, big data, design pattern...) không nằm gọn trong tuần nào.
-- Ba mức dùng trong bảng:
-  - **Bắt buộc**: thiếu là Tuần 1-6 sẽ tắc; kiểm tra bằng checklist §4 trước khi bắt đầu.
-  - **Cần trước Tuần X**: có thể học bù ngay trước tuần đó, không cần trước Tuần 1.
-  - **Awareness**: chỉ cần hiểu khái niệm và biết công cụ tồn tại; roadmap không yêu cầu thực hành sâu.
+- Bảng dùng ba mức. Mức "Bắt buộc" nghĩa là thiếu thì Tuần 1-6 sẽ tắc, nên kiểm tra bằng checklist §4 trước khi bắt đầu. Mức "Cần trước Tuần X" có thể học bù ngay trước tuần đó, không cần trước Tuần 1. Mức "Awareness" chỉ cần hiểu khái niệm và biết công cụ tồn tại; roadmap không yêu cầu thực hành sâu.
 - `[Suy luận]` Việc xếp mức "Bắt buộc / Cần / Awareness" là đánh giá của tôi dựa trên nội dung các tuần trong repo này, không phải chuẩn khách quan.
 
-## 2. Bản đồ: mảng nền → tuần nào cần → mức
+## 2. Bản đồ: mảng nền, tuần nào cần, mức
 
 | Mảng nền | Cần cho | Mức |
 |---|---|---|
@@ -53,7 +50,7 @@ Mức đủ dùng: đọc CSV/JSON, lọc và biến đổi cột, xuất JSONL 
 
 ### 3.4 Machine learning cơ bản
 
-- **Dive into Deep Learning (d2l)** ([d2l.ai](https://d2l.ai/), CC BY-SA 4.0): sách mở code-first; các chương đầu (linear regression → MLP → optimization) trùng và bổ trợ trực tiếp cho Tuần 3-5.
+- **Dive into Deep Learning (d2l)** ([d2l.ai](https://d2l.ai/), CC BY-SA 4.0): sách mở code-first; các chương đầu (linear regression, rồi MLP, rồi optimization) trùng và bổ trợ trực tiếp cho Tuần 3-5.
 - **scikit-learn MOOC (Inria)** ([inria.github.io/scikit-learn-mooc/](https://inria.github.io/scikit-learn-mooc/), CC BY 4.0): train/validation/test, overfitting/underfitting, cross-validation, metrics, nền để đọc hiểu loss curve (Tuần 8) và thiết kế eval (Tuần 11, 14, 18).
 - **scikit-learn user guide** ([scikit-learn.org/stable/user_guide.html](https://scikit-learn.org/stable/user_guide.html)): tra cứu metric (precision/recall/F1, dùng lại nguyên xi khi đo KG ở Tuần 17).
 
@@ -68,7 +65,7 @@ Tài liệu nghiệp vụ thực tế thường là **PDF scan**, phải OCR tr�
 - **VietOCR** ([github.com/pbcquoc/vietocr](https://github.com/pbcquoc/vietocr), Apache-2.0): model OCR chuyên tiếng Việt (TransformerOCR): đúng bài toán dấu thanh/mũ mà OCR đa ngôn ngữ hay sai.
 - **OpenCV** ([docs.opencv.org](https://docs.opencv.org/), Apache-2.0): tiền xử lý ảnh trước OCR (deskew, threshold, denoise).
 
-`[Suy luận]` Với văn bản tiếng Việt, sai sót OCR ở dấu thanh ("lãi suất" → "lai suat"/"lãi suắt") phá hoại cả BM25 lẫn embedding ở Tuần 13-14, nên bước kiểm tra chất lượng OCR + chuẩn hóa Unicode NFC (xem `Week-13/01_theory_notes.md`) cần đặt trước bước chunk. Mức đủ dùng: chạy được một trong các công cụ trên cho 1 file PDF scan và đánh giá output bằng mắt.
+`[Suy luận]` Với văn bản tiếng Việt, sai sót OCR ở dấu thanh ("lãi suất" thành "lai suat" hoặc "lãi suắt") phá hoại cả BM25 lẫn embedding ở Tuần 13-14, nên bước kiểm tra chất lượng OCR + chuẩn hóa Unicode NFC (xem `Week-13/01_theory_notes.md`) cần đặt trước bước chunk. Mức đủ dùng: chạy được một trong các công cụ trên cho 1 file PDF scan và đánh giá output bằng mắt.
 
 ### 3.6 Big data & data pipeline (awareness)
 
@@ -94,8 +91,8 @@ Mức đủ dùng: định nghĩa được DAG, làm topological sort bằng tay
 
 - **The System Design Primer** ([github.com/donnemartin/system-design-primer](https://github.com/donnemartin/system-design-primer), CC BY 4.0): caching, queue, load balancing, trade-off consistency/availability, nền để thiết kế CornAgents.AI có tracing + HITL gate (Tuần 15-18).
 - **The Architecture of Open Source Applications** ([aosabook.org](https://aosabook.org/), CC BY 3.0): đọc kiến trúc thật của các hệ mã nguồn mở, cách học system design qua case study.
-- **Design patterns (GoF)**: tổng quan từng pattern xem Wikipedia ([Software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern), CC BY-SA 4.0, dùng ở mức tổng quan). Các pattern gặp lại trong Phase 3: *Strategy* (chọn model/prompt theo route), *Observer* (tracing callback của Langfuse), *Chain of Responsibility* (prompt chaining), *Facade* (tool interface bọc API).
-- Lưu ý minh bạch: repo `faif/python-patterns` phổ biến nhưng **không có file LICENSE** (kiểm tra 2026-08-12) → loại theo chính sách nguồn của repo này. Tôi không kiểm chứng được tài liệu design-pattern chuyên sâu nào khác có license mở rõ ràng trong lần tra này.
+- Tổng quan từng design pattern (GoF) xem Wikipedia ([Software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern), CC BY-SA 4.0, dùng ở mức tổng quan). Các pattern gặp lại trong Phase 3: *Strategy* (chọn model/prompt theo route), *Observer* (tracing callback của Langfuse), *Chain of Responsibility* (prompt chaining), *Facade* (tool interface bọc API).
+- Lưu ý minh bạch: repo `faif/python-patterns` phổ biến nhưng **không có file LICENSE** (kiểm tra 2026-08-12), nên bị loại theo chính sách nguồn của repo này. Tôi không kiểm chứng được tài liệu design-pattern chuyên sâu nào khác có license mở rõ ràng trong lần tra này.
 
 Mức đủ dùng: nhận ra và gọi tên pattern khi gặp trong code agent framework; system design ở mức vẽ được sơ đồ 1 trang có data flow + failure point (đúng deliverable `03_cornagents_architecture.md` Tuần 15).
 
@@ -108,7 +105,7 @@ Mức đủ dùng: nhận ra và gọi tên pattern khi gặp trong code agent f
 - [ ] Dùng dict/set Python đúng chỗ (tra cứu O(1) thay vì quét list)
 - [ ] git: clone, tạo branch, commit, push; shell: chạy script, kích hoạt virtualenv
 
-Hụt ô nào → mở đúng nguồn của mảng đó ở §3, học bù phần đó thôi rồi bắt đầu Tuần 1. Các mảng "Cần trước Tuần X" học bù sát tuần đó; các mảng "Awareness" đọc lướt khi tới tuần liên quan.
+Hụt ô nào thì mở đúng nguồn của mảng đó ở §3, học bù phần đó thôi rồi bắt đầu Tuần 1. Các mảng "Cần trước Tuần X" học bù sát tuần đó; các mảng "Awareness" đọc lướt khi tới tuần liên quan.
 
 Nếu hụt ở ô toán mà đã học xong Tuần 1-3, mở [`../Week-04/00_math_bridge.md`](../Week-04/00_math_bridge.md) để ôn lại ký hiệu, log, exp và nhân ma trận tay trước khi vào `02_theory_notes.md` của Tuần 4.
 

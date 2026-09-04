@@ -1,6 +1,6 @@
 # makemore: Khung ghi chú (theo repo mở karpathy/makemore)
 
-> makemore: model sinh tên ký tự-the-ký tự. Đi từ bigram (đếm) → neural net → MLP.
+> makemore: model sinh tên ký tự-the-ký tự. Đi từ bigram (đếm) qua neural net đến MLP.
 > Đọc code repo rồi tự code lại, ghi lại bằng lời mình. Chỗ TODO là phần điền sau khi làm.
 
 ## 0. Dữ liệu
@@ -10,7 +10,7 @@
 
 ## 1. Bigram model: phiên bản ĐẾM
 
-Ý tưởng: `P(ký tự kế | ký tự hiện tại)` = đếm số lần cặp (a→b) xuất hiện, rồi chuẩn hóa.
+Ý tưởng: `P(ký tự kế | ký tự hiện tại)` = đếm số lần ký tự a được theo sau bởi ký tự b, rồi chuẩn hóa.
 
 - [ ] Xây ma trận đếm `N` shape `(27, 27)`.
 - [ ] Chuẩn hóa từng hàng thành xác suất `P`.
@@ -24,8 +24,8 @@ TODO ghi chú: NLL bạn đo được = ______ . Vì sao dùng NLL thay vì accu
 Cùng bài toán nhưng học bằng gradient descent:
 
 - [ ] One-hot encode ký tự input (shape `(N, 27)`).
-- [ ] 1 lớp Linear: `logits = x @ W` với `W` shape `(27, 27)`.
-- [ ] `softmax(logits)` → xác suất.
+- [ ] Một lớp Linear: `logits = x @ W` với `W` shape `(27, 27)`.
+- [ ] Lấy `softmax(logits)` để ra xác suất.
 - [ ] Loss = cross-entropy (≈ NLL). Train bằng gradient descent.
 - [ ] Kiểm chứng: loss của net hội tụ về ≈ loss của bản đếm.
 
@@ -35,8 +35,8 @@ TODO: tại sao 2 cách lại cho loss gần nhau? ______
 
 Mở rộng context: dùng **nhiều** ký tự trước để dự đoán ký tự kế.
 
-- [ ] `block_size` (vd. 3): nhìn 3 ký tự để đoán ký tự thứ 4.
-- [ ] **Embedding** mỗi ký tự thành vector (vd. 10 chiều) → lookup table `C`.
+- [ ] Chọn `block_size` (vd. 3): nhìn 3 ký tự để đoán ký tự thứ 4.
+- [ ] Embedding mỗi ký tự thành vector (vd. 10 chiều) qua lookup table `C`.
 - [ ] Nối các embedding, qua hidden layer (tanh), rồi output 27 logits.
 - [ ] Train minibatch + theo dõi loss train/val.
 - [ ] Thử learning rate khác nhau (tìm "thung lũng" lr tốt).

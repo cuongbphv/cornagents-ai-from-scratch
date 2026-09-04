@@ -6,7 +6,7 @@
 
 ## 1. Ma trận là gì, và vì sao cách định nghĩa lại quan trọng
 
-MML định nghĩa ma trận rất khô: "With m, n ∈ ℕ a real-valued (m, n) matrix A is an m·n-tuple of elements a_ij, i = 1, ..., m, j = 1, ..., n, which is ordered according to a rectangular scheme consisting of m rows and n columns" (MML, Definition 2.1, trang 22). Định nghĩa này chỉ nói ma trận là một bảng số. Cách nhìn hữu ích hơn nằm ở mục 2.7 (trang 48): mỗi ma trận là một **ánh xạ tuyến tính** Φ: V → W, và ngược lại, khi đã chọn cơ sở thì mỗi ánh xạ tuyến tính có đúng một ma trận biểu diễn.
+MML định nghĩa ma trận rất khô: "With m, n ∈ ℕ a real-valued (m, n) matrix A is an m·n-tuple of elements a_ij, i = 1, ..., m, j = 1, ..., n, which is ordered according to a rectangular scheme consisting of m rows and n columns" (MML, Definition 2.1, trang 22). Định nghĩa này chỉ nói ma trận là một bảng số. Cách nhìn hữu ích hơn nằm ở mục 2.7 (trang 48): mỗi ma trận là một **ánh xạ tuyến tính** Φ từ V sang W, và ngược lại, khi đã chọn cơ sở thì mỗi ánh xạ tuyến tính có đúng một ma trận biểu diễn.
 
 Hệ quả bạn sẽ dùng suốt lộ trình: nhân hai ma trận là **hợp hai ánh xạ**. Vì hợp ánh xạ không giao hoán, nhân ma trận cũng không giao hoán. Thí nghiệm `matmul` trong lab: xoay 90 độ rồi kéo dãn trục x gấp 2 đưa vector [1, 0] thành [0, 1]; kéo dãn trước rồi xoay sau đưa nó thành [0, 2]. Hai ma trận tích khác nhau.
 

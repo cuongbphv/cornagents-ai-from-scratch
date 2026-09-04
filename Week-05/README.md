@@ -2,7 +2,7 @@
 
 > Phase 1: Deep Internals. Đây là một trong **những tuần giá trị nhất** (cùng Tuần 6-8). Mục tiêu: thực sự hiểu backpropagation bằng cách tự xây, và dựng mô hình tư duy (mental model) về transformer/attention **trước khi** code chúng ở Tuần 6.
 >
-> **Nối từ các tuần trước.** Chain rule và kiểm gradient bằng sai phân bạn đã làm ở Tuần 2; gradient viết tay cho logistic regression ở Tuần 3; `loss.backward()` ở Tuần 4. Tuần này bạn tự viết chính cái `backward()` đó. Nếu Tuần 2 mục A còn mơ hồ, đọc lại trước khi mở `02_micrograd.py`.
+> Nối từ các tuần trước: chain rule và kiểm gradient bằng sai phân bạn đã làm ở Tuần 2; gradient viết tay cho logistic regression ở Tuần 3; `loss.backward()` ở Tuần 4. Tuần này bạn tự viết chính cái `backward()` đó. Nếu Tuần 2 mục A còn mơ hồ, đọc lại trước khi mở `02_micrograd.py`.
 
 ## Mục tiêu
 
@@ -14,7 +14,7 @@
 
 - Lý thuyết tự chứa của tuần: [`01_theory_notes.md`](01_theory_notes.md) (kèm link nguồn đã xác minh 2026-08-11).
 - Repo mở `karpathy/micrograd`: đọc code + README rồi **tự build lại** autograd + backprop.
-- Repo mở `karpathy/makemore`: bigram → MLP (theo paper Bengio 2003, "A Neural Probabilistic Language Model").
+- Repo mở `karpathy/makemore`: bigram rồi MLP (theo paper Bengio 2003, "A Neural Probabilistic Language Model").
 - *The Annotated Transformer* (Harvard NLP, nlp.seas.harvard.edu): mental model về transformer.
 - Paper gốc, **"Attention Is All You Need"** (arXiv 1706.03762).
 
@@ -23,19 +23,19 @@
 1. [`01_theory_notes.md`](01_theory_notes.md): đọc lý thuyết backprop + mental model transformer trước.
 2. [`02_micrograd.py`](02_micrograd.py): TỰ build autograd engine (deliverable chính).
 3. [`03_check_grad.py`](03_check_grad.py): đối chiếu gradient với PyTorch, khớp mới đạt.
-4. [`04_makemore_notes.md`](04_makemore_notes.md): làm bigram → MLP, ghi NLL đo được.
+4. [`04_makemore_notes.md`](04_makemore_notes.md): làm bigram rồi MLP, ghi NLL đo được.
 5. [`05_attention_writeup.md`](05_attention_writeup.md): viết giải thích permutation-equivariance (deliverable 2).
 6. [`quiz.md`](quiz.md): làm quiz cuối tuần, đối chiếu [`quiz_solution.md`](quiz_solution.md). *(Hai file này do `scripts/generate_quiz.py` sinh ra nên giữ nguyên tên, không đánh số.)*
 
 ## Nhiệm vụ (Task)
 
 - Đọc code repo micrograd rồi **tự build lại** (giá trị scalar + autograd + backward).
-- Bắt đầu **makemore**: bigram model → MLP.
+- Bắt đầu **makemore**: bigram model rồi MLP.
 
 ## Deliverables
 
-1. Repo **micrograd** của riêng bạn → `02_micrograd.py` (+ test gradient khớp với PyTorch).
-2. Bài viết (Claude review) giải thích **vì sao attention permutation-equivariant và cần positional encoding** → `05_attention_writeup.md`.
+1. Repo **micrograd** của riêng bạn, nộp ở `02_micrograd.py` (+ test gradient khớp với PyTorch).
+2. Bài viết (Claude review) giải thích **vì sao attention permutation-equivariant và cần positional encoding**, nộp ở `05_attention_writeup.md`.
 
 ## Thời lượng
 
@@ -54,14 +54,14 @@
 - [ ] Tự viết `02_micrograd.py`: class `Value` với `+`, `*`, `tanh/relu`, `backward()`
 - [ ] Kiểm micrograd bằng sai phân trung tâm của Tuần 2 (không cần PyTorch) trên một biểu thức nhỏ
 - [ ] Kiểm tra gradient khớp PyTorch (chạy `03_check_grad.py`)
-- [ ] Đọc repo `karpathy/makemore`: bigram → MLP
+- [ ] Đọc repo `karpathy/makemore`: bigram rồi MLP
 - [ ] Tự code bigram model (đếm + neural net 1 layer); nhận ra NLL ở đây là loss logistic regression của Tuần 3 mở rộng lên 27 lớp
 - [ ] Mở rộng makemore lên MLP (theo Bengio 2003)
 - [ ] Đọc The Annotated Transformer (phần encoder/attention) để dựng mental model
-- [ ] Viết `05_attention_writeup.md` bằng lời mình → nhờ Claude review
+- [ ] Viết `05_attention_writeup.md` bằng lời mình rồi nhờ Claude review
 - [ ] Tự kiểm tra: vẽ được computation graph + giải thích backward bằng chain rule
 
-## 🚀 Bổ sung nâng cao
+## Bổ sung nâng cao
 
 **Tuần này cũng KHÔNG có mục nâng cao** (xem bảng neo trong [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md)). Tự tay viết micrograd và dựng mental model transformer đã đủ nặng, chia trí lúc này là phản tác dụng.
 
@@ -81,4 +81,4 @@ Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong 
 | 5 | `05_attention_writeup.md` | Template để viết giải thích permutation-equivariance |
 | 6 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
 
-> Nhắc lại tiêu chí: nếu chưa giải thích được cho Claude bằng lời của mình → chưa học xong. Tuần này đặc biệt cần đi chậm và tự tay làm.
+> Nhắc lại tiêu chí: nếu chưa giải thích được cho Claude bằng lời của mình thì chưa học xong. Tuần này đặc biệt cần đi chậm và tự tay làm.

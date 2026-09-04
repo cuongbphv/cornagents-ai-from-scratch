@@ -76,4 +76,4 @@ Top-p (nucleus) sampling khác top-k ở điểm nào theo Jurafsky và Martin, 
 Vì sao khi kiểm tra kiến trúc GPT bằng cách load trọng số GPT-2 rồi sinh text, nên bắt đầu bằng greedy decoding thay vì sampling?
 
 ---
-> 💡 Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.
+> Mẹo dùng Claude làm bạn học: trả lời bằng lời của bạn, rồi dán câu trả lời cho Claude và nhờ chấm so với `quiz_solution.md`.

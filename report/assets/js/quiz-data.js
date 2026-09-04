@@ -913,7 +913,7 @@ window.QUIZ_DATA = {
         {
           "id": "w9q5",
           "type": "mcq",
-          "q": "Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưng theo paper Instruction Modelling (arXiv 2405.14394, dẫn ở mục 3 theory notes), tính loss CẢ trên phần instruction lại có lợi trong điều kiện nào?",
+          "q": "Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưng theo Shi et al. 2024, Instruction Tuning With Loss Over Instructions (arXiv 2405.14394, dẫn ở mục 3 theory notes), tính loss CẢ trên phần instruction lại có lợi trong điều kiện nào?",
           "choices": [
             "Luôn luôn có lợi, nên bỏ hẳn masking",
             "Khi dataset có instruction dài kèm output ngắn, hoặc khi có ít mẫu train, nhóm tác giả quy lợi ích cho việc giảm overfitting",

@@ -5,8 +5,8 @@
 
 ## 1. Định nghĩa: equivariant vs invariant
 
-- **Permutation-invariant**: đổi thứ tự input → output KHÔNG đổi (vd. sum, mean).
-- **Permutation-equivariant**: đổi thứ tự input → output đổi theo ĐÚNG cách hoán vị đó.
+- Permutation-invariant nghĩa là đổi thứ tự input thì output KHÔNG đổi (vd. sum, mean).
+- Permutation-equivariant nghĩa là đổi thứ tự input thì output đổi theo ĐÚNG cách hoán vị đó.
 
 TODO: Viết lại 2 định nghĩa trên bằng lời mình + 1 ví dụ đời thường cho mỗi loại.
 
@@ -14,7 +14,7 @@ TODO: Viết lại 2 định nghĩa trên bằng lời mình + 1 ví dụ đời
 
 Cho chuỗi token `x₁..xₙ`. Mỗi token sinh query/key/value qua các ma trận chung `W_Q, W_K, W_V` (giống nhau cho mọi vị trí). Attention score giữa i và j chỉ là dot product `qᵢ · kⱼ`, KHÔNG chứa thông tin về **vị trí** i hay j.
 
-→ Nếu hoán vị thứ tự token đầu vào, tập các score y hệt, chỉ bị đánh số lại; output cũng bị hoán vị tương ứng → **equivariant**.
+Vì thế nếu hoán vị thứ tự token đầu vào, tập các score y hệt, chỉ bị đánh số lại; output cũng bị hoán vị tương ứng, tức **equivariant**.
 
 TODO trả lời:
 - Vì sao việc `W_Q, W_K, W_V` dùng chung cho mọi vị trí dẫn tới equivariance? ______
@@ -45,4 +45,4 @@ TODO:
 3. ______
 
 ---
-*Checklist trước khi gửi Claude review:* đã viết bằng lời mình ✓ · có ví dụ cụ thể ✓ · trả lời hết các TODO ✓
+*Checklist trước khi gửi Claude review:* đã viết bằng lời mình, có ví dụ cụ thể, trả lời hết các TODO

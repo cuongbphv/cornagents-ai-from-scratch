@@ -10,7 +10,7 @@
 | Tool/data access | MCP (GitHub, Postgres, filesystem...) | ______ |
 | Orchestration | LangGraph **hoặc** CrewAI → chọn: ______ | ______ |
 
-> Gợi ý: regulated finance → **LangGraph** (stateful, auditable, kiểm soát rõ ràng). CrewAI nếu ưu tiên prototype nhanh theo vai trò.
+> Gợi ý: với regulated finance, ưu tiên **LangGraph** (stateful, auditable, kiểm soát rõ ràng). Chọn CrewAI nếu ưu tiên prototype nhanh theo vai trò.
 
 ## 2. Sơ đồ kiến trúc (vẽ/ASCII)
 
@@ -33,10 +33,10 @@
 
 ## 3. Nguyên tắc thiết kế (day one)
 
-- [ ] **Human-in-the-loop gates** ở các bước rủi ro (commit, merge, gửi ra ngoài).
-- [ ] **Tool least-privilege**: mỗi agent chỉ có tool tối thiểu cần thiết.
-- [ ] **Auditable state**: log mọi quyết định + tool call.
-- [ ] **Domain grounding**: nối RAG Finance Banking làm nguồn sự thật.
+- [ ] Đặt human-in-the-loop gate ở các bước rủi ro (commit, merge, gửi ra ngoài).
+- [ ] Áp tool least-privilege: mỗi agent chỉ có tool tối thiểu cần thiết.
+- [ ] Giữ state auditable: log mọi quyết định và tool call.
+- [ ] Grounding theo domain: nối RAG Finance Banking làm nguồn sự thật.
 
 ## 4. Tool boundaries (điền)
 

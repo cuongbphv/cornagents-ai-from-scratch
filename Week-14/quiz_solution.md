@@ -1,13 +1,13 @@
 # Tuần 14, Đáp án & Giải thích: Advanced RAG + đánh giá (RAGAS)
 
-> ⚠️ Chỉ mở sau khi đã tự trả lời `quiz.md`.
+> Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
 ## Câu 1 (Trắc nghiệm)
 
 Hybrid retrieval kết hợp BM25 và vector search; chúng thường được trộn bằng kỹ thuật nào?
 
 - **A.** Lấy trung bình embedding
-- **B.** Reciprocal Rank Fusion (RRF): hợp nhất thứ hạng từ hai bộ retrieve ✅
+- **B.** Reciprocal Rank Fusion (RRF): hợp nhất thứ hạng từ hai bộ retrieve (đáp án đúng)
 - **C.** Nối kết quả ngẫu nhiên
 - **D.** Chỉ lấy BM25
 
@@ -27,7 +27,7 @@ Cross-encoder reranker khác bi-encoder (embedding) thế nào, dùng khi nào?
 
 Trong RAGAS, 'faithfulness' đo điều gì?
 
-- **A.** Câu trả lời có bám/được hỗ trợ bởi context retrieve hay không (chống bịa) ✅
+- **A.** Câu trả lời có bám/được hỗ trợ bởi context retrieve hay không (chống bịa) (đáp án đúng)
 - **B.** Tốc độ trả lời
 - **C.** Độ dài câu trả lời
 - **D.** Số token dùng
@@ -41,7 +41,7 @@ Trong RAGAS, 'faithfulness' đo điều gì?
 'Context precision' và 'context recall' trong RAGAS đánh giá khâu nào?
 
 - **A.** Khâu generate
-- **B.** Chất lượng RETRIEVAL, đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không ✅
+- **B.** Chất lượng RETRIEVAL, đoạn lấy ra có liên quan (precision) và có đủ thông tin cần (recall) không (đáp án đúng)
 - **C.** Tốc độ embedding
 - **D.** Chi phí API
 
@@ -62,7 +62,7 @@ Vì sao cần eval set + cẩn trọng với LLM-as-judge?
 Langfuse/LangSmith dùng để làm gì?
 
 - **A.** Train embedding
-- **B.** Tracing/observability: ghi lại từng bước retrieve → generate, chạy eval, LLM-as-judge ✅
+- **B.** Tracing/observability: ghi lại từng bước retrieve → generate, chạy eval, LLM-as-judge (đáp án đúng)
 - **C.** Lưu vector
 - **D.** Lượng tử hoá model
 
@@ -87,7 +87,7 @@ Theo IR-book mục 11.4.3, BM25 được thiết kế để mô hình xác suấ
 Zheng et al. (arXiv 2306.05685) nêu những thiên vị nào của LLM-as-judge, và bạn kiểm position bias bằng cách nào trong rubric RAGAS?
 
 - **A.** Chỉ có thiên vị độ dài; kiểm bằng cách cắt câu trả lời
-- **B.** Position bias, verbosity bias, self-enhancement bias, và limited reasoning ability; kiểm position bias bằng cách đảo thứ tự hai câu trả lời và xem phán quyết có đổi không ✅
+- **B.** Position bias, verbosity bias, self-enhancement bias, và limited reasoning ability; kiểm position bias bằng cách đảo thứ tự hai câu trả lời và xem phán quyết có đổi không (đáp án đúng)
 - **C.** Chỉ có self-enhancement; kiểm bằng dùng model khác
 - **D.** Không có thiên vị nào đáng kể vì agreement trên 80%
 

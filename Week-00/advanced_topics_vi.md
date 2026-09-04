@@ -1,10 +1,10 @@
 # Appendix: Kiến thức nâng cao (Gap Analysis)
 
-> **Vì sao có file này.** Phase 1 và 2 của lộ trình (Tuần 4-18) dựng một model cỡ GPT-2, kiến trúc năm 2019, rồi chuyển sang ứng dụng. Các model mở đang dùng hằng ngày (Llama 3, Qwen3, Mistral, DeepSeek) đã đổi gần hết các thành phần của GPT-2, và các repo huấn luyện hiện đại (nanoGPT, nanochat, FareedKhan) chứa một loạt kỹ thuật train, inference, eval mà bản GPT-2 tối giản không có. File này giải thích từng khoảng cách đó ở mức đủ để bạn đọc paper gốc và đọc code, kèm nguồn cụ thể cho từng khẳng định.
+> Phase 1 và 2 của lộ trình (Tuần 4-18) dựng một model cỡ GPT-2, kiến trúc năm 2019, rồi chuyển sang ứng dụng. Các model mở đang dùng hằng ngày (Llama 3, Qwen3, Mistral, DeepSeek) đã đổi gần hết các thành phần của GPT-2, và các repo huấn luyện hiện đại (nanoGPT, nanochat, FareedKhan) chứa một loạt kỹ thuật train, inference, eval mà bản GPT-2 tối giản không có. File này giải thích từng khoảng cách đó ở mức đủ để bạn đọc paper gốc và đọc code, kèm nguồn cụ thể cho từng khẳng định.
 >
-> **Cách dùng.** Không đọc một lượt. Mỗi tuần mở đúng mục được neo trong bảng dưới; README từng tuần có block "Bổ sung nâng cao" trỏ ngược về đây. Mã mục (A1, B4, I5...) giữ cố định để các tuần tham chiếu được. Bản tiếng Anh: [advanced_topics_en.md](advanced_topics_en.md).
+> Không đọc file này một lượt. Mỗi tuần mở đúng mục được neo trong bảng dưới; README từng tuần có block "Bổ sung nâng cao" trỏ ngược về đây. Mã mục (A1, B4, I5...) giữ cố định để các tuần tham chiếu được. Bản tiếng Anh: [advanced_topics_en.md](advanced_topics_en.md).
 >
-> **Quy ước nguồn.** Mọi khẳng định có nguồn được ghi ngay sau câu, dạng (tác giả, arXiv id, mục) hoặc (repo, file). Câu trong ngoặc kép là trích nguyên văn từ PDF hoặc code đã đọc ngày 2026-09-04. Chỗ nào là suy luận của người viết thì mở đầu bằng `[Suy luận]`; chỗ nào chưa kiểm được thì `[Chưa xác minh]`.
+> Quy ước nguồn: mọi khẳng định có nguồn được ghi ngay sau câu, dạng (tác giả, arXiv id, mục) hoặc (repo, file). Câu trong ngoặc kép là trích nguyên văn từ PDF hoặc code đã đọc ngày 2026-09-04. Chỗ nào là suy luận của người viết thì mở đầu bằng `[Suy luận]`; chỗ nào chưa kiểm được thì `[Chưa xác minh]`.
 
 **Mục lục**
 
@@ -51,7 +51,7 @@ Mục A đến H là chiều sâu cho Phase 1-2 (model internals). Mục I là c
 
 ## A. Kiến trúc hiện đại
 
-> **Học ở tuần** 6-7. **Nguồn:** RoFormer (Su et al., arXiv 2104.09864); RMSNorm (Zhang và Sennrich, arXiv 1910.07467); GLU Variants (Shazeer, arXiv 2002.05202); GQA (Ainslie et al., arXiv 2305.13245); DeepSeek-V2 (arXiv 2405.04434); Mistral 7B (arXiv 2310.06825); Switch Transformer (Fedus, Zoph, Shazeer, arXiv 2101.03961, JMLR 2022, CC BY 4.0); Mixtral (arXiv 2401.04088); Llama 3 (arXiv 2407.21783, mục 3.2); code `nanochat/gpt.py` (repo karpathy/nanochat, MIT). Tất cả đọc ngày 2026-09-04.
+> Học ở tuần 6-7. Nguồn: RoFormer (Su et al., arXiv 2104.09864); RMSNorm (Zhang và Sennrich, arXiv 1910.07467); GLU Variants (Shazeer, arXiv 2002.05202); GQA (Ainslie et al., arXiv 2305.13245); DeepSeek-V2 (arXiv 2405.04434); Mistral 7B (arXiv 2310.06825); Switch Transformer (Fedus, Zoph, Shazeer, arXiv 2101.03961, JMLR 2022, CC BY 4.0); Mixtral (arXiv 2401.04088); Llama 3 (arXiv 2407.21783, mục 3.2); code `nanochat/gpt.py` (repo karpathy/nanochat, MIT). Tất cả đọc ngày 2026-09-04.
 
 GPT-2 mà bạn lắp ở Tuần 7 gồm: positional embedding học được và cộng vào token embedding, LayerNorm, FFN hai lớp với GELU và chiều ẩn 4d, multi-head attention với Q, K, V riêng cho mỗi head, và bias ở các lớp Linear. Bảng dưới tóm cái gì đã đổi; từng mục con giải thích vì sao.
 
@@ -75,17 +75,19 @@ Ba hệ quả thực hành. Thứ nhất, RoPE áp lên Q và K bên trong atten
 
 Khi tự cài ở Tuần 6: viết một hàm nhận (B, T, H, D) và bảng cos, sin có sẵn cho mọi vị trí; kiểm bằng cách xoay q ở vị trí 5 và k ở vị trí 2, rồi so tích vô hướng với trường hợp vị trí 8 và 5. Hai tích phải bằng nhau tới sai số máy.
 
-#### A1.1. Mở rộng context với RoPE: PI → NTK-aware → YaRN
+#### A1.1. Mở rộng context với RoPE: từ PI qua NTK-aware đến YaRN
 
 > Nguồn: Position Interpolation, Chen et al. 2023 (arXiv [2306.15595](https://arxiv.org/abs/2306.15595), abstract tra 2026-08-16); YaRN, Peng et al. 2023 (arXiv [2309.00071](https://arxiv.org/abs/2309.00071), abstract + full text HTML tra 2026-08-16).
 
-**Vì sao extrapolation "trần" thất bại.** Model chỉ từng thấy các góc quay \(m\theta_i\) với \(m\) trong độ dài train (vd. 0-4095). Cho \(m\) vượt xa mức đó là đưa attention vào vùng góc chưa từng gặp, abstract PI mô tả extrapolation "may lead to catastrophically high attention scores that completely ruin the self-attention mechanism" (điểm attention cao thảm hoạ, phá vỡ cơ chế self-attention).
+Extrapolation "trần" thất bại vì model chỉ từng thấy các góc quay \(m\theta_i\) với \(m\) trong độ dài train (vd. 0-4095). Cho \(m\) vượt xa mức đó là đưa attention vào vùng góc chưa từng gặp, abstract PI mô tả extrapolation "may lead to catastrophically high attention scores that completely ruin the self-attention mechanism" (điểm attention cao thảm hoạ, phá vỡ cơ chế self-attention).
 
-Ba mức khắc phục, đều xoay quanh câu hỏi **"rescale cái gì"**:
+Ba mức khắc phục, đều xoay quanh câu hỏi **"rescale cái gì"**.
 
-- **Position Interpolation (PI)**: *rescale vị trí*. Nén tuyến tính chỉ số vị trí \(m \rightarrow m \cdot L/L'\) (\(L\) = độ dài train, \(L'\) = độ dài mới) để mọi vị trí mới rơi ngược vào dải góc đã train, nội suy thay vì ngoại suy. Abstract PI: mở rộng LLaMA lên **32768** token với fine-tune **dưới 1000 bước**, và cận trên của nội suy nhỏ hơn ngoại suy "~600×". Nhược điểm (paper YaRN chỉ ra): nén *đều mọi chiều* làm mất thành phần tần số cao, "it removes the high frequency components of RoPE", tức là làm mờ khả năng phân biệt các token *sát nhau*.
-- **NTK-aware scaling**: *rescale tần số (base), không đều*. Thay vì nén mọi chiều cùng hệ số \(s\), đổi base \(b \rightarrow b \cdot s^{d/(d-2)}\): full text YaRN: "we spread out the interpolation pressure across multiple dimensions by scaling high frequencies less and low frequencies more" (chiều tần số cao gần như giữ nguyên để không mất chi tiết cục bộ, chiều tần số thấp nén nhiều để phủ được context dài).
-- **YaRN**: kết hợp **NTK-by-parts** (chọn nội suy theo *từng chiều*, dựa trên tỉ lệ bước sóng/context: chiều tần số cao giữ nguyên, chiều tần số thấp mới nội suy) + **attention temperature scaling** (nhân thêm nhiệt độ \(t\) vào softmax attention, \(\sqrt{1/t}=0.1\ln s + 1\)). Abstract YaRN: cần "10x less tokens and 2.5x less training steps than previous methods" để đạt cùng mức mở rộng context.
+Position Interpolation (PI) rescale *vị trí*. Nó nén tuyến tính chỉ số vị trí \(m \rightarrow m \cdot L/L'\) (\(L\) = độ dài train, \(L'\) = độ dài mới) để mọi vị trí mới rơi ngược vào dải góc đã train, nội suy thay vì ngoại suy. Abstract PI: mở rộng LLaMA lên **32768** token với fine-tune **dưới 1000 bước**, và cận trên của nội suy nhỏ hơn ngoại suy "~600×". Nhược điểm, như paper YaRN chỉ ra, là nén *đều mọi chiều* làm mất thành phần tần số cao, "it removes the high frequency components of RoPE", tức là làm mờ khả năng phân biệt các token *sát nhau*.
+
+NTK-aware scaling rescale *tần số (base)*, và rescale không đều. Thay vì nén mọi chiều cùng hệ số \(s\), nó đổi base \(b \rightarrow b \cdot s^{d/(d-2)}\); full text YaRN: "we spread out the interpolation pressure across multiple dimensions by scaling high frequencies less and low frequencies more" (chiều tần số cao gần như giữ nguyên để không mất chi tiết cục bộ, chiều tần số thấp nén nhiều để phủ được context dài).
+
+YaRN kết hợp **NTK-by-parts** (chọn nội suy theo *từng chiều*, dựa trên tỉ lệ bước sóng/context: chiều tần số cao giữ nguyên, chiều tần số thấp mới nội suy) với **attention temperature scaling** (nhân thêm nhiệt độ \(t\) vào softmax attention, \(\sqrt{1/t}=0.1\ln s + 1\)). Abstract YaRN: cần "10x less tokens and 2.5x less training steps than previous methods" để đạt cùng mức mở rộng context.
 
 Ba cách nằm trên cùng một trục: PI kéo *vị trí* về vùng đã train; NTK-aware kéo *tần số*, và kéo không đều giữa các chiều; YaRN làm việc chọn lọc đó theo từng chiều rồi vá nốt phần softmax. Cả ba đều rẻ vì **không đổi kiến trúc**: chỉ đổi cách tính góc quay RoPE (± một lượng fine-tune nhỏ).
 
@@ -131,11 +133,11 @@ Cửa sổ trượt "ngây thơ" có một chỗ gãy: khi hội thoại dài v�
 
 [Suy luận] Cách giải thích trực giác (dựa trên lập luận trong paper, không nằm trong abstract): softmax buộc tổng attention = 1, nên khi một head "không cần nhìn đâu cả" nó vẫn phải đổ trọng số đi đâu đó, và chỗ đổ ổn định nhất là các vị trí đầu tiên, vì *mọi* token về sau đều nhìn thấy chúng trong attention nhân quả. Rút chúng khỏi cache là rút mất "chỗ xả" mà model đã học cách dựa vào.
 
-**Công thức window + sink** (StreamingLLM): KV cache = **vài token sink đầu chuỗi** (giữ cố định) **+ cửa sổ trượt \(w\) token gần nhất**: không cần fine-tune. Abstract: cách này cho model train với attention window hữu hạn "generalize to infinite sequence lengths without any fine-tuning", chạy tới "4 million tokens and more", nhanh hơn baseline sliding-window-có-tính-lại tới **22.2×**. Paper còn ghi nhận: thêm một placeholder token làm sink chuyên dụng ngay từ pretraining giúp streaming tốt hơn nữa. Lưu ý phạm vi: đây là kỹ thuật *streaming/bộ nhớ cache*, không phải mở rộng context "thật", model vẫn không nhớ nội dung đã rơi khỏi cửa sổ (khác với A1.1, nơi model thật sự attend được cả context dài).
+Công thức window + sink của StreamingLLM: KV cache = **vài token sink đầu chuỗi** (giữ cố định) **+ cửa sổ trượt \(w\) token gần nhất**: không cần fine-tune. Abstract: cách này cho model train với attention window hữu hạn "generalize to infinite sequence lengths without any fine-tuning", chạy tới "4 million tokens and more", nhanh hơn baseline sliding-window-có-tính-lại tới **22.2×**. Paper còn ghi nhận: thêm một placeholder token làm sink chuyên dụng ngay từ pretraining giúp streaming tốt hơn nữa. Lưu ý phạm vi: đây là kỹ thuật *streaming/bộ nhớ cache*, không phải mở rộng context "thật", model vẫn không nhớ nội dung đã rơi khỏi cửa sổ (khác với A1.1, nơi model thật sự attend được cả context dài).
 
 ### A7. Mixture of Experts
 
-MoE thay FFN dày bằng nhiều FFN (expert) và một router chọn expert cho mỗi token. Switch Transformer tóm gọn lợi ích và cái giá: kết quả là một model kích hoạt thưa với số tham số rất lớn nhưng chi phí tính toán không đổi, và việc dùng rộng bị cản bởi "complexity, communication costs, and training instability" (Fedus, Zoph, Shazeer, arXiv 2101.03961, abstract). Đóng góp chính của Switch là đơn giản hóa routing: "route to only a single expert" (k = 1), điều paper cho thấy "preserves model quality, reduces routing computation and performs better" (mục 2.1); và một auxiliary load balancing loss cộng vào loss chính để tránh dồn token vào ít expert (mục 2.2, "A Differentiable Load Balancing Loss").
+MoE thay FFN dày bằng nhiều FFN (expert) và một router chọn expert cho mỗi token. Switch Transformer tóm gọn lợi ích và cái giá: kết quả là một model kích hoạt thưa với số tham số rất lớn nhưng chi phí tính toán không đổi, và việc dùng rộng bị cản bởi "complexity, communication costs and training instability" (Fedus, Zoph, Shazeer, arXiv 2101.03961, abstract). Đóng góp chính của Switch là đơn giản hóa routing: "route to only a single expert" (k = 1), điều paper cho thấy "preserves model quality, reduces routing computation and performs better" (mục 2.1); và một auxiliary load balancing loss cộng vào loss chính để tránh dồn token vào ít expert (mục 2.2, "A Differentiable Load Balancing Loss").
 
 Hai model mở cho thấy con số cụ thể. Mixtral 8x7B: mỗi lớp có 8 FFN, router chọn 2 cho mỗi token, nên "each token has access to 47B parameters, but only uses 13B active parameters during inference" (arXiv 2401.04088, abstract). DeepSeek-V2: 236B tổng, 21B kích hoạt (arXiv 2405.04434, abstract). Khi đọc số tham số của một model MoE, luôn hỏi hai con số: tổng và kích hoạt; VRAM để load phụ thuộc con số thứ nhất, tốc độ phụ thuộc con số thứ hai.
 
@@ -143,7 +145,7 @@ Hai model mở cho thấy con số cụ thể. Mixtral 8x7B: mỗi lớp có 8 F
 
 ## B. Tối ưu inference
 
-> **Học ở tuần** 7 (B1, B2), 11 (B4), 12 (B1, B3, B4), 13 (B2). **Nguồn:** SLP3 mục 7.6 (Jurafsky và Martin, bản nháp 19/08/2026); *Foundations of LLMs* (Xiao và Zhu, arXiv 2501.09223) mục 2.3.3, 5.1, 5.2; Fleuret, *The Little Book of Deep Learning* mục 8.2; Leviathan, Kalman, Matias (arXiv 2211.17192); QLoRA (Dettmers et al., arXiv 2305.14314, PDF trong `../docs/papers/`); GPTQ (Frantar et al., arXiv 2210.17323); AWQ (Lin et al., arXiv 2306.00978); `nanochat/engine.py`.
+> Học ở tuần 7 (B1, B2), 11 (B4), 12 (B1, B3, B4), 13 (B2). Nguồn: SLP3 mục 7.6 (Jurafsky và Martin, bản nháp 19/08/2026); *Foundations of LLMs* (Xiao và Zhu, arXiv 2501.09223) mục 2.3.3, 5.1, 5.2; Fleuret, *The Little Book of Deep Learning* mục 8.2; Leviathan, Kalman, Matias (arXiv 2211.17192); QLoRA (Dettmers et al., arXiv 2305.14314, PDF trong `../docs/papers/`); GPTQ (Frantar et al., arXiv 2210.17323); AWQ (Lin et al., arXiv 2306.00978); `nanochat/engine.py`.
 
 ### B1. KV cache
 
@@ -183,7 +185,7 @@ Vì sao 4-bit chạy được: Fleuret giải thích activation là tổng của
 
 ## C. Attention ở quy mô lớn
 
-> **Học ở tuần** 6. **Nguồn:** FlashAttention (Dao et al., arXiv 2205.14135); PyTorch docs `torch.nn.functional.scaled_dot_product_attention`.
+> Học ở tuần 6. Nguồn: FlashAttention (Dao et al., arXiv 2205.14135); PyTorch docs `torch.nn.functional.scaled_dot_product_attention`.
 
 ### C1. Vì sao O(n²)
 
@@ -199,7 +201,7 @@ Trong PyTorch, `F.scaled_dot_product_attention` chọn backend (trong đó có f
 
 ## D. Training dynamics
 
-> **Học ở tuần** 8. **Nguồn:** `nanoGPT/train.py` (repo karpathy/nanoGPT, MIT; đọc ngày 2026-09-04); `nanochat/optim.py`, `nanochat/common.py`, README nanochat; modded-nanogpt (repo KellerJordan/modded-nanogpt, MIT).
+> Học ở tuần 8. Nguồn: `nanoGPT/train.py` (repo karpathy/nanoGPT, MIT; đọc ngày 2026-09-04); `nanochat/optim.py`, `nanochat/common.py`, README nanochat; modded-nanogpt (repo KellerJordan/modded-nanogpt, MIT).
 
 Các can thiệp dưới đây đều có trong `nanoGPT/train.py` với giá trị mặc định đọc được từ code:
 
@@ -228,7 +230,7 @@ bf16 là mặc định trên GPU Ampere trở lên; fp16 cần GradScaler chốn
 
 ## E. Tokenizer: train BPE from scratch
 
-> **Học ở tuần** 6. **Nguồn:** SLP3 mục 2.4 (trang 42); Sennrich et al. 2015 (arXiv 1508.07909, PDF trong `../docs/papers/`); `nanochat/tokenizer.py`, `scripts/tok_train.py`, `scripts/tok_eval.py`; repo karpathy/minbpe (MIT).
+> Học ở tuần 6. Nguồn: SLP3 mục 2.4 (trang 42); Sennrich et al. 2015 (arXiv 1508.07909, PDF trong `../docs/papers/`); `nanochat/tokenizer.py`, `scripts/tok_train.py`, `scripts/tok_eval.py`; repo karpathy/minbpe (MIT).
 
 Lộ trình dùng tiktoken có sẵn. Bước sâu hơn là tự train một tokenizer BPE, và lý do không chỉ là học thuật: thí nghiệm ở Tuần 6 cho thấy vocab `gpt2` tốn nhiều token cho tiếng Việt vì không có merge nào cho các cụm có dấu. Jurafsky và Martin định nghĩa tokenization là "the process of segmenting the running input text into tokens" và giải thích vì sao chọn đơn vị cỡ morpheme theo cách data-driven (SLP3 mục 2.4, trang 42). Thuật toán BPE gốc của Sennrich et al. bắt đầu từ ký tự, lặp lại việc đếm cặp kề nhau xuất hiện nhiều nhất và gộp thành ký hiệu mới cho tới khi đủ số merge (arXiv 1508.07909, mục 3.2). Bản byte-level bắt đầu từ 256 byte nên không bao giờ gặp token ngoài vocab; regex split (kiểu GPT-2, GPT-4) tách số, chữ và khoảng trắng trước khi merge để merge không băng qua ranh giới vô nghĩa.
 
@@ -238,7 +240,7 @@ Cách đo tokenizer tốt hay không: compression, số byte mỗi token trên c
 
 ## F. Scale và parallelism
 
-> **Học ở tuần** 8. **Nguồn:** PyTorch docs về DistributedDataParallel và FullyShardedDataParallel; Xiao và Zhu, *Foundations of LLMs* mục 2.2.3 Distributed Training (trang 60); Hugging Face Ultra-Scale Playbook (tài liệu chính thức của HF; `[Chưa xác minh]` trong phiên này vì trang không tải được nội dung).
+> Học ở tuần 8. Nguồn: PyTorch docs về DistributedDataParallel và FullyShardedDataParallel; Xiao và Zhu, *Foundations of LLMs* mục 2.2.3 Distributed Training (trang 60); Hugging Face Ultra-Scale Playbook (tài liệu chính thức của HF; `[Chưa xác minh]` trong phiên này vì trang không tải được nội dung).
 
 Có bốn trục để chia việc train khi một GPU không đủ. Data parallelism nhân bản model trên mỗi GPU, mỗi GPU xử lý một phần batch, rồi gộp gradient bằng all-reduce; đây là mức đầu tiên cần biết và là cách nanoGPT chạy multi-GPU qua `torchrun`. Tensor parallelism chia một phép nhân ma trận trong một lớp ra nhiều GPU, cho model không vừa một card. Pipeline parallelism chia model theo lớp thành các giai đoạn nối tiếp. Sharding kiểu ZeRO hay FSDP chia optimizer state, gradient và tham số qua các GPU để giảm bộ nhớ mỗi card. Xiao và Zhu bàn các kỹ thuật này dưới mục Distributed Training của chương về training at scale (*Foundations of LLMs*, mục 2.2.3, trang 60).
 
@@ -248,25 +250,25 @@ Với một GPU 8GB, kỹ thuật bạn dùng thật là gradient accumulation (
 
 ### F1. ZeRO stages 1/2/3: shard dần từng loại state
 
-DDP có một hạn chế về bộ nhớ: mỗi GPU giữ **bản sao đầy đủ** của model state, params + gradients + optimizer states (với AdamW mixed-precision, optimizer states thường là phần *nặng nhất*). ZeRO (Zero Redundancy Optimizer) xoá dần sự dư thừa đó, theo 3 stage *cộng dồn*, mỗi stage shard thêm một loại state qua \(N_d\) GPU (số liệu memory-reduction lấy từ paper, tra 2026-08-16):
+DDP có một hạn chế về bộ nhớ: mỗi GPU giữ **bản sao đầy đủ** của model state, params + gradients + optimizer states (với AdamW mixed-precision, optimizer states thường là phần *nặng nhất*). ZeRO (Zero Redundancy Optimizer; Rajbhandari et al. 2019, arXiv 1910.02054, kiểm 2026-09-04) xoá dần sự dư thừa đó, theo 3 stage *cộng dồn*, mỗi stage shard thêm một loại state qua \(N_d\) GPU (số liệu memory-reduction lấy từ paper, tra 2026-08-16):
 
-1. **Stage 1, \(P_{os}\)**: shard **optimizer states** (mỗi GPU giữ \(1/N_d\)); paper: "4x memory reduction, same communication volume as DP", giảm ~4× bộ nhớ, communication không đổi.
-2. **Stage 2, \(P_{os+g}\)**: shard thêm **gradients** (reduce-scatter về đúng GPU chịu trách nhiệm update phần param tương ứng); paper: "8x memory reduction, same communication volume as DP".
-3. **Stage 3, \(P_{os+g+p}\)**: shard nốt **parameters**: mỗi GPU chỉ giữ mảnh của mình, forward/backward cần lớp nào thì broadcast/gather lớp đó *đúng lúc* rồi thả ra; paper: memory giảm **tuyến tính theo \(N_d\)**, đổi lại "~50% increase in communication volume". Đây là stage duy nhất phá được giới hạn "model phải vừa 1 GPU".
+1. Stage 1, \(P_{os}\), shard **optimizer states** (mỗi GPU giữ \(1/N_d\)); paper: "4x memory reduction, same communication volume as DP", giảm ~4× bộ nhớ, communication không đổi.
+2. Stage 2, \(P_{os+g}\), shard thêm **gradients** (reduce-scatter về đúng GPU chịu trách nhiệm update phần param tương ứng); paper: "8x memory reduction, same communication volume as DP".
+3. Stage 3, \(P_{os+g+p}\), shard nốt **parameters**: mỗi GPU chỉ giữ mảnh của mình, forward/backward cần lớp nào thì broadcast/gather lớp đó *đúng lúc* rồi thả ra; paper: memory giảm **tuyến tính theo \(N_d\)**, đổi lại "~50% increase in communication volume". Đây là stage duy nhất phá được giới hạn "model phải vừa 1 GPU".
 
 Stage càng cao càng tiết kiệm bộ nhớ nhưng càng tốn communication, nên chọn stage thấp nhất đủ để model vừa máy.
 
 ### F2. FSDP: ZeRO-3-style trong PyTorch
 
-**FSDP (FullyShardedDataParallel)** là cách PyTorch tích hợp ý tưởng ZeRO vào core: docs chính thức ([docs.pytorch.org/docs/stable/fsdp.html](https://docs.pytorch.org/docs/stable/fsdp.html), tra 2026-08-16) mô tả `ShardingStrategy.FULL_SHARD` là "Parameters, gradients, and optimizer states are sharded", đúng dáng ZeRO-3; `SHARD_GRAD_OP` chỉ shard gradient + optimizer states (dáng ZeRO-2, docs thậm chí có biến thể tên `_HYBRID_SHARD_ZERO2`); `NO_SHARD` thì hành xử như DDP. Nghĩa là chuyển DDP → FSDP không phải đổi framework, chỉ đổi *chiến lược trải state lên GPU*.
+**FSDP (FullyShardedDataParallel)** là cách PyTorch tích hợp ý tưởng ZeRO vào core: docs chính thức ([docs.pytorch.org/docs/stable/fsdp.html](https://docs.pytorch.org/docs/stable/fsdp.html), tra 2026-08-16) mô tả `ShardingStrategy.FULL_SHARD` là "Parameters, gradients, and optimizer states are sharded", đúng dáng ZeRO-3; `SHARD_GRAD_OP` chỉ shard gradient + optimizer states (dáng ZeRO-2, docs thậm chí có biến thể tên `_HYBRID_SHARD_ZERO2`); `NO_SHARD` thì hành xử như DDP. Nghĩa là chuyển từ DDP sang FSDP không phải đổi framework, chỉ đổi *chiến lược trải state lên GPU*.
 
-**Kế hoạch hands-on:** Chủ repo xác nhận 2026-08-16 sẵn sàng thuê GPU cloud, DDP/FSDP hands-on đã được đưa vào Week-08 extension (thuê máy 2×GPU); xem block extension trong README Tuần 8. Ở local 1 GPU 8GB, công cụ chính vẫn là **gradient accumulation** (D); F1-F2 là thứ bạn chạy thật trên máy thuê.
+Về kế hoạch hands-on, chủ repo xác nhận 2026-08-16 sẵn sàng thuê GPU cloud, DDP/FSDP hands-on đã được đưa vào Week-08 extension (thuê máy 2×GPU); xem block extension trong README Tuần 8. Ở local 1 GPU 8GB, công cụ chính vẫn là **gradient accumulation** (D); F1-F2 là thứ bạn chạy thật trên máy thuê.
 
 ---
 
 ## G. Alignment và reasoning
 
-> **Học ở tuần** 9 (sơ đồ) và 10 (đầy đủ). **Nguồn:** SLP3 mục 8.1-8.4 (trang 210-223); Sutton và Barto, *RL: An Introduction* mục 3.1, 13.1, 13.3; Xiao và Zhu, *Foundations of LLMs* mục 4.3-4.4; DPO (Rafailov et al., arXiv 2305.18290, PDF trong `../docs/papers/`); DeepSeekMath (Shao et al., arXiv 2402.03300); repo FareedKhan-dev/train-llm-from-scratch `src/post_training/`; nanochat `scripts/chat_sft.py`, `scripts/chat_rl.py`.
+> Học ở tuần 9 (sơ đồ) và 10 (đầy đủ). Nguồn: SLP3 mục 8.1-8.4 (trang 210-223); Sutton và Barto, *RL: An Introduction* mục 3.1, 13.1, 13.3; Xiao và Zhu, *Foundations of LLMs* mục 4.3-4.4; DPO (Rafailov et al., arXiv 2305.18290, PDF trong `../docs/papers/`); DeepSeekMath (Shao et al., arXiv 2402.03300); repo FareedKhan-dev/train-llm-from-scratch `src/post_training/`; nanochat `scripts/chat_sft.py`, `scripts/chat_rl.py`.
 
 Pipeline từ base model tới model biết hội thoại và suy luận:
 
@@ -276,15 +278,15 @@ Pretrain → SFT → Reward Model → PPO hoặc DPO → GRPO / RLVR
 
 Pretrain là dự đoán token kế (Tuần 8). SFT, hay instruction tuning, là supervised learning trên cặp instruction và response với cùng objective cross-entropy (SLP3 mục 8.1, trang 210; Tuần 9). Từ đây trở đi là học từ sở thích.
 
-**Reward model.** Thay vì viết ra "câu trả lời tốt là gì", người ta cho người chấm so sánh cặp output, rồi train một model chấm điểm sao cho output được chọn có điểm cao hơn output bị loại (SLP3 mục 8.3, trang 215; FoLLM mục 4.3.2). Xiao và Zhu nêu lý do phải đi đường vòng: "often, humans themselves cannot precisely express their own preferences" (*Foundations of LLMs*, mục 4.3, trang 172).
+Bước tiếp theo là reward model. Thay vì viết ra "câu trả lời tốt là gì", người ta cho người chấm so sánh cặp output, rồi train một model chấm điểm sao cho output được chọn có điểm cao hơn output bị loại (SLP3 mục 8.3, trang 215; FoLLM mục 4.3.2). Xiao và Zhu nêu lý do phải đi đường vòng: "often, humans themselves cannot precisely express their own preferences" (*Foundations of LLMs*, mục 4.3, trang 172).
 
-**PPO trong RLHF.** SLP3 khẳng định các phương pháp alignment hiện nay "are based on a Reinforcement Learning (RL) framework (Sutton and Barto, 1998)" (mục 8.4, trang 219). Policy là LLM, action là token, reward từ reward model, và có thêm ràng buộc KL giữ policy gần model tham chiếu. FoLLM viết hàm mục tiêu dạng advantage: U(τ; θ) = Σ_t log π_θ(a_t|s_t) A(s_t, a_t), với advantage ước lượng bằng TD error và value function train nhờ reward model (mục 4.3.3, eq. 4.39, trang 182). Ghi chú lý thuyết Tuần 10 dẫn đường từ REINFORCE của Sutton và Barto tới công thức này.
+Với PPO trong RLHF, SLP3 khẳng định các phương pháp alignment hiện nay "are based on a Reinforcement Learning (RL) framework (Sutton and Barto, 1998)" (mục 8.4, trang 219). Policy là LLM, action là token, reward từ reward model, và có thêm ràng buộc KL giữ policy gần model tham chiếu. FoLLM viết hàm mục tiêu dạng advantage: U(τ; θ) = Σ_t log π_θ(a_t|s_t) A(s_t, a_t), với advantage ước lượng bằng TD error và value function train nhờ reward model (mục 4.3.3, eq. 4.39, trang 182). Ghi chú lý thuyết Tuần 10 dẫn đường từ REINFORCE của Sutton và Barto tới công thức này.
 
-**DPO.** Rafailov et al. giới thiệu "a new parameterization of the reward model in RLHF that enables extraction of the corresponding optimal policy in closed form, allowing us to solve the standard RLHF problem with only a simple classification loss"; DPO "is stable, performant, and computationally lightweight, eliminating the need for sampling from the LM during fine-tuning" (arXiv 2305.18290, abstract). Công thức loss đã có ở Tuần 10.
+Về DPO, Rafailov et al. giới thiệu "a new parameterization of the reward model in RLHF that enables extraction of the corresponding optimal policy in closed form, allowing us to solve the standard RLHF problem with only a simple classification loss"; DPO "is stable, performant, and computationally lightweight, eliminating the need for sampling from the LM during fine-tuning" (arXiv 2305.18290, abstract). Công thức loss đã có ở Tuần 10.
 
-**GRPO và RLVR.** DeepSeekMath giới thiệu GRPO là biến thể của PPO: "GRPO foregoes the critic model, instead estimating the baseline from group scores, significantly reducing training resources" (Shao et al., arXiv 2402.03300, mục 1). Tức là với mỗi prompt sinh một nhóm output, chuẩn hóa reward trong nhóm để làm advantage, không cần value network. Paper báo trên GSM8K từ 82.9% lên 88.2% trong pha RL (cùng mục). RLVR là cách gọi khi reward là thứ kiểm được bằng máy, đáp án toán đúng hay sai, test code pass hay không; paper DeepSeek-R1 trong kệ paper là ví dụ ở quy mô lớn.
+Về GRPO và RLVR, DeepSeekMath giới thiệu GRPO là biến thể của PPO: "GRPO foregoes the critic model, instead estimating the baseline from group scores, significantly reducing training resources" (Shao et al., arXiv 2402.03300, mục 1). Tức là với mỗi prompt sinh một nhóm output, chuẩn hóa reward trong nhóm để làm advantage, không cần value network. Paper báo trên GSM8K từ 82.9% lên 88.2% trong pha RL (cùng mục). RLVR là cách gọi khi reward là thứ kiểm được bằng máy, đáp án toán đúng hay sai, test code pass hay không; paper DeepSeek-R1 trong kệ paper là ví dụ ở quy mô lớn.
 
-**Midtraining.** `[Chưa xác minh]` Một số pipeline hiện đại chèn một giai đoạn giữa pretrain và SFT để dạy định dạng hội thoại và special token; trong danh sách file của nanochat đọc ngày 2026-09-04 có `chat_sft.py` và `chat_rl.py` nhưng tôi không thấy script tên midtrain, nên không khẳng định cách nanochat gọi bước này.
+`[Chưa xác minh]` Về midtraining: một số pipeline hiện đại chèn một giai đoạn giữa pretrain và SFT để dạy định dạng hội thoại và special token; trong danh sách file của nanochat đọc ngày 2026-09-04 có `chat_sft.py` và `chat_rl.py` nhưng tôi không thấy script tên midtrain, nên không khẳng định cách nanochat gọi bước này.
 
 Code để đối chiếu: `src/post_training/` của FareedKhan có SFT, reward model, PPO, DPO, GRPO bằng PyTorch thuần. Khi đọc, tìm ba chỗ: nơi tính log π_θ(a_t|s_t), nơi tính advantage (từ critic với PPO, từ nhóm với GRPO), và nơi giữ KL với model tham chiếu.
 
@@ -292,21 +294,21 @@ Code để đối chiếu: `src/post_training/` của FareedKhan có SFT, reward
 
 ## H. Evaluation
 
-> **Học ở tuần** 8, 11, 14, 18. **Nguồn:** SLP3 mục 3.3, 3.7, 1.9, 11.6; README nanochat (Time-to-GPT-2 Leaderboard); `nanochat/core_eval.py`, `nanochat/loss_eval.py`; Zheng et al., "Judging LLM-as-a-Judge" (arXiv 2306.05685); IR-book mục 8.
+> Học ở tuần 8, 11, 14, 18. Nguồn: SLP3 mục 3.3, 3.7, 1.9, 11.6; README nanochat (Time-to-GPT-2 Leaderboard); `nanochat/core_eval.py`, `nanochat/loss_eval.py`; Zheng et al., "Judging LLM-as-a-Judge" (arXiv 2306.05685); IR-book mục 8.
 
-**Perplexity và bits per byte.** Perplexity là hàm của cross-entropy trên token, chuẩn hóa theo độ dài (SLP3 mục 3.3, trang 76; mục 3.7, trang 85). Vì tính trên token, nó phụ thuộc tokenizer: hai model với vocab khác nhau không so được perplexity với nhau. Bits per byte chia cùng lượng thông tin cho số byte của văn bản thay cho số token, nên so được chéo model; nanochat báo `val_bpb` trên leaderboard thay cho loss thô (README nanochat), và `nanochat/loss_eval.py` là nơi tính. Đây là con số nên dùng khi so lần chạy Tuần 8 với GPT-2.
+Perplexity là hàm của cross-entropy trên token, chuẩn hóa theo độ dài (SLP3 mục 3.3, trang 76; mục 3.7, trang 85). Vì tính trên token, nó phụ thuộc tokenizer: hai model với vocab khác nhau không so được perplexity với nhau. Bits per byte chia cùng lượng thông tin cho số byte của văn bản thay cho số token, nên so được chéo model; nanochat báo `val_bpb` trên leaderboard thay cho loss thô (README nanochat), và `nanochat/loss_eval.py` là nơi tính. Đây là con số nên dùng khi so lần chạy Tuần 8 với GPT-2.
 
-**CORE.** nanochat đo "time to GPT-2" bằng CORE score theo paper DCLM: "The GPT-2 CORE score is 0.256525" và checkpoint GPT-2 gốc nằm ở hàng 0 của leaderboard với CORE 0.2565 (README nanochat, mục Time-to-GPT-2 Leaderboard); `nanochat/core_eval.py` "Evaluates base model CORE score (DCLM paper)" (README, cây thư mục). Các benchmark quen thuộc như MMLU, ARC, GSM8K, HumanEval là câu hỏi kiến thức, khoa học, toán, code; SLP3 nhắc accuracy trên test set chưa thấy là số đo cơ bản và các benchmark lớn thường dưới dạng câu hỏi (mục 1.9, trang 25).
+nanochat đo "time to GPT-2" bằng CORE score theo paper DCLM: "The GPT-2 CORE score is 0.256525" và checkpoint GPT-2 gốc nằm ở hàng 0 của leaderboard với CORE 0.2565 (README nanochat, mục Time-to-GPT-2 Leaderboard); `nanochat/core_eval.py` "Evaluates base model CORE score (DCLM paper)" (README, cây thư mục). Các benchmark quen thuộc như MMLU, ARC, GSM8K, HumanEval là câu hỏi kiến thức, khoa học, toán, code; SLP3 nhắc accuracy trên test set chưa thấy là số đo cơ bản và các benchmark lớn thường dưới dạng câu hỏi (mục 1.9, trang 25).
 
-**LLM-as-judge.** Zheng et al. liệt kê các hạn chế của việc dùng LLM chấm: "position, verbosity, and self-enhancement biases, as well as limited reasoning ability", đồng thời cho thấy judge mạnh như GPT-4 đạt "over 80% agreement" với người, ngang mức người đồng ý với nhau (arXiv 2306.05685, abstract). Hai bài học: dùng được, nhưng phải kiểm position bias bằng cách đảo thứ tự hai câu trả lời, và không tin một chỉ số duy nhất. Paper "Judging the Judges" trong kệ paper đo lại vấn đề này với 13 judge.
+Về LLM-as-judge, Zheng et al. liệt kê các hạn chế của việc dùng LLM chấm: "position, verbosity, and self-enhancement biases, as well as limited reasoning ability", đồng thời cho thấy judge mạnh như GPT-4 đạt "over 80% agreement" với người, ngang mức người đồng ý với nhau (arXiv 2306.05685, abstract). Hai bài học: dùng được, nhưng phải kiểm position bias bằng cách đảo thứ tự hai câu trả lời, và không tin một chỉ số duy nhất. Paper "Judging the Judges" trong kệ paper đo lại vấn đề này với 13 judge.
 
-**Cho RAG.** Precision và recall trên tập tài liệu lấy về, và precision-recall curve cho kết quả xếp hạng (IR-book mục 8.3-8.4, trang 155-158); exact match và token F1 cho câu trả lời (SLP3 mục 11.6, trang 271). RAGAS ở Tuần 14 là phiên bản dùng LLM chấm của các số đo này.
+Cho RAG, precision và recall trên tập tài liệu lấy về, và precision-recall curve cho kết quả xếp hạng (IR-book mục 8.3-8.4, trang 155-158); exact match và token F1 cho câu trả lời (SLP3 mục 11.6, trang 271). RAGAS ở Tuần 14 là phiên bản dùng LLM chấm của các số đo này.
 
 ---
 
 ## I. Agentic và Graph Engineering
 
-> **Học ở tuần** 15-18. **Nguồn:** [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf), [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf), [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg); Anthropic, *Building Effective AI Agents* và *How we built our multi-agent research system* (anthropic.com/engineering, đọc 2026-09-04); SLP3 mục 1.8.
+> Học ở tuần 15-18. Nguồn: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf), [`../docs/Graph-Engineering-Athropic-Playbook.pdf`](../docs/Graph-Engineering-Athropic-Playbook.pdf), [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg); Anthropic, *Building Effective AI Agents* và *How we built our multi-agent research system* (anthropic.com/engineering, đọc 2026-09-04); SLP3 mục 1.8.
 
 Phase 1-2 hỏi model hoạt động thế nào. Phase 3 hỏi đặt bộ nhớ và đánh giá ở đâu, vì đó mới là nút thắt khi ghép nhiều lần gọi model thành một hệ thống.
 
@@ -354,19 +356,19 @@ Khi câu đó đúng với hệ của bạn, loop, swarm, DAG và knowledge grap
 
 ## J. Inference serving production: vLLM và PagedAttention
 
-> **Học ở tuần:** 12 (sau khi đã chạy local inference với Ollama/MLX). Nguồn: paper vLLM, Kwon et al. 2023, *Efficient Memory Management for Large Language Model Serving with PagedAttention* (arXiv [2309.06180](https://arxiv.org/abs/2309.06180), abstract tra 2026-08-16); README chính thức của [vllm-project/vllm](https://github.com/vllm-project/vllm) (Apache 2.0, tra 2026-08-16).
+> Học ở tuần 12 (sau khi đã chạy local inference với Ollama/MLX). Nguồn: paper vLLM, Kwon et al. 2023, *Efficient Memory Management for Large Language Model Serving with PagedAttention* (arXiv [2309.06180](https://arxiv.org/abs/2309.06180), abstract tra 2026-08-16); README chính thức của [vllm-project/vllm](https://github.com/vllm-project/vllm) (Apache 2.0, tra 2026-08-16).
 
 Tuần 12 bạn serve model cho một người dùng, là chính bạn. Serving production là bài toán khác: nhiều request đồng thời, và GPU đắt nên phải chạy đầy tải. Hai kỹ thuật của vLLM dưới đây giải bài toán đó, và cả hai đều xoay quanh KV cache đã học ở B1.
 
 ### J1. PagedAttention: KV cache phân trang như virtual memory
 
-Vấn đề: cách cấp phát KV cache "ngây thơ" là dành sẵn **một khối bộ nhớ liền mạch** cho độ dài tối đa của mỗi request → lãng phí lớn vì (a) request thường ngắn hơn nhiều mức tối đa, (b) phân mảnh giữa các request. Paper vLLM lấy cảm hứng từ **bộ nhớ ảo của hệ điều hành**: cắt KV cache thành các **block cố định**, cấp phát block khi cần, và một bảng ánh xạ logical→physical cho phép các block của một chuỗi nằm rải rác. Theo abstract (tra 2026-08-16), cách này giảm lãng phí KV cache và tăng throughput **2-4×** so với các hệ serving cùng thời ở cùng mức latency.
+Vấn đề: cách cấp phát KV cache "ngây thơ" là dành sẵn **một khối bộ nhớ liền mạch** cho độ dài tối đa của mỗi request, dẫn tới lãng phí lớn vì (a) request thường ngắn hơn nhiều mức tối đa, (b) phân mảnh giữa các request. Paper vLLM lấy cảm hứng từ **bộ nhớ ảo của hệ điều hành**: cắt KV cache thành các **block cố định**, cấp phát block khi cần, và một bảng ánh xạ từ logical sang physical cho phép các block của một chuỗi nằm rải rác. Theo abstract (tra 2026-08-16), cách này giảm lãng phí KV cache và tăng throughput **2-4×** so với các hệ serving cùng thời ở cùng mức latency.
 
 Đừng nhầm với "paged optimizers" của QLoRA (Tuần 11). Hai thứ trùng chữ "paged" nhưng khác hẳn: paged optimizers (Dettmers et al., arXiv [2305.14314](https://arxiv.org/abs/2305.14314), abstract tra 2026-08-16) chuyển **optimizer state** qua lại giữa GPU và CPU RAM để "manage memory spikes" khi *training*; PagedAttention phân trang **KV cache** ngay trong VRAM khi *inference/serving*. Một cái là training-side, một cái là serving-side.
 
 ### J2. Continuous batching: throughput vs latency
 
-Batching tĩnh: gom N request thành một batch, chạy đến khi **cả batch** xong mới nhận request mới → request ngắn phải chờ request dài, GPU rảnh rỗi vô ích. **Continuous batching** (README vLLM: "continuous batching of incoming requests", tra 2026-08-16): ở *mỗi bước decode*, request nào xong thì rời batch, request mới vào ngay chỗ trống → GPU luôn đầy. Đổi lại, continuous batching tối ưu throughput (token mỗi giây của cả hệ thống), còn latency của từng request có thể tăng nhẹ vì phải chia GPU với request khác. Cấu hình tùy bạn ưu tiên cái nào.
+Batching tĩnh: gom N request thành một batch, chạy đến khi **cả batch** xong mới nhận request mới, nên request ngắn phải chờ request dài, GPU rảnh rỗi vô ích. **Continuous batching** (README vLLM: "continuous batching of incoming requests", tra 2026-08-16): ở *mỗi bước decode*, request nào xong thì rời batch, request mới vào ngay chỗ trống, nên GPU luôn đầy. Đổi lại, continuous batching tối ưu throughput (token mỗi giây của cả hệ thống), còn latency của từng request có thể tăng nhẹ vì phải chia GPU với request khác. Cấu hình tùy bạn ưu tiên cái nào.
 
 ### J3. So với Ollama / LM Studio
 
@@ -374,7 +376,7 @@ Ollama/LM Studio (backend llama.cpp) tối ưu cho **single-user local**: load G
 
 ## K. Test-time compute và reasoning model
 
-> **Học ở tuần:** 10 (ngay sau G, GRPO/RLVR). Nguồn: self-consistency, Wang et al. 2022 (arXiv [2203.11171](https://arxiv.org/abs/2203.11171)); s1, Muennighoff et al. 2025 (arXiv [2501.19393](https://arxiv.org/abs/2501.19393)); DeepSeek-R1 (arXiv [2501.12948](https://arxiv.org/abs/2501.12948): đã có trong [`../docs/papers/README.md`](../docs/papers/README.md), neo Tuần 10). Tất cả abstract tra 2026-08-16.
+> Học ở tuần 10 (ngay sau G, GRPO/RLVR). Nguồn: self-consistency, Wang et al. 2022 (arXiv [2203.11171](https://arxiv.org/abs/2203.11171)); s1, Muennighoff et al. 2025 (arXiv [2501.19393](https://arxiv.org/abs/2501.19393)); DeepSeek-R1 (arXiv [2501.12948](https://arxiv.org/abs/2501.12948): đã có trong [`../docs/papers/README.md`](../docs/papers/README.md), neo Tuần 10). Tất cả abstract tra 2026-08-16.
 
 Tuần 10 dạy trục training-side: đổ compute vào lúc huấn luyện (RM, DPO, GRPO) để model tốt hơn. Trục thứ hai là inference-side: chi thêm compute lúc suy luận cho cùng một model để ra đáp án tốt hơn. Hai trục bổ sung nhau, và reasoning model là chỗ chúng gặp nhau.
 
@@ -396,7 +398,7 @@ Abstract R1: khả năng reasoning "can be incentivized through pure reinforceme
 
 ## L. Multimodal và VLM tổng quan
 
-> **Học ở tuần:** không neo tuần, **đọc thêm, ngoài phạm vi hands-on của lộ trình** (lộ trình này thuần text). Nguồn: CLIP, Radford et al. 2021 (arXiv [2103.00020](https://arxiv.org/abs/2103.00020)); LLaVA, Liu et al. 2023 (arXiv [2304.08485](https://arxiv.org/abs/2304.08485)). Abstract tra 2026-08-16.
+> Không neo tuần, **đọc thêm, ngoài phạm vi hands-on của lộ trình** (lộ trình này thuần text). Nguồn: CLIP, Radford et al. 2021 (arXiv [2103.00020](https://arxiv.org/abs/2103.00020)); LLaVA, Liu et al. 2023 (arXiv [2304.08485](https://arxiv.org/abs/2304.08485)). Abstract tra 2026-08-16.
 
 Tài liệu ngân hàng thật có bảng scan, con dấu và chữ ký, nên sớm muộn sẽ có người hỏi vì sao không dùng model đọc được ảnh. Mục này cho đủ vốn từ để trả lời câu đó, không hơn.
 
@@ -406,12 +408,12 @@ Train **hai encoder** (ảnh và text) sao cho embedding của một ảnh và c
 
 ### L2. Kiến trúc VLM phổ biến: vision encoder + projector + LLM
 
-Công thức LLaVA (abstract: "connects a vision encoder and LLM"): lấy **vision encoder** đã train sẵn (thường là phía ảnh của CLIP) → một **projector** (phép chiếu học được) map đặc trưng ảnh thành chuỗi "token thị giác" nằm trong không gian embedding của LLM → LLM đọc chuỗi trộn [token ảnh + token text] như thường. [Suy luận] Cái hay của công thức này là *tái dùng* hai model đã train riêng, chỉ học lớp nối ở giữa, rẻ hơn nhiều so với train multimodal from scratch; đó là lý do nó phổ biến.
+Công thức LLaVA (abstract: "connects a vision encoder and LLM"): lấy **vision encoder** đã train sẵn (thường là phía ảnh của CLIP), nối vào một **projector** (phép chiếu học được) map đặc trưng ảnh thành chuỗi "token thị giác" nằm trong không gian embedding của LLM, rồi LLM đọc chuỗi trộn [token ảnh + token text] như thường. [Suy luận] Cái hay của công thức này là *tái dùng* hai model đã train riêng, chỉ học lớp nối ở giữa, rẻ hơn nhiều so với train multimodal from scratch; đó là lý do nó phổ biến.
 
 ### L3. Vì sao OCR pipeline ở prerequisites KHÔNG phải multimodal modeling
 
-OCR pipeline: ảnh → *text* (bước OCR tất định) → model **chỉ thấy text**. VLM: biểu diễn ảnh đi **thẳng vào model**, không qua bước chuyển chữ. Khác biệt hệ quả: OCR làm mất layout/hình/con dấu nhưng đơn giản, debug được từng bước, và mọi thứ downstream (RAG, KG) vẫn là bài text bạn đã học; VLM giữ được thông tin thị giác nhưng kéo theo cả một stack train/eval khác. [Suy luận] Với dự án học thuật 1-GPU-8GB này, OCR-rồi-text là lựa chọn đúng; VLM chỉ đáng cân nhắc khi thông tin *thị giác* (vị trí chữ ký, cấu trúc bảng phức tạp) thật sự quyết định đáp án.
+OCR pipeline đi từ ảnh sang *text* (bước OCR tất định), rồi model **chỉ thấy text**. VLM: biểu diễn ảnh đi **thẳng vào model**, không qua bước chuyển chữ. Khác biệt hệ quả: OCR làm mất layout/hình/con dấu nhưng đơn giản, debug được từng bước, và mọi thứ downstream (RAG, KG) vẫn là bài text bạn đã học; VLM giữ được thông tin thị giác nhưng kéo theo cả một stack train/eval khác. [Suy luận] Với dự án học thuật 1-GPU-8GB này, OCR-rồi-text là lựa chọn đúng; VLM chỉ đáng cân nhắc khi thông tin *thị giác* (vị trí chữ ký, cấu trúc bảng phức tạp) thật sự quyết định đáp án.
 
 ## Ưu tiên nếu thời gian hẹp
 
-Bắt buộc: KV cache (B1), RoPE (A1), RMSNorm và SwiGLU (A2, A3), GQA (A4), gradient accumulation (D), bits per byte (H); với Phase 3: năm tầng (I1), bốn điều kiện của ratchet loop (I2), complexity budget (I5). Nên có: MoE (A7), quantization internals (B4), Muon (D1), pipeline alignment đầy đủ (G), train BPE (E), năm workflow pattern (I3), blocking và incremental update cho KG (I4). Để dành: MLA (A5), sliding window (A6), speculative decoding (B3), tensor và pipeline parallelism (F), dynamic workflows quy mô lớn (I3).
+Bắt buộc: KV cache (B1), RoPE (A1), RMSNorm và SwiGLU (A2, A3), GQA (A4), gradient accumulation (D), bits per byte (H); với Phase 3: năm tầng (I1), bốn điều kiện của ratchet loop (I2), complexity budget (I5). Nên có: MoE (A7), quantization internals (B4), Muon (D1), pipeline alignment đầy đủ (G), train BPE (E), năm workflow pattern (I3), blocking và incremental update cho KG (I4). Để dành: MLA (A5), sliding window (A6), speculative decoding (B3), tensor và pipeline parallelism (F), dynamic workflows quy mô lớn (I3). Nên có, sau G và B1: serving production với vLLM (J) và test-time compute (K); đọc khi cần: tổng quan multimodal (L).

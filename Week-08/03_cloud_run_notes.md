@@ -16,13 +16,13 @@
 ## Quy trình (RunPod RTX 4090, ví dụ)
 
 - [ ] Tạo pod, chọn template PyTorch CUDA
-- [ ] `git clone` repo của bạn + push code Tuần 7-8 lên (hoặc scp)
-- [ ] Tải dataset: FineWeb-Edu `sample-10BT` đã có local tại `D:\AI\datasets\w05_pretrain\fineweb-edu` (ODC-By, kéo 2026-08-16). Copy lên pod hoặc `load_dataset(..., cache_dir=...)`.
-- [ ] Cấu hình: seq 1024, micro-batch theo VRAM, grad accum để đạt ~524,288 token/update
-- [ ] Chạy **smoke test 50-100 step** → xác nhận loss giảm + không OOM
+- [ ] `git clone` repo của bạn và push code Tuần 7-8 lên (hoặc scp)
+- [ ] Tải dataset FineWeb-Edu `sample-10BT`, đã có local tại `D:\AI\datasets\w05_pretrain\fineweb-edu` (ODC-By, kéo 2026-08-16). Copy lên pod hoặc `load_dataset(..., cache_dir=...)`.
+- [ ] Cấu hình seq 1024, micro-batch theo VRAM, grad accum để đạt ~524,288 token/update
+- [ ] Chạy **smoke test 50-100 step** để xác nhận loss giảm và không OOM
 - [ ] Bật checkpointing (lưu định kỳ phòng pod bị kill)
 - [ ] Chạy full run; log loss train/val
-- [ ] Tải checkpoint + log về máy → phân tích ở `04_loss_analysis.md`
+- [ ] Tải checkpoint và log về máy rồi phân tích ở `04_loss_analysis.md`
 - [ ] **Tắt pod** ngay khi xong (tránh tính tiền thừa)
 
 ## Mục tiêu so sánh

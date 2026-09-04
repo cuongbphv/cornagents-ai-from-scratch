@@ -161,7 +161,7 @@ Bài 3, tính tay:
 w ← w − lr · (∂L/∂w)
 ```
 
-**Chain rule:** nếu `L = f(g(w))` thì
+Chain rule nói rằng nếu `L = f(g(w))` thì
 
 ```
 ∂L/∂w = (∂L/∂g) · (∂g/∂w)
@@ -169,7 +169,7 @@ w ← w − lr · (∂L/∂w)
 
 Backprop (Tuần 5) = lặp lại đúng một dòng này từ loss về từng layer.
 
-**Quy tắc đạo hàm tối thiểu**: ba dòng này đủ cho mọi bài trong file (quên hết calculus cũng chỉ cần nhớ lại đúng chừng này):
+Ba dòng quy tắc đạo hàm dưới đây đủ cho mọi bài trong file (quên hết calculus cũng chỉ cần nhớ lại đúng chừng này):
 
 ```
 (xⁿ)'     = n·xⁿ⁻¹      ví dụ: (x²)' = 2x, (u²)' = 2u
@@ -242,7 +242,7 @@ p ≈ [0.0900, 0.2447, 0.6652]
 
 Ô lớn nhất (logit 3) nhận xác suất lớn nhất. Dùng ở hai chỗ: token tiếp theo, và **attention weights** (Tuần 6).
 
-**Trừ max trước khi mũ**: cùng kết quả, tránh `e^{1000}` tràn số:
+Trừ max trước khi mũ cho cùng kết quả và tránh `e^{1000}` tràn số:
 
 ```
 z − 3 = [−2, −1, 0]
@@ -275,8 +275,8 @@ Nhãn one-hot / một chỉ số lớp đúng: chỉ còn
 CE = − ln(p_đúng)
 ```
 
-- `p_đúng → 1` → CE → 0
-- `p_đúng → 0` → CE → rất lớn
+- Khi `p_đúng` tiến về 1, CE tiến về 0.
+- Khi `p_đúng` tiến về 0, CE rất lớn.
 
 Nối ví dụ softmax: nhãn đúng là lớp có logit 3 (`p ≈ 0.6652`):
 
@@ -292,9 +292,9 @@ Nếu model chỉ cho `p_đúng = 0.1` thì `CE ≈ 2.303`: phạt nặng hơn.
 
 Bài 6, tính tay (máy tính được):
 
-1. `p_đúng = 1` → CE?
-2. `p_đúng = 0.1` → CE ≈ ?
-3. `p_đúng = 0.6652` → CE ≈ ?
+1. `p_đúng = 1` thì CE bằng bao nhiêu?
+2. `p_đúng = 0.1` thì CE xấp xỉ bao nhiêu?
+3. `p_đúng = 0.6652` thì CE xấp xỉ bao nhiêu?
 
 <details>
 <summary>Đáp án mục 6</summary>
@@ -309,7 +309,7 @@ Bài 6, tính tay (máy tính được):
 
 ## 7. Cổng: chưa qua thì chưa mở lý thuyết
 
-Làm **không nhìn đáp án**. Sai một câu → ôn lại đúng mục, đừng sang `02_theory_notes.md`.
+Làm **không nhìn đáp án**. Sai một câu thì ôn lại đúng mục, đừng sang `02_theory_notes.md`.
 
 - [ ] Nhân `A (2×3)` với `B (3×2)` ở mục 3, viết đủ 4 ô và shape `(2×2)`
 - [ ] Chain rule: `f(x) = (2x+1)²` tại `x = 1` ra **12**

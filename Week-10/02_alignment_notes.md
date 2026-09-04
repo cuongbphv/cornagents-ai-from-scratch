@@ -18,15 +18,15 @@ Aligned model
 
 ## 1. SFT (Supervised Fine-Tuning)
 
-- **Dữ liệu**: cặp (prompt → phản hồi tốt). Vd: Alpaca, Dolly.
-- **Mục tiêu học**: ______ (gợi ý: cross-entropy next-token trên phần response).
-- **Ưu/nhược**: ______
+- Dữ liệu là các cặp prompt và phản hồi tốt, ví dụ Alpaca, Dolly.
+- Mục tiêu học là ______ (gợi ý: cross-entropy next-token trên phần response).
+- Ưu và nhược điểm: ______
 - TODO: SFT khác instruction fine-tuning ở Tuần 9 thế nào? ______
 
 ## 2. Reward Model (RM)
 
-- **Dữ liệu**: cặp so sánh (chosen, rejected). Vd: Anthropic HH-RLHF, UltraFeedback.
-- **Mục tiêu**: học hàm cho điểm sao cho score(chosen) > score(rejected).
+- Dữ liệu là các cặp so sánh (chosen, rejected), ví dụ Anthropic HH-RLHF, UltraFeedback.
+- Mục tiêu là học hàm cho điểm sao cho score(chosen) > score(rejected).
 - TODO: loss của RM có dạng gì? (gợi ý: log-sigmoid của hiệu score) ______
 
 ## 3. PPO vs DPO vs GRPO

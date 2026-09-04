@@ -4,9 +4,9 @@
 
 ## Mục tiêu
 
-- Nắm **mô hình 5 tầng**: Prompt → Context → Harness → Loop → Graph engineering (xem `docs/5-layers-multi-agent.jpg`): mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó mới là engineering.
+- Nắm **mô hình 5 tầng** gồm Prompt, Context, Harness, Loop rồi Graph engineering (xem `docs/5-layers-multi-agent.jpg`): mỗi tầng bọc tầng trước; model là commodity, hệ thống quanh nó mới là engineering.
 - Hiểu **agent loop**, tools, subagents, **MCP**.
-- Build **loop có đo lường đầu tiên** (kiểu ratchet loop của Karpathy autoresearch): generate → evaluate → revise → stopping rule.
+- Build **loop có đo lường đầu tiên** (kiểu ratchet loop của Karpathy autoresearch): generate, rồi evaluate, rồi revise, kết thúc bằng stopping rule.
 - Chọn **orchestration layer** cho CornAgents.AI.
 
 ## Nguồn học
@@ -28,14 +28,14 @@
 ## Nhiệm vụ (Task)
 
 1. Build một agent tối thiểu bằng Claude Agent SDK: đọc repo, chạy một tool, trả output có cấu trúc; kết nối **một MCP server** (vd. GitHub hoặc filesystem).
-2. Build **reflective loop** (Day 1 của build path): lấy một LLM call có output đánh giá được → thêm evaluator với tiêu chí tường minh, bước revise, stopping rule (max rounds + budget), lưu mọi artifact. Vì sao loop của Karpathy chạy được: *output verifiable, action reversible, horizon ngắn, environment bounded*.
+2. Build **reflective loop** (Day 1 của build path): lấy một LLM call có output đánh giá được, rồi thêm evaluator với tiêu chí tường minh, bước revise, stopping rule (max rounds + budget), lưu mọi artifact. Vì sao loop của Karpathy chạy được: *output verifiable, action reversible, horizon ngắn, environment bounded*.
 3. Quyết định stack CornAgents.AI.
 
 ## Deliverable
 
 - Một single agent + kết nối MCP hoạt động.
-- Một reflective loop chạy được (generate → evaluate → revise, có stopping rule).
-- Sơ đồ kiến trúc CornAgents.AI 1 trang → `03_cornagents_architecture.md`.
+- Một reflective loop chạy được (generate, rồi evaluate, rồi revise, có stopping rule).
+- Sơ đồ kiến trúc CornAgents.AI 1 trang, ghi vào `03_cornagents_architecture.md`.
 
 ## Thời lượng
 
@@ -45,7 +45,7 @@
 
 Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude.
 
-> **Lưu ý metering:** từ 15/06/2026, headless Agent SDK trên Pro/Max rút từ pool token tuần riêng, automation nặng có thể cần API credits.
+> Về metering, từ 15/06/2026, headless Agent SDK trên Pro/Max rút từ pool token tuần riêng, nên automation nặng có thể cần API credits.
 
 ## CornAgents.AI là gì (định vị)
 
@@ -65,25 +65,25 @@ Bất kỳ; đây là việc API/orchestration. Dùng subscription Claude.
 
 ## Checklist tiến độ
 
-- [ ] Đọc `01_theory_notes.md`: vẽ lại được bảng chẩn đoán theo tầng
-- [ ] Xem `docs/5-layers-multi-agent.jpg`: tự vẽ lại 5 tầng bằng lời mình
-- [ ] Đọc Claude Agent SDK docs, hiểu agent loop + tool use
-- [ ] Đọc MCP docs, hiểu server/client, transport
-- [ ] Build single agent: đọc repo → chạy 1 tool → output có cấu trúc
-- [ ] Kết nối 1 MCP server (filesystem hoặc GitHub)
-- [ ] Build reflective loop: gen → eval (tiêu chí tường minh) → revise → stop rule
-- [ ] Hiểu 4 điều kiện làm loop của Karpathy chạy được (verifiable/reversible/short/bounded)
-- [ ] So sánh LangGraph vs CrewAI cho nhu cầu của bạn
-- [ ] Chọn stack + lý do (regulated finance → ưu tiên LangGraph: stateful, auditable)
-- [ ] Vẽ `03_cornagents_architecture.md` (sơ đồ + tool boundaries + HITL gates)
+- [ ] Đọc `01_theory_notes.md` và vẽ lại được bảng chẩn đoán theo tầng.
+- [ ] Xem `docs/5-layers-multi-agent.jpg` và tự vẽ lại 5 tầng bằng lời mình.
+- [ ] Đọc Claude Agent SDK docs, hiểu agent loop và tool use.
+- [ ] Đọc MCP docs, hiểu server/client và transport.
+- [ ] Build single agent: đọc repo, chạy 1 tool, trả output có cấu trúc.
+- [ ] Kết nối 1 MCP server (filesystem hoặc GitHub).
+- [ ] Build reflective loop: generate, rồi evaluate theo tiêu chí tường minh, rồi revise, có stop rule.
+- [ ] Hiểu 4 điều kiện làm loop của Karpathy chạy được (verifiable/reversible/short/bounded).
+- [ ] So sánh LangGraph với CrewAI cho nhu cầu của bạn.
+- [ ] Chọn stack kèm lý do (regulated finance thì ưu tiên LangGraph vì stateful, auditable).
+- [ ] Vẽ `03_cornagents_architecture.md` (sơ đồ, tool boundaries, HITL gates).
 
-## 🚀 Bổ sung nâng cao (5 tầng + ratchet loop)
+## Bổ sung nâng cao (5 tầng + ratchet loop)
 
 Tuần này phần "nâng cao" **chính là nội dung tuần**, nên đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **I1-I2** song song:
 
-- **I1 · Năm tầng engineering**: Prompt → Context → Harness → Loop → Graph, kèm cách **chẩn đoán theo tầng**: output sai format = tầng 1; model không biết thứ cần biết = tầng 2; không ai kiểm kết quả = tầng 3; chạy mãi không dừng = tầng 4; agent lặp việc nhau = tầng 5.
-- **I2 · Ratchet loop + `program.md`**: 4 điều kiện làm loop chạy được (verifiable / reversible / horizon ngắn / environment bounded) và ý tưởng "programming the program" bằng ngôn ngữ tự nhiên.
-- Cũng ở I2: **commit DAG ≠ knowledge graph**: đừng gộp hai thứ này (work lineage vs domain knowledge).
+- Mục I1 trình bày năm tầng engineering, Prompt, Context, Harness, Loop rồi Graph, kèm cách **chẩn đoán theo tầng**: output sai format là lỗi tầng 1; model không biết thứ cần biết là tầng 2; không ai kiểm kết quả là tầng 3; chạy mãi không dừng là tầng 4; agent lặp việc nhau là tầng 5.
+- Mục I2 bàn ratchet loop và `program.md`: 4 điều kiện làm loop chạy được (verifiable / reversible / horizon ngắn / environment bounded) và ý tưởng "programming the program" bằng ngôn ngữ tự nhiên.
+- Cũng ở I2, commit DAG ≠ knowledge graph: đừng gộp hai thứ này (work lineage vs domain knowledge).
 
 > Nguồn gốc: [`../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf`](../docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf) mục II & VI, [`../docs/5-layers-multi-agent.jpg`](../docs/5-layers-multi-agent.jpg).
 

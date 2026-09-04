@@ -42,11 +42,11 @@ b = torch.tensor([4., 5., 6.])
 a @ b            # 1*4 + 2*5 + 3*6 = 32.0
 ```
 
-**Ý nghĩa hình học** (Tuần 1 mục 4, MML Example 3.6): `a · b = |a||b|cos(θ)`: hai vector càng "cùng hướng" thì dot product càng lớn. Đây chính là lý do attention (Tuần 6) dùng `query · key` làm điểm liên quan: token nào có key "cùng hướng" với query thì được chú ý nhiều hơn.
+Ý nghĩa hình học (Tuần 1 mục 4, MML Example 3.6): `a · b = |a||b|cos(θ)`: hai vector càng "cùng hướng" thì dot product càng lớn. Đây chính là lý do attention (Tuần 6) dùng `query · key` làm điểm liên quan: token nào có key "cùng hướng" với query thì được chú ý nhiều hơn.
 
 ### 1.2 Matrix multiply & quy tắc shape
 
-`C = A @ B` với `A: (m×k)`, `B: (k×n)` → `C: (m×n)`. **Chiều trong (`k`) phải khớp**, chiều ngoài quyết định shape kết quả. Đây là quy tắc chiều Tuần 1 mục 2, giờ trên tensor.
+`C = A @ B` với `A: (m×k)`, `B: (k×n)` cho ra `C: (m×n)`. **Chiều trong (`k`) phải khớp**, chiều ngoài quyết định shape kết quả. Đây là quy tắc chiều Tuần 1 mục 2, giờ trên tensor.
 
 ```
 Cᵢⱼ = Σₖ AᵢₖBₖⱼ    (dot product của hàng i trong A với cột j trong B)
@@ -120,8 +120,8 @@ Tuần 2 mục A3 bạn kiểm chain rule bằng sai phân trên hàm (5.109) c�
 ∂L/∂w = (∂L/∂g) · (∂g/∂w)
 ```
 
-**Ví dụ tự tính tay được:** `f(x) = (3x + 2)²` tại `x = 1`.
-- Đặt `u = 3x + 2` → `f = u²`.
+Ví dụ tự tính tay được: `f(x) = (3x + 2)²` tại `x = 1`.
+- Đặt `u = 3x + 2`, khi đó `f = u²`.
 - `∂f/∂u = 2u = 2·5 = 10`; `∂u/∂x = 3`.
 - Chain rule: `∂f/∂x = 10 · 3 = 30`.
 
@@ -165,8 +165,8 @@ z = torch.tensor([1., 2., 3.])
 torch.softmax(z, dim=0)    # [0.0900, 0.2447, 0.6652], tổng = 1.0
 ```
 
-- Mỗi giá trị ∈ (0,1), tổng = 1 → đọc được như xác suất.
-- **Ổn định số học:** `e^{1000}` tràn số. Trừ `max(z)` trước khi mũ, kết quả không đổi (tử và mẫu cùng chia `e^{max}`) nhưng hết overflow. Các hàm PyTorch đã làm sẵn việc này.
+- Mỗi giá trị ∈ (0,1), tổng = 1, nên đọc được như xác suất.
+- Về ổn định số học, `e^{1000}` tràn số. Trừ `max(z)` trước khi mũ, kết quả không đổi (tử và mẫu cùng chia `e^{max}`) nhưng hết overflow. Các hàm PyTorch đã làm sẵn việc này.
 - Xuất hiện ở hai nơi trong LLM: lớp output (xác suất token tiếp theo) và **attention weights** (Tuần 6).
 
 ### 3.2 Cross-entropy loss
@@ -179,13 +179,13 @@ CE = − Σᵢ yᵢ log(pᵢ)
 
 Với nhãn dạng index/one-hot, chỉ còn một số hạng: `CE = − log(p_đúng)`.
 
-Ví dụ nối tiếp mục 3.1: nếu nhãn đúng là lớp có logit 3, phần tử thứ ba, tức index 2 khi đếm từ 0 như PyTorch (xác suất dự đoán 0.6652): thì `CE = −log(0.66524…) ≈ 0.4076` (tính trên p chưa làm tròn; xem chú thích trong [`00_math_bridge.md`](00_math_bridge.md) §6). Dự đoán đúng và tự tin → loss tiến về 0; sai mà tự tin (`p_đúng` gần 0) → `−log` bùng nổ → phạt rất nặng.
+Ví dụ nối tiếp mục 3.1: nếu nhãn đúng là lớp có logit 3, phần tử thứ ba, tức index 2 khi đếm từ 0 như PyTorch (xác suất dự đoán 0.6652): thì `CE = −log(0.66524…) ≈ 0.4076` (tính trên p chưa làm tròn; xem chú thích trong [`00_math_bridge.md`](00_math_bridge.md) §6). Dự đoán đúng và tự tin thì loss tiến về 0; sai mà tự tin (`p_đúng` gần 0) thì `−log` bùng nổ, phạt rất nặng.
 
-**Bẫy kinh điển:** `nn.CrossEntropyLoss` của PyTorch **đã gộp softmax + log + NLL**: đưa thẳng **logits** vào, KHÔNG softmax trước (softmax hai lần cho kết quả sai mà không báo lỗi).
+Bẫy kinh điển: `nn.CrossEntropyLoss` của PyTorch **đã gộp softmax + log + NLL**: đưa thẳng **logits** vào, KHÔNG softmax trước (softmax hai lần cho kết quả sai mà không báo lỗi).
 
 ### 3.3 Preview: perplexity (Tuần 8)
 
-`perplexity = exp(cross_entropy)`: hiểu nôm na: "trung bình model phân vân giữa bao nhiêu lựa chọn". CE = 0 → PPL = 1 (chắc chắn tuyệt đối). Đây là metric chuẩn khi pretrain language model.
+`perplexity = exp(cross_entropy)`: hiểu nôm na: "trung bình model phân vân giữa bao nhiêu lựa chọn". CE = 0 cho PPL = 1 (chắc chắn tuyệt đối). Đây là metric chuẩn khi pretrain language model.
 
 ---
 
@@ -248,7 +248,7 @@ So với vòng lặp trong `04_logistic_regression_numpy.py` Tuần 3: bước 4
 
 Logistic regression là `nn.Linear(2, 1)` nối với sigmoid và BCE loss: một lớp giả thuyết chỉ gồm các đường thẳng chia mặt phẳng. Dữ liệu two moons trong `05_train_mlp.py` không tách được bằng một đường thẳng, nên logistic regression bị chặn ở accuracy thấp dù train bao lâu. Chèn một `nn.Linear(2, 32)` và `ReLU` vào giữa là mở rộng lớp giả thuyết H; theo error decomposition của Tuần 3 mục 3, approximation error giảm hẳn; [Suy luận] với 800 điểm train, estimation error chưa đáng kể, và accuracy held-out 1.000 đo được trong lời giải mẫu là bằng chứng gián tiếp. Đó là toàn bộ lý do MLP thắng trong bài này, và cũng là câu bạn cần viết được bằng lời mình.
 
-**Tự kiểm tra hiểu:** giải thích được vì sao đổi chỗ bước 3 lên trước bước 1 vẫn chạy đúng, nhưng bỏ hẳn bước 3 thì loss sẽ hỏng như thế nào.
+Tự kiểm tra hiểu: giải thích được vì sao đổi chỗ bước 3 lên trước bước 1 vẫn chạy đúng, nhưng bỏ hẳn bước 3 thì loss sẽ hỏng như thế nào.
 
 ---
 
@@ -257,7 +257,7 @@ Logistic regression là `nn.Linear(2, 1)` nối với sigmoid và BCE loss: mộ
 Attention, trái tim của Transformer, chỉ dùng đúng những thứ ở trên:
 
 1. Attention score = **dot product** `query · key` (mục 1.1; góc giữa hai vector, Tuần 1 mục 4).
-2. Chia `√d_k` cho ổn định, rồi **softmax** → trọng số (mục 3.1).
+2. Chia `√d_k` cho ổn định, rồi **softmax** cho ra trọng số (mục 3.1).
 3. Output = trọng số nhân **matmul** với value (mục 1.2).
 
 Nắm chắc dot product + softmax + matmul + chain rule ở tuần này thì Tuần 6 sẽ "click" thay vì choáng.
@@ -286,6 +286,6 @@ Ghi chú: `pytorch.org/tutorials` hiện redirect 301 sang `docs.pytorch.org` (k
 
 > Catalog và điều khoản ở [`../docs/books/README.md`](../docs/books/README.md). Số trang là trang in của bản PDF đã tải ngày 2026-09-04; câu trong ngoặc kép là trích nguyên văn.
 
-- **Cross-entropy là cực tiểu KL.** Prince trình bày cross-entropy như việc "minimize the distance (KL divergence) between these two distributions": phân phối thực nghiệm của mẫu và phân phối của model (UDL Figure 5.12 và mục 5.7, trang 71). Mục 5.1 (trang 56) đi từ maximum likelihood, mục 5.2 (trang 60) cho "công thức chung" để dựng loss: chọn phân phối cho đầu ra, để mạng dự đoán tham số của phân phối đó, rồi lấy NLL. Đây là cách nhìn gọn nhất cho mục 3.2 ở trên.
-- **Optimizer trong training loop.** UDL chương 6: 6.1 gradient descent (trang 77), 6.2 SGD (trang 83), 6.3 momentum (trang 86), 6.4 Adam (trang 88). Khi bạn đổi `torch.optim.SGD` sang `Adam` trong `05_train_mlp.py`, đây là chỗ đọc để biết mình đổi gì.
-- **Cùng nội dung, ngắn hơn.** Fleuret, *The Little Book of Deep Learning* mục 3.1 Losses (trang 25): cross-entropy tính từ logit, mỗi thành phần đầu ra "interpreted as the logarithm of a non-normalized probability, or logit". Goodfellow chương 6 Deep Feedforward Networks và chương 8 Optimization (đọc HTML tại deeplearningbook.org) là bản đầy đủ nhất, nhưng dài.
+- Cross-entropy là cực tiểu KL, theo cách Prince trình bày, tức là việc "minimize the distance (KL divergence) between these two distributions": phân phối thực nghiệm của mẫu và phân phối của model (UDL Figure 5.12 và mục 5.7, trang 71). Mục 5.1 (trang 56) đi từ maximum likelihood, mục 5.2 (trang 60) cho "công thức chung" để dựng loss: chọn phân phối cho đầu ra, để mạng dự đoán tham số của phân phối đó, rồi lấy NLL. Đây là cách nhìn gọn nhất cho mục 3.2 ở trên.
+- Về optimizer trong training loop, UDL chương 6 có 6.1 gradient descent (trang 77), 6.2 SGD (trang 83), 6.3 momentum (trang 86), 6.4 Adam (trang 88). Khi bạn đổi `torch.optim.SGD` sang `Adam` trong `05_train_mlp.py`, đây là chỗ đọc để biết mình đổi gì.
+- Cùng nội dung nhưng ngắn hơn là Fleuret, *The Little Book of Deep Learning* mục 3.1 Losses (trang 25): cross-entropy tính từ logit, mỗi thành phần đầu ra "interpreted as the logarithm of a non-normalized probability, or logit". Goodfellow chương 6 Deep Feedforward Networks và chương 8 Optimization (đọc HTML tại deeplearningbook.org) là bản đầy đủ nhất, nhưng dài.
