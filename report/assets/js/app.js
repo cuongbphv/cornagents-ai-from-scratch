@@ -63,12 +63,23 @@ function renderTheoryBlock(n){
       <div class="theory-body"><div class="theory-inner prose" data-rendered="0"></div></div>
     </div>`;
 }
+/* Khi portal chạy trên GitHub Pages (chỉ deploy thư mục report/), link tương đối
+   ra ngoài report/ không tồn tại, nên trỏ về file trên GitHub. Mở local (file://)
+   giữ link tương đối như cũ. */
+const REPO_BLOB = 'https://github.com/cuongbphv/cornagents-ai-from-scratch/blob/main/';
+const HOSTED = location.protocol !== 'file:' && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 function rewriteRelativeLinks(root, n){
   const weekDir = `../Week-${String(n).padStart(2,'0')}/`;
   root.querySelectorAll('a[href]').forEach(a=>{
     const h = a.getAttribute('href');
     if(/^(https?:|mailto:|#)/.test(h)) { if(/^https?:/.test(h)) { a.target='_blank'; a.rel='noopener'; } return; }
-    a.setAttribute('href', h.startsWith('../') ? h : weekDir + h);
+    const rel = h.startsWith('../') ? h : weekDir + h;           // đường dẫn tính từ report/
+    if(HOSTED){
+      a.setAttribute('href', REPO_BLOB + rel.replace(/^\.\.\//, ''));
+      a.target = '_blank'; a.rel = 'noopener';
+    } else {
+      a.setAttribute('href', rel);
+    }
   });
 }
 function toggleTheory(head){

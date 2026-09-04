@@ -220,7 +220,8 @@ docs/             Tài liệu Phase 3:
                   books/ - catalog 25 sách mở map chương sang tuần
                     (README.md; license kiểm 2026-09-04; PDF không có trong repo)
 books/            PDF sách giữ local, đã gitignore (xem docs/books/README.md)
-report/           Portal web: roadmap 4 phase, checklist theo tuần, ghi chú lý thuyết
+report/           Portal web (bản online: https://cuongbphv.github.io/cornagents-ai-from-scratch/,
+                  deploy bằng .github/workflows/pages.yml): roadmap 4 phase, checklist theo tuần, ghi chú lý thuyết
                   nhúng (thu gọn), quiz flip-card, kệ sách
                   (mở report/index.html; tiến độ lưu local trong trình duyệt)
 scripts/          quiz_bank.json (nguồn sự thật, 161 câu (36 câu nâng cao))
