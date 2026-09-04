@@ -1,6 +1,8 @@
 # Lý thuyết Tuần 4: PyTorch core trên nền toán Phase 0
 
 > Cách đọc: mục 0 là bảng map NumPy của Tuần 1-3 sang PyTorch, đọc trước. Mục 1 đến 3 là ôn toán, mỗi mục dẫn về đúng chỗ đã học ở Tuần 1 và 2; nếu bạn vừa học xong Phase 0 thì đọc nhanh. Mục 4 là phần mới của tuần. Đọc file này song song với tutorial chính thức của PyTorch (link ở cuối, đã xác minh ngày 2026-08-11). Đọc xong mục nào thì sang [`03_math_cheat_sheet.md`](03_math_cheat_sheet.md) **tự viết lại mục đó bằng lời mình**: đó mới là deliverable. Mọi ví dụ số trong file này đã được chạy kiểm chứng bằng PyTorch 2.5.1 ngày 2026-08-11; bạn nên tự chạy lại từng snippet.
+>
+> Ký hiệu, log hay nhân ma trận tay còn lạ dù đã qua Tuần 1-3: quay lại [`00_math_bridge.md`](00_math_bridge.md) ôn nhanh rồi mới đọc tiếp.
 
 ---
 
@@ -177,7 +179,7 @@ CE = − Σᵢ yᵢ log(pᵢ)
 
 Với nhãn dạng index/one-hot, chỉ còn một số hạng: `CE = − log(p_đúng)`.
 
-Ví dụ nối tiếp mục 3.1: nếu nhãn đúng là lớp 2 (xác suất dự đoán 0.6652) thì `CE = −log(0.6652) ≈ 0.4076`. Dự đoán đúng và tự tin → loss tiến về 0; sai mà tự tin (`p_đúng` gần 0) → `−log` bùng nổ → phạt rất nặng.
+Ví dụ nối tiếp mục 3.1: nếu nhãn đúng là lớp có logit 3, phần tử thứ ba, tức index 2 khi đếm từ 0 như PyTorch (xác suất dự đoán 0.6652): thì `CE = −log(0.66524…) ≈ 0.4076` (tính trên p chưa làm tròn; xem chú thích trong [`00_math_bridge.md`](00_math_bridge.md) §6). Dự đoán đúng và tự tin → loss tiến về 0; sai mà tự tin (`p_đúng` gần 0) → `−log` bùng nổ → phạt rất nặng.
 
 **Bẫy kinh điển:** `nn.CrossEntropyLoss` của PyTorch **đã gộp softmax + log + NLL**: đưa thẳng **logits** vào, KHÔNG softmax trước (softmax hai lần cho kết quả sai mà không báo lỗi).
 

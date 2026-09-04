@@ -34,7 +34,7 @@
 - Paper truy cập mở: arXiv, ACL Anthology, trang xuất bản học thuật mở.
 - Tài liệu chính thức, truy cập tự do của công cụ đang dùng (PyTorch, Hugging Face, LangChain, LlamaIndex, Anthropic/Claude, NetworkX, MLX, Ollama...).
 - Nguồn chính phủ / cơ quan công quyền (ví dụ vbpl.vn — CSDL quốc gia về văn bản pháp luật).
-- Dataset/model có license mở **đã xác minh tại thời điểm dùng**: CC BY, CC0, MIT, Apache 2.0, BSD.
+- Dataset/model có license mở **đã xác minh tại thời điểm dùng**: CC BY, CC0, MIT, Apache 2.0, BSD, ODC-By.
 
 **CẤM đưa vào repo (đã gỡ bỏ, không thêm lại):**
 - Sách, khóa học, nền tảng thương mại; nội dung sau paywall; aggregator trả phí.
@@ -42,6 +42,10 @@
 - Dữ liệu sinh từ model có ToS cấm train/distill model khác (ví dụ data sinh bằng GPT-4 khi ToS của nhà cung cấp cấm dùng để train model cạnh tranh).
 - Nguồn cấm train / cấm chưng cất (distillation) / cấm khai thác văn bản-dữ liệu.
 - Blog, video, tài liệu cá nhân không có license rõ ràng — không dùng làm nguồn trích dẫn trong tài liệu của repo.
+
+**Ngoại lệ duy nhất cho khóa học thương mại (quyết định 2026-08-16):** được phép liệt kê **khóa học thương mại dưới dạng recommendation cá nhân** (tên khóa, giảng viên, link, metadata công khai) trong `Week-00/courses_linkedin_learning_vi.md` — vì chủ repo tự học bằng tài khoản của mình. **Vẫn cấm tuyệt đối**: dẫn lại nội dung bài giảng, transcript, slide, bài tập của khóa học vào repo, hoặc dùng khóa học làm nguồn trích dẫn (citation) trong theory notes/quiz.
+
+**ODC-By (quyết định 2026-08-16):** chủ repo chấp nhận **Open Data Commons Attribution License (ODC-By) v1.0** — license mở cho database, yêu cầu ghi nguồn, văn bản cho phép commercial use (https://opendatacommons.org/licenses/by/1-0/). Lần dùng đầu: `HuggingFaceFW/fineweb-edu` config `sample-10BT` trên `D:\AI\datasets`. Không kéo bản default (~6 TB). Khi phân phối dataset hoặc produced work, giữ notice ghi nguồn theo mục 4 của ODC-By.
 
 **Dữ liệu nội bộ ngân hàng / dữ liệu cá nhân:** không bao giờ đưa vào repo, vào dataset, hay vào prompt. Dự án chỉ dùng dữ liệu công khai license mở.
 
@@ -52,3 +56,59 @@
 - Quiz sinh từ `scripts/quiz_bank.json` — sửa quiz thì sửa ở đó rồi chạy `python scripts/generate_quiz.py`, không sửa tay các file `Week-XX/quiz*.md` hay `report/assets/js/quiz-data.js`.
 - Ghi chú lý thuyết trong portal sinh từ `Week-XX/*_theory_notes.md` bằng `python scripts/build_theory_data.py`; sửa ghi chú thì chạy lại script, không sửa tay `report/assets/js/theory-data.js`.
 - Khi kết luận "đã xong / test pass" phải kèm bằng chứng lệnh đã chạy và output thật.
+
+
+<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:6cd5cc61 -->
+## Beads Issue Tracker
+
+This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
+
+### Quick Reference
+
+```bash
+bd ready              # Find available work
+bd show <id>          # View issue details
+bd update <id> --claim  # Claim work
+bd close <id>         # Complete work
+```
+
+### Rules
+
+- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
+- Run `bd prime` for detailed command reference and session close protocol
+- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
+
+**Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
+
+## Agent Context Profiles
+
+The managed Beads block is task-tracking guidance, not permission to override repository, user, or orchestrator instructions.
+
+- **Conservative (default)**: Use `bd` for task tracking. Do not run git commits, git pushes, or Dolt remote sync unless explicitly asked. At handoff, report changed files, validation, and suggested next commands.
+- **Minimal**: Keep tool instruction files as pointers to `bd prime`; use the same conservative git policy unless active instructions say otherwise.
+- **Team-maintainer**: Only when the repository explicitly opts in, agents may close beads, run quality gates, commit, and push as part of session close. A current "do not commit" or "do not push" instruction still wins.
+
+## Session Completion
+
+This protocol applies when ending a Beads implementation workflow. It is subordinate to explicit user, repository, and orchestrator instructions.
+
+1. **File issues for remaining work** - Create beads for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **Handle git/sync by active profile**:
+   ```bash
+   # Conservative/minimal/default: report status and proposed commands; wait for approval.
+   git status
+
+   # Team-maintainer opt-in only, unless current instructions forbid it:
+   git pull --rebase
+   git push
+   git status
+   ```
+5. **Hand off** - Summarize changes, validation, issue status, and any blocked sync/commit/push step
+
+**Critical rules:**
+- Explicit user or orchestrator instructions override this Beads block.
+- Do not commit or push without clear authority from the active profile or the current user request.
+- If a required sync or push is blocked, stop and report the exact command and error.
+<!-- END BEADS INTEGRATION -->

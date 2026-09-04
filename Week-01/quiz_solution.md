@@ -76,16 +76,16 @@ Một ma trận 6×5 có giá trị kỳ dị xấp xỉ [4.98, 2.17, 0.02, 0.02
 
 ## Nâng cao 1 (Trắc nghiệm)
 
-Định lý Eckart–Young (MML Theorem 4.25) nói gì về xấp xỉ hạng k của một ma trận, và điều đó được LoRA khai thác thế nào?
+Định lý Eckart-Young (MML Theorem 4.25) nói gì về xấp xỉ hạng k của một ma trận, và điều đó được LoRA khai thác thế nào?
 
 - **A.** Mọi ma trận đều có hạng bằng số cột, nên không thể xấp xỉ hạng thấp
 - **B.** Giữ k giá trị kỳ dị lớn nhất của SVD cho xấp xỉ hạng k tốt nhất theo chuẩn Frobenius và chuẩn phổ; LoRA đặt cược rằng ma trận hiệu chỉnh khi fine-tune có hạng hiệu dụng thấp nên chỉ cần học tích B·A hạng r ✅
 - **C.** Xấp xỉ hạng thấp chỉ đúng với ma trận đối xứng
-- **D.** Eckart–Young chỉ áp dụng cho ma trận vuông
+- **D.** Eckart-Young chỉ áp dụng cho ma trận vuông
 
 **Đáp án: B**
 
-**Giải thích:** MML mục 4.6 (Theorem 4.25, trang 131) phát biểu Eckart–Young. DeepSeek-V2 dùng cùng ý cho KV cache (MLA, arXiv 2405.04434), nên đây là ý toán học xuất hiện ba lần trong lộ trình.
+**Giải thích:** MML mục 4.6 (Theorem 4.25, trang 131) phát biểu Eckart-Young. DeepSeek-V2 dùng cùng ý cho KV cache (MLA, arXiv 2405.04434), nên đây là ý toán học xuất hiện ba lần trong lộ trình.
 
 ## Nâng cao 2 (Tự luận)
 

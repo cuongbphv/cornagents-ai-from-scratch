@@ -28,3 +28,18 @@ fused_model/
 
 # Sách PDF (chỉ giữ local, không đưa lên GitHub; catalog ở docs/books/README.md)
 books/*.pdf
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+
+# Tài liệu bảo mật
+docs/exercises/
+
+# Dataset nặng (kéo local bằng scripts/download_datasets.py)
+docs/datasets/*
+!docs/datasets/README.md
+!docs/datasets/MANIFEST.json
+!docs/datasets/LARGE_ROOT.txt

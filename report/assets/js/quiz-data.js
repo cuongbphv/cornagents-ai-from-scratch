@@ -82,15 +82,15 @@ window.QUIZ_DATA = {
           "id": "w1adv1",
           "type": "mcq",
           "level": "advanced",
-          "q": "Định lý Eckart–Young (MML Theorem 4.25) nói gì về xấp xỉ hạng k của một ma trận, và điều đó được LoRA khai thác thế nào?",
+          "q": "Định lý Eckart-Young (MML Theorem 4.25) nói gì về xấp xỉ hạng k của một ma trận, và điều đó được LoRA khai thác thế nào?",
           "choices": [
             "Mọi ma trận đều có hạng bằng số cột, nên không thể xấp xỉ hạng thấp",
             "Giữ k giá trị kỳ dị lớn nhất của SVD cho xấp xỉ hạng k tốt nhất theo chuẩn Frobenius và chuẩn phổ; LoRA đặt cược rằng ma trận hiệu chỉnh khi fine-tune có hạng hiệu dụng thấp nên chỉ cần học tích B·A hạng r",
             "Xấp xỉ hạng thấp chỉ đúng với ma trận đối xứng",
-            "Eckart–Young chỉ áp dụng cho ma trận vuông"
+            "Eckart-Young chỉ áp dụng cho ma trận vuông"
           ],
           "answer": 1,
-          "explain": "MML mục 4.6 (Theorem 4.25, trang 131) phát biểu Eckart–Young. DeepSeek-V2 dùng cùng ý cho KV cache (MLA, arXiv 2405.04434), nên đây là ý toán học xuất hiện ba lần trong lộ trình."
+          "explain": "MML mục 4.6 (Theorem 4.25, trang 131) phát biểu Eckart-Young. DeepSeek-V2 dùng cùng ý cho KV cache (MLA, arXiv 2405.04434), nên đây là ý toán học xuất hiện ba lần trong lộ trình."
         },
         {
           "id": "w1adv2",
@@ -911,6 +911,32 @@ window.QUIZ_DATA = {
           "explain": "Cơ chế học giống nhau (next-token prediction); thứ thay đổi là dữ liệu (template Alpaca-style) và hành vi mà ta muốn model hội tụ về (làm theo instruction thay vì tiếp tục văn bản)."
         },
         {
+          "id": "w9q5",
+          "type": "mcq",
+          "q": "Mask response-only (label -100 cho phần prompt) là mặc định tốt, nhưng theo paper Instruction Modelling (arXiv 2405.14394, dẫn ở mục 3 theory notes), tính loss CẢ trên phần instruction lại có lợi trong điều kiện nào?",
+          "choices": [
+            "Luôn luôn có lợi, nên bỏ hẳn masking",
+            "Khi dataset có instruction dài kèm output ngắn, hoặc khi có ít mẫu train, nhóm tác giả quy lợi ích cho việc giảm overfitting",
+            "Khi model có trên 7B tham số",
+            "Khi dùng optimizer khác AdamW"
+          ],
+          "answer": 1,
+          "explain": "Theo mục 3 của 01_theory_notes.md: mask chuẩn vẫn là mặc định của bài tuần này; ngoại lệ 'lengthy instructions + brief outputs' và ít mẫu train là nuance từ arXiv 2405.14394 (F.cross_entropy có ignore_index=-100 mặc định nên chỉ cần gán nhãn -100 là mask)."
+        },
+        {
+          "id": "w9q6",
+          "type": "mcq",
+          "q": "LoRA r=16 trên ma trận 4096×4096 chỉ train ~0.78% tham số, nhưng vì sao VRAM khi train giảm còn MẠNH hơn cả tỷ lệ đó?",
+          "choices": [
+            "Vì LoRA tự động quantize base model xuống 4-bit",
+            "Vì AdamW giữ 2 giá trị moment cho MỖI tham số được train, LoRA cắt số tham số train ~50-100× nên cắt luôn optimizer state tương ứng, thường là phần ăn VRAM lớn nhất khi full FT",
+            "Vì LoRA bỏ không lưu activation",
+            "Vì ma trận A, B được lưu ở CPU"
+          ],
+          "answer": 1,
+          "explain": "Mục 4 của 01_theory_notes.md: optimizer state của AdamW đi theo tham số TRAIN ĐƯỢC, không theo tổng tham số, W đóng băng thì không tốn moment. Đây là lý do bảng so sánh full FT vs LoRA của deliverable phải đo cả VRAM đỉnh (torch.cuda.max_memory_allocated())."
+        },
+        {
           "id": "w9adv1",
           "type": "mcq",
           "level": "advanced",
@@ -1004,6 +1030,26 @@ window.QUIZ_DATA = {
           "q": "Jurafsky và Martin viết rằng các phương pháp alignment bằng dữ liệu ưu tiên hiện nay đứng trên khung reinforcement learning của Sutton và Barto. Hãy đặt tên từng thành phần của khung đó (agent, environment, action, reward, policy) vào bài toán alignment một LLM.",
           "answer": "Policy là chính LLM với tham số θ; action là token được sinh ở mỗi bước, hoặc cả chuỗi trả lời; state là prompt cộng các token đã sinh; environment là thứ trả về reward, ở đây là reward model học từ cặp ưu tiên của người; reward của cả chuỗi là hàm của reward từng bước. Mục tiêu là tối đa reward kỳ vọng, đồng thời giữ KL với model tham chiếu để policy không trôi xa.",
           "explain": "SLP3 mục 8.4 trang 219 mô tả đúng khung này và dẫn Sutton và Barto 1998. Sutton và Barto 13.1 cho softmax policy trên preference h(s, a, θ), chính là softmax trên logits của LLM; PPO và GRPO là hậu duệ của REINFORCE ở mục 13.3."
+        },
+        {
+          "id": "w10q8",
+          "type": "mcq",
+          "q": "Dataset HH-RLHF (Bai et al. 2022) bạn dùng tuần này viết tắt của gì, và điều đó nói gì về nội dung các cặp chosen/rejected?",
+          "choices": [
+            "'Human-Human RLHF', data do hai người chat với nhau",
+            "'Helpful and Harmless', một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn'",
+            "'High-quality Human RLHF', data đã lọc chất lượng cao",
+            "'Helpful Hints for RLHF', bộ hướng dẫn gán nhãn"
+          ],
+          "answer": 1,
+          "explain": "Mục 7 của 01_theory_notes.md: cái tên đúng nghĩa đen 'Helpful and Harmless' (Bai et al. 2022, arXiv 2204.05862): harmlessness nằm ngay trong preference data. Bài tập cuối tuần: tự mở vài mẫu HH-RLHF và tìm một cặp khác nhau về AN TOÀN chứ không phải chất lượng."
+        },
+        {
+          "id": "w10q9",
+          "type": "open",
+          "q": "Vì sao nói 'refusal là hành vi được HUẤN LUYỆN, không phải bản năng', và vì sao RM/DPO/GRPO không tự đem lại harmlessness?",
+          "answer": "Base model chỉ dự đoán token, nó không 'biết từ chối'. Model từ chối yêu cầu độc hại vì trong preference data, câu từ chối được gán chosen còn câu tuân theo bị gán rejected, và RM/DPO/PPO đẩy policy về phía đó. RM/DPO/GRPO chỉ là máy tối ưu 'cái gì được ưa thích trong data': Bradley-Terry không biết 'an toàn' là gì, nó chỉ biết chosen và rejected, nếu preference data chỉ encode 'trả lời dài, lễ phép, đúng format' thì model học đúng và CHỈ những thứ đó. Harmlessness phải nằm sẵn trong data (như HH-RLHF) hoặc trong verifier; thuật toán không thêm được giá trị mà data không chứa. Hệ quả thực dụng: fine-tune tiếp trên data không có tín hiệu harmlessness thì hành vi từ chối có thể xói mòn, nó chỉ là trọng số như mọi hành vi khác.",
+          "explain": "Mục 7 của 01_theory_notes.md. Cùng bài học với 'metric bị game' (nâng cao I5): hệ tối ưu chỉ tối ưu cái nó thấy. Red-teaming (Ganguli et al. 2022, arXiv 2209.07858) là dạng eval cho trục an toàn, không đo thì không biết."
         },
         {
           "id": "w10adv1",
@@ -1166,6 +1212,26 @@ window.QUIZ_DATA = {
           "q": "Tóm tắt phân vai 3070 Ti vs Mac 24GB vs Cloud.",
           "answer": "3070 Ti (8GB): code from-scratch, train nhỏ/validate loop, QLoRA 7B-8B nhanh. Mac 24GB: chứa & fine-tune model 13-14B, chạy yên tĩnh local, inference quantized. Cloud (RunPod/Lambda): lần pretrain GPT-2 một lần (~$15-35), full fine-tune, iterate nhanh khi local quá chậm/OOM.",
           "explain": "Đây là nội dung deliverable 03_hardware_decision.md."
+        },
+        {
+          "id": "w12q5",
+          "type": "mcq",
+          "q": "Theo Ilharco et al. 2022 (task arithmetic, mục 7 theory notes), 'task vector' là gì và cộng/trừ nó dùng để làm gì?",
+          "choices": [
+            "Vector embedding của mô tả task, dùng để retrieve adapter phù hợp",
+            "τ = W_finetuned − W_base, 'hướng' fine-tune đã đẩy model tới trong không gian trọng số; CỘNG nhiều τ để ghép nhiều kỹ năng vào một model, PHỦ ĐỊNH (−τ) để giảm một hành vi mà ít ảnh hưởng task khác",
+            "Gradient trung bình của batch cuối cùng khi train",
+            "Một hàng của ma trận LoRA A"
+          ],
+          "answer": 1,
+          "explain": "Mục 7 của 01_theory_notes.md (arXiv 2212.04089): LoRA adapter merge về được dạng ΔW nên cũng quy về khung task vector. Caveat của repo: merging là kỹ thuật THỰC NGHIỆM, merge xong bắt buộc chạy lại bộ 10 prompt song ngữ + eval nghiệp vụ, chỉ giữ bản merge khi số đo không tụt."
+        },
+        {
+          "id": "w12q6",
+          "type": "open",
+          "q": "Mô tả quy trình kiểm tra catastrophic forgetting song ngữ bắt buộc của repo (mục 5 theory notes) và làm gì khi phát hiện suy giảm.",
+          "answer": "1) TRƯỚC khi fine-tune: chốt bộ 10 prompt cố định (5 tiếng Việt + 5 tiếng Anh, có cả nghiệp vụ lẫn thường thức), sinh và lưu output của base. 2) SAU fine-tune: chạy đúng 10 prompt đó ở temperature 0, so từng cặp output. 3) Nếu suy giảm rõ ở tiếng Anh: giảm tỷ lệ data một chiều, trộn thêm data tiếng Anh rồi train lại. Bộ 10 prompt giữ cố định vĩnh viễn, là 'bài kiểm tra sức khỏe song ngữ' cho mọi model sau này của dự án (kể cả mọi bản merge ở mục 7).",
+          "explain": "Mục 5 của 01_theory_notes.md. Chỗ dựa từ paper: Biderman et al. 2024 (arXiv 2405.09673) đo được full fine-tuning quên kiến thức ngoài domain đích nhiều hơn hẳn LoRA, mức quên PHỤ THUỘC cách fine-tune, nên chỉ có đo mới biết mình ở đâu trên trade-off."
         },
         {
           "id": "w12adv1",
@@ -1690,7 +1756,7 @@ window.QUIZ_DATA = {
             "Chia tài liệu thành chunk cố định 512 token"
           ],
           "answer": 1,
-          "explain": "Playbook (docs/Graph-Engineering-Athropic-Playbook.pdf) ghi pipeline 'works unchanged on blocks of 50–100' và mô tả 'blocking plus expensive LLM arbitration within blocks'."
+          "explain": "Playbook (docs/Graph-Engineering-Athropic-Playbook.pdf) ghi pipeline 'works unchanged on blocks of 50-100' và mô tả 'blocking plus expensive LLM arbitration within blocks'."
         },
         {
           "id": "w17adv2",

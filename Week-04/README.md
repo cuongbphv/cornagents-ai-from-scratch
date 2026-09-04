@@ -35,6 +35,7 @@ Nếu bạn vừa học xong Tuần 1 đến 3, mục toán trong `02_theory_not
 
 ## Thứ tự học trong tuần (mở file theo số)
 
+0. [`00_math_bridge.md`](00_math_bridge.md) + [`00_math_bridge_practice.py`](00_math_bridge_practice.py): bài ôn nhanh ký hiệu, log, exp và nhân ma trận tay (3-6 giờ). Bỏ qua nếu bạn vừa làm xong lab Tuần 1-2; chỉ dành cho người quay lại sau thời gian nghỉ dài.
 1. [`01_check_gpu.py`](01_check_gpu.py): xác nhận môi trường trước tiên (5 phút).
 2. [`02_theory_notes.md`](02_theory_notes.md): đọc lý thuyết, chạy lại từng snippet, song song với PyTorch tutorial.
 3. [`03_math_cheat_sheet.md`](03_math_cheat_sheet.md): TỰ viết cheat sheet nối công thức Phase 0 với API PyTorch tương ứng (deliverable).
@@ -56,7 +57,7 @@ Nếu bạn vừa học xong Tuần 1 đến 3, mục toán trong `02_theory_not
 
 ## Thời lượng
 
-~10-12 giờ.
+~10-12 giờ. Thêm 3-6 giờ nếu làm bài ôn `00_math_bridge.md`.
 
 ## Phần cứng
 
@@ -66,6 +67,7 @@ RTX 3070 Ti (hoặc Mac MPS): khối lượng tính toán rất nhẹ.
 
 ## Checklist tiến độ
 
+- [ ] (Tùy chọn) Làm `00_math_bridge.md` + `00_math_bridge_practice.py` nếu ký hiệu toán còn lạ
 - [ ] Đọc bảng "Bạn đến đây với gì" ở trên; mở lại mục Tuần 1-3 nào còn mơ hồ trước khi đi tiếp
 - [ ] Làm PyTorch tutorial "Learn the Basics" (tensor → autograd → training loop)
 - [ ] Đọc docs autograd + `nn.Module` của PyTorch
@@ -100,6 +102,8 @@ Số ở đầu tên file = thứ tự học (xem mục "Thứ tự học trong 
 | # | File | Mô tả |
 |---|------|-------|
 | · | `README.md` | File này, mục tiêu, nguồn, checklist |
+| 0 | `00_math_bridge.md` | Ôn nhanh ký hiệu, log, exp, tính tay (tùy chọn, không thêm chủ đề mới) |
+| 0 | `00_math_bridge_practice.py` | Luyện 11 câu bằng thư viện chuẩn, không cần PyTorch |
 | 1 | `01_check_gpu.py` | Kiểm tra CUDA/MPS, in thông tin device + VRAM |
 | 2 | `02_theory_notes.md` | Lý thuyết tự chứa: mục 0 map NumPy sang PyTorch; mục 1-3 ôn toán có dẫn về Tuần 1-2; mục 4 PyTorch core |
 | 3 | `03_math_cheat_sheet.md` | Cheat sheet nối công thức Phase 0 với API PyTorch (tự viết bằng lời mình) |

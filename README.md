@@ -10,7 +10,7 @@ Từ nền tảng toán và nội tại Transformer đến Agentic SDLC và Grap
 >
 > This is a **personal academic, research-only, non-commercial project**. All content (roadmap, notes, code skeletons, quizzes) exists solely for study and research; it is not a product and not legal or financial advice.
 >
-> Repo chỉ tham chiếu **nguồn mở**: repo GitHub công khai, paper truy cập mở (arXiv/ACL), tài liệu chính thức của công cụ, nguồn chính phủ, và dataset có license mở đã xác minh (CC BY / CC0 / MIT / Apache 2.0 / BSD). Các nguồn thương mại, sau paywall, license hạn chế (non-commercial, research-only, cấm train/distill/redistribute) đã được loại bỏ. Xem [CLAUDE.md](CLAUDE.md) cho quy tắc đầy đủ.
+> Repo chỉ tham chiếu **nguồn mở**: repo GitHub công khai, paper truy cập mở (arXiv/ACL), tài liệu chính thức của công cụ, nguồn chính phủ, và dataset có license mở đã xác minh (CC BY / CC0 / MIT / Apache 2.0 / BSD / ODC-By). Các nguồn thương mại, sau paywall, license hạn chế (non-commercial, research-only, cấm train/distill/redistribute) đã được loại bỏ. Xem [CLAUDE.md](CLAUDE.md) cho quy tắc đầy đủ.
 
 ---
 
@@ -223,7 +223,7 @@ books/            PDF sách giữ local, đã gitignore (xem docs/books/README.m
 report/           Portal web: roadmap 4 phase, checklist theo tuần, ghi chú lý thuyết
                   nhúng (thu gọn), quiz flip-card, kệ sách
                   (mở report/index.html; tiến độ lưu local trong trình duyệt)
-scripts/          quiz_bank.json (nguồn sự thật, 155 câu (36 câu nâng cao))
+scripts/          quiz_bank.json (nguồn sự thật, 161 câu (36 câu nâng cao))
                   generate_quiz.py (sinh lại quiz Week-XX + data portal)
                   build_theory_data.py (nhúng theory notes vào portal)
 ```

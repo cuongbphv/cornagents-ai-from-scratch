@@ -93,7 +93,7 @@ Playbook Graph Engineering dùng blocking trước resolution. Blocking là gì 
 
 **Đáp án: B**
 
-**Giải thích:** Playbook (docs/Graph-Engineering-Athropic-Playbook.pdf) ghi pipeline 'works unchanged on blocks of 50–100' và mô tả 'blocking plus expensive LLM arbitration within blocks'.
+**Giải thích:** Playbook (docs/Graph-Engineering-Athropic-Playbook.pdf) ghi pipeline 'works unchanged on blocks of 50-100' và mô tả 'blocking plus expensive LLM arbitration within blocks'.
 
 ## Nâng cao 2 (Tự luận)
 

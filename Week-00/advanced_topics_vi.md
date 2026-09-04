@@ -17,6 +17,9 @@
 - [G. Alignment và reasoning](#g-alignment-và-reasoning)
 - [H. Evaluation](#h-evaluation)
 - [I. Agentic và Graph Engineering (Phase 3)](#i-agentic-và-graph-engineering)
+- [J. Inference serving production: vLLM và PagedAttention](#j-inference-serving-production-vllm-và-pagedattention)
+- [K. Test-time compute và reasoning model](#k-test-time-compute-và-reasoning-model)
+- [L. Multimodal và VLM tổng quan](#l-multimodal-và-vlm-tổng-quan)
 
 ---
 
@@ -31,17 +34,18 @@ Năm tuần đầu cố ý không có mục nào: Tuần 1-3 là nền toán và
 | 7: Lắp ráp GPT | A7, B1, B2 | Vừa sinh text xong: hiểu KV cache và sampling ngay trên code của mình. |
 | 8: Pretraining | D, D1-D2, F, H (bpb, CORE) | Đang chạy train thật, các can thiệp vào loop mới có nghĩa. |
 | 9: Instruction fine-tuning | G (chỉ sơ đồ pipeline) | Định vị instruction FT của bạn là bước SFT trong pipeline lớn. |
-| 10: Alignment | G (đầy đủ) | Tuần alignment. |
+| 10: Alignment | G (đầy đủ), K | Tuần alignment. K là mặt inference của cùng bài toán reasoning mà GRPO giải ở mặt training. |
 | 11: QLoRA | B4, H | Bật cờ 4-bit thì nên biết NF4, GPTQ, AWQ khác nhau chỗ nào; và cách eval base so với fine-tuned. |
-| 12: Mac, MLX, local inference | B1, B3, B4 (GGUF) | Serving thật: KV cache là nút thắt VRAM, GGUF là định dạng bạn load. |
+| 12: Mac, MLX, local inference | B1, B3, B4 (GGUF), J | Serving thật: KV cache là nút thắt VRAM, GGUF là định dạng bạn load. J cho thấy serving nhiều người dùng khác gì serving một người. |
 | 13: RAG pipeline | B2 | Temperature và top-p quyết định câu trả lời RAG có bịa hay không. |
 | 14: Advanced RAG, RAGAS | H (đầy đủ) | Đang đo chất lượng, cần biết cạm bẫy LLM-as-judge trước khi tin số. |
 | 15: Nền tảng agentic | I1, I2 | Năm tầng engineering và ratchet loop là nội dung chính của tuần. |
 | 16: Agent graph SDLC | I2, I3 | Chọn pattern nào, khi nào tách vai, chi phí bao nhiêu. |
 | 17: Graph Engineering | I3, I4 | Scale, storage, monitoring của KG pipeline vừa build. |
 | 18: Capstone | H, I4, I5 | Eval, complexity budget, production checklist trước khi ship. |
+| Đọc thêm, không neo tuần | L | Multimodal nằm ngoài phạm vi thực hành của lộ trình; đọc ở mức khái niệm khi có người hỏi về tài liệu scan. |
 
-Mục A đến H là chiều sâu cho Phase 1-2 (model internals). Mục I là chiều sâu cho Phase 3, lấy từ hai PDF trong [`../docs/`](../docs/) và tài liệu Anthropic.
+Mục A đến H là chiều sâu cho Phase 1-2 (model internals). Mục I là chiều sâu cho Phase 3, lấy từ hai PDF trong [`../docs/`](../docs/) và tài liệu Anthropic. Mục J đến L là phần mở rộng thêm sau: serving nhiều người dùng, test-time compute, và multimodal ở mức khái niệm.
 
 ---
 
@@ -70,6 +74,20 @@ RoFormer đề xuất Rotary Position Embedding để giải quyết đúng hai 
 Ba hệ quả thực hành. Thứ nhất, RoPE áp lên Q và K bên trong attention, không áp lên V và không cộng vào embedding; trong `nanochat/gpt.py`, header file ghi rõ "rotary embeddings (and no positional embeddings)" và hàm `apply_rotary_emb(x, cos, sin)` được gọi trên q và k. Thứ hai, vì vị trí được mã hóa bằng góc quay, người ta có thể đổi tần số cơ sở để kéo dài ngữ cảnh: Llama 3 ghi "We increase the RoPE base frequency hyperparameter to 500,000" (arXiv 2407.21783, mục 3.2), thay cho 10000 của paper gốc. Thứ ba, Jurafsky và Martin xếp RoPE vào mục về input embedding của transformer (SLP3 mục 7.4, trang 191), tức đây đã là kiến thức giáo trình, không còn là mẹo.
 
 Khi tự cài ở Tuần 6: viết một hàm nhận (B, T, H, D) và bảng cos, sin có sẵn cho mọi vị trí; kiểm bằng cách xoay q ở vị trí 5 và k ở vị trí 2, rồi so tích vô hướng với trường hợp vị trí 8 và 5. Hai tích phải bằng nhau tới sai số máy.
+
+#### A1.1. Mở rộng context với RoPE: PI → NTK-aware → YaRN
+
+> Nguồn: Position Interpolation, Chen et al. 2023 (arXiv [2306.15595](https://arxiv.org/abs/2306.15595), abstract tra 2026-08-16); YaRN, Peng et al. 2023 (arXiv [2309.00071](https://arxiv.org/abs/2309.00071), abstract + full text HTML tra 2026-08-16).
+
+**Vì sao extrapolation "trần" thất bại.** Model chỉ từng thấy các góc quay \(m\theta_i\) với \(m\) trong độ dài train (vd. 0-4095). Cho \(m\) vượt xa mức đó là đưa attention vào vùng góc chưa từng gặp, abstract PI mô tả extrapolation "may lead to catastrophically high attention scores that completely ruin the self-attention mechanism" (điểm attention cao thảm hoạ, phá vỡ cơ chế self-attention).
+
+Ba mức khắc phục, đều xoay quanh câu hỏi **"rescale cái gì"**:
+
+- **Position Interpolation (PI)**: *rescale vị trí*. Nén tuyến tính chỉ số vị trí \(m \rightarrow m \cdot L/L'\) (\(L\) = độ dài train, \(L'\) = độ dài mới) để mọi vị trí mới rơi ngược vào dải góc đã train, nội suy thay vì ngoại suy. Abstract PI: mở rộng LLaMA lên **32768** token với fine-tune **dưới 1000 bước**, và cận trên của nội suy nhỏ hơn ngoại suy "~600×". Nhược điểm (paper YaRN chỉ ra): nén *đều mọi chiều* làm mất thành phần tần số cao, "it removes the high frequency components of RoPE", tức là làm mờ khả năng phân biệt các token *sát nhau*.
+- **NTK-aware scaling**: *rescale tần số (base), không đều*. Thay vì nén mọi chiều cùng hệ số \(s\), đổi base \(b \rightarrow b \cdot s^{d/(d-2)}\): full text YaRN: "we spread out the interpolation pressure across multiple dimensions by scaling high frequencies less and low frequencies more" (chiều tần số cao gần như giữ nguyên để không mất chi tiết cục bộ, chiều tần số thấp nén nhiều để phủ được context dài).
+- **YaRN**: kết hợp **NTK-by-parts** (chọn nội suy theo *từng chiều*, dựa trên tỉ lệ bước sóng/context: chiều tần số cao giữ nguyên, chiều tần số thấp mới nội suy) + **attention temperature scaling** (nhân thêm nhiệt độ \(t\) vào softmax attention, \(\sqrt{1/t}=0.1\ln s + 1\)). Abstract YaRN: cần "10x less tokens and 2.5x less training steps than previous methods" để đạt cùng mức mở rộng context.
+
+Mental model gọn: PI kéo *vị trí* về vùng đã train; NTK-aware kéo *tần số* một cách có chọn lọc; YaRN làm việc chọn lọc đó theo từng chiều rồi vá nốt phần softmax. Cả ba đều rẻ vì **không đổi kiến trúc**: chỉ đổi cách tính góc quay RoPE (± một lượng fine-tune nhỏ).
 
 ### A2. RMSNorm
 
@@ -104,6 +122,16 @@ Nối với Tuần 1: nén hạng thấp ở đây là đúng trực giác SVD �
 ### A6. Sliding window attention
 
 Attention đầy đủ tốn O(n²) theo độ dài chuỗi (mục C1). Mistral 7B thu về O(n·W) bằng sliding window attention: "The hidden state in position i of the layer k, h_i, attends to all hidden states from the previous layer with positions between i − W and i" (arXiv 2310.06825, mục 2). Thông tin xa hơn W vẫn tới được nhờ xếp lớp: sau k lớp, một vị trí "can access tokens from the input layer at a distance of up to W × k tokens"; với W = 4096 ở 32 lớp, paper nêu "a theoretical attention span of approximately 131K tokens" (cùng mục). Cửa sổ cố định còn cho phép rolling buffer cache: cache chỉ giữ W cặp K, V, cặp ở bước i ghi vào ô i mod W, nên khi i vượt W thì cache ghi đè và không lớn thêm; paper ghi ở chuỗi 32k điều này "reduces the cache memory usage by 8x, without impacting the model quality" (mục 2, Rolling Buffer Cache). Xiao và Zhu trình bày cùng ý dưới tên fixed-size KV cache với cửa sổ n_c cặp gần nhất (*Foundations of LLMs*, mục 2.3.3.1, trang 72).
+
+#### A6.1. Attention sinks & StreamingLLM: vì sao vài token đầu tiên "thiêng"
+
+> Nguồn: StreamingLLM, Xiao et al. 2023, *Efficient Streaming Language Models with Attention Sinks* (arXiv [2309.17453](https://arxiv.org/abs/2309.17453), abstract tra 2026-08-16).
+
+Cửa sổ trượt "ngây thơ" có một chỗ gãy: khi hội thoại dài vượt kích thước cache và các token *đầu tiên* bị đẩy khỏi KV cache, chất lượng sụp, abstract mô tả window attention thất bại "when the text length surpasses the cache size". Phát hiện của paper: chỉ cần **giữ lại KV của các token đầu tiên** là "will largely recover the performance of window attention", dù các token đó *không quan trọng về ngữ nghĩa*. Paper gọi hiện tượng này là **attention sink**: các token đầu hút một lượng attention lớn bất thường.
+
+[Suy luận] Cách giải thích trực giác (dựa trên lập luận trong paper, không nằm trong abstract): softmax buộc tổng attention = 1, nên khi một head "không cần nhìn đâu cả" nó vẫn phải đổ trọng số đi đâu đó, và chỗ đổ ổn định nhất là các vị trí đầu tiên, vì *mọi* token về sau đều nhìn thấy chúng trong attention nhân quả. Rút chúng khỏi cache là rút mất "chỗ xả" mà model đã học cách dựa vào.
+
+**Công thức window + sink** (StreamingLLM): KV cache = **vài token sink đầu chuỗi** (giữ cố định) **+ cửa sổ trượt \(w\) token gần nhất**: không cần fine-tune. Abstract: cách này cho model train với attention window hữu hạn "generalize to infinite sequence lengths without any fine-tuning", chạy tới "4 million tokens and more", nhanh hơn baseline sliding-window-có-tính-lại tới **22.2×**. Paper còn ghi nhận: thêm một placeholder token làm sink chuyên dụng ngay từ pretraining giúp streaming tốt hơn nữa. Lưu ý phạm vi: đây là kỹ thuật *streaming/bộ nhớ cache*, không phải mở rộng context "thật", model vẫn không nhớ nội dung đã rơi khỏi cửa sổ (khác với A1.1, nơi model thật sự attend được cả context dài).
 
 ### A7. Mixture of Experts
 
@@ -218,6 +246,24 @@ Với một GPU 8GB, kỹ thuật bạn dùng thật là gradient accumulation (
 
 ---
 
+### F1. ZeRO stages 1/2/3: shard dần từng loại state
+
+Điểm mù của DDP: mỗi GPU giữ **bản sao đầy đủ** của model state, params + gradients + optimizer states (với AdamW mixed-precision, optimizer states thường là phần *nặng nhất*). ZeRO (Zero Redundancy Optimizer) xoá dần sự dư thừa đó, theo 3 stage *cộng dồn*, mỗi stage shard thêm một loại state qua \(N_d\) GPU (số liệu memory-reduction lấy từ paper, tra 2026-08-16):
+
+1. **Stage 1, \(P_{os}\)**: shard **optimizer states** (mỗi GPU giữ \(1/N_d\)); paper: "4x memory reduction, same communication volume as DP", giảm ~4× bộ nhớ, communication không đổi.
+2. **Stage 2, \(P_{os+g}\)**: shard thêm **gradients** (reduce-scatter về đúng GPU chịu trách nhiệm update phần param tương ứng); paper: "8x memory reduction, same communication volume as DP".
+3. **Stage 3, \(P_{os+g+p}\)**: shard nốt **parameters**: mỗi GPU chỉ giữ mảnh của mình, forward/backward cần lớp nào thì broadcast/gather lớp đó *đúng lúc* rồi thả ra; paper: memory giảm **tuyến tính theo \(N_d\)**, đổi lại "~50% increase in communication volume". Đây là stage duy nhất phá được giới hạn "model phải vừa 1 GPU".
+
+Trục trade-off để nhớ: stage càng cao càng tiết kiệm bộ nhớ, càng tốn communication, chọn stage thấp nhất đủ vừa model.
+
+### F2. FSDP: ZeRO-3-style trong PyTorch
+
+**FSDP (FullyShardedDataParallel)** là cách PyTorch tích hợp ý tưởng ZeRO vào core: docs chính thức ([docs.pytorch.org/docs/stable/fsdp.html](https://docs.pytorch.org/docs/stable/fsdp.html), tra 2026-08-16) mô tả `ShardingStrategy.FULL_SHARD` là "Parameters, gradients, and optimizer states are sharded", đúng dáng ZeRO-3; `SHARD_GRAD_OP` chỉ shard gradient + optimizer states (dáng ZeRO-2, docs thậm chí có biến thể tên `_HYBRID_SHARD_ZERO2`); `NO_SHARD` thì hành xử như DDP. Nghĩa là chuyển DDP → FSDP không phải đổi framework, chỉ đổi *chiến lược trải state lên GPU*.
+
+**Kế hoạch hands-on:** Chủ repo xác nhận 2026-08-16 sẵn sàng thuê GPU cloud, DDP/FSDP hands-on đã được đưa vào Week-08 extension (thuê máy 2×GPU); xem block extension trong README Tuần 8. Ở local 1 GPU 8GB, công cụ chính vẫn là **gradient accumulation** (D); F1-F2 là thứ bạn chạy thật trên máy thuê.
+
+---
+
 ## G. Alignment và reasoning
 
 > **Học ở tuần** 9 (sơ đồ) và 10 (đầy đủ). **Nguồn:** SLP3 mục 8.1-8.4 (trang 210-223); Sutton và Barto, *RL: An Introduction* mục 3.1, 13.1, 13.3; Xiao và Zhu, *Foundations of LLMs* mục 4.3-4.4; DPO (Rafailov et al., arXiv 2305.18290, PDF trong `../docs/papers/`); DeepSeekMath (Shao et al., arXiv 2402.03300); repo FareedKhan-dev/train-llm-from-scratch `src/post_training/`; nanochat `scripts/chat_sft.py`, `scripts/chat_rl.py`.
@@ -305,6 +351,66 @@ Thước đo cuối cùng, trích PDF Karpathy-Loop:
 Khi câu đó đúng với hệ của bạn, loop, swarm, DAG và knowledge graph là các cơ chế ghép được với nhau. Khi nó sai, thêm agent chỉ tăng độ mờ đục. Đây là câu bạn tự kiểm ở Tuần 18.
 
 ---
+
+## J. Inference serving production: vLLM và PagedAttention
+
+> **Học ở tuần:** 12 (sau khi đã chạy local inference với Ollama/MLX). Nguồn: paper vLLM, Kwon et al. 2023, *Efficient Memory Management for Large Language Model Serving with PagedAttention* (arXiv [2309.06180](https://arxiv.org/abs/2309.06180), abstract tra 2026-08-16); README chính thức của [vllm-project/vllm](https://github.com/vllm-project/vllm) (Apache 2.0, tra 2026-08-16).
+
+**Vì sao cần:** Tuần 12 bạn serve model cho *một* người dùng (chính bạn). Serving production là bài toán khác hẳn: nhiều request đồng thời, GPU đắt phải chạy đầy tải. Hai kỹ thuật của vLLM dưới đây là câu trả lời chuẩn ngành cho bài đó, và cả hai đều xoay quanh đúng cái KV cache bạn đã hiểu ở B1.
+
+### J1. PagedAttention: KV cache phân trang như virtual memory
+
+Vấn đề: cách cấp phát KV cache "ngây thơ" là dành sẵn **một khối bộ nhớ liền mạch** cho độ dài tối đa của mỗi request → lãng phí lớn vì (a) request thường ngắn hơn nhiều mức tối đa, (b) phân mảnh giữa các request. Paper vLLM lấy cảm hứng từ **bộ nhớ ảo của hệ điều hành**: cắt KV cache thành các **block cố định**, cấp phát block khi cần, và một bảng ánh xạ logical→physical cho phép các block của một chuỗi nằm rải rác. Theo abstract (tra 2026-08-16), cách này giảm lãng phí KV cache và tăng throughput **2-4×** so với các hệ serving cùng thời ở cùng mức latency.
+
+ **Đừng nhầm với "paged optimizers" của QLoRA (Tuần 11)**: trùng chữ "paged" nhưng khác hoàn toàn: paged optimizers (Dettmers et al., arXiv [2305.14314](https://arxiv.org/abs/2305.14314), abstract tra 2026-08-16) chuyển **optimizer state** qua lại giữa GPU và CPU RAM để "manage memory spikes" khi *training*; PagedAttention phân trang **KV cache** ngay trong VRAM khi *inference/serving*. Một cái là training-side, một cái là serving-side.
+
+### J2. Continuous batching: throughput vs latency
+
+Batching tĩnh: gom N request thành một batch, chạy đến khi **cả batch** xong mới nhận request mới → request ngắn phải chờ request dài, GPU rảnh rỗi vô ích. **Continuous batching** (README vLLM: "continuous batching of incoming requests", tra 2026-08-16): ở *mỗi bước decode*, request nào xong thì rời batch, request mới vào ngay chỗ trống → GPU luôn đầy. Trade-off cần nắm: continuous batching tối ưu **throughput** (token/giây toàn hệ thống); latency của *từng* request có thể tăng nhẹ vì chia sẻ GPU với nhiều request khác, chọn cấu hình theo việc bạn ưu tiên cái nào.
+
+### J3. So với Ollama / LM Studio
+
+Ollama/LM Studio (backend llama.cpp) tối ưu cho **single-user local**: load GGUF, một request một lúc, chạy được trên CPU/GPU consumer, đúng cái bạn cần ở Tuần 12. vLLM tối ưu cho **multi-user trên GPU server**: PagedAttention + continuous batching chỉ phát huy khi có nhiều request đồng thời. [Suy luận] Với lộ trình này bạn không cần dựng vLLM thật; cái cần mang theo là *mental model*: khi ai đó nói "serve model cho cả team", bạn biết bài toán đổi từ "VRAM có đủ không" (B1) sang "GPU có chạy đầy tải không" (J2) và "KV cache có lãng phí không" (J1).
+
+## K. Test-time compute và reasoning model
+
+> **Học ở tuần:** 10 (ngay sau G, GRPO/RLVR). Nguồn: self-consistency, Wang et al. 2022 (arXiv [2203.11171](https://arxiv.org/abs/2203.11171)); s1, Muennighoff et al. 2025 (arXiv [2501.19393](https://arxiv.org/abs/2501.19393)); DeepSeek-R1 (arXiv [2501.12948](https://arxiv.org/abs/2501.12948): đã có trong [`../docs/papers/README.md`](../docs/papers/README.md), neo Tuần 10). Tất cả abstract tra 2026-08-16.
+
+**Vì sao cần:** Tuần 10 dạy trục *training-side*, đổ compute vào lúc huấn luyện (RM/DPO/GRPO) để model tốt hơn. Trục thứ hai, bùng nổ từ 2024-2025, là *inference-side*: **chi thêm compute lúc suy luận** cho cùng một model để ra đáp án tốt hơn. Hai trục bổ sung nhau, và reasoning models là chỗ chúng gặp nhau.
+
+### K1. CoT sampling + self-consistency
+
+Thay vì decode greedy một chuỗi suy luận (chain-of-thought), **sample nhiều chuỗi suy luận** (temperature > 0) rồi **vote đáp án cuối**: abstract của Wang et al.: "samples a diverse set of reasoning paths instead of only taking the greedy one, and then selects the most consistent answer". Điều kiện áp dụng: đáp án cuối phải **so sánh được bằng máy** (con số, đáp án trắc nghiệm): cùng họ điều kiện với RLVR.
+
+### K2. Best-of-N + verifier
+
+Sinh N câu trả lời, cho một **verifier** chấm, giữ câu điểm cao nhất. Verifier có thể là Reward Model (đúng RM bạn học ở G/Tuần 10, dùng ở inference thay vì training) hoặc verifier tất định (chạy test, so đáp số). So với K1: self-consistency vote theo *đa số*, best-of-N tin *một giám khảo*.
+
+### K3. Budget forcing (s1)
+
+Kiểm soát trực tiếp lượng "thinking" của reasoning model: abstract s1 mô tả "budget forcing to control test-time compute by forcefully terminating the model's thinking process or lengthening it", tức là cắt sớm hoặc ép nghĩ thêm, và abstract báo cáo cách này giúp model 32B của họ vượt o1-preview trên benchmark toán thi đấu (tra 2026-08-16). Ý nghĩa: test-time compute là một **trục scale điều khiển được**, không phải hộp đen.
+
+### K4. DeepSeek-R1: nơi hai trục gặp nhau
+
+Abstract R1: khả năng reasoning "can be incentivized through pure reinforcement learning (RL), obviating the need for human-labeled reasoning trajectories", chính là GRPO/RLVR của G chạy ở quy mô thật. Cách nhìn gọn: **RLVR (training-side) huấn luyện model tự sinh chuỗi suy luận dài, tức là "nội hoá" test-time compute vào model**, thay vì scaffold bên ngoài như K1-K2. Sau R1, hai trục không còn tách rời: train để model *biết* nghĩ dài, rồi điều tiết *nghĩ bao lâu* bằng budget (K3).
+
+## L. Multimodal và VLM tổng quan
+
+> **Học ở tuần:** không neo tuần, **đọc thêm, ngoài phạm vi hands-on của lộ trình** (lộ trình này thuần text). Nguồn: CLIP, Radford et al. 2021 (arXiv [2103.00020](https://arxiv.org/abs/2103.00020)); LLaVA, Liu et al. 2023 (arXiv [2304.08485](https://arxiv.org/abs/2304.08485)). Abstract tra 2026-08-16.
+
+**Vì sao cần (ở mức khái niệm):** tài liệu ngân hàng thật có bảng scan, con dấu, chữ ký, sớm muộn sẽ có người hỏi "sao không dùng model nhìn được ảnh?". Mục này cho đủ vốn từ để trả lời câu đó, không hơn.
+
+### L1. CLIP: contrastive pretraining
+
+Train **hai encoder** (ảnh và text) sao cho embedding của một ảnh và caption *đúng* của nó gần nhau, còn các cặp *sai* xa nhau (contrastive). Abstract: train trên **400 triệu cặp (ảnh, text)** thu từ internet, và model transfer zero-shot sang nhiều task qua prompt ngôn ngữ tự nhiên (tra 2026-08-16). Điểm cần nhớ: CLIP cho một **không gian embedding chung ảnh-text**: đó là viên gạch nền của hầu hết VLM sau này.
+
+### L2. Kiến trúc VLM phổ biến: vision encoder + projector + LLM
+
+Công thức LLaVA (abstract: "connects a vision encoder and LLM"): lấy **vision encoder** đã train sẵn (thường là phía ảnh của CLIP) → một **projector** (phép chiếu học được) map đặc trưng ảnh thành chuỗi "token thị giác" nằm trong không gian embedding của LLM → LLM đọc chuỗi trộn [token ảnh + token text] như thường. [Suy luận] Cái hay của công thức này là *tái dùng* hai model đã train riêng, chỉ học lớp nối ở giữa, rẻ hơn nhiều so với train multimodal from scratch; đó là lý do nó phổ biến.
+
+### L3. Vì sao OCR pipeline ở prerequisites KHÔNG phải multimodal modeling
+
+OCR pipeline: ảnh → *text* (bước OCR tất định) → model **chỉ thấy text**. VLM: biểu diễn ảnh đi **thẳng vào model**, không qua bước chuyển chữ. Khác biệt hệ quả: OCR làm mất layout/hình/con dấu nhưng đơn giản, debug được từng bước, và mọi thứ downstream (RAG, KG) vẫn là bài text bạn đã học; VLM giữ được thông tin thị giác nhưng kéo theo cả một stack train/eval khác. [Suy luận] Với dự án học thuật 1-GPU-8GB này, OCR-rồi-text là lựa chọn đúng; VLM chỉ đáng cân nhắc khi thông tin *thị giác* (vị trí chữ ký, cấu trúc bảng phức tạp) thật sự quyết định đáp án.
 
 ## Ưu tiên nếu thời gian hẹp
 

@@ -78,7 +78,7 @@ window.WEEKS_DATA = [
    <h5>Softmax & cross-entropy</h5>
    <div class="formula">\\( \\text{softmax}(z)_i=\\dfrac{e^{z_i}}{\\sum_j e^{z_j}}, \\quad L_{CE}=-\\sum_i y_i\\log\\hat{y}_i \\)</div>
    <div class="tagrow"><span class="kt">tensor</span><span class="kt">autograd</span><span class="kt">broadcasting</span><span class="kt">softmax</span><span class="kt">cross-entropy</span></div>`,
-  check:["Đọc bảng 'Bạn đến đây với gì' trong README; mở lại mục Tuần 1-3 còn mơ hồ","Làm PyTorch tutorial Learn the Basics","Đọc docs autograd + nn.Module","Chạy 01_check_gpu.py → xác nhận CUDA/MPS","Đọc 02_theory_notes.md, chạy lại được mọi snippet","05_train_mlp.py phần 2: logistic regression PyTorch, gradient autograd khớp gradient tay Tuần 3","05_train_mlp.py phần 3: MLP, accuracy held-out cao hơn logistic regression","Viết một câu giải thích vì sao MLP thắng (lớp giả thuyết, Tuần 3)","Hoàn thành 03_math_cheat_sheet.md: công thức, tuần đã học, API PyTorch","Tự kiểm tra: giải thích cho Claude loss.backward() thay cho gì và vì sao zero_grad()"]
+  check:["Đọc bảng 'Bạn đến đây với gì' trong README; mở lại mục Tuần 1-3 còn mơ hồ","(Tùy chọn) Làm 00_math_bridge.md nếu ký hiệu toán còn lạ","Làm PyTorch tutorial Learn the Basics","Đọc docs autograd + nn.Module","Chạy 01_check_gpu.py → xác nhận CUDA/MPS","Đọc 02_theory_notes.md, chạy lại được mọi snippet","05_train_mlp.py phần 2: logistic regression PyTorch, gradient autograd khớp gradient tay Tuần 3","05_train_mlp.py phần 3: MLP, accuracy held-out cao hơn logistic regression","Viết một câu giải thích vì sao MLP thắng (lớp giả thuyết, Tuần 3)","Hoàn thành 03_math_cheat_sheet.md: công thức, tuần đã học, API PyTorch","Tự kiểm tra: giải thích cho Claude loss.backward() thay cho gì và vì sao zero_grad()"]
  },
  {
   n:5, phase:1, title:"Backprop từ đầu + mental model Transformer", dur:"~12-15 giờ", hw:"3070 Ti / Mac (workload nhẹ)",
@@ -126,7 +126,7 @@ window.WEEKS_DATA = [
   n:8, phase:1, title:"Pretraining: training loop + 1 lần chạy GPT-2 thật", dur:"~12-15 giờ + thời gian train", hw:"Local 3070 Ti (validate) · Cloud (run thật ~$15-35)",
   obj:["Hiểu pretraining loop, cross-entropy/perplexity, LR scheduling, checkpointing","Thực sự pretrain một model nhỏ"],
   src:["<b>nanoGPT</b> train.py (clipping, LR decay, mixed precision, grad accum)","<b>Karpathy</b> llm.c reproduce GPT-2 (Discussion #481)","<b>HF</b> Ultra-Scale Playbook","Sách mở: <b>SLP3</b> 3.3 perplexity, 7.7 pretraining; <b>Foundations of LLMs</b> 2.2; <b>Fleuret</b> 3.7 scale"],
-  deliver:"Checkpoint base-model nhỏ + write-up <b>so sánh loss curve</b> với GPT-2 gốc (<code>04_loss_analysis.md</code>).",
+  deliver:"Checkpoint base-model nhỏ + write-up <b>so sánh loss curve</b> với GPT-2 gốc (<code>04_loss_analysis.md</code>) + pipeline lọc và khử trùng lặp dữ liệu kiểu FineWeb (<code>05_data_dedup.py</code>).",
   know:`<h5>Loss & perplexity</h5>
    <div class="formula">\\( L=-\\dfrac{1}{N}\\sum_t \\log p_\\theta(x_t\\mid x_{<t}), \\quad \\text{PPL}=e^{L} \\)</div>
    <p>GPT-2 gốc đạt val loss ≈ <b>3.5</b>, dùng làm mốc so sánh cho lần chạy của bạn.</p>
@@ -156,7 +156,7 @@ window.WEEKS_DATA = [
   n:10, phase:1, title:"Nhập môn alignment: SFT → RM → DPO/PPO → GRPO", dur:"~10-12 giờ", hw:"3070 Ti (scaled-down) · Cloud (full PPO/GRPO)",
   obj:["Hiểu pipeline alignment SFT→RM→PPO/DPO→GRPO (khái niệm)","Chạy ≥1 stage alignment from scratch (SFT hoặc DPO)"],
   src:["<b>FareedKhan-dev</b> src/post_training (SFT/RM/PPO/DPO/GRPO pure PyTorch)","Paper <b>DPO</b> (2305.18290) + <b>DeepSeekMath/GRPO</b> (2402.03300)","Sách mở: <b>SLP3</b> 8.3-8.4; <b>Sutton & Barto</b> 3.1, 13.1, 13.3; <b>Foundations of LLMs</b> 4.3 RLHF, 4.4.2 DPO"],
-  deliver:"Log/checkpoint 1 stage alignment đã chạy + ghi chú phân biệt <b>SFT vs DPO vs GRPO</b> (<code>02_alignment_notes.md</code>).",
+  deliver:"Log/checkpoint 1 stage alignment đã chạy + ghi chú phân biệt <b>SFT vs DPO vs GRPO</b> (<code>02_alignment_notes.md</code>) + loss DPO tự code qua kiểm tra toy (<code>03_dpo_skeleton.py</code>).",
   know:`<h5>So sánh các stage alignment</h5>
    <ul><li><b>SFT</b>: học bắt chước phản hồi tốt (supervised).</li><li><b>Reward Model</b>: học chấm điểm ưu tiên giữa các cặp output.</li><li><b>DPO</b>: tối ưu trực tiếp từ cặp (chosen, rejected), bỏ qua RM/PPO:</li></ul>
    <div class="formula">\\( L_{DPO}=-\\log\\sigma\\!\\Big(\\beta\\log\\tfrac{\\pi_\\theta(y_w|x)}{\\pi_{ref}(y_w|x)}-\\beta\\log\\tfrac{\\pi_\\theta(y_l|x)}{\\pi_{ref}(y_l|x)}\\Big) \\)</div>

@@ -1,0 +1,3 @@
+Bản đầy đủ các bộ lớn: D:\AI\datasets
+Kéo bằng: python scripts/download_large_datasets.py --root D:\AI\datasets
+Ngày: 2026-08-16

@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "cornagents_ai_from_scratch",
+  "project_id": "b61cfc9b-93dc-4b19-8786-7d23a900e6a7"
+}

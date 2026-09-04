@@ -1,6 +1,6 @@
 # Tuần 10, Quiz: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
 
-> Tự kiểm tra **trước** khi xem solution. Tổng **9** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
+> Tự kiểm tra **trước** khi xem solution. Tổng **11** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
 > _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._
 
 ## Câu 1 (Tự luận)
@@ -45,6 +45,19 @@ Trong RLHF/DPO, thành phần KL divergence (hoặc reference policy) đóng vai
 ## Câu 7 (Tự luận)
 
 Jurafsky và Martin viết rằng các phương pháp alignment bằng dữ liệu ưu tiên hiện nay đứng trên khung reinforcement learning của Sutton và Barto. Hãy đặt tên từng thành phần của khung đó (agent, environment, action, reward, policy) vào bài toán alignment một LLM.
+
+## Câu 8 (Trắc nghiệm)
+
+Dataset HH-RLHF (Bai et al. 2022) bạn dùng tuần này viết tắt của gì, và điều đó nói gì về nội dung các cặp chosen/rejected?
+
+- **A.** 'Human-Human RLHF', data do hai người chat với nhau
+- **B.** 'Helpful and Harmless', một phần các cặp chosen/rejected không so 'câu nào hay hơn' mà so 'câu nào AN TOÀN hơn'
+- **C.** 'High-quality Human RLHF', data đã lọc chất lượng cao
+- **D.** 'Helpful Hints for RLHF', bộ hướng dẫn gán nhãn
+
+## Câu 9 (Tự luận)
+
+Vì sao nói 'refusal là hành vi được HUẤN LUYỆN, không phải bản năng', và vì sao RM/DPO/GRPO không tự đem lại harmlessness?
 
 ---
 
