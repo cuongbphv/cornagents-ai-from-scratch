@@ -1,0 +1,928 @@
+{
+  "title": "CornAgents.AI",
+  "source": "docs/curriculum/sections.json",
+  "source_read_date": "2026-09-30",
+  "scope": "Lịch học chính; code starter chưa hoàn thành bởi người học. Reference offline dùng fixture, không phải hệ thống research agent production.",
+  "weeks": [
+    {
+      "week": 1,
+      "title": "Môi trường học và phạm vi nhiệm vụ",
+      "sections": [
+        8,
+        10
+      ],
+      "reuse": [],
+      "principle": "Bắt đầu bằng một nhiệm vụ nhỏ có đầu vào, đầu ra và điều kiện hoàn thành rõ. Task contract ghi công cụ được phép, nguồn bị loại và ngân sách; agent không tự đổi nhiệm vụ.",
+      "trap": "Một notebook chạy được chưa cho biết ai có quyền dùng dữ liệu hoặc cách chạy lại trên máy khác.",
+      "practice": "Tạo môi trường Python, ghi phiên bản thực tế, thiết kế task đọc một fixture JSON; lưu manifest có nguồn, cấu hình và lệnh chạy. Dùng dữ liệu giả lập, không chép secrets.",
+      "challenge": "Agent tìm thấy nguồn hữu ích ngoài allowlist. Có được tự đọc để hoàn thành nhanh hơn không?",
+      "answer": "Không. Ghi nguồn còn thiếu và đề nghị thay phạm vi; executor chỉ cho phép công cụ/nguồn đã được cấp quyền.",
+      "directory": "tracks/core-24/Week-01",
+      "phase": 0,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 2,
+      "title": "Bản đối chứng và phép đánh giá đầu tiên",
+      "sections": [
+        7,
+        8,
+        12
+      ],
+      "reuse": [],
+      "principle": "Định nghĩa outcome trước khi tối ưu. Với bài toán có quy tắc rõ, dùng rules/search/code không LLM làm bản đối chứng B0.",
+      "trap": "Thêm câu trả lời dễ vào tập test hoặc bỏ các lần fail làm mẫu số thay đổi và khiến báo cáo đẹp giả tạo.",
+      "practice": "Lập fixture đúng/sai và rubric cho parser số nguyên có đơn vị. Chạy bản đối chứng, lưu từng input, expected và output; báo toàn bộ task kể cả từ chối.",
+      "challenge": "Không có task nào được nhận xử lý: accepted risk có bằng 0 không?",
+      "answer": "Chưa đo được accepted risk vì mẫu số bằng 0. Báo coverage và số thành công trên toàn bộ task; không ghi 0% lỗi.",
+      "directory": "tracks/core-24/Week-02",
+      "phase": 0,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        1
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 3,
+      "title": "Đại số tuyến tính qua code",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-01/README.md",
+        "Week-01/02_linear_algebra_lab.py"
+      ],
+      "principle": "Xem ma trận như ánh xạ tuyến tính. Xác định chiều đầu vào/đầu ra trước khi nhân; phép chiếu và xấp xỉ hạng thấp là nền cho regression và low-rank update.",
+      "trap": "Hạng thấp của một ma trận minh họa không xác nhận mọi adapter LLM có thể dùng cùng rank.",
+      "practice": "Tái sử dụng lab NumPy ở Week-01. Tự tính phép chiếu, kiểm phần dư trực giao và so nghiệm bằng một cách độc lập. Lưu seed và tolerance.",
+      "challenge": "Vì sao shape đúng chưa đủ để xác nhận một phép chiếu đúng?",
+      "answer": "Cần kiểm ý nghĩa phép toán và tính chất phần dư trực giao. Hai phép nhân khác thứ tự có thể cho shape hợp lệ nhưng nghĩa khác.",
+      "directory": "tracks/core-24/Week-03",
+      "phase": 0,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        2
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 4,
+      "title": "Đạo hàm, xác suất và gradient check",
+      "sections": [
+        7,
+        8
+      ],
+      "reuse": [
+        "Week-02/README.md",
+        "Week-02/02_calculus_probability_lab.py",
+        "Week-03/README.md"
+      ],
+      "principle": "Gradient check so đạo hàm tự tính với sai phân số trên một hàm nhỏ. Sampling unit và giả định độc lập phải được nêu khi chuyển từ ví dụ tính toán sang kết luận thống kê.",
+      "trap": "Tăng số retry của cùng câu hỏi không tự tạo thêm task độc lập; sai phân số cũng cần chọn bước và tolerance phù hợp.",
+      "practice": "Tự tính gradient logistic regression, kiểm bằng sai phân trung tâm; chia dữ liệu train/validation/test theo vai trò. Giải thích nguồn sai số số học.",
+      "challenge": "Có nên chọn learning rate bằng điểm test rồi báo điểm test là đánh giá độc lập?",
+      "answer": "Không. Khi dùng để chọn cấu hình, tập đó đã phục vụ phát triển. Cần giữ tập đánh giá độc lập khác cho cấu hình đã cố định.",
+      "directory": "tracks/core-24/Week-04",
+      "phase": 0,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        3
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 5,
+      "title": "Autograd và backprop từ đầu",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-04/README.md",
+        "Week-05/README.md",
+        "Week-05/02_micrograd.py"
+      ],
+      "principle": "Autograd tích lũy đạo hàm theo graph tính toán. Tự viết một lõi nhỏ giúp đối chiếu chain rule với gradient reference thay vì chỉ nhìn loss giảm.",
+      "trap": "Nếu quên xóa gradient giữa các bước hoặc backward sai thứ tự, training có thể sai dù không gặp exception.",
+      "practice": "Làm micrograd skeleton hiện có; kiểm gradient cho biểu thức có nhánh dùng chung và so với sai phân số. Vẽ graph trước khi gọi backward.",
+      "challenge": "Một biến được dùng ở hai nhánh: gradient tại biến đó được cộng hay ghi đè?",
+      "answer": "Cộng đóng góp từ cả hai nhánh theo chain rule; ghi đè làm mất một phần đạo hàm.",
+      "directory": "tracks/core-24/Week-05",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        4
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 6,
+      "title": "Training loop và overfit có chủ ý",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-04/05_train_mlp.py",
+        "Week-03/02_erm_lab.py"
+      ],
+      "principle": "Training loss, validation loss và kết quả test trả lời các câu hỏi khác nhau. Tạo overfit trên tập nhỏ để kiểm loop, sau đó đánh giá khả năng khái quát.",
+      "trap": "Loss giảm chỉ xác nhận tối ưu objective đang dùng; không xác nhận model giải đúng tác vụ hoặc dữ liệu chưa thấy.",
+      "practice": "Chạy MLP nhỏ, cố ý overfit một tập nhỏ, lưu loss train/validation theo bước. Thử một thay đổi mỗi lần và báo kết quả âm.",
+      "challenge": "Vì sao overfit một batch có ích nhưng không phải kết quả cuối?",
+      "answer": "Nó giúp kiểm training loop và capacity trên dữ liệu đó. Nó không đo generalization, cần dữ liệu độc lập và phép chấm đúng mục tiêu.",
+      "directory": "tracks/core-24/Week-06",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        5
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 7,
+      "title": "Tokenizer, BPE và Unicode tiếng Việt",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-06/README.md"
+      ],
+      "principle": "Tokenizer là một hợp đồng chuyển đổi input. Round-trip, normalization và cách xử lý bytes/Unicode cần được kiểm riêng trên văn bản tiếng Việt.",
+      "trap": "Hai chuỗi nhìn giống nhau có thể khác biểu diễn Unicode; chuẩn hóa tùy tiện có thể mất thông tin nguồn cần đối chiếu.",
+      "practice": "Viết bộ fixture gồm tiếng Việt có dấu, dấu kết hợp, ký tự lạ và khoảng trắng. Kiểm encode/decode; ghi chính sách normalization và giữ raw input.",
+      "challenge": "Round-trip pass có chứng minh tokenizer phù hợp mọi tài liệu không?",
+      "answer": "Không. Chỉ xác nhận các input và hợp đồng đã thử; vẫn cần kiểm phạm vi, ký tự ngoài tập và tác động normalization.",
+      "directory": "tracks/core-24/Week-07",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        6
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 8,
+      "title": "Causal attention và dịch nhãn",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-06/02_multihead_attention.py"
+      ],
+      "principle": "Causal mask hạn chế thông tin tương lai trong attention. Label shift phải làm khớp input ở vị trí hiện tại với target kế tiếp.",
+      "trap": "Leakage từ tương lai có thể làm loss thấp giả; shape tests không phát hiện được lỗi ngữ nghĩa này.",
+      "practice": "Sửa attention skeleton, gây lỗi bằng cách bỏ mask; thay token tương lai và kiểm đầu ra ở vị trí trước đó. Viết một test dịch nhãn trên chuỗi ngắn.",
+      "challenge": "Test nào mạnh hơn chỉ kiểm shape để phát hiện lỗi causal mask?",
+      "answer": "Giữ prefix cố định, đổi suffix tương lai và kiểm output tại prefix không đổi trong cấu hình deterministic đã khai báo.",
+      "directory": "tracks/core-24/Week-08",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        7
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 9,
+      "title": "Tiny Transformer và các khối kiến trúc",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-07/README.md",
+        "Week-00/advanced_topics_vi.md"
+      ],
+      "principle": "Triển khai model nhỏ đủ để kiểm embedding, normalization, residual và attention. RoPE/normalization được học qua một biến thể nhỏ có reference.",
+      "trap": "Tải weights pretrained để generate không đồng nghĩa tự pretrain model; cần ghi đúng nguồn checkpoint.",
+      "practice": "Lắp tiny Transformer, kiểm shape và loss trên fixture nhỏ. Chọn một khối normalization/position để so bản tham chiếu; ghi rõ weights tự train hay tải.",
+      "challenge": "Generate từ weights tải về cho phép kết luận đã tự huấn luyện từ đầu không?",
+      "answer": "Không. Nó kiểm một phần load/inference. Pretraining cần dataset, training log và checkpoint của lần chạy tương ứng.",
+      "directory": "tracks/core-24/Week-09",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        8
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 10,
+      "title": "KV cache và báo cáo tài nguyên",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-07/README.md",
+        "Week-12/03_hardware_decision.md"
+      ],
+      "principle": "Cache parity so đầu ra có và không có KV cache dưới cùng model/input. Profiler ghi bộ nhớ và thời gian theo workload thực.",
+      "trap": "Số weights không phải toàn bộ working memory; batch, context, activations và runtime đều có thể thay footprint.",
+      "practice": "Kiểm cached/uncached logits trong tolerance định trước; đo peak memory, context, dtype và throughput. Không chép benchmark máy khác vào báo cáo của mình.",
+      "challenge": "Khi cached logits khác reference, có nên tăng tolerance đến khi pass?",
+      "answer": "Không. Điều tra position, mask, cache update và số học; tolerance phải có lý do và không chọn hậu nghiệm để che lỗi.",
+      "directory": "tracks/core-24/Week-10",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        9
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 11,
+      "title": "Nguồn dữ liệu, dedup và chia tập",
+      "sections": [
+        5,
+        7,
+        8
+      ],
+      "reuse": [
+        "Week-08/README.md",
+        "docs/datasets/README.md"
+      ],
+      "principle": "Dataset card ghi nguồn, quyền sử dụng, phiên bản và cách lấy mẫu. Chia theo nguồn/template/thời gian khi thích hợp để tránh gần trùng giữa development và confirmation.",
+      "trap": "Summary, synthetic variant và trace cũng có thể mang thông tin test; chia raw rows khác nhau chưa đủ loại contamination.",
+      "practice": "Tạo manifest của corpus giả lập có hai bản gần trùng, nhóm theo nguồn trước khi chia tập. Ghi quyền đọc và quyền train riêng; không dùng dữ liệu chưa xác minh license.",
+      "challenge": "Chia hai chunk từ cùng tài liệu sang train và test có làm chúng độc lập không?",
+      "answer": "Không mặc định. Nội dung, template và đáp án có thể trùng; cần chia theo đơn vị nguồn/task family phù hợp và kiểm gần trùng.",
+      "directory": "tracks/core-24/Week-11",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        10
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 12,
+      "title": "Training dynamics và thí nghiệm tách ảnh hưởng",
+      "sections": [
+        6,
+        8,
+        16
+      ],
+      "reuse": [
+        "Week-08/04_loss_analysis.md",
+        "Week-08/README.md"
+      ],
+      "principle": "Giữ baseline và các biến không nghiên cứu cố định; ablation bỏ hoặc đổi một thành phần để kiểm vai trò của nó. Lưu cả run lỗi và run không cải thiện.",
+      "trap": "Đổi model, corpus và token budget cùng lúc rồi gán gain cho optimizer là kết luận không được thiết kế thí nghiệm hỗ trợ.",
+      "practice": "Train tiny model theo budget tự đặt trước, so một thay đổi như lịch LR. Lưu code/data/config/seed, loss, thời gian và lỗi của toàn bộ lượt chạy.",
+      "challenge": "Kết quả âm có phải lý do xóa run khỏi báo cáo không?",
+      "answer": "Không. Nó giúp giới hạn giả thuyết; giữ run và nguyên nhân, không chọn riêng kết quả đẹp.",
+      "directory": "tracks/core-24/Week-12",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        11
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 13,
+      "title": "SFT và LoRA ở quy mô nhỏ",
+      "sections": [
+        8,
+        11
+      ],
+      "reuse": [
+        "Week-09/README.md",
+        "Week-11/README.md"
+      ],
+      "principle": "SFT học từ target; LoRA dùng tham số hiệu chỉnh hạng thấp. Nguồn/nhãn phải được review trước khi dữ liệu trở thành training target.",
+      "trap": "Output tự sinh được model tự chấm tốt không tự thành ground truth. Adapter đẹp format vẫn có thể sai nội dung.",
+      "practice": "So full update với low-rank update trên model nhỏ; ghi dataset card, phân tách train/test và retention trên task cũ. Chọn quy mô sau smoke test.",
+      "challenge": "Loss train giảm và format đẹp hơn có đủ để đưa adapter vào dùng không?",
+      "answer": "Không. Cần outcome trên tập chưa dùng để học, retention, lineage, chi phí và quyết định đúng phạm vi.",
+      "directory": "tracks/core-24/Week-13",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        12
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 14,
+      "title": "Preference learning và DPO",
+      "sections": [
+        6,
+        8,
+        11
+      ],
+      "reuse": [
+        "Week-10/README.md",
+        "Week-10/03_dpo_skeleton.py"
+      ],
+      "principle": "DPO tối ưu theo cặp chosen/rejected mà không bắt buộc học reward model riêng. Ý nghĩa preference phụ thuộc tiêu chí gán nhãn.",
+      "trap": "Preference về văn phong không tự chứng minh factuality. RLVR mô tả nguồn reward kiểm được; GRPO mô tả cách tối ưu policy.",
+      "practice": "Tự viết DPO loss toy, giải thích reference policy và tiêu chí chọn cặp. Dùng fixture để phân biệt câu trôi chảy với câu có outcome đúng.",
+      "challenge": "DPO, GRPO và RLVR có phải ba bước bắt buộc liên tiếp không?",
+      "answer": "Không. DPO là phương pháp preference optimization; GRPO là optimizer policy; RLVR nói về reward kiểm chứng được. Chọn theo bài toán và dữ liệu.",
+      "directory": "tracks/core-24/Week-14",
+      "phase": 1,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        13
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 15,
+      "title": "Hybrid retrieval và reranking",
+      "sections": [
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-13/README.md",
+        "Week-14/README.md"
+      ],
+      "principle": "BM25 và dense retrieval cung cấp các tín hiệu khác nhau; fusion/reranking cần được so với baseline trên cùng nguồn và task.",
+      "trap": "Không mặc định hybrid hoặc graph thắng. Nếu thêm tài liệu hoặc token budget thì phải khai báo phần thay đổi đó.",
+      "practice": "Chọn corpus công khai được phép dùng hoặc giả lập; so retrieval baseline với fusion dưới budget rõ. Kiểm recall và lỗi nguồn ở từng query.",
+      "challenge": "Candidate retrieval tốt hơn nhưng corpus cũng lớn hơn: đã xác nhận lợi ích riêng của fusion chưa?",
+      "answer": "Chưa. Cần giữ corpus cố định hoặc thêm ablation để tách ảnh hưởng của corpus và fusion.",
+      "directory": "tracks/core-24/Week-15",
+      "phase": 2,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        14
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 16,
+      "title": "Bằng chứng, phiên bản và context",
+      "sections": [
+        5,
+        6,
+        8
+      ],
+      "reuse": [
+        "Week-14/README.md"
+      ],
+      "principle": "Evidence ledger nối mỗi claim với source span, snapshot, thời điểm hiệu lực và quyền đọc. Nguồn tồn tại khác với nguồn thực sự hỗ trợ claim.",
+      "trap": "Hai trang đăng lại cùng thông cáo không phải hai nguồn xác nhận độc lập; citation đúng URL vẫn có thể sai thời điểm hoặc sai nghĩa.",
+      "practice": "Lập bảng claim–evidence–counterevidence với nguồn giả lập cũ/mới và bản sao. Lọc quyền trước khi trả context; ghi phần chưa đủ nguồn.",
+      "challenge": "Ba URL đều chép một thông cáo thì có ba xác nhận độc lập không?",
+      "answer": "Không. Gom cùng origin cluster; cần nguồn hoặc phép kiểm độc lập thật sự cho nhận định tương ứng.",
+      "directory": "tracks/core-24/Week-16",
+      "phase": 2,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        15
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 17,
+      "title": "Document AI và số/đơn vị tiếng Việt",
+      "sections": [
+        8,
+        12,
+        13
+      ],
+      "reuse": [
+        "Week-13/README.md"
+      ],
+      "principle": "Trích xuất cần giữ raw span và vị trí/đơn vị của nguồn. Parser chỉ tính khi input nằm trong grammar và schema đã hỗ trợ.",
+      "trap": "Thiếu header đơn vị hoặc OCR mơ hồ thì không tự suy hệ số. Kết quả AMBIGUOUS khác với số 0.",
+      "practice": "Tự viết parser số nguyên có đơn vị tường minh, thử thiếu đơn vị và dấu OCR. Xuất raw span, normalized value và lý do từ chối; so với fixture.",
+      "challenge": "Bảng chỉ ghi 12, không còn header đơn vị: có được đoán là triệu đồng không?",
+      "answer": "Không. Giữ raw span, báo thiếu đơn vị/AMBIGUOUS và chuyển người hoặc xin nguồn bổ sung.",
+      "directory": "tracks/core-24/Week-17",
+      "phase": 2,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        16
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 18,
+      "title": "Serving, phiên bản và chi phí thực",
+      "sections": [
+        8,
+        10
+      ],
+      "reuse": [
+        "Week-12/README.md"
+      ],
+      "principle": "Tách replay fixtures khỏi live-model evaluation. Mỗi kết quả inference cần biết model revision, config, input scope và tài nguyên đã dùng.",
+      "trap": "Replay thành công chỉ kiểm trace giả lập; không chứng minh model thật biết giải nhiệm vụ. Giá và availability cần kiểm lúc dùng.",
+      "practice": "Xây adapter interface cho fake/local model, đo latency của đúng workload, ghi toàn bộ retry. Không cần API trả phí để hoàn thành bài offline.",
+      "challenge": "Fake model replay pass có thể ghi là benchmark LLM thật không?",
+      "answer": "Không. Ghi rõ replay/fixture; live-model cần runtime/model revision, dữ liệu, budget và kết quả thực riêng.",
+      "directory": "tracks/core-24/Week-18",
+      "phase": 2,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        17
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 19,
+      "title": "Hợp đồng công cụ và agent có giới hạn",
+      "sections": [
+        3,
+        4,
+        8,
+        10
+      ],
+      "reuse": [
+        "Week-15/README.md",
+        "labs/r01-research-contract/README.md"
+      ],
+      "principle": "Tool schema kiểm hình dạng; executor phải kiểm thêm semantics, quyền hiện tại và ngân sách. Model đề nghị hành động nhưng không tự cấp capability.",
+      "trap": "Prompt dặn không ghi file không phải biên thực thi. Dữ liệu ngoài có thể chứa chỉ thị trái nhiệm vụ.",
+      "practice": "Dùng R01/R10 reference offline; tạo schema cho read_fixture, từ chối tool không có trong contract. Viết starter executor chỉ hỗ trợ công cụ giả lập.",
+      "challenge": "JSON đúng schema nhưng action ngoài scope có được chạy không?",
+      "answer": "Không. Schema là một kiểm tra; quyền, semantics và trạng thái phải được executor kiểm riêng.",
+      "directory": "Week-19",
+      "phase": 3,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        18
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 20,
+      "title": "Deny tests, sandbox và thu hồi quyền",
+      "sections": [
+        3,
+        4,
+        8,
+        10
+      ],
+      "reuse": [
+        "Week-15/README.md",
+        "labs/r03-governed-memory/README.md"
+      ],
+      "principle": "Biên quyền cần nằm ngoài worker. Sau resume phải kiểm lại quyền hiện tại và expiry, không sống lại capability cũ từ checkpoint.",
+      "trap": "Thư mục control_plane riêng hoặc một reviewer agent chưa chứng minh cách ly OS. Lab offline chỉ mô phỏng quyết định policy.",
+      "practice": "Dùng fixtures hai tenant, quyền hết hạn và thu hồi giữa hai bước; viết deny tests cho read/write. Vẽ biên process/credential cần có khi triển khai thật.",
+      "challenge": "Tại sao thư mục evaluator riêng vẫn chưa đủ bảo vệ đáp án?",
+      "answer": "Nếu cùng tài khoản/process có quyền đọc và sửa, agent vẫn có thể truy cập. Cần biên truy cập thật; folder chỉ thể hiện tổ chức code.",
+      "directory": "Week-20",
+      "phase": 3,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        19
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 21,
+      "title": "Checkpoint, idempotency và recovery",
+      "sections": [
+        4,
+        8,
+        10
+      ],
+      "reuse": [
+        "Week-16/README.md",
+        "labs/r10-durable-research/README.md"
+      ],
+      "principle": "Checkpoint giữ state của workflow; idempotency và reconciliation xử lý tác động bên ngoài. Crash sau write trước ack là tình huống riêng cần kiểm.",
+      "trap": "Retry mù có thể nhân đôi side effect. Nếu không xác định được outcome, trạng thái UNKNOWN_OUTCOME cần xác minh trước khi chạy tiếp.",
+      "practice": "Chạy DurableToy với ack bị mất, event trùng, payload đổi cùng key và quyền bị revoke. Viết event timeline và cách reconcile; không dùng service thật.",
+      "challenge": "Checkpoint mới nhất không có ack: có chắc thao tác chưa xảy ra không?",
+      "answer": "Không. Tool có thể đã ghi thành công trước crash; tra operation ID/trạng thái thật hoặc chuyển người khi không xác định được.",
+      "directory": "Week-21",
+      "phase": 3,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        20
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 22,
+      "title": "Bộ đánh giá được bảo vệ",
+      "sections": [
+        7,
+        8,
+        10,
+        17
+      ],
+      "reuse": [
+        "Week-16/README.md",
+        "labs/r08-evaluator-boundary/README.md"
+      ],
+      "principle": "Evaluator độc lập trước hết ở quyền sửa, dữ liệu và quy trình. Candidate gửi immutable digest; hidden answers và credential của evaluator không nằm trong workspace worker.",
+      "trap": "Feedback pass/fail được hỏi lặp cũng có thể biến test thành development. Model judge thứ hai không tự tạo độc lập.",
+      "practice": "Làm R08 toy digest-mismatch, lập sơ đồ service evaluator riêng và query budget; phân biệt fixture tests công khai với confirmation thật ngoài workspace.",
+      "challenge": "Giữ answer file kín nhưng chọn prompt theo pass/fail lặp có còn test độc lập không?",
+      "answer": "Không mặc định. Chính feedback đã tham gia tối ưu; cần protocol và cohort mới hoặc phương pháp giữ lại test phù hợp.",
+      "directory": "Week-22",
+      "phase": 3,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        21
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 23,
+      "title": "Capstone nền và mini research",
+      "sections": [
+        3,
+        8,
+        12
+      ],
+      "reuse": [
+        "Week-18/README.md",
+        "labs/r12-cornbench-learning/README.md"
+      ],
+      "principle": "Chọn một workflow hẹp có outcome kiểm được. Định nghĩa baseline, metric, non-compensable constraints và giả thuyết trước thử nghiệm.",
+      "trap": "Graph/multi-agent là tùy chọn; không ghép mọi framework chỉ để demo nhiều thành phần. Chất lượng tăng không bù vi phạm quyền.",
+      "practice": "Tạo protocol cho parser/retrieval tiếng Việt, chạy B0 và B1/B2 phù hợp; giữ mọi failure và báo nguồn, chi phí, outcome.",
+      "challenge": "Candidate tăng success nhưng có một vi phạm quyền xác nhận được thì xử lý thế nào?",
+      "answer": "Chặn phát hành và điều tra; không cộng accuracy để bù vi phạm quan trọng. Nghiên cứu tiếp trong vùng được phép.",
+      "directory": "Week-23",
+      "phase": 3,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        22
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 24,
+      "title": "Bảo vệ năng lực và điều kiện vào nghiên cứu",
+      "sections": [
+        3,
+        8,
+        18
+      ],
+      "reuse": [
+        "Week-18/README.md",
+        "labs/r11-promotion/README.md"
+      ],
+      "principle": "G1 kiểm người học tự giải thích/sửa phần lõi; G2 kiểm hệ thống; G3 xét candidate. Ba cửa tách nhau, không lấy artifact AI sinh để suy ra học viên hiểu.",
+      "trap": "Tốt nghiệp bài lab không phải chứng nhận production. Đề xuất phải ghi điều chưa biết và điều kiện khiến mình không phát hành.",
+      "practice": "Tự sửa một lỗi biến thể không dùng AI; trình bày report của tuần 23; đóng băng candidate và lập quyết định reject/insufficient/promote với scope giả lập.",
+      "challenge": "Thí nghiệm không có gain có thể đạt môn nghiên cứu không?",
+      "answer": "Có nếu phương pháp, phép đo và báo cáo đúng; candidate không thắng hoặc thiếu bằng chứng vẫn chưa được promote.",
+      "directory": "Week-24",
+      "phase": 3,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": null,
+      "prerequisites": [
+        23
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 25,
+      "title": "Từ câu hỏi rộng thành phạm vi nghiên cứu",
+      "sections": [
+        2,
+        3,
+        5,
+        9
+      ],
+      "reuse": [],
+      "principle": "Tách câu hỏi, scope, thời gian nguồn, công cụ, ngân sách và điều kiện hoàn thành. Gắn claim_kind: source_fact, computed, inference hoặc hypothesis.",
+      "trap": "Không tự mở rộng sang một đề tài khác để dễ báo hoàn thành; bản đăng lại phải có origin cluster.",
+      "practice": "Làm R01: viết contract và ledger cho câu hỏi parser tiếng Việt; fixture có hai bản sao cùng xuất xứ. Phân loại phát biểu và ghi giới hạn từng claim.",
+      "challenge": "Nguồn chưa trả được toàn văn thì có được nói đã tích hợp từng chi tiết không?",
+      "answer": "Không. Ghi phạm vi truy cập thực, phần chưa đọc và không dùng nó làm bằng chứng trực tiếp cho claim chưa kiểm.",
+      "directory": "Week-25",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R01",
+      "prerequisites": [
+        24
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 26,
+      "title": "Nghiên cứu lặp, phản chứng và điều kiện dừng",
+      "sections": [
+        3,
+        5,
+        9
+      ],
+      "reuse": [],
+      "principle": "Mỗi query phải nhằm kiểm câu hỏi trong contract. Vòng nghiên cứu ghi support/counterevidence và dừng khi hết budget hoặc không còn phép kiểm hợp lệ.",
+      "trap": "Hết budget nhưng chưa đủ evidence là incomplete/uncertain, không đổi nhãn thành successful.",
+      "practice": "Làm R02: xử lý nguồn cũ/mới/mâu thuẫn; ghi query nào thêm evidence. Thử hết budget, query drift và nguồn không trả đáp án.",
+      "challenge": "Tại sao nguồn hỗ trợ và nguồn phản bác cần giữ cùng báo cáo?",
+      "answer": "Để người đọc thấy điều kiện và giới hạn kết luận; bỏ phản chứng chỉ vì nó làm kết quả kém đẹp là cherry-picking.",
+      "directory": "Week-26",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R02",
+      "prerequisites": [
+        25
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 27,
+      "title": "Bộ nhớ có nguồn, thời hạn và quyền đọc",
+      "sections": [
+        4,
+        5,
+        9
+      ],
+      "reuse": [],
+      "principle": "Tách fact, episode và procedural lesson. Worker đề nghị; review mới chuyển từ quarantine sang active có phạm vi. Đọc phải kiểm trạng thái, tenant và thời hạn.",
+      "trap": "Thu hồi nguồn phải lần theo summary/cache/lesson dẫn xuất. Xóa vector không tự xóa ảnh hưởng đã học vào weights.",
+      "practice": "Làm R03: hai tenant giả lập, nguồn bị revoke và summary hai tầng; kiểm không trả text/citation ngoài quyền. Vẽ lineage và ghi phần code toy chưa mô phỏng.",
+      "challenge": "Xóa entry khỏi memory có đồng nghĩa đã unlearn dữ liệu khỏi model train trước đó không?",
+      "answer": "Không. Training cần lineage theo dataset/model version và phương án xử lý riêng; không hứa xóa một hàng là mất toàn bộ ảnh hưởng.",
+      "directory": "Week-27",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R03",
+      "prerequisites": [
+        26
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 28,
+      "title": "Học từ lỗi bằng bài học có điều kiện",
+      "sections": [
+        2,
+        5,
+        6,
+        9,
+        11
+      ],
+      "reuse": [],
+      "principle": "Reflexion là phản hồi ngôn ngữ và episodic memory, không tự cập nhật weights. Lesson phải có điều kiện áp dụng, phản ví dụ và cách xử lý ngoài scope.",
+      "trap": "Thắng khi retry cùng task có thể chỉ tận dụng đáp án cũ. Cần frozen baseline, transfer tasks và retention dưới budget khai báo.",
+      "practice": "Làm R04: so parser rule/bộ nhớ lesson trên trường có grammar; kiểm đổi đơn vị và thiếu header. Thiết kế nhánh Reflexion live riêng; reference offline không gọi LLM.",
+      "challenge": "Lesson “luôn dùng parser” sai ở trường hợp nào trong lab?",
+      "answer": "Khi input ngoài grammar, OCR mơ hồ hoặc thiếu đơn vị/header. Parser phải báo ambiguous thay vì đoán; bài học cần nêu chống chỉ định.",
+      "directory": "Week-28",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R04",
+      "prerequisites": [
+        27
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 29,
+      "title": "Tìm bản cải tiến prompt và kỹ năng",
+      "sections": [
+        6,
+        9,
+        11
+      ],
+      "reuse": [],
+      "principle": "Tìm candidate trên development; chỉ thay phần allowlist. Đóng băng finalist trước confirmation. Prompt/skill optimization là L2, khác học tham số L3.",
+      "trap": "Không cho candidate đọc hidden answers, sửa grader hoặc thêm quyền tool. GEPA/DSPy là lựa chọn tái lập riêng, không gắn nhãn cho search thủ công.",
+      "practice": "Làm R05: random search baseline trên fixture; ghi lineage và rejected candidates. Tạo candidate cố thêm quyền và xác nhận bị từ chối.",
+      "challenge": "Tự chọn một prompt bằng tay có thể gọi là đã tái lập GEPA không?",
+      "answer": "Không. Gọi đúng là baseline lấy cảm hứng, ghi phần implementation/protocol chưa làm; tái lập cần cấu hình và phép đo tương ứng nguồn.",
+      "directory": "Week-29",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R05",
+      "prerequisites": [
+        28
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 30,
+      "title": "Thiết kế và chọn thí nghiệm",
+      "sections": [
+        6,
+        9,
+        16
+      ],
+      "reuse": [],
+      "principle": "Đặt objective, metric, tổng budget và stopping rule trước. Random search/ablation là baseline; BO chỉ thử khi evaluator đắt và objective thích hợp.",
+      "trap": "Gain ước đoán bằng lời của LLM chưa phải acquisition score đã hiệu chỉnh. Tính cả run fail và chi phí chọn thí nghiệm.",
+      "practice": "Làm R06: giữ model/corpus, thay một cấu hình; runner dừng trước khi vượt budget. Lưu run fail, tiêu chí chọn và tổng chi phí.",
+      "challenge": "Có được dừng ngay khi thấy một kết quả đẹp rồi bỏ run thất bại không?",
+      "answer": "Không. Phải theo stopping rule và giữ history; chọn/dừng hậu nghiệm có thể làm claim thống kê không còn áp dụng.",
+      "directory": "Week-30",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R06",
+      "prerequisites": [
+        29
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 31,
+      "title": "Hiệu chỉnh, risk–coverage và cận thống kê",
+      "sections": [
+        7,
+        9
+      ],
+      "reuse": [],
+      "principle": "Coverage=A/N; accepted risk=E/A khi A>0. Chọn threshold trên calibration rồi cố định; cận nhị thức dùng cho policy và mẫu phù hợp, không cho một câu trả lời cụ thể.",
+      "trap": "Model tự nói chắc 95% không phải xác suất đã hiệu chỉnh. CP pass chỉ là cổng thống kê, không cấp quyền deploy; nhiều candidate cần protocol khác.",
+      "practice": "Làm R07: no-data, zero-error, một lỗi và retry trùng task; giải thích giả định. So công thức zero-error với reference; ghi rõ CP toy không kiểm representativeness.",
+      "challenge": "Không thấy lỗi trong mẫu có chứng minh tỷ lệ lỗi thật bằng 0 không?",
+      "answer": "Không. Báo số mẫu/lỗi, cận và giả định; mẫu nhỏ vẫn có cận lớn. Không có dữ liệu thì trạng thái chưa đủ bằng chứng.",
+      "directory": "Week-31",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R07",
+      "prerequisites": [
+        30
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 32,
+      "title": "Bảo vệ evaluator và dữ liệu xác nhận",
+      "sections": [
+        4,
+        7,
+        9
+      ],
+      "reuse": [],
+      "principle": "Confirmation kiểm một finalist đã cố định. Regression công khai giữ hành vi đã biết nhưng có thể overfit, không thay cohort confirmation mới.",
+      "trap": "Thay artifact sau khi được duyệt làm evidence mismatch. Đáp án kín nằm ngoài repo public/worker; fixture công khai của bài này không phải hidden test thật.",
+      "practice": "Làm R08: tính digest, sửa một tham số và kiểm từ chối. Thiết kế process/credential tách biệt và sổ query budget; diễn tập contamination bằng trace chứa nhãn.",
+      "challenge": "Sửa candidate sau khi có report tốt rồi giữ report cũ có hợp lệ không?",
+      "answer": "Không. Nội dung ảnh hưởng kết quả đã đổi; phải đóng băng và đánh giá đúng bản mới trước khi xét sử dụng.",
+      "directory": "Week-32",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R08",
+      "prerequisites": [
+        31
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 33,
+      "title": "Học tham số offline và giữ năng lực cũ",
+      "sections": [
+        2,
+        9,
+        11
+      ],
+      "reuse": [],
+      "principle": "SFT/LoRA/DPO cần dữ liệu được phép dùng, nhãn có tiêu chí và lineage. So base/candidate trên nhóm mới, nhóm cũ và ngoài phạm vi.",
+      "trap": "CPU low-rank toy minh họa W+A×B, không phải adapter LLM được fine-tune. Replay không chứng minh live-model gain.",
+      "practice": "Làm R09: kiểm low-rank update nhỏ và rollback weights; lập data card/preference rubric. Nhánh live-model chỉ chạy khi có runtime, license, dataset và budget rõ.",
+      "challenge": "DPO preference chọn văn phong tự tin có đảm bảo factuality không?",
+      "answer": "Không. Phải định nghĩa chosen tốt hơn theo tiêu chí nào; preference văn phong khác nhãn sự thật và outcome.",
+      "directory": "Week-33",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R09",
+      "prerequisites": [
+        32
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 34,
+      "title": "Chạy dài với quota, hủy và recovery",
+      "sections": [
+        4,
+        9,
+        10
+      ],
+      "reuse": [],
+      "principle": "Worker con tiêu cùng quota nhiệm vụ mẹ; hủy cần lan tới mọi worker/subprocess/retry. Resume vẫn kiểm quyền hiện hành.",
+      "trap": "Checkpoint không tạo exactly-once cho side effect. UNKNOWN_OUTCOME phải reconcile, không tự retry nhiều thao tác bù.",
+      "practice": "Làm R10: ack mất sau write, duplicate event, key reused, unknown outcome, cancel và revoke. Reference chỉ có in-memory toy, chưa có supervisor process thật.",
+      "challenge": "Worker con có được tạo budget mới để tiếp tục khi quota mẹ hết không?",
+      "answer": "Không. Quota tổng phải do control plane quản lý; child dùng cùng budget và việc hủy/thu hồi phải lan toàn cây.",
+      "directory": "Week-34",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R10",
+      "prerequisites": [
+        33
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 35,
+      "title": "Duyệt đúng bản cải tiến, shadow và rollback",
+      "sections": [
+        4,
+        9,
+        14
+      ],
+      "reuse": [],
+      "principle": "Evidence và approval gắn đúng digest, policy/model/corpus/memory snapshot, scope và expiry. Shadow không tác động quyết định thực; canary cần phạm vi/tác động đã duyệt.",
+      "trap": "Rollback đổi bản đang dùng; revoke cấm dùng quyền/nguồn/candidate. Rollback không tự đảo một side effect bên ngoài.",
+      "practice": "Làm R11: promote đúng digest, sửa artifact sau eval, scope thiếu, violation và rollback. Viết release package; thử trong mô phỏng, không deploy production.",
+      "challenge": "Tại sao rollback và revoke cần hai quyết định riêng?",
+      "answer": "Bản cũ cũng có thể dùng nguồn đã bị thu hồi. Đổi pointer không sửa quyền hay hoàn tác hành động bên ngoài; phải xử lý từng phạm vi.",
+      "directory": "Week-35",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R11",
+      "prerequisites": [
+        34
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    },
+    {
+      "week": 36,
+      "title": "CornBench-VI: học qua nhiều vòng và báo cáo tái lập",
+      "sections": [
+        9,
+        12,
+        15,
+        18
+      ],
+      "reuse": [],
+      "principle": "Capstone gồm frozen baseline, một cơ chế học và nhiều cohort mới. Chấm G1/G2/G3 riêng; báo gain, retention, risk–coverage và tổng chi phí kể cả kết quả âm.",
+      "trap": "Fixture vài task dùng tìm lỗi kỹ thuật, không phải benchmark đã xuất bản hay bằng chứng accuracy của agent. H1 chưa được xác nhận tốt hơn.",
+      "practice": "Làm R12 và H1: đăng ký protocol, chia development/confirmation/retention theo family; chạy baseline/lesson ablation. Reference parser replay chỉ kiểm fixture; nộp report giới hạn và lệnh tái lập.",
+      "challenge": "Candidate không cải thiện nhưng thí nghiệm đúng có được hạ ngưỡng để tốt nghiệp không?",
+      "answer": "Không hạ ngưỡng promotion. Bài nghiên cứu có thể đạt nhờ phương pháp và minh bạch; candidate giữ quarantine hoặc reject đúng lý do.",
+      "directory": "Week-36",
+      "phase": 4,
+      "status": "implemented_materials",
+      "runtime_status": "designed",
+      "lab": "R12",
+      "prerequisites": [
+        35
+      ],
+      "duration": "10–12 giờ/tuần, giả định phân bổ của kế hoạch; chưa đo"
+    }
+  ],
+  "references": "docs/papers/research_learning_sources.md"
+}

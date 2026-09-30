@@ -49,7 +49,7 @@
 ## Checklist tiến độ
 
 - [ ] Đọc `01_theory_notes.md` và tự tính lại được các ví dụ loss trong đó
-- [ ] Vẽ lại pipeline alignment từ Pretrain qua (Midtrain), SFT, RM, PPO/DPO đến GRPO/RLVR
+- [ ] Vẽ các nhánh alignment: SFT, DPO trực tiếp hoặc RM → PPO; phân biệt GRPO với RLVR
 - [ ] Đọc FareedKhan `src/post_training/` để hiểu cấu trúc SFT/RM/DPO
 - [ ] Hiểu loss của Reward Model (log-sigmoid của hiệu score)
 - [ ] Hiểu vì sao DPO bỏ được RM riêng và dạng loss DPO trông thế nào
@@ -62,7 +62,7 @@
 
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G**:
 
-- Pipeline đầy đủ: `Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR`.
+- Pipeline đầy đủ: `Pretrain → (Midtrain tùy chọn) → SFT → {DPO trực tiếp | RM → PPO}; GRPO/RLVR là nhánh theo mục tiêu và reward`.
 - Midtrain (nanochat) là bước *không có* trong pipeline GPT-2 kinh điển; nó dạy format hội thoại, special tokens, tool use.
 - GRPO/RLVR bỏ critic và chuẩn hoá reward theo nhóm sample; **RLVR** = reward kiểm chứng được (toán đúng/sai, test pass), là nền của reasoning model.
 - Tool-use RL (nanochat) cho model học gọi Python để tính/đếm, reward khi kết quả đúng.

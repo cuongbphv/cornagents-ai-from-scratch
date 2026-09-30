@@ -13,20 +13,20 @@ QLoRA = ?
 
 **Đáp án: D**
 
-**Giải thích:** QLoRA nén base xuống NF4 4-bit để giảm VRAM, gradient chỉ chảy qua adapter LoRA → fine-tune 7B vừa ~5GB.
+**Giải thích:** Quantization giảm phần bộ nhớ base weights; peak VRAM vẫn phụ thuộc toàn cấu hình và workload.
 
 ## Câu 2 (Trắc nghiệm)
 
-Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?
+Muốn biết workload QLoRA vừa VRAM, cần làm gì?
 
-- **A.** ~5GB (đáp án đúng)
-- **B.** ~2GB
-- **C.** ~24GB
-- **D.** ~12GB
+- **A.** Đo peak memory với model, batch, context, dtype, optimizer và runtime đang dùng (đáp án đúng)
+- **B.** Chỉ lấy số weights nhân 4 bit
+- **C.** Dùng số của một máy khác làm cam kết
+- **D.** Chỉ nhìn dung lượng file tải xuống
 
 **Đáp án: A**
 
-**Giải thích:** ~5GB (8B ≈ 6GB) → vừa thoải mái trên 3070 Ti 8GB. 14B ≈ 8.5GB thì vượt 8GB.
+**Giải thích:** Theo tài liệu chương trình mục 1.1 và 10.6: đo toàn workload, không suy từ weights riêng.
 
 ## Câu 3 (Tự luận)
 

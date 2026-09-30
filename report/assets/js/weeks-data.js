@@ -153,8 +153,8 @@ window.WEEKS_DATA = [
   check:["Đọc 01_theory_notes.md, chạy lại được mọi snippet","ch.6: chuẩn bị dataset classification (spam) + sửa head","ch.6: fine-tune classifier, đo accuracy train/val/test","ch.7: format instruction dataset (Alpaca-style)","ch.7: instruction fine-tune + sinh phản hồi","Áp dụng LoRA (Appendix E): so full FT vs LoRA","Chat thử với mini-model → ghi ví dụ"]
  },
  {
-  n:10, phase:1, title:"Nhập môn alignment: SFT → RM → DPO/PPO → GRPO", dur:"~10-12 giờ", hw:"3070 Ti (scaled-down) · Cloud (full PPO/GRPO)",
-  obj:["Hiểu pipeline alignment SFT→RM→PPO/DPO→GRPO (khái niệm)","Chạy ≥1 stage alignment from scratch (SFT hoặc DPO)"],
+  n:10, phase:1, title:"Nhập môn alignment: SFT, DPO và các nhánh RL", dur:"~10-12 giờ", hw:"3070 Ti (scaled-down) · Cloud (full PPO/GRPO)",
+  obj:["Hiểu pipeline alignment SFT; DPO trực tiếp hoặc RM→PPO; GRPO tùy reward (khái niệm)","Chạy ≥1 stage alignment from scratch (SFT hoặc DPO)"],
   src:["<b>FareedKhan-dev</b> src/post_training (SFT/RM/PPO/DPO/GRPO pure PyTorch)","Paper <b>DPO</b> (2305.18290) + <b>DeepSeekMath/GRPO</b> (2402.03300)","Sách mở: <b>SLP3</b> 8.3-8.4; <b>Sutton & Barto</b> 3.1, 13.1, 13.3; <b>Foundations of LLMs</b> 4.3 RLHF, 4.4.2 DPO"],
   deliver:"Log/checkpoint 1 stage alignment đã chạy + ghi chú phân biệt <b>SFT vs DPO vs GRPO</b> (<code>02_alignment_notes.md</code>) + loss DPO tự code qua kiểm tra toy (<code>03_dpo_skeleton.py</code>).",
   know:`<h5>So sánh các stage alignment</h5>
@@ -164,7 +164,7 @@ window.WEEKS_DATA = [
    <h5>Vai trò của KL / reference policy</h5>
    <p>Giữ policy mới không trôi xa bản SFT, chống reward hacking và mất khả năng ngôn ngữ chung.</p>
    <div class="tagrow"><span class="kt">SFT</span><span class="kt">reward model</span><span class="kt">DPO</span><span class="kt">PPO</span><span class="kt">GRPO</span><span class="kt">RLVR</span></div>`,
-  check:["Đọc 01_theory_notes.md, tự tính lại được ví dụ loss","Vẽ lại pipeline: Pretrain → (Midtrain) → SFT → RM → PPO/DPO → GRPO/RLVR","Đọc FareedKhan src/post_training, hiểu SFT/RM/DPO","Hiểu loss Reward Model (log-sigmoid hiệu score)","Hiểu vì sao DPO bỏ được RM riêng + dạng loss DPO","Hiểu GRPO group-relative + vì sao hợp RLVR","Chạy MỘT stage alignment (SFT hoặc DPO) scaled-down","Viết 02_alignment_notes.md: SFT vs DPO vs GRPO","So phản hồi trước/sau stage đã chạy → ghi ví dụ"]
+  check:["Đọc 01_theory_notes.md, tự tính lại được ví dụ loss","Vẽ lại pipeline: Pretrain → (Midtrain tùy chọn) → SFT → {DPO trực tiếp | RM → PPO}; GRPO/RLVR là nhánh theo mục tiêu và reward","Đọc FareedKhan src/post_training, hiểu SFT/RM/DPO","Hiểu loss Reward Model (log-sigmoid hiệu score)","Hiểu vì sao DPO bỏ được RM riêng + dạng loss DPO","Hiểu GRPO group-relative + vì sao hợp RLVR","Chạy MỘT stage alignment (SFT hoặc DPO) scaled-down","Viết 02_alignment_notes.md: SFT vs DPO vs GRPO","So phản hồi trước/sau stage đã chạy → ghi ví dụ"]
  },
  {
   n:11, phase:2, title:"QLoRA fine-tuning thực tế (Unsloth)", dur:"~10-12 giờ", hw:"RTX 3070 Ti / Colab T4 15GB",
@@ -172,11 +172,11 @@ window.WEEKS_DATA = [
   src:["<b>Unsloth</b> docs (Fine-tuning & LoRA Hyperparameters Guide)","<b>HF</b> PEFT + TRL (SFTTrainer)","<b>NVIDIA</b>, Fine-Tune LLMs on RTX GPUs With Unsloth","Sách mở: <b>Fleuret</b> 8.2 quantization, 8.3 adapters; <b>Foundations of LLMs</b> 5.2"],
   deliver:"Adapter 7B/8B đã fine-tune + <b>eval so base vs fine-tuned</b> trên held-out (<code>03_eval_notes.md</code>).",
   know:`<h5>QLoRA = quantize 4-bit + LoRA</h5>
-   <p>Base model nén xuống NF4 4-bit (đóng băng), chỉ train adapter LoRA ở bf16 → 7B vừa ~5GB VRAM.</p>
+   <p>Base model nén xuống NF4 4-bit (đóng băng), chỉ train adapter LoRA ở bf16 → bộ nhớ cần đo theo cấu hình và workload.</p>
    <h5>Config cho 8GB</h5>
    <ul><li><code>load_in_4bit=True</code>, <code>batch_size=1-2</code>, <code>seq_len≤1024</code></li><li><code>gradient_checkpointing=True</code></li><li><code>r=16</code>, <code>lora_alpha=16</code>, target tất cả attention + MLP projections</li></ul>
    <h5>Bảng VRAM (Unsloth)</h5>
-   <ul><li>7B QLoRA ≈ 5GB · 8B ≈ 6GB → <b>fits</b></li><li>11B ≈ 7.5GB (ở rìa) · 14B ≈ 8.5GB (vượt 8GB)</li></ul>
+   <ul><li>Đo peak memory của toàn workload, gồm activation, optimizer và cache</li><li>Không suy khả năng chạy từ dung lượng weights riêng</li></ul>
    <p><b>Threshold:</b> fine-tune &gt;24h hoặc OOM ở batch 1 → chuyển 4090/A100 thuê.</p>
    <div class="tagrow"><span class="kt">QLoRA</span><span class="kt">NF4 4-bit</span><span class="kt">PEFT</span><span class="kt">SFTTrainer</span><span class="kt">GGUF export</span></div>`,
   check:["Đọc 01_theory_notes.md, giải thích được vì sao 8GB fine-tune được 8B","Cài Unsloth + dependencies (CUDA khớp)","Chọn base model (Llama 3.1 8B / Qwen2.5 7B) 4-bit","Chuẩn bị dataset 500-1,000 mẫu (domain Finance Banking)","Cấu hình LoRA (r=16, α=16, target all proj) + SFTTrainer","Smoke test vài step → không OOM, loss giảm","Chạy full run + lưu adapter","Merge adapter + export GGUF (cho Tuần 12)","Eval base vs fine-tuned trên held-out → 03_eval_notes.md"]
@@ -258,7 +258,7 @@ window.WEEKS_DATA = [
  },
  {
   n:17, phase:3, title:"Graph Engineering: Knowledge Graph làm shared memory", dur:"~10-12 giờ", hw:"Bất kỳ (API: Haiku + Sonnet, chi phí thấp)",
-  obj:["Xây KG pipeline 4 bước bằng Claude API: extract → resolve → assemble → query","Hiểu 3 vai trò của graph: shared memory, grounding layer, persistent world model","Phân biệt RAG (single-hop) vs Knowledge Graph (multi-hop): bổ trợ nhau","Chạy evaluation feedback loop vs mini gold set"],
+  obj:["Xây KG pipeline 4 bước bằng Claude API: extract → resolve → assemble → query","Hiểu 3 vai trò của graph: shared memory, grounding layer, persistent world model","So retrieval lặp với Knowledge Graph trên cùng task và budget","Chạy evaluation feedback loop vs mini gold set"],
   src:["<code>docs/Graph-Engineering-Athropic-Playbook.pdf</code> (pipeline + prompts + eval)","<code>docs/Graph-Engineering-Athropic-Karpathy-Loop.pdf</code> (Loop → Graph)","<b>Anthropic</b> Knowledge Graph Construction Cookbook","<b>NetworkX</b> docs (MultiDiGraph)"],
   deliver:"<code>02_kg_pipeline.py</code> chạy trên corpus của bạn + so sánh grounded vs ungrounded + precision/recall vs gold set (<code>03_graph_notes.md</code>).",
   know:`<h5>Pipeline 4 bước</h5>
@@ -266,7 +266,7 @@ window.WEEKS_DATA = [
    <h5>3 vai trò trong multi-agent</h5>
    <ul><li><b>Shared memory</b> (orchestrator-workers): worker đọc/ghi graph, window của orchestrator không phình</li><li><b>Grounding layer</b> (evaluator-optimizer): fact-check claim theo edge có provenance</li><li><b>Persistent world model</b>: "the agent forgets, the graph does not"</li></ul>
    <h5>RAG vs KG</h5>
-   <p>RAG: retrieve theo tương đồng, tốt cho single-hop. KG: entity chung = node tường minh nối các tài liệu, multi-hop reasoning bất kể surface form. Dùng cùng nhau.</p>
+   <p>RAG có thể retrieval lặp để nối nhiều nguồn. KG biểu diễn quan hệ tường minh; extraction và resolution vẫn có thể lỗi. So đối chứng trước khi thêm graph.</p>
    <h5>Nguyên tắc chất lượng</h5>
    <ul><li>Descriptions là chìa khoá resolution</li><li>Precision &gt; recall (entity sai lan truyền qua multi-hop)</li><li>Provenance trên mọi edge</li><li>Evaluation feedback loop = "graph autoresearch"</li></ul>
    <div class="tagrow"><span class="kt">structured outputs</span><span class="kt">entity resolution</span><span class="kt">provenance</span><span class="kt">multi-hop</span><span class="kt">grounded answer</span><span class="kt">gold set</span></div>`,

@@ -1,0 +1,34 @@
+{
+  "lab_id": "R12",
+  "week": 36,
+  "title": "CornBench-VI: học qua nhiều vòng và báo cáo tái lập",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    9,
+    12,
+    15,
+    18
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "labs/specifications.md",
+    "benchmarks/cornbench_vi_rl/DESIGN.md",
+    "modules/research-methods.md",
+    "modules/graduation-and-maintenance.md"
+  ]
+}

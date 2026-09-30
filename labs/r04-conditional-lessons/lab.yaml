@@ -1,0 +1,35 @@
+{
+  "lab_id": "R04",
+  "week": 28,
+  "title": "Học từ lỗi bằng bài học có điều kiện",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    2,
+    5,
+    6,
+    9,
+    11
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/research-contracts.md",
+    "modules/evidence-and-memory.md",
+    "modules/controlled-learning.md",
+    "labs/specifications.md"
+  ]
+}

@@ -1,0 +1,148 @@
+[
+  {
+    "name": "crash-after-write",
+    "input": {
+      "limit": 2,
+      "actions": [
+        {
+          "key": "k",
+          "payload": "a",
+          "lose_ack": true
+        },
+        {
+          "key": "k",
+          "payload": "a"
+        }
+      ]
+    },
+    "expected": {
+      "states": [
+        "ACK_LOST",
+        "RECONCILED"
+      ],
+      "effects": 1,
+      "spent": 1
+    }
+  },
+  {
+    "name": "changed-payload",
+    "input": {
+      "limit": 2,
+      "actions": [
+        {
+          "key": "k",
+          "payload": "a"
+        },
+        {
+          "key": "k",
+          "payload": "b"
+        }
+      ]
+    },
+    "expected": {
+      "states": [
+        "SUCCESS",
+        "ValueError"
+      ],
+      "effects": 1
+    }
+  },
+  {
+    "name": "unknown-needs-reconciliation",
+    "input": {
+      "limit": 3,
+      "actions": [
+        {
+          "key": "k",
+          "payload": "a",
+          "outcome_unknown": true
+        },
+        {
+          "key": "k",
+          "payload": "a"
+        }
+      ]
+    },
+    "expected": {
+      "states": [
+        "UNKNOWN_OUTCOME",
+        "RuntimeError"
+      ],
+      "effects": 0,
+      "spent": 1
+    }
+  },
+  {
+    "name": "cancelled",
+    "input": {
+      "limit": 2,
+      "actions": [
+        {
+          "key": "k",
+          "payload": "a"
+        },
+        {
+          "cancel": true
+        },
+        {
+          "key": "b",
+          "payload": "a"
+        }
+      ]
+    },
+    "expected": {
+      "states": [
+        "SUCCESS",
+        "CANCELLED",
+        "PermissionError"
+      ],
+      "effects": 1
+    }
+  },
+  {
+    "name": "revoked",
+    "input": {
+      "limit": 2,
+      "actions": [
+        {
+          "revoke": true
+        },
+        {
+          "key": "k",
+          "payload": "a"
+        }
+      ]
+    },
+    "expected": {
+      "states": [
+        "REVOKED",
+        "PermissionError"
+      ],
+      "effects": 0
+    }
+  },
+  {
+    "name": "quota-exhausted",
+    "input": {
+      "limit": 1,
+      "actions": [
+        {
+          "key": "k",
+          "payload": "a"
+        },
+        {
+          "key": "b",
+          "payload": "a"
+        }
+      ]
+    },
+    "expected": {
+      "states": [
+        "SUCCESS",
+        "PermissionError"
+      ],
+      "effects": 1,
+      "spent": 1
+    }
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "name": "valid-contract",
+    "input": {
+      "question": "Kiểm parser",
+      "scope": [
+        "fixture"
+      ],
+      "tools": [
+        "read"
+      ],
+      "budget": 2
+    },
+    "expected": {
+      "budget": 2
+    }
+  },
+  {
+    "name": "no-question",
+    "input": {
+      "question": "",
+      "scope": [
+        "fixture"
+      ],
+      "tools": [
+        "read"
+      ],
+      "budget": 2
+    },
+    "raises": "ValueError"
+  },
+  {
+    "name": "boolean-budget",
+    "input": {
+      "question": "Q",
+      "scope": [
+        "fixture"
+      ],
+      "tools": [
+        "read"
+      ],
+      "budget": true
+    },
+    "raises": "ValueError"
+  }
+]

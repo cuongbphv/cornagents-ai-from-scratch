@@ -8,7 +8,7 @@
 
 *"The agent forgets, the graph does not."* Mỗi agent chết theo context window của nó; graph là nơi **facts sống xuyên session**. Ba vai trò trong multi-agent (từ Playbook, chi tiết trong [README.md](README.md)): shared memory (worker ghi findings vào graph thay vì dồn qua context orchestrator), grounding layer (evaluator fact-check claim theo edge), persistent world model (loop qua đêm không mất trí nhớ).
 
-RAG và KG không thay thế nhau. RAG trả lời "đoạn văn nào giống câu hỏi nhất" (single-hop, ngữ nghĩa); KG trả lời "đi theo quan hệ từ A qua B tới C" (multi-hop, cấu trúc). Ví dụ quyết định trong README: *"văn bản A sửa đổi B, mà B căn cứ C"*, hai văn bản có thể không giống nhau ngữ nghĩa chút nào, RAG mù, KG đi 2 cạnh là tới.
+RAG có thể truy xuất lặp, kết hợp nhiều nguồn và xử lý câu hỏi multi-hop; graph cung cấp quan hệ tường minh khi dữ liệu phù hợp. Ví dụ văn bản A sửa đổi B, B căn cứ C có thể thử cả retrieval lặp và graph traversal. So baseline trên cùng tập câu hỏi và ngân sách trước khi quyết định thêm graph.
 
 ## 2. Pipeline 4 bước: model cho phán xét, code cho phần còn lại
 

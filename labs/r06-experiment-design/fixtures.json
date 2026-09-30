@@ -1,0 +1,57 @@
+[
+  {
+    "name": "failed-trials-cost-budget",
+    "input": {
+      "trials": [
+        {
+          "id": "failed",
+          "cost": 2,
+          "status": "FAIL",
+          "score": 0
+        },
+        {
+          "id": "ok",
+          "cost": 2,
+          "status": "OK",
+          "score": 1
+        },
+        {
+          "id": "too-expensive",
+          "cost": 2,
+          "status": "OK",
+          "score": 2
+        }
+      ],
+      "total_budget": 4
+    },
+    "expected": {
+      "best": "ok",
+      "spent": 4,
+      "history": [
+        "failed",
+        "ok"
+      ]
+    }
+  },
+  {
+    "name": "all-fail",
+    "input": {
+      "trials": [
+        {
+          "id": "failed",
+          "cost": 2,
+          "status": "FAIL",
+          "score": 0
+        }
+      ],
+      "total_budget": 2
+    },
+    "expected": {
+      "best": null,
+      "spent": 2,
+      "history": [
+        "failed"
+      ]
+    }
+  }
+]

@@ -1,4 +1,4 @@
-# Tuần 10, Quiz: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
+# Tuần 10, Quiz: Nhập môn alignment: SFT, DPO và các nhánh RL
 
 > Tự kiểm tra **trước** khi xem solution. Tổng **18** câu, trong đó **2** câu nâng cao. Đáp án + giải thích ở [`quiz_solution.md`](quiz_solution.md).
 > _Sinh tự động từ `scripts/quiz_bank.json`: đừng sửa tay; chạy lại `python scripts/generate_quiz.py`._

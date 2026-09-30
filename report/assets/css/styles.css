@@ -317,3 +317,19 @@ footer b{color:var(--fg);font-weight:600}
 .prose hr{border:0;border-top:1px solid var(--border);margin:20px 0}
 .prose a{color:var(--accent)}
 .prose img{max-width:100%}
+
+/* Bảng kế hoạch; tiến độ vẫn dùng checklist fast-track hiện có. */
+#curriculum h3 { margin: 1.8rem 0 .8rem; }
+#curriculum h3 small { font-size: .75em; font-weight: 400; }
+.curriculum-note p { margin: .6rem 0; }
+.curriculum-table { overflow-x: auto; margin-bottom: 1rem; }
+.curriculum-table table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.curriculum-table th, .curriculum-table td { text-align: left; vertical-align: top; padding: .8rem; border-bottom: 1px solid var(--line, #dbe2ea); }
+.curriculum-table th { font-weight: 600; }
+.curriculum-table td:first-child { white-space: nowrap; }
+
+:root { --p4:#7c3aed; --p4-soft:#f0e9fc; }
+.phase-card.p4 { border-top-color:var(--p4); }
+.week.p4 .wk-num { background:var(--p4-soft); color:var(--p4); }
+.fbtn[hidden] { display:none; }
+@media(prefers-color-scheme:dark) { :root { --p4:#b69af8; --p4-soft:#302447; } }

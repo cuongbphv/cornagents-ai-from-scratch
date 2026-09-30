@@ -1,0 +1,8 @@
+{
+  "mode": "offline_educational_replay",
+  "network": false,
+  "live_model": false,
+  "production_data": false,
+  "command": "python3 scripts/run_learning_checks.py",
+  "scope": "Synthetic public fixtures only"
+}

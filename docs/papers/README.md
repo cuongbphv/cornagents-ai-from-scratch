@@ -47,3 +47,7 @@
 - Bảng **Milestone Papers** trong Awesome-LLM (CC0) là dòng thời gian tốt để đặt các paper trên vào bối cảnh: Transformer (2017) → GPT-2 (2019) → Scaling Laws (2020) → InstructGPT (2022) → LLaMA/DPO (2023) → GRPO/R1 (2024-25). Không cần đọc hết, lộ trình 18 tuần đã chọn sẵn điểm dừng.
 - GPT-2 paper ("Language Models are Unsupervised Multitask Learners") không nằm trên arXiv, bản PDF chính thức của OpenAI: [link](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) (chỉ link, không rõ license redistribute).
 - Số trong tên file = arXiv ID; version là bản mới nhất tại ngày tải 2026-08-12. Khi trích dẫn, kiểm tra lại version trên arXiv.
+
+## Nguồn cho nghiên cứu và học có kiểm chứng
+
+[Catalog nguồn nghiên cứu](research_learning_sources.md) bổ sung ReAct, Reflexion, candidate search, calibration/risk control, retention và runtime boundaries. Catalog giữ URL sơ cấp cùng giới hạn sử dụng; không tự xác nhận các kết quả đó đã được tái lập trong CornAgents.AI.

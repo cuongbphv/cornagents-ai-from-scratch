@@ -12,7 +12,7 @@
   3. Assembly (NetworkX MultiDiGraph) dựng graph với node mang type/source/description, edge mang predicate và provenance.
   4. Querying (Sonnet) serialize k-hop subgraph thành triples, trả lời multi-hop **có trích dẫn edge**.
 - Hiểu 3 vai trò của graph trong multi-agent: **shared memory** (orchestrator-workers), **grounding layer** (evaluator-optimizer fact-check claim theo edge), **persistent world model** (loop qua đêm không mất trí nhớ).
-- Phân biệt **RAG vs Knowledge Graph**: RAG cho single-hop retrieval; KG cho multi-hop reasoning nối facts xuyên tài liệu, hai thứ bổ trợ, không thay thế nhau.
+- Phân biệt **RAG vs Knowledge Graph**: RAG có thể retrieval lặp và xử lý multi-hop; KG biểu diễn quan hệ tường minh. So đối chứng không graph trước khi chọn.
 
 ## Nguồn học
 
@@ -76,7 +76,7 @@ Mỗi tầng bọc tầng trước. **Model là commodity, hệ thống quanh n�
 
 ### Khi nào dùng Knowledge Graph (decision framework)
 
-- Multi-doc **multi-hop** thì dùng KG. Single-doc QA hoặc multi-doc single-hop thì RAG (+ rerank) là đủ.
+- Với câu hỏi multi-doc/multi-hop, so retrieval lặp và KG dưới cùng dữ liệu/ngân sách; không bắt buộc graph chỉ vì cần nối nhiều facts.
 - Agents cần **chain** facts xuyên nguồn, **share** structured state, hoặc **ground** phán xét vào bằng chứng truy vết được thì dùng KG.
 - Task độc lập, không cần state xuyên session, quan hệ đơn giản thì **đừng** thêm graph (chi phí extraction > giá trị traversal).
 
@@ -124,7 +124,7 @@ Xem [`../Week-00/datasets_finance_banking.md`](../Week-00/datasets_finance_banki
 
 Dùng chính corpus thông tư NHNN đã chuẩn bị ở Tuần 13 làm input cho KG pipeline. Entity types gợi ý cho domain này: `VAN_BAN`, `DIEU_KHOAN`, `TO_CHUC`, `NGHIA_VU`, `KHAI_NIEM`. Predicate: `sửa đổi`, `thay thế`, `căn cứ`, `áp dụng cho`, `bãi bỏ`.
 
-> Vì sao KG đáng công ở đúng domain này: chuỗi **"văn bản A sửa đổi B, mà B căn cứ C"** là câu hỏi multi-hop mà RAG thuần *không* trả lời được, hai văn bản có thể không hề giống nhau về mặt ngữ nghĩa. Đây là ví dụ sạch nhất của "KG bridges the gap" trong Playbook.
+> Vì sao KG đáng công ở đúng domain này: chuỗi **"văn bản A sửa đổi B, mà B căn cứ C"** là ví dụ để so graph traversal với retrieval lặp: hai văn bản có thể ít giống nhau về ngữ nghĩa. Kết quả phụ thuộc corpus, extraction và cách retrieval; cần phép đo để quyết định.
 
 ## File trong folder
 

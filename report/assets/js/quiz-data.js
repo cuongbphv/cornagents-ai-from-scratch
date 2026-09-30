@@ -5,7 +5,7 @@ window.QUIZ_DATA = {
     "title": "Quiz Bank, LLM From Scratch",
     "language": "vi",
     "version": "2.0",
-    "note": "Nguồn chân lý cho quiz từng tuần (18 tuần). Chạy scripts/generate_quiz.py để sinh Week-XX/quiz.md, Week-XX/quiz_solution.md và report/assets/js/quiz-data.js. type=mcq dùng choices+answer(index từ 0); type=open dùng answer(văn bản mẫu). Toán viết dạng plain-text cho dễ bảo trì. Trường level='advanced' đánh dấu câu nâng cao, sinh vào mục riêng cuối quiz."
+    "note": "Nguồn chân lý cho quiz từng tuần (18 tuần). Chạy scripts/generate_quiz.py để sinh Week-XX/quiz.md, Week-XX/quiz_solution.md và report/assets/js/quiz-data.js. type=mcq dùng choices+answer(index từ 0); type=open dùng answer(văn bản mẫu). Toán viết dạng plain-text cho dễ bảo trì. Trường level='advanced' đánh dấu câu nâng cao, sinh vào mục riêng cuối quiz. core_weeks là quiz của lịch học chính, có directory riêng; weeks giữ quiz fast-track hiện có."
   },
   "weeks": [
     {
@@ -1864,14 +1864,14 @@ window.QUIZ_DATA = {
     },
     {
       "week": 10,
-      "title": "Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO",
+      "title": "Nhập môn alignment: SFT, DPO và các nhánh RL",
       "questions": [
         {
           "id": "w10q1",
           "type": "open",
           "q": "Phân biệt SFT, DPO và GRPO.",
           "answer": "SFT (Supervised Fine-Tuning): học bắt chước các phản hồi tốt bằng cross-entropy trên cặp (prompt, response chuẩn). DPO (Direct Preference Optimization): tối ưu trực tiếp từ cặp (chosen, rejected) bằng một loss dạng logistic, BỎ QUA reward model và PPO → đơn giản, ổn định. GRPO (Group Relative Policy Optimization): RL bỏ critic, lấy nhiều sample cho cùng prompt và chuẩn hoá reward theo nhóm; hợp với reward kiểm chứng được (RLVR) → nền của reasoning models.",
-          "explain": "Thứ tự thường gặp: SFT → (RM) → DPO hoặc PPO → GRPO. Xem mục G advanced_topics_vi.md."
+          "explain": "DPO không bắt buộc reward model riêng. RLHF dùng RM/PPO là nhánh khác; GRPO là thuật toán, RLVR mô tả loại reward. Theo tài liệu chương trình mục 6.3 và 11."
         },
         {
           "id": "w10q2",
@@ -2071,20 +2071,20 @@ window.QUIZ_DATA = {
             "Quantize base model xuống 4-bit (NF4, đóng băng) + chỉ train adapter LoRA ở bf16"
           ],
           "answer": 3,
-          "explain": "QLoRA nén base xuống NF4 4-bit để giảm VRAM, gradient chỉ chảy qua adapter LoRA → fine-tune 7B vừa ~5GB."
+          "explain": "Quantization giảm phần bộ nhớ base weights; peak VRAM vẫn phụ thuộc toàn cấu hình và workload."
         },
         {
           "id": "w11q2",
           "type": "mcq",
-          "q": "Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?",
+          "q": "Muốn biết workload QLoRA vừa VRAM, cần làm gì?",
           "choices": [
-            "~5GB",
-            "~2GB",
-            "~24GB",
-            "~12GB"
+            "Đo peak memory với model, batch, context, dtype, optimizer và runtime đang dùng",
+            "Chỉ lấy số weights nhân 4 bit",
+            "Dùng số của một máy khác làm cam kết",
+            "Chỉ nhìn dung lượng file tải xuống"
           ],
           "answer": 0,
-          "explain": "~5GB (8B ≈ 6GB) → vừa thoải mái trên 3070 Ti 8GB. 14B ≈ 8.5GB thì vượt 8GB."
+          "explain": "Theo tài liệu chương trình mục 1.1 và 10.6: đo toàn workload, không suy từ weights riêng."
         },
         {
           "id": "w11q3",
@@ -3169,8 +3169,8 @@ window.QUIZ_DATA = {
           "id": "w17q2",
           "type": "open",
           "q": "RAG và Knowledge Graph khác nhau thế nào, khi nào cần cái nào?",
-          "answer": "RAG retrieve chunk theo tương đồng ngữ nghĩa với câu hỏi, tốt cho câu hỏi single-hop (đáp án nằm trong một đoạn). Nó thất bại với multi-hop: khi đáp án phải NỐI facts từ nhiều tài liệu không giống nhau về mặt lexical/semantic. Knowledge graph biến entity chung thành node tường minh có edge sang cả hai tài liệu, graph traversal tìm ra kết nối bất kể surface form. Hai cách bổ trợ: RAG rẻ cho direct retrieval, KG cho structural reasoning; thực tế dùng cùng nhau.",
-          "explain": "Quy tắc: cần CHAIN facts xuyên nguồn / SHARE structured state / GROUND phán xét → graph. Chỉ cần retrieve/classify → RAG hoặc đơn giản hơn là đủ."
+          "answer": "RAG có thể retrieval lặp và tổng hợp nhiều nguồn để xử lý multi-hop. Graph giúp biểu diễn và truy vấn quan hệ tường minh, nhưng extraction/resolution có thể lỗi. Chọn bằng đối chứng retrieval không graph dưới cùng ngân sách.",
+          "explain": "Theo tài liệu chương trình mục 1.1 và 6.5; không dùng quy tắc single-hop/multi-hop để bắt buộc graph."
         },
         {
           "id": "w17q3",
@@ -3196,7 +3196,7 @@ window.QUIZ_DATA = {
             "Vì recall không đo được"
           ],
           "answer": 2,
-          "explain": "Kết quả trên Apollo corpus: precision 1.00, recall 0.38-0.55, extractor bảo thủ là trade-off ĐÚNG cho production; evaluation harness giúp bạn chỉnh trade-off này có chủ đích."
+          "explain": "Quan hệ sai có thể lan truyền; thực thể thiếu cũng có thể làm mất đáp án. Đo cả precision/recall theo task và corpus, không lấy một ngưỡng phổ quát cho production."
         },
         {
           "id": "w17q5",
@@ -3459,6 +3459,1018 @@ window.QUIZ_DATA = {
           "q": "Hãy nối ba metric capstone (success rate, human-override rate, groundedness) với các số đo trong giáo trình: accuracy trên test set chưa thấy, exact match, token F1, precision.",
           "answer": "Success rate là accuracy trên một benchmark tự dựng với đáp án có dẫn điều khoản, đòi test set chưa thấy như SLP3 mục 1.9 (trang 25); các tiêu chí đúng sai là exact match, tiêu chí nội dung gần token F1 (SLP3 mục 11.6, trang 271). Groundedness là precision ở mức claim: trong các claim đưa ra, bao nhiêu claim dẫn được về một điều khoản hay một cạnh có provenance (IR-book mục 8.3). Human-override rate là số đo vận hành không có tương ứng trực tiếp trong các sách đã đọc, nhưng rẻ và trung thực nhất với người dùng nghiệp vụ.",
           "explain": "Rubric nên có ít nhất một tiêu chí thuộc nhóm độ bền: đưa feature request mơ hồ và kiểm xem workflow dừng hỏi lại hay bịa (FoLLM mục 5.1.4, trang 221)."
+        }
+      ]
+    }
+  ]
+};
+window.CORE_QUIZ_DATA = {
+  "weeks": [
+    {
+      "week": 1,
+      "title": "Môi trường học và phạm vi nhiệm vụ",
+      "directory": "tracks/core-24/Week-01",
+      "questions": [
+        {
+          "id": "core1q1",
+          "type": "open",
+          "q": "Agent tìm thấy nguồn hữu ích ngoài allowlist. Có được tự đọc để hoàn thành nhanh hơn không?",
+          "answer": "Không. Ghi nguồn còn thiếu và đề nghị thay phạm vi; executor chỉ cho phép công cụ/nguồn đã được cấp quyền.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 8, 10. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core1q2",
+          "type": "open",
+          "q": "Trong bài “Môi trường học và phạm vi nhiệm vụ”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tạo môi trường Python, ghi phiên bản thực tế, thiết kế task đọc một fixture JSON; lưu manifest có nguồn, cấu hình và lệnh chạy. Dùng dữ liệu giả lập, không chép secrets. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core1q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "title": "Bản đối chứng và phép đánh giá đầu tiên",
+      "directory": "tracks/core-24/Week-02",
+      "questions": [
+        {
+          "id": "core2q1",
+          "type": "open",
+          "q": "Không có task nào được nhận xử lý: accepted risk có bằng 0 không?",
+          "answer": "Chưa đo được accepted risk vì mẫu số bằng 0. Báo coverage và số thành công trên toàn bộ task; không ghi 0% lỗi.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 7, 8, 12. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core2q2",
+          "type": "open",
+          "q": "Trong bài “Bản đối chứng và phép đánh giá đầu tiên”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Lập fixture đúng/sai và rubric cho parser số nguyên có đơn vị. Chạy bản đối chứng, lưu từng input, expected và output; báo toàn bộ task kể cả từ chối. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core2q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "title": "Đại số tuyến tính qua code",
+      "directory": "tracks/core-24/Week-03",
+      "questions": [
+        {
+          "id": "core3q1",
+          "type": "open",
+          "q": "Vì sao shape đúng chưa đủ để xác nhận một phép chiếu đúng?",
+          "answer": "Cần kiểm ý nghĩa phép toán và tính chất phần dư trực giao. Hai phép nhân khác thứ tự có thể cho shape hợp lệ nhưng nghĩa khác.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core3q2",
+          "type": "open",
+          "q": "Trong bài “Đại số tuyến tính qua code”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tái sử dụng lab NumPy ở Week-01. Tự tính phép chiếu, kiểm phần dư trực giao và so nghiệm bằng một cách độc lập. Lưu seed và tolerance. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core3q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "title": "Đạo hàm, xác suất và gradient check",
+      "directory": "tracks/core-24/Week-04",
+      "questions": [
+        {
+          "id": "core4q1",
+          "type": "open",
+          "q": "Có nên chọn learning rate bằng điểm test rồi báo điểm test là đánh giá độc lập?",
+          "answer": "Không. Khi dùng để chọn cấu hình, tập đó đã phục vụ phát triển. Cần giữ tập đánh giá độc lập khác cho cấu hình đã cố định.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 7, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core4q2",
+          "type": "open",
+          "q": "Trong bài “Đạo hàm, xác suất và gradient check”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tự tính gradient logistic regression, kiểm bằng sai phân trung tâm; chia dữ liệu train/validation/test theo vai trò. Giải thích nguồn sai số số học. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core4q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "title": "Autograd và backprop từ đầu",
+      "directory": "tracks/core-24/Week-05",
+      "questions": [
+        {
+          "id": "core5q1",
+          "type": "open",
+          "q": "Một biến được dùng ở hai nhánh: gradient tại biến đó được cộng hay ghi đè?",
+          "answer": "Cộng đóng góp từ cả hai nhánh theo chain rule; ghi đè làm mất một phần đạo hàm.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core5q2",
+          "type": "open",
+          "q": "Trong bài “Autograd và backprop từ đầu”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm micrograd skeleton hiện có; kiểm gradient cho biểu thức có nhánh dùng chung và so với sai phân số. Vẽ graph trước khi gọi backward. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core5q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "title": "Training loop và overfit có chủ ý",
+      "directory": "tracks/core-24/Week-06",
+      "questions": [
+        {
+          "id": "core6q1",
+          "type": "open",
+          "q": "Vì sao overfit một batch có ích nhưng không phải kết quả cuối?",
+          "answer": "Nó giúp kiểm training loop và capacity trên dữ liệu đó. Nó không đo generalization, cần dữ liệu độc lập và phép chấm đúng mục tiêu.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core6q2",
+          "type": "open",
+          "q": "Trong bài “Training loop và overfit có chủ ý”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Chạy MLP nhỏ, cố ý overfit một tập nhỏ, lưu loss train/validation theo bước. Thử một thay đổi mỗi lần và báo kết quả âm. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core6q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "title": "Tokenizer, BPE và Unicode tiếng Việt",
+      "directory": "tracks/core-24/Week-07",
+      "questions": [
+        {
+          "id": "core7q1",
+          "type": "open",
+          "q": "Round-trip pass có chứng minh tokenizer phù hợp mọi tài liệu không?",
+          "answer": "Không. Chỉ xác nhận các input và hợp đồng đã thử; vẫn cần kiểm phạm vi, ký tự ngoài tập và tác động normalization.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core7q2",
+          "type": "open",
+          "q": "Trong bài “Tokenizer, BPE và Unicode tiếng Việt”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Viết bộ fixture gồm tiếng Việt có dấu, dấu kết hợp, ký tự lạ và khoảng trắng. Kiểm encode/decode; ghi chính sách normalization và giữ raw input. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core7q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "title": "Causal attention và dịch nhãn",
+      "directory": "tracks/core-24/Week-08",
+      "questions": [
+        {
+          "id": "core8q1",
+          "type": "open",
+          "q": "Test nào mạnh hơn chỉ kiểm shape để phát hiện lỗi causal mask?",
+          "answer": "Giữ prefix cố định, đổi suffix tương lai và kiểm output tại prefix không đổi trong cấu hình deterministic đã khai báo.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core8q2",
+          "type": "open",
+          "q": "Trong bài “Causal attention và dịch nhãn”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Sửa attention skeleton, gây lỗi bằng cách bỏ mask; thay token tương lai và kiểm đầu ra ở vị trí trước đó. Viết một test dịch nhãn trên chuỗi ngắn. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core8q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "title": "Tiny Transformer và các khối kiến trúc",
+      "directory": "tracks/core-24/Week-09",
+      "questions": [
+        {
+          "id": "core9q1",
+          "type": "open",
+          "q": "Generate từ weights tải về cho phép kết luận đã tự huấn luyện từ đầu không?",
+          "answer": "Không. Nó kiểm một phần load/inference. Pretraining cần dataset, training log và checkpoint của lần chạy tương ứng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core9q2",
+          "type": "open",
+          "q": "Trong bài “Tiny Transformer và các khối kiến trúc”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Lắp tiny Transformer, kiểm shape và loss trên fixture nhỏ. Chọn một khối normalization/position để so bản tham chiếu; ghi rõ weights tự train hay tải. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core9q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "title": "KV cache và báo cáo tài nguyên",
+      "directory": "tracks/core-24/Week-10",
+      "questions": [
+        {
+          "id": "core10q1",
+          "type": "open",
+          "q": "Khi cached logits khác reference, có nên tăng tolerance đến khi pass?",
+          "answer": "Không. Điều tra position, mask, cache update và số học; tolerance phải có lý do và không chọn hậu nghiệm để che lỗi.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core10q2",
+          "type": "open",
+          "q": "Trong bài “KV cache và báo cáo tài nguyên”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Kiểm cached/uncached logits trong tolerance định trước; đo peak memory, context, dtype và throughput. Không chép benchmark máy khác vào báo cáo của mình. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core10q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "title": "Nguồn dữ liệu, dedup và chia tập",
+      "directory": "tracks/core-24/Week-11",
+      "questions": [
+        {
+          "id": "core11q1",
+          "type": "open",
+          "q": "Chia hai chunk từ cùng tài liệu sang train và test có làm chúng độc lập không?",
+          "answer": "Không mặc định. Nội dung, template và đáp án có thể trùng; cần chia theo đơn vị nguồn/task family phù hợp và kiểm gần trùng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 5, 7, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core11q2",
+          "type": "open",
+          "q": "Trong bài “Nguồn dữ liệu, dedup và chia tập”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tạo manifest của corpus giả lập có hai bản gần trùng, nhóm theo nguồn trước khi chia tập. Ghi quyền đọc và quyền train riêng; không dùng dữ liệu chưa xác minh license. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core11q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "title": "Training dynamics và thí nghiệm tách ảnh hưởng",
+      "directory": "tracks/core-24/Week-12",
+      "questions": [
+        {
+          "id": "core12q1",
+          "type": "open",
+          "q": "Kết quả âm có phải lý do xóa run khỏi báo cáo không?",
+          "answer": "Không. Nó giúp giới hạn giả thuyết; giữ run và nguyên nhân, không chọn riêng kết quả đẹp.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8, 16. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core12q2",
+          "type": "open",
+          "q": "Trong bài “Training dynamics và thí nghiệm tách ảnh hưởng”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Train tiny model theo budget tự đặt trước, so một thay đổi như lịch LR. Lưu code/data/config/seed, loss, thời gian và lỗi của toàn bộ lượt chạy. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core12q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "title": "SFT và LoRA ở quy mô nhỏ",
+      "directory": "tracks/core-24/Week-13",
+      "questions": [
+        {
+          "id": "core13q1",
+          "type": "open",
+          "q": "Loss train giảm và format đẹp hơn có đủ để đưa adapter vào dùng không?",
+          "answer": "Không. Cần outcome trên tập chưa dùng để học, retention, lineage, chi phí và quyết định đúng phạm vi.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 8, 11. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core13q2",
+          "type": "open",
+          "q": "Trong bài “SFT và LoRA ở quy mô nhỏ”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "So full update với low-rank update trên model nhỏ; ghi dataset card, phân tách train/test và retention trên task cũ. Chọn quy mô sau smoke test. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core13q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "title": "Preference learning và DPO",
+      "directory": "tracks/core-24/Week-14",
+      "questions": [
+        {
+          "id": "core14q1",
+          "type": "open",
+          "q": "DPO, GRPO và RLVR có phải ba bước bắt buộc liên tiếp không?",
+          "answer": "Không. DPO là phương pháp preference optimization; GRPO là optimizer policy; RLVR nói về reward kiểm chứng được. Chọn theo bài toán và dữ liệu.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8, 11. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core14q2",
+          "type": "open",
+          "q": "Trong bài “Preference learning và DPO”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tự viết DPO loss toy, giải thích reference policy và tiêu chí chọn cặp. Dùng fixture để phân biệt câu trôi chảy với câu có outcome đúng. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core14q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 15,
+      "title": "Hybrid retrieval và reranking",
+      "directory": "tracks/core-24/Week-15",
+      "questions": [
+        {
+          "id": "core15q1",
+          "type": "open",
+          "q": "Candidate retrieval tốt hơn nhưng corpus cũng lớn hơn: đã xác nhận lợi ích riêng của fusion chưa?",
+          "answer": "Chưa. Cần giữ corpus cố định hoặc thêm ablation để tách ảnh hưởng của corpus và fusion.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core15q2",
+          "type": "open",
+          "q": "Trong bài “Hybrid retrieval và reranking”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Chọn corpus công khai được phép dùng hoặc giả lập; so retrieval baseline với fusion dưới budget rõ. Kiểm recall và lỗi nguồn ở từng query. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core15q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 16,
+      "title": "Bằng chứng, phiên bản và context",
+      "directory": "tracks/core-24/Week-16",
+      "questions": [
+        {
+          "id": "core16q1",
+          "type": "open",
+          "q": "Ba URL đều chép một thông cáo thì có ba xác nhận độc lập không?",
+          "answer": "Không. Gom cùng origin cluster; cần nguồn hoặc phép kiểm độc lập thật sự cho nhận định tương ứng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 5, 6, 8. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core16q2",
+          "type": "open",
+          "q": "Trong bài “Bằng chứng, phiên bản và context”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Lập bảng claim–evidence–counterevidence với nguồn giả lập cũ/mới và bản sao. Lọc quyền trước khi trả context; ghi phần chưa đủ nguồn. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core16q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 17,
+      "title": "Document AI và số/đơn vị tiếng Việt",
+      "directory": "tracks/core-24/Week-17",
+      "questions": [
+        {
+          "id": "core17q1",
+          "type": "open",
+          "q": "Bảng chỉ ghi 12, không còn header đơn vị: có được đoán là triệu đồng không?",
+          "answer": "Không. Giữ raw span, báo thiếu đơn vị/AMBIGUOUS và chuyển người hoặc xin nguồn bổ sung.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 8, 12, 13. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core17q2",
+          "type": "open",
+          "q": "Trong bài “Document AI và số/đơn vị tiếng Việt”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tự viết parser số nguyên có đơn vị tường minh, thử thiếu đơn vị và dấu OCR. Xuất raw span, normalized value và lý do từ chối; so với fixture. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core17q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 18,
+      "title": "Serving, phiên bản và chi phí thực",
+      "directory": "tracks/core-24/Week-18",
+      "questions": [
+        {
+          "id": "core18q1",
+          "type": "open",
+          "q": "Fake model replay pass có thể ghi là benchmark LLM thật không?",
+          "answer": "Không. Ghi rõ replay/fixture; live-model cần runtime/model revision, dữ liệu, budget và kết quả thực riêng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 8, 10. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core18q2",
+          "type": "open",
+          "q": "Trong bài “Serving, phiên bản và chi phí thực”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Xây adapter interface cho fake/local model, đo latency của đúng workload, ghi toàn bộ retry. Không cần API trả phí để hoàn thành bài offline. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core18q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 19,
+      "title": "Hợp đồng công cụ và agent có giới hạn",
+      "directory": "Week-19",
+      "questions": [
+        {
+          "id": "core19q1",
+          "type": "open",
+          "q": "JSON đúng schema nhưng action ngoài scope có được chạy không?",
+          "answer": "Không. Schema là một kiểm tra; quyền, semantics và trạng thái phải được executor kiểm riêng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 3, 4, 8, 10. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core19q2",
+          "type": "open",
+          "q": "Trong bài “Hợp đồng công cụ và agent có giới hạn”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Dùng R01/R10 reference offline; tạo schema cho read_fixture, từ chối tool không có trong contract. Viết starter executor chỉ hỗ trợ công cụ giả lập. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core19q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 20,
+      "title": "Deny tests, sandbox và thu hồi quyền",
+      "directory": "Week-20",
+      "questions": [
+        {
+          "id": "core20q1",
+          "type": "open",
+          "q": "Tại sao thư mục evaluator riêng vẫn chưa đủ bảo vệ đáp án?",
+          "answer": "Nếu cùng tài khoản/process có quyền đọc và sửa, agent vẫn có thể truy cập. Cần biên truy cập thật; folder chỉ thể hiện tổ chức code.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 3, 4, 8, 10. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core20q2",
+          "type": "open",
+          "q": "Trong bài “Deny tests, sandbox và thu hồi quyền”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Dùng fixtures hai tenant, quyền hết hạn và thu hồi giữa hai bước; viết deny tests cho read/write. Vẽ biên process/credential cần có khi triển khai thật. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core20q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 21,
+      "title": "Checkpoint, idempotency và recovery",
+      "directory": "Week-21",
+      "questions": [
+        {
+          "id": "core21q1",
+          "type": "open",
+          "q": "Checkpoint mới nhất không có ack: có chắc thao tác chưa xảy ra không?",
+          "answer": "Không. Tool có thể đã ghi thành công trước crash; tra operation ID/trạng thái thật hoặc chuyển người khi không xác định được.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 4, 8, 10. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core21q2",
+          "type": "open",
+          "q": "Trong bài “Checkpoint, idempotency và recovery”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Chạy DurableToy với ack bị mất, event trùng, payload đổi cùng key và quyền bị revoke. Viết event timeline và cách reconcile; không dùng service thật. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core21q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 22,
+      "title": "Bộ đánh giá được bảo vệ",
+      "directory": "Week-22",
+      "questions": [
+        {
+          "id": "core22q1",
+          "type": "open",
+          "q": "Giữ answer file kín nhưng chọn prompt theo pass/fail lặp có còn test độc lập không?",
+          "answer": "Không mặc định. Chính feedback đã tham gia tối ưu; cần protocol và cohort mới hoặc phương pháp giữ lại test phù hợp.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 7, 8, 10, 17. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core22q2",
+          "type": "open",
+          "q": "Trong bài “Bộ đánh giá được bảo vệ”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R08 toy digest-mismatch, lập sơ đồ service evaluator riêng và query budget; phân biệt fixture tests công khai với confirmation thật ngoài workspace. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core22q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 23,
+      "title": "Capstone nền và mini research",
+      "directory": "Week-23",
+      "questions": [
+        {
+          "id": "core23q1",
+          "type": "open",
+          "q": "Candidate tăng success nhưng có một vi phạm quyền xác nhận được thì xử lý thế nào?",
+          "answer": "Chặn phát hành và điều tra; không cộng accuracy để bù vi phạm quan trọng. Nghiên cứu tiếp trong vùng được phép.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 3, 8, 12. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core23q2",
+          "type": "open",
+          "q": "Trong bài “Capstone nền và mini research”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tạo protocol cho parser/retrieval tiếng Việt, chạy B0 và B1/B2 phù hợp; giữ mọi failure và báo nguồn, chi phí, outcome. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core23q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 24,
+      "title": "Bảo vệ năng lực và điều kiện vào nghiên cứu",
+      "directory": "Week-24",
+      "questions": [
+        {
+          "id": "core24q1",
+          "type": "open",
+          "q": "Thí nghiệm không có gain có thể đạt môn nghiên cứu không?",
+          "answer": "Có nếu phương pháp, phép đo và báo cáo đúng; candidate không thắng hoặc thiếu bằng chứng vẫn chưa được promote.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 3, 8, 18. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core24q2",
+          "type": "open",
+          "q": "Trong bài “Bảo vệ năng lực và điều kiện vào nghiên cứu”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Tự sửa một lỗi biến thể không dùng AI; trình bày report của tuần 23; đóng băng candidate và lập quyết định reject/insufficient/promote với scope giả lập. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core24q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 25,
+      "title": "Từ câu hỏi rộng thành phạm vi nghiên cứu",
+      "directory": "Week-25",
+      "questions": [
+        {
+          "id": "core25q1",
+          "type": "open",
+          "q": "Nguồn chưa trả được toàn văn thì có được nói đã tích hợp từng chi tiết không?",
+          "answer": "Không. Ghi phạm vi truy cập thực, phần chưa đọc và không dùng nó làm bằng chứng trực tiếp cho claim chưa kiểm.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 2, 3, 5, 9. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core25q2",
+          "type": "open",
+          "q": "Trong bài “Từ câu hỏi rộng thành phạm vi nghiên cứu”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R01: viết contract và ledger cho câu hỏi parser tiếng Việt; fixture có hai bản sao cùng xuất xứ. Phân loại phát biểu và ghi giới hạn từng claim. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core25q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 26,
+      "title": "Nghiên cứu lặp, phản chứng và điều kiện dừng",
+      "directory": "Week-26",
+      "questions": [
+        {
+          "id": "core26q1",
+          "type": "open",
+          "q": "Tại sao nguồn hỗ trợ và nguồn phản bác cần giữ cùng báo cáo?",
+          "answer": "Để người đọc thấy điều kiện và giới hạn kết luận; bỏ phản chứng chỉ vì nó làm kết quả kém đẹp là cherry-picking.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 3, 5, 9. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core26q2",
+          "type": "open",
+          "q": "Trong bài “Nghiên cứu lặp, phản chứng và điều kiện dừng”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R02: xử lý nguồn cũ/mới/mâu thuẫn; ghi query nào thêm evidence. Thử hết budget, query drift và nguồn không trả đáp án. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core26q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 27,
+      "title": "Bộ nhớ có nguồn, thời hạn và quyền đọc",
+      "directory": "Week-27",
+      "questions": [
+        {
+          "id": "core27q1",
+          "type": "open",
+          "q": "Xóa entry khỏi memory có đồng nghĩa đã unlearn dữ liệu khỏi model train trước đó không?",
+          "answer": "Không. Training cần lineage theo dataset/model version và phương án xử lý riêng; không hứa xóa một hàng là mất toàn bộ ảnh hưởng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 4, 5, 9. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core27q2",
+          "type": "open",
+          "q": "Trong bài “Bộ nhớ có nguồn, thời hạn và quyền đọc”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R03: hai tenant giả lập, nguồn bị revoke và summary hai tầng; kiểm không trả text/citation ngoài quyền. Vẽ lineage và ghi phần code toy chưa mô phỏng. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core27q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 28,
+      "title": "Học từ lỗi bằng bài học có điều kiện",
+      "directory": "Week-28",
+      "questions": [
+        {
+          "id": "core28q1",
+          "type": "open",
+          "q": "Lesson “luôn dùng parser” sai ở trường hợp nào trong lab?",
+          "answer": "Khi input ngoài grammar, OCR mơ hồ hoặc thiếu đơn vị/header. Parser phải báo ambiguous thay vì đoán; bài học cần nêu chống chỉ định.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 2, 5, 6, 9, 11. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core28q2",
+          "type": "open",
+          "q": "Trong bài “Học từ lỗi bằng bài học có điều kiện”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R04: so parser rule/bộ nhớ lesson trên trường có grammar; kiểm đổi đơn vị và thiếu header. Thiết kế nhánh Reflexion live riêng; reference offline không gọi LLM. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core28q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 29,
+      "title": "Tìm bản cải tiến prompt và kỹ năng",
+      "directory": "Week-29",
+      "questions": [
+        {
+          "id": "core29q1",
+          "type": "open",
+          "q": "Tự chọn một prompt bằng tay có thể gọi là đã tái lập GEPA không?",
+          "answer": "Không. Gọi đúng là baseline lấy cảm hứng, ghi phần implementation/protocol chưa làm; tái lập cần cấu hình và phép đo tương ứng nguồn.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 9, 11. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core29q2",
+          "type": "open",
+          "q": "Trong bài “Tìm bản cải tiến prompt và kỹ năng”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R05: random search baseline trên fixture; ghi lineage và rejected candidates. Tạo candidate cố thêm quyền và xác nhận bị từ chối. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core29q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 30,
+      "title": "Thiết kế và chọn thí nghiệm",
+      "directory": "Week-30",
+      "questions": [
+        {
+          "id": "core30q1",
+          "type": "open",
+          "q": "Có được dừng ngay khi thấy một kết quả đẹp rồi bỏ run thất bại không?",
+          "answer": "Không. Phải theo stopping rule và giữ history; chọn/dừng hậu nghiệm có thể làm claim thống kê không còn áp dụng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 6, 9, 16. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core30q2",
+          "type": "open",
+          "q": "Trong bài “Thiết kế và chọn thí nghiệm”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R06: giữ model/corpus, thay một cấu hình; runner dừng trước khi vượt budget. Lưu run fail, tiêu chí chọn và tổng chi phí. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core30q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 31,
+      "title": "Hiệu chỉnh, risk–coverage và cận thống kê",
+      "directory": "Week-31",
+      "questions": [
+        {
+          "id": "core31q1",
+          "type": "open",
+          "q": "Không thấy lỗi trong mẫu có chứng minh tỷ lệ lỗi thật bằng 0 không?",
+          "answer": "Không. Báo số mẫu/lỗi, cận và giả định; mẫu nhỏ vẫn có cận lớn. Không có dữ liệu thì trạng thái chưa đủ bằng chứng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 7, 9. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core31q2",
+          "type": "open",
+          "q": "Trong bài “Hiệu chỉnh, risk–coverage và cận thống kê”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R07: no-data, zero-error, một lỗi và retry trùng task; giải thích giả định. So công thức zero-error với reference; ghi rõ CP toy không kiểm representativeness. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core31q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 32,
+      "title": "Bảo vệ evaluator và dữ liệu xác nhận",
+      "directory": "Week-32",
+      "questions": [
+        {
+          "id": "core32q1",
+          "type": "open",
+          "q": "Sửa candidate sau khi có report tốt rồi giữ report cũ có hợp lệ không?",
+          "answer": "Không. Nội dung ảnh hưởng kết quả đã đổi; phải đóng băng và đánh giá đúng bản mới trước khi xét sử dụng.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 4, 7, 9. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core32q2",
+          "type": "open",
+          "q": "Trong bài “Bảo vệ evaluator và dữ liệu xác nhận”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R08: tính digest, sửa một tham số và kiểm từ chối. Thiết kế process/credential tách biệt và sổ query budget; diễn tập contamination bằng trace chứa nhãn. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core32q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 33,
+      "title": "Học tham số offline và giữ năng lực cũ",
+      "directory": "Week-33",
+      "questions": [
+        {
+          "id": "core33q1",
+          "type": "open",
+          "q": "DPO preference chọn văn phong tự tin có đảm bảo factuality không?",
+          "answer": "Không. Phải định nghĩa chosen tốt hơn theo tiêu chí nào; preference văn phong khác nhãn sự thật và outcome.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 2, 9, 11. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core33q2",
+          "type": "open",
+          "q": "Trong bài “Học tham số offline và giữ năng lực cũ”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R09: kiểm low-rank update nhỏ và rollback weights; lập data card/preference rubric. Nhánh live-model chỉ chạy khi có runtime, license, dataset và budget rõ. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core33q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 34,
+      "title": "Chạy dài với quota, hủy và recovery",
+      "directory": "Week-34",
+      "questions": [
+        {
+          "id": "core34q1",
+          "type": "open",
+          "q": "Worker con có được tạo budget mới để tiếp tục khi quota mẹ hết không?",
+          "answer": "Không. Quota tổng phải do control plane quản lý; child dùng cùng budget và việc hủy/thu hồi phải lan toàn cây.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 4, 9, 10. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core34q2",
+          "type": "open",
+          "q": "Trong bài “Chạy dài với quota, hủy và recovery”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R10: ack mất sau write, duplicate event, key reused, unknown outcome, cancel và revoke. Reference chỉ có in-memory toy, chưa có supervisor process thật. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core34q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 35,
+      "title": "Duyệt đúng bản cải tiến, shadow và rollback",
+      "directory": "Week-35",
+      "questions": [
+        {
+          "id": "core35q1",
+          "type": "open",
+          "q": "Tại sao rollback và revoke cần hai quyết định riêng?",
+          "answer": "Bản cũ cũng có thể dùng nguồn đã bị thu hồi. Đổi pointer không sửa quyền hay hoàn tác hành động bên ngoài; phải xử lý từng phạm vi.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 4, 9, 14. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core35q2",
+          "type": "open",
+          "q": "Trong bài “Duyệt đúng bản cải tiến, shadow và rollback”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R11: promote đúng digest, sửa artifact sau eval, scope thiếu, violation và rollback. Viết release package; thử trong mô phỏng, không deploy production. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core35q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
+        }
+      ]
+    },
+    {
+      "week": 36,
+      "title": "CornBench-VI: học qua nhiều vòng và báo cáo tái lập",
+      "directory": "Week-36",
+      "questions": [
+        {
+          "id": "core36q1",
+          "type": "open",
+          "q": "Candidate không cải thiện nhưng thí nghiệm đúng có được hạ ngưỡng để tốt nghiệp không?",
+          "answer": "Không hạ ngưỡng promotion. Bài nghiên cứu có thể đạt nhờ phương pháp và minh bạch; candidate giữ quarantine hoặc reject đúng lý do.",
+          "explain": "Nguồn: tài liệu chương trình CornAgents.AI, mục 9, 12, 15, 18. Đáp án là diễn giải bài học, không phải kết quả đo."
+        },
+        {
+          "id": "core36q2",
+          "type": "open",
+          "q": "Trong bài “CornBench-VI: học qua nhiều vòng và báo cáo tái lập”, hãy nêu một phép kiểm có thể bác bỏ kết luận của bạn và phần phép kiểm đó chưa xác nhận.",
+          "answer": "Làm R12 và H1: đăng ký protocol, chia development/confirmation/retention theo family; chạy baseline/lesson ablation. Reference parser replay chỉ kiểm fixture; nộp report giới hạn và lệnh tái lập. Phải ghi phạm vi fixture/dataset, giữ output thực và không mở rộng claim quá dữ liệu đã thử.",
+          "explain": "Câu hỏi kiểm phương pháp; không có một điểm benchmark mặc định."
+        },
+        {
+          "id": "core36q3",
+          "type": "open",
+          "q": "Sản phẩm chạy được của tuần này chứng minh điều gì về người học, hệ thống và bản cải tiến?",
+          "answer": "G1 cần người học tự giải thích/sửa bài biến thể; G2 cần outcome và evidence của hệ thống; G3 cần kiểm đúng candidate và quyết định riêng. Không lấy một demo để thay cả ba cửa.",
+          "explain": "Nguồn: mục 3.4, 8.4 và 18.1 của tài liệu chương trình."
         }
       ]
     }

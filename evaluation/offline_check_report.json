@@ -1,0 +1,11 @@
+{
+  "label": "OFFLINE_EDUCATIONAL_CHECKS",
+  "python": "3.14.4",
+  "command": "python3 scripts/run_learning_checks.py",
+  "tests_run": 23,
+  "public_fixture_scenarios": 44,
+  "failures": 0,
+  "errors": 0,
+  "passed": true,
+  "scope": "Finite synthetic fixtures and numerical teaching examples only. Not student work, live-model quality, production isolation or release authorization."
+}

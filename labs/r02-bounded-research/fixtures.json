@@ -1,0 +1,57 @@
+[
+  {
+    "name": "copied-origin",
+    "input": {
+      "claim": "c",
+      "sources": [
+        {
+          "claim": "c",
+          "origin": "a",
+          "relation": "support"
+        },
+        {
+          "claim": "c",
+          "origin": "a",
+          "relation": "support"
+        }
+      ]
+    },
+    "expected": {
+      "status": "SUPPORTED",
+      "independent_origins": 1
+    }
+  },
+  {
+    "name": "conflicting",
+    "input": {
+      "claim": "c",
+      "sources": [
+        {
+          "claim": "c",
+          "origin": "a",
+          "relation": "support"
+        },
+        {
+          "claim": "c",
+          "origin": "b",
+          "relation": "contradict"
+        }
+      ]
+    },
+    "expected": {
+      "status": "CONFLICT",
+      "independent_origins": 1
+    }
+  },
+  {
+    "name": "empty",
+    "input": {
+      "claim": "c",
+      "sources": []
+    },
+    "expected": {
+      "status": "INSUFFICIENT",
+      "independent_origins": 0
+    }
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "lab_id": "R08",
+  "week": 32,
+  "title": "Bảo vệ evaluator và dữ liệu xác nhận",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    4,
+    7,
+    9
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/runtime-boundaries.md",
+    "modules/statistical-reliability.md",
+    "labs/specifications.md"
+  ]
+}

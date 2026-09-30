@@ -1,0 +1,42 @@
+[
+  {
+    "name": "supported-unit",
+    "input": {
+      "text": "12 triệu đồng"
+    },
+    "expected": {
+      "status": "OK",
+      "value": 12000000,
+      "unit": "đồng"
+    }
+  },
+  {
+    "name": "transfer-unit",
+    "input": {
+      "text": "2 tỷ đồng"
+    },
+    "expected": {
+      "status": "OK",
+      "value": 2000000000,
+      "unit": "đồng"
+    }
+  },
+  {
+    "name": "missing-header",
+    "input": {
+      "text": "12"
+    },
+    "expected": {
+      "status": "AMBIGUOUS"
+    }
+  },
+  {
+    "name": "outside-grammar",
+    "input": {
+      "text": "1,2 triệu đồng"
+    },
+    "expected": {
+      "status": "AMBIGUOUS"
+    }
+  }
+]

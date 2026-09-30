@@ -1,0 +1,34 @@
+{
+  "source": "curriculum.json",
+  "scope": "Conceptual diagrams, not runtime progress or performance measurements",
+  "art": [
+    {
+      "name": "08-learning-journey",
+      "title": "CornAgents.AI: hành trình 36 tuần",
+      "width": 1200,
+      "height": 572,
+      "desc": "Năm chặng: tuần 1–4 phép đo và toán; 5–14 nội tại LLM; 15–18 retrieval và tài liệu; 19–24 agent và capstone; 25–36 nghiên cứu và học. Motion chỉ minh họa hướng học."
+    },
+    {
+      "name": "08-learning-journey-mobile",
+      "title": "CornAgents.AI: hành trình 36 tuần, bản dọc",
+      "width": 600,
+      "height": 1190,
+      "desc": "Cùng năm chặng của lịch học, bố cục dọc để đọc trên màn hình nhỏ."
+    },
+    {
+      "name": "09-cornloop",
+      "title": "CornLoop: ba vòng và ba cửa",
+      "width": 1200,
+      "height": 790,
+      "desc": "Vòng nhiệm vụ và vòng học chịu quyền, quota, hủy, thu hồi, evaluator độc lập và duyệt bên ngoài model. G1 người học; G2 hệ thống; G3 bản cải tiến."
+    },
+    {
+      "name": "10-candidate-lifecycle",
+      "title": "Vòng đời bản cải tiến",
+      "width": 1200,
+      "height": 480,
+      "desc": "Candidate đến quarantine, eval độc lập, duyệt G3 rồi dùng trong phạm vi. Thiếu bằng chứng giữ riêng; sự cố cần rollback hoặc revoke."
+    }
+  ]
+}

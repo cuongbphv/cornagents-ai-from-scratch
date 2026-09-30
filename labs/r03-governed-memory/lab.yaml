@@ -1,0 +1,32 @@
+{
+  "lab_id": "R03",
+  "week": 27,
+  "title": "Bộ nhớ có nguồn, thời hạn và quyền đọc",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    4,
+    5,
+    9
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/runtime-boundaries.md",
+    "modules/evidence-and-memory.md",
+    "labs/specifications.md"
+  ]
+}

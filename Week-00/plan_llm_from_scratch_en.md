@@ -1,8 +1,23 @@
 # From Transformer Internals to an Agentic SDLC & Graph Engineering: An 18-Week LLM Mastery Roadmap
 
+> Status (2026-09-30): this document retains the earlier 18-week schedule. The current proposed CornAgents.AI roadmap (24-week core + 12-week research extension), status limits, and mapping to existing Week folders are in the [Vietnamese roadmap](plan_llm_from_scratch_vi.md). This English document has not been synchronized with the 36-week curriculum. Timing, hardware and price figures below are historical references, not newly verified measurements or guarantees.
+
 > This is a personal academic, research-only, non-commercial project. This document references open sources only (public GitHub repos, open-access papers, official tool documentation, verified open-license datasets). See [CLAUDE.md](../CLAUDE.md).
 >
 > If you are unsure about your foundations, self-assess first with [prerequisites_en.md](prerequisites_en.md) (Vietnamese: [prerequisites_vi.md](prerequisites_vi.md)). It maps each background area (Python, DSA, ML basics, data science, OCR/vision, big data, DAG, design patterns, system design) to the weeks that need it, with verified open-license learning sources.
+
+## Fast-track map (18 weeks)
+
+![Four phases of the 18-week fast-track](../docs/diagrams/02-three-phases.svg)
+
+The week numbers in this image apply to the fast-track retained in this document. Use the [Vietnamese roadmap](plan_llm_from_scratch_vi.md) for the main 36-week curriculum.
+
+<details>
+<summary>Pipeline-to-week mapping for this fast-track</summary>
+
+![Pipeline mapped to the 18-week schedule](../docs/diagrams/05-pipeline-weeks.svg)
+
+</details>
 
 ## TL;DR
 - The roadmap is achievable in ~4-4.5 months part-time (10-15 hrs/week), with the material spread evenly across 18 weeks so no single week is overloaded. Weeks 1-3 build the math and learning-theory foundation from the textbook shelf (linear algebra, calculus, probability, optimization, ERM and generalization; NumPy only). Weeks 4-10 build and pretrain a GPT-2-class model from scratch (open-source repos micrograd/makemore/nanoGPT/nanochat + `train-llm-from-scratch` + open papers; instruction fine-tuning and alignment are now two separate weeks). Weeks 11-14 do applied RAG and QLoRA/MLX fine-tuning. Weeks 15-18 build an agentic SDLC assistant, including a dedicated **Graph Engineering** week (knowledge graph as shared memory for multi-agent systems, per the documents in `docs/`). The hard constraint is your 8GB RTX 3070 Ti, it is excellent for learning-scale from-scratch coding and 7B-8B QLoRA fine-tuning, but full GPT-2 pretraining and any 13B+ work should go to cheap cloud GPUs.
@@ -11,7 +26,7 @@
 
 ## Key Findings
 
-**The roadmap's spine is public open-source repositories and open-access papers.** Karpathy's from-scratch repo chain (`micrograd`, then `makemore`, then `nanoGPT`, then `llm.c`) covers the full path from backprop to GPT-2 pretraining; open papers (Attention Is All You Need, GPT-2, LoRA, DPO...) are the primary theory sources; *The Annotated Transformer* (Harvard NLP) is the annotated paper implementation. The FareedKhan-dev repo extends beyond pretraining to a full from-scratch alignment suite (from Base to SFT, Reward Model, PPO/DPO and then GRPO) in pure PyTorch on real datasets (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
+**The roadmap's spine is public open-source repositories and open-access papers.** Karpathy's from-scratch repo chain (`micrograd`, then `makemore`, then `nanoGPT`, then `llm.c`) covers the full path from backprop to GPT-2 pretraining; open papers (Attention Is All You Need, GPT-2, LoRA, DPO...) are the primary theory sources; *The Annotated Transformer* (Harvard NLP) is the annotated paper implementation. The FareedKhan-dev repo extends beyond pretraining to a full from-scratch alignment suite (SFT, direct preference optimization and separate RL branches) in pure PyTorch on real datasets (Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K).
 
 **Karpathy's open-repo ecosystem evolved in a way that directly helps you.** In October 2025 he released **nanochat** (`github.com/karpathy/nanochat`), a ~8,000-line full-stack ChatGPT-clone pipeline that runs from tokenizer through pretrain, midtrain, SFT and GRPO to a web UI: the intended capstone of his still-in-development LLM101n course. As of mid-2026 Karpathy joined Anthropic. Per the nanochat repo, "you can train your own GPT-2 capability LLM (which cost ~$43,000 to train in 2019) for only $48 (~2 hours of 8×H100 GPU node)"; the full `speedrun.sh` takes ~3 hours and "on a spot instance, the total cost can be closer to ~$15" (the 8×H100 node "is costing us about ~$24/hr"). So for you nanochat is primarily a *reading/forking* reference and an optional cloud capstone, not local work.
 
@@ -109,8 +124,8 @@ These three weeks follow the chapter order of the two main textbooks on the shel
 - *Deliverable:* An instruction-following mini-model you can chat with; notes on full FT vs. LoRA.
 - *Time:* ~10-12 hrs.
 
-**Week 10: Intro to alignment: from SFT through Reward Model and DPO/PPO to GRPO (FareedKhan + open papers).**
-- *Objectives:* Understand the alignment pipeline (SFT, then reward model, then PPO/DPO, then GRPO) conceptually and run at least one stage from scratch. (Split out of the old Week 9 to reduce pressure.)
+**Week 10: Intro to alignment: SFT, DPO and RL branches (FareedKhan + open papers).**
+- *Objectives:* Distinguish SFT, direct DPO without a separate reward model, and the RM → PPO branch. GRPO is an optimizer; RLVR describes verifiable rewards. Run one small training stage from scratch. (Split out of the old Week 9 to reduce pressure.)
 - *Sources:* FareedKhan-dev/train-llm-from-scratch `src/post_training/` (SFT/RM/PPO/DPO/GRPO in pure PyTorch on Alpaca, Dolly, Anthropic HH-RLHF, UltraFeedback, GSM8K); the DPO paper (arXiv 2305.18290), InstructGPT/RLHF (arXiv 2203.02155), and GRPO in the DeepSeekMath paper (arXiv 2402.03300).
 - *Task:* Read through the SFT/RM/DPO structure; run one alignment stage (start with SFT or DPO) scaled-down from the FareedKhan repo.
 - *Hardware:* 3070 Ti for the scaled-down stage; cloud if you push to larger bases or full PPO/GRPO (the FareedKhan dev box used 2×H100 with DDP + bf16, replicate scaled-down or rent).

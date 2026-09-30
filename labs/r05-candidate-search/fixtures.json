@@ -1,0 +1,62 @@
+[
+  {
+    "name": "allowed-edit",
+    "input": {
+      "candidate": {
+        "edits": [
+          "parser.py"
+        ]
+      },
+      "allowed_paths": [
+        "parser.py"
+      ]
+    },
+    "expected": {
+      "status": "ELIGIBLE_FOR_DEVELOPMENT"
+    }
+  },
+  {
+    "name": "grader-edit",
+    "input": {
+      "candidate": {
+        "edits": [
+          "grader.py"
+        ]
+      },
+      "allowed_paths": [
+        "parser.py"
+      ]
+    },
+    "raises": "PermissionError"
+  },
+  {
+    "name": "hidden-answers",
+    "input": {
+      "candidate": {
+        "edits": [
+          "parser.py"
+        ],
+        "reads_hidden_answers": true
+      },
+      "allowed_paths": [
+        "parser.py"
+      ]
+    },
+    "raises": "PermissionError"
+  },
+  {
+    "name": "expand-tools",
+    "input": {
+      "candidate": {
+        "edits": [
+          "parser.py"
+        ],
+        "adds_tools": true
+      },
+      "allowed_paths": [
+        "parser.py"
+      ]
+    },
+    "raises": "PermissionError"
+  }
+]

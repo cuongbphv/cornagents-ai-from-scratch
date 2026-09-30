@@ -7,7 +7,7 @@
 ## 1. Bản đồ pipeline: thuộc lòng trước, chi tiết sau
 
 ```
-Pretrain → (Midtrain) → SFT → Reward Model → PPO / DPO → GRPO/RLVR
+Pretrain → (Midtrain tùy chọn) → SFT → {DPO trực tiếp | RM → PPO}; GRPO/RLVR là nhánh theo mục tiêu và reward
 ```
 
 Pretrain là đoán token kế (Tuần 8): model biết *ngôn ngữ*, chưa biết *nghe lời*. SFT là instruction FT (Tuần 9): bắt chước demonstration. RM rồi PPO, hoặc DPO, học từ *so sánh cặp* thay vì demonstration, vì "câu nào hay hơn" dễ gán nhãn hơn "viết câu hay". GRPO/RLVR là RL với reward kiểm chứng được (toán đúng/sai, test pass), nền của reasoning model. Midtrain (khái niệm nanochat, không có trong pipeline kinh điển) dạy format hội thoại/special token trước SFT.

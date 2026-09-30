@@ -1,0 +1,32 @@
+{
+  "lab_id": "R11",
+  "week": 35,
+  "title": "Duyệt đúng bản cải tiến, shadow và rollback",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    4,
+    9,
+    14
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/runtime-boundaries.md",
+    "labs/specifications.md",
+    "modules/promotion-and-revocation.md"
+  ]
+}

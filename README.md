@@ -1,307 +1,180 @@
-# LLM From Scratch - Lộ trình tự học 18 tuần
+# LLM From Scratch — CornAgents.AI
 
-**From math foundations and Transformer internals to an Agentic SDLC & Graph Engineering.**
----
-Từ nền tảng toán và nội tại Transformer đến Agentic SDLC và Graph Engineering.
+**Tự viết một mô hình nhỏ, hiểu vì sao nó chạy, rồi xây một trợ lý biết tìm nguồn, kiểm kết quả và học từ lỗi.**
 
-> **Tuyên bố / Disclaimer**
->
-> Đây là **dự án học thuật, nghiên cứu cá nhân, không thương mại hóa**. Toàn bộ nội dung (lộ trình, ghi chú, code skeleton, quiz) chỉ phục vụ mục đích học tập và nghiên cứu; không phải sản phẩm, không phải tư vấn pháp lý hay tài chính.
->
-> This is a **personal academic, research-only, non-commercial project**. All content (roadmap, notes, code skeletons, quizzes) exists solely for study and research; it is not a product and not legal or financial advice.
->
-> Repo chỉ tham chiếu **nguồn mở**: repo GitHub công khai, paper truy cập mở (arXiv/ACL), tài liệu chính thức của công cụ, nguồn chính phủ, và dataset có license mở đã xác minh (CC BY / CC0 / MIT / Apache 2.0 / BSD / ODC-By). Các nguồn thương mại, sau paywall, license hạn chế (non-commercial, research-only, cấm train/distill/redistribute) đã được loại bỏ. Xem [CLAUDE.md](CLAUDE.md) cho quy tắc đầy đủ.
+Bạn sẽ đi từ một phép nhân ma trận đến Transformer, từ một câu trả lời có nguồn đến một vòng nghiên cứu có thể chạy lại. Mỗi chặng để lại một sản phẩm: code do bạn hiểu, phép kiểm có chủ đích và báo cáo viết từ kết quả thật.
 
----
+<picture>
+  <source media="(max-width: 600px)" srcset="docs/diagrams/08-learning-journey-mobile.svg">
+  <img src="docs/diagrams/08-learning-journey.svg" alt="Hành trình 36 tuần: nền toán và phép đo, nội tại LLM, retrieval và tài liệu, agent và capstone, nghiên cứu và học có kiểm soát" width="1200">
+</picture>
+
+*Chuyển động minh họa hướng học, không phải tiến độ đã hoàn thành. [Xem bộ hình và bật/tắt motion](docs/diagrams/index.html) · [Bản đứng yên](docs/diagrams/08-learning-journey-static.svg).*
+
+> Dự án học thuật, nghiên cứu cá nhân. Dùng dữ liệu công khai hoặc giả lập theo [quy tắc repo](CLAUDE.md). Lịch chính gồm **36 tuần**. Các hình của lịch **18 tuần** nằm trong mục Fast-track để đối chiếu.
+
+**Bắt đầu:** [Chọn bài học](ENTRYPOINTS.md) · [Roadmap chi tiết](Week-00/plan_llm_from_scratch_vi.md) · [Portal học tập](report/index.html) · [Kiểm tra nền tảng](Week-00/prerequisites_vi.md)
 
 ## Mục lục
 
 1. [Đây là gì, dành cho ai](#1-đây-là-gì-dành-cho-ai)
 2. [Tư duy lộ trình: Pipeline](#2-tư-duy-lộ-trình-pipeline)
-3. [Bốn phase và bản đồ tuần](#3-bốn-phase-và-bản-đồ-tuần)
+3. [Các phase và bản đồ tuần](#3-các-phase-và-bản-đồ-tuần)
 4. [Map pipeline với tuần](#4-map-pipeline-với-tuần)
-5. [Từ GPT-2 đến trending 2026](#5-từ-gpt-2-đến-trending-2026)
+5. [Chủ đề nâng cao và cách chọn](#5-chủ-đề-nâng-cao-và-cách-chọn)
 6. [Cấu trúc repository](#6-cấu-trúc-repository)
 7. [Cách dùng](#7-cách-dùng)
 8. [Phần cứng và quyết định cloud](#8-phần-cứng-và-quyết-định-cloud)
 9. [CornAgents.AI là gì](#9-cornagentsai-là-gì)
-10. [Nguồn lõi (open-access)](#10-nguồn-lõi-open-access)
+10. [Nguồn lõi và phạm vi đối chiếu](#10-nguồn-lõi-và-phạm-vi-đối-chiếu)
 11. [Kệ sách nền tảng](#11-kệ-sách-nền-tảng)
-
-Chi tiết tuần-by-tuần (mục tiêu, nguồn, deliverable, giờ ước lượng): [Week-00/plan_llm_from_scratch_vi.md](Week-00/plan_llm_from_scratch_vi.md) · [EN](Week-00/plan_llm_from_scratch_en.md).
-
----
 
 ## 1. Đây là gì, dành cho ai
 
-Repo này là lộ trình tự học có cấu trúc. Bạn bắt đầu bằng ba tuần nền tảng toán và lý thuyết học máy trích từ kệ sách giáo trình, rồi đi từ gọi API LLM sang tự build model (backprop, attention, GPT-2-class bằng pure PyTorch), tiếp theo là RAG và fine-tuning thực chiến, cuối cùng dựng framework cá nhân CornAgents.AI (agentic SDLC + knowledge graph), neo domain Finance Banking.
+Lộ trình dành cho người đã biết lập trình và muốn hiểu LLM từ cơ chế đến cách dùng trong một hệ thống có bằng chứng. Bạn không cần bắt đầu bằng một model lớn: một ví dụ nhỏ đủ để nhìn thấy gradient sai, attention nhìn trộm tương lai hoặc parser đọc nhầm đơn vị.
 
-Lịch học: 18 tuần, khoảng 10-15 giờ/tuần (~4-4.5 tháng bán thời gian). Ba tuần đầu là Phase 0 (nền tảng), có thể nén còn một tuần nếu bạn đã vững toán. Mỗi tuần có thư mục riêng: README, skeleton code, template ghi chú, quiz tự kiểm.
+| Bạn đang ở đâu? | Điểm vào phù hợp |
+|---|---|
+| Chưa vững Python, Git, terminal | Đọc [prerequisites](Week-00/prerequisites_vi.md), thực hành nền trước khi vào tuần 1 |
+| Biết lập trình, mới học AI | Lịch chính: **24 tuần nền + 12 tuần nghiên cứu** |
+| Đã có nền ML và systems | Dùng **fast-track 18 tuần**, đối chiếu năng lực còn thiếu trước phần nghiên cứu |
 
-Phù hợp nếu bạn đã gọi được LLM API và muốn hiểu phần dưới trước khi build hệ thống quanh model. Phong cách gần các lộ trình from-scratch kiểu [FareedKhan-dev/train-llm-from-scratch](https://github.com/FareedKhan-dev/train-llm-from-scratch) (đi từ Data sang Model rồi Align), nhưng repo này mở thêm Phase 2 (RAG/QLoRA) và Phase 3 (Agentic SDLC / Graph Engineering).
-
-Trước Tuần 1: tự đánh giá nền tảng ở [Week-00/prerequisites_vi.md](Week-00/prerequisites_vi.md). Chỉ vá các lỗ hổng checklist chỉ ra; phần toán và ML cơ bản đã có Tuần 1 đến 3 dạy lại có hệ thống.
-
----
+Nhịp 10–12 giờ/tuần là **giả định thiết kế**, không phải thời lượng đã đo. Bạn có thể chia một tuần thành nhiều buổi; đi tiếp khi giải thích và kiểm được bài, thay vì chạy theo ngày trên lịch.
 
 ## 2. Tư duy lộ trình: Pipeline
 
-18 tuần là lịch theo thời gian. Pipeline là khung tư duy end-to-end: cùng một hành trình, nhìn từ góc đi từ chữ ký dữ liệu đến hệ thống quanh model. Hai khung chạy song song, không thay thế nhau.
+Bạn sẽ lần lượt trả lời: **Dữ liệu có gì? Model tính gì? Học được gì? Câu trả lời dựa vào đâu? Agent được phép làm gì? Một thay đổi có thật sự tốt hơn không?**
 
-Một dòng (mở rộng từ ý tham chiếu FareedKhan + Phase 2-3 của repo này):
+`Dữ liệu → Toán → Autograd → Tokenizer/Transformer → Training → SFT/LoRA → Retrieval → Agent → Nghiên cứu → Kiểm bản cải tiến`
 
-`raw text → tokens → Transformer → next-token → base → SFT → RM → {PPO, DPO} → GRPO → eval/serve → RAG → Agent → Graph`
+Phép đo đi cùng mọi bước. Loss giảm chưa đủ chứng minh trả lời đúng; nhiều agent đồng ý chưa đủ chứng minh một phát biểu là thật. Mỗi kết luận cần nguồn hoặc phép kiểm phù hợp.
 
-<p align="center">
-  <img src="docs/diagrams/01-pipeline-journey.svg" alt="Pipeline end-to-end từ Data đến Graph" width="1000"/>
-</p>
+![Từ attention đến Transformer](docs/diagrams/03-attention-stack.svg)
+
+Sau phần nền, bạn tự giải thích được đường đi từ token đến logits, viết và gây lỗi một attention block, rồi dùng test để tìm lại lỗi đó.
+
+## 3. Các phase và bản đồ tuần
+
+| Chặng | Tuần chính | Bạn làm được gì khi hoàn thành bài? | Sản phẩm để tự kiểm |
+|---|---|---|---|
+| **0 · Nền toán và phép đo** | 1–4 | Xác định task, lập baseline, hiểu ma trận và gradient | Manifest, regression NumPy, gradient check |
+| **1 · Hiểu nội tại LLM** | 5–14 | Tự viết autograd, attention, tiny Transformer; hiểu training và alignment | Code lõi, causal/cache tests, data card, báo cáo model nhỏ |
+| **2 · Retrieval và tài liệu** | 15–18 | Tìm đoạn nguồn, kiểm số/đơn vị, đo serving | So sánh retrieval, evidence spans, báo cáo lỗi và tài nguyên |
+| **3 · Agent và capstone nền** | 19–24 | Giới hạn tools/quyền/budget; kiểm retry, recovery và evaluator | Failure tests, capstone có đối chứng, bảo vệ bài không dùng AI |
+| **4 · Nghiên cứu và học có kiểm soát** | 25–36 | Đề nghị lesson/candidate, đánh giá chuyển giao và thu hồi khi cần | R01–R12, protocol nghiên cứu, evidence package và rollback drill |
+
+Mở [mục lục 36 tuần](ENTRYPOINTS.md) để vào từng bài. Mỗi tuần có mục tiêu, lý thuyết, starter, protocol, báo cáo và quiz.
 
 <details>
-<summary>Bảng màu stage (fallback)</summary>
+<summary><b>Fast-track 18 tuần: hình lộ trình và map tuần</b></summary>
 
-| Màu | Stage |
-|-----|--------|
-| Teal | Data / Token |
-| Blue | Model |
-| Amber | Pretrain / SFT |
-| Coral | Align |
-| Green | Eval / Serve |
-| Cyan | RAG |
-| Purple | Agent |
-| Indigo | Graph |
+![Hành trình các thành phần của lịch gốc](docs/diagrams/01-pipeline-journey.svg)
 
-Chi tiết palette: [docs/diagrams/PALETTE.md](docs/diagrams/PALETTE.md).
+![Bốn phase của lịch 18 tuần](docs/diagrams/02-three-phases.svg)
+
+![Map pipeline với 18 tuần fast-track](docs/diagrams/05-pipeline-weeks.svg)
+
+Hình giữ nguyên lịch rút gọn của repo: toán → deep internals → ứng dụng → agent/graph. Lịch chính dành thêm thời gian cho baseline, evidence, Document AI và nghiên cứu. Hai lịch có số tuần khác nhau; dùng [bảng quy đổi](Week-00/plan_llm_from_scratch_vi.md#fast-track-18-tuần-giữ-thư-mục-bổ-sung-theo-năng-lực) để đối chiếu.
 
 </details>
 
----
-
-## 3. Bốn phase và bản đồ tuần
-
-<p align="center">
-  <img src="docs/diagrams/02-three-phases.svg" alt="Bốn phase: Nền tảng toán và ML, Deep Internals, RAG Fine-Tuning, Agentic SDLC" width="1000"/>
-</p>
-
-| Phase | Tuần | Nội dung ngắn |
-|-------|------|----------------|
-| 0 · Nền tảng toán & ML | 1-3 | Đại số tuyến tính, giải tích, xác suất, tối ưu, lý thuyết học; chỉ NumPy |
-| 1 · Deep Internals | 4-10 | Build và pretrain model cỡ GPT-2 from scratch |
-| 2 · RAG & Fine-Tuning | 11-14 | QLoRA, local serve, RAG + đo bằng RAGAS |
-| 3 · Agentic SDLC | 15-18 | CornAgents.AI: agents + knowledge graph |
-
-### Phase 0 - Nền tảng toán và ML (Tuần 1-3)
-
-Ba tuần dựng nền từ kệ sách giáo trình ([docs/books/README.md](docs/books/README.md)), theo đúng thứ tự chương của *Mathematics for Machine Learning* và *Machine Learning cơ bản*. Chưa có PyTorch, chỉ NumPy, để toán không bị che bởi thư viện.
-
-| Tuần | Chủ đề |
-|------|--------|
-| 1 | Đại số tuyến tính và hình học giải tích: ánh xạ tuyến tính, norm, góc, phép chiếu, trị riêng, SVD |
-| 2 | Giải tích vector, xác suất, tối ưu hóa: gradient, chain rule, tiên đề xác suất, Bayes, luật số lớn, CLT, MLE, gradient descent |
-| 3 | Nền tảng ML và lý thuyết học: khung học thống kê, ERM, error decomposition, PAC, VC-dimension, validation, linear và logistic regression bằng NumPy |
-
-Sau phase này bạn đọc được `nn.Linear` như một ánh xạ tuyến tính, hiểu cross-entropy là negative log-likelihood, và biết vì sao không được chọn model bằng test set. Mỗi ghi chú lý thuyết trích dẫn sách kèm số trang in.
-
-### Phase 1 - Deep Internals (Tuần 4-10)
-
-Build và pretrain model cỡ GPT-2 from scratch.
-
-| Tuần | Chủ đề |
-|------|--------|
-| 4 | PyTorch core: từ NumPy (Tuần 1-3) sang tensor, autograd, training loop; viết lại logistic regression rồi lên MLP |
-| 5 | Backprop from scratch (micrograd) + mental model transformer |
-| 6 | Tokenization, embeddings, attention from scratch |
-| 7 | Lắp ráp và chạy full GPT model |
-| 8 | Pretraining: training loop + một lần chạy GPT-2 thật (cloud) |
-| 9 | Instruction fine-tuning (classification + instruction-following + LoRA) |
-| 10 | Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO |
-
-Sau phase này bạn tự viết được attention stack, lắp GPT generate được text, chạy pretrain (local validate + cloud thật), làm SFT/LoRA, và chạy được một stage alignment scaled-down.
-
-Mental model Phase 1 - attention stack tối giản:
-
-<p align="center">
-  <img src="docs/diagrams/03-attention-stack.svg" alt="Attention stack: Embed, Causal MHA, Transformer block, LM head" width="540"/>
-</p>
-
-| Bước | Thành phần |
-|------|------------|
-| 1 | Embed + positional encoding |
-| 2 | Causal multi-head attention |
-| 3 | Transformer block (N×) |
-| 4 | LM head → next-token logits |
-
-Alignment (neo FareedKhan + Tuần 10):
-
-<p align="center">
-  <img src="docs/diagrams/04-alignment-flow.svg" alt="Alignment theo thứ tự SFT, Reward Model, DPO/PPO, GRPO" width="880"/>
-</p>
-
-`SFT → Reward Model → DPO / PPO → GRPO`
-
-### Phase 2 - Applied: RAG & Fine-Tuning (Tuần 11-14)
-
-Chuyển từ code from-scratch sang tooling production.
-
-| Tuần | Chủ đề |
-|------|--------|
-| 11 | QLoRA thực chiến (Unsloth, 7B-8B trên ~8GB VRAM) |
-| 12 | Mac/MLX fine-tuning + local inference (Ollama, LM Studio) |
-| 13 | RAG pipeline end-to-end trên tài liệu domain của bạn |
-| 14 | Advanced RAG: hybrid search, reranking, RAGAS, tracing |
-
-Bạn fine-tune được 7B-8B bằng QLoRA, dựng stack inference local, rồi có RAG baseline và nâng cấp + đo bằng RAGAS.
-
-### Phase 3 - Agentic SDLC: CornAgents.AI (Tuần 15-18)
-
-Xây multi-agent software-delivery assistant, neo domain của bạn.
-
-| Tuần | Chủ đề |
-|------|--------|
-| 15 | Nền tảng agentic: 5 tầng engineering, Claude Agent SDK, MCP, loop đo được |
-| 16 | Map LLM → các giai đoạn SDLC; multi-agent graph (5 workflow patterns) |
-| 17 | Graph Engineering: knowledge graph làm shared memory / grounding / world model |
-| 18 | Capstone: một workflow end-to-end + evaluation & observability |
-
-Bạn nắm năm tầng engineering từ Prompt đến Graph, dựng agent graph SDLC, chạy KG pipeline, và ship một workflow có eval.
-
----
-
 ## 4. Map pipeline với tuần
 
-| Stage pipeline | Tuần neo chính |
-|----------------|----------------|
-| Nền tảng toán & ML | W1-W3 |
-| Data / Token / Model | W4-W7 |
-| Pretrain | W8 |
-| Align (SFT → RM → DPO/PPO → GRPO) | W9-W10 |
-| Eval / Serve | W8, W11-W12 (+ eval xuyên suốt) |
-| RAG | W13-W14 |
-| Agent | W15-W16 |
-| Graph | W17-W18 |
+| Nội dung | Lịch chính | Tài liệu fast-track tái sử dụng |
+|---|---|---|
+| Task, môi trường, baseline | 1–2 | Prerequisites; bài mới trong lịch chính |
+| Toán, autograd, MLP | 3–6 | Week-01–05 |
+| Tokenizer, attention, Transformer | 7–10 | Week-06–07 |
+| Dữ liệu và training | 11–12 | Week-08 |
+| SFT/LoRA và preference learning | 13–14 | Week-09–12 |
+| Retrieval, Document AI, serving | 15–18 | Week-12–14 và bài mới |
+| Bounded agent, durable workflow | 19–22 | Week-15–16 và failure tests |
+| Capstone nền | 23–24 | Week-18; graph Week-17 tùy bài toán |
+| Nghiên cứu và learning | 25–36 | [12 lab](labs/README.md) và [tri thức theo chủ đề](modules/README.md) |
 
-<p align="center">
-  <img src="docs/diagrams/05-pipeline-weeks.svg" alt="Map từng stage pipeline sang tuần W4-W18" width="960"/>
-</p>
+## 5. Chủ đề nâng cao và cách chọn
 
----
+RoPE, GQA, KV cache, quantization, graph, multi-agent hay tối ưu prompt đều có chỗ dùng. Học khi bài toán cho thấy bạn cần hiểu thêm, và so với một bản đối chứng đơn giản trước khi thêm lớp mới. [Advanced topics](Week-00/advanced_topics_vi.md) giữ phần đọc sâu theo lịch fast-track.
 
-## 5. Từ GPT-2 đến trending 2026
-
-Lộ trình Phase 1 dựng model cỡ GPT-2 (kiến trúc ~2019). Model hiện đại đổi nhiều chi tiết (RoPE, GQA/MLA, MoE, …). Repo không nhồi chúng vào tuần nền; chúng nằm trong appendix [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md), neo hai chiều với từng tuần.
-
-Cách dùng: đừng đọc appendix một mạch. Mở đúng mục theo bảng dưới (tóm tắt từ bảng điều hướng chính thức trong file đó). Tuần 1-5 cố ý không có mục nâng cao.
-
-| Cụm chủ đề (từ appendix) | Ví dụ mục | Đọc khi nào (tuần) |
-|-------------------------|-----------|---------------------|
-| Kiến trúc hiện đại | RoPE, RMSNorm, SwiGLU, GQA/MLA, MoE | W6 (A1-A6, C1-C2, E); W7 (A7, B1-B2) |
-| Inference | KV cache, sampling, GGUF/quant | W7 (B1-B2); W11 (B4, H); W12 (B1, B3, B4/GGUF); W13 (B2) |
-| Training / scale / eval | dynamics, DDP, bpb/CORE | W8 (D, D1-D2, F, H) |
-| Alignment & reasoning | pipeline SFT→…; DPO, GRPO | W9 (G sơ đồ); W10 (G đầy đủ) |
-| Agentic & graph | 5 layers, loop, KG | W15-W18 (I1-I5); W14/W18 eval (H) |
-
-Chi tiết từng mục A-I và "vì sao đọc lúc này": mở trực tiếp [advanced_topics_vi.md](Week-00/advanced_topics_vi.md).
-
----
+Alignment có các nhánh khác nhau: DPO học trực tiếp từ preference pairs, không cần reward model riêng; RM → PPO là nhánh RLHF. GRPO là thuật toán, RLVR mô tả reward kiểm chứng được. Đọc [ghi chú alignment](Week-10/01_theory_notes.md) và [nguồn DPO](docs/papers/research_learning_sources.md) để phân biệt.
 
 ## 6. Cấu trúc repository
 
-```
-Week-00/          Lộ trình đầy đủ (VI + EN), prerequisites, advanced topics,
-                  và guide dataset Finance Banking (chỉ license mở đã xác minh)
-Week-01..03/      Phase 0: nền tảng toán và ML (NumPy), trích dẫn sách theo trang
-Week-04..18/      Mỗi tuần: README, skeleton code, template ghi chú, quiz
-docs/             Tài liệu Phase 3:
-                    - Graph-Engineering-Athropic-Playbook.pdf
-                    - Graph-Engineering-Athropic-Karpathy-Loop.pdf
-                    - 5-layers-multi-agent.jpg
-                  diagrams/ - infographic SVG cho README (palette + SMIL nhẹ)
-                  papers/ - kệ paper map theo tuần (PDF CC-BY/CC0 local + link-only;
-                    xem papers/README.md; licenses đã kiểm 2026-08-12)
-                  books/ - catalog 25 sách mở map chương sang tuần
-                    (README.md; license kiểm 2026-09-04; PDF không có trong repo)
-books/            PDF sách giữ local, đã gitignore (xem docs/books/README.md)
-report/           Portal web (bản online: https://cuongbphv.github.io/cornagents-ai-from-scratch/,
-                  deploy bằng .github/workflows/pages.yml): roadmap 4 phase, checklist theo tuần, ghi chú lý thuyết
-                  nhúng (thu gọn), quiz flip-card, kệ sách
-                  (mở report/index.html; tiến độ lưu local trong trình duyệt)
-scripts/          quiz_bank.json (nguồn sự thật, 304 câu (36 câu nâng cao))
-                  generate_quiz.py (sinh lại quiz Week-XX + data portal)
-                  build_theory_data.py (nhúng theory notes vào portal)
+```text
+Week-00/               Roadmap, prerequisites, chủ đề nâng cao
+Week-01/ … Week-18/    Các bài fast-track gốc
+tracks/core-24/        Tuần 1–18 của lịch chính
+Week-19/ … Week-36/    Tuần 19–36 của lịch chính
+ENTRYPOINTS.md         Mục lục vào đúng bài của từng lịch
+curriculum.json        Metadata 36 tuần
+docs/curriculum/       Phân bổ chương trình và hướng dẫn triển khai
+docs/books/, papers/   Catalog sách, paper và nguồn tham khảo
+docs/diagrams/         Diagram lịch chính, motion và hình fast-track gốc
+modules/               Tri thức nghiên cứu, memory, eval và runtime
+labs/                  12 lab: starter, reference, fixtures, tests
+research/              Giả thuyết và protocol nghiên cứu
+evaluation/            Protocol, mẫu hồ sơ và kết quả kiểm offline
+benchmarks/            Thiết kế benchmark và fixture development
+report/                Portal bài học, quiz và tiến độ
 ```
 
----
+Các thư mục lịch chính và fast-track được giữ riêng để tránh mở nhầm bài cùng số tuần. [ENTRYPOINTS](ENTRYPOINTS.md) là cửa vào thống nhất.
 
 ## 7. Cách dùng
 
-1. Nền tảng: [Week-00/prerequisites_vi.md](Week-00/prerequisites_vi.md) ([EN](Week-00/prerequisites_en.md)) - vá gap, không học tuần tự toàn bộ. Toán và ML cơ bản thì học theo Tuần 1 đến 3, mỗi tuần có lab NumPy và trích dẫn sách theo trang ([docs/books/README.md](docs/books/README.md)).
-2. Đọc plan: [Week-00/plan_llm_from_scratch_vi.md](Week-00/plan_llm_from_scratch_vi.md) (hoặc [EN](Week-00/plan_llm_from_scratch_en.md)) - mục tiêu / nguồn / deliverable từng tuần.
-3. Một tuần một folder: implement skeleton trước, rồi đối chiếu nguồn canonical.
-4. Tự kiểm: làm `Week-XX/quiz.md` trước khi mở `quiz_solution.md`. Quiz sinh từ `scripts/quiz_bank.json`:
-   ```bash
-   python scripts/generate_quiz.py            # regenerate everything
-   python scripts/generate_quiz.py --week 6   # one week only
-   ```
-5. Nâng cao đúng lúc: [Week-00/advanced_topics_vi.md](Week-00/advanced_topics_vi.md) ([EN](Week-00/advanced_topics_en.md)) - bảng neo từ tuần sang mục, mỗi mục có nguồn paper hoặc code cụ thể; mỗi `Week-XX/README.md` có block "Bổ sung nâng cao" trỏ ngược lại. Quiz mỗi tuần có phần nâng cao riêng.
-6. Dataset domain: [Week-00/datasets_finance_banking.md](Week-00/datasets_finance_banking.md) - chỉ license mở đã xác minh tại ngày tra cứu. Điểm kiến trúc chính: kiến thức quy định thuộc RAG và knowledge graph, không nhồi vào trọng số fine-tune. Fine-tune cho hành vi, format, thuật ngữ song ngữ. Kiểm lại license lúc dùng.
-7. Theo dõi tiến độ: mở [`report/index.html`](report/index.html).
-8. Claude như co-learner: tự implement trước rồi nhờ review; dán loss curve / stack trace để debug; rubber-duck kiến trúc Phase 3.
+1. Đọc mục tiêu tuần, dự đoán kết quả và viết protocol trước khi chạy.
+2. Tự làm starter hoặc code lõi. Nhờ AI gợi ý phản ví dụ, giải thích lỗi và review sau khi bạn đã thử.
+3. Chủ động gây lỗi: bỏ causal mask, đổi đơn vị, dùng nguồn hết hiệu lực hoặc retry sau khi mất ack.
+4. Đo bằng phép kiểm phù hợp; lưu cả lượt thất bại và kết quả không cải thiện.
+5. Làm quiz, viết báo cáo bằng output thật, rồi tự bảo vệ bài bằng một biến thể mới.
 
----
+**Ba cửa cần phân biệt:** G1 kiểm bạn có hiểu và tự làm được; G2 kiểm outcome của hệ thống; G3 kiểm đúng bản cải tiến trước khi dùng. Tick checklist trong [portal](report/index.html) chỉ giúp ghi tiến độ.
+
+Để kiểm các ví dụ tham chiếu offline:
+
+```bash
+python3 scripts/run_learning_checks.py
+```
+
+[Báo cáo hiện có](evaluation/offline_check_report.json) ghi **23 test đạt, 44 tình huống fixture công khai**. Kết quả này kiểm các ví dụ hữu hạn; chưa đo chất lượng model thật, kết quả học của bạn hoặc năng lực agent trong production. Mẫu báo cáo của bài học giữ trống tới khi bạn chạy.
 
 ## 8. Phần cứng và quyết định cloud
 
-| Máy | Vai trò |
-|-----|---------|
-| RTX 3070 Ti (8GB) | Code from-scratch, train nhỏ, QLoRA 7B-8B |
-| MacBook Pro 24GB (MLX) | Local inference model quantized 7B-14B; LoRA nhỏ |
-| Cloud (RunPod / Lambda / Colab) | Pretrain GPT-2 một lần (~$15-35 theo ngữ cảnh plan) và fine-tune nặng hơn |
+Bắt đầu bằng CPU, model nhỏ và workload dễ đo. RTX 3070 Ti hoặc Mac có thể là môi trường thực hành tùy bài; quyết định thuê cloud sau khi có smoke test, peak memory, throughput và budget thực tế.
 
-Quy tắc ngón tay: khi chạy local dự phóng vượt ~24 giờ, hoặc OOM ở batch size 1, thì chuyển sang GPU thuê.
+<details>
+<summary><b>Tham khảo luồng cân nhắc local và cloud</b></summary>
 
-<p align="center">
-  <img src="docs/diagrams/06-cloud-decision.svg" alt="Quyết định local hoặc cloud GPU" width="760"/>
-</p>
+![Luồng cân nhắc local và cloud](docs/diagrams/06-cloud-decision.svg)
 
-Chi tiết ước lượng giờ / VRAM từng tuần: xem plan VI.
+Mốc 24 giờ trong hình là quy tắc cân nhắc của lịch cũ, không phải giới hạn kỹ thuật hoặc thời gian train đã đo. Bạn chọn ngưỡng theo ngân sách và thời gian của mình. Dung lượng weights không đại diện toàn bộ RAM/VRAM: còn activations, optimizer, gradients, cache và runtime overhead. Repo không cam kết model lớn vừa máy hoặc giá cloud cố định.
 
----
+</details>
 
 ## 9. CornAgents.AI là gì
 
-CornAgents.AI là khái niệm của bạn, không phải sản phẩm: tên framework agentic-SDLC cá nhân bạn dựng ở Phase 3 trên Claude Agent SDK + MCP + LangGraph/CrewAI, kèm lớp knowledge graph (Tuần 17) cho shared memory và kiểm chứng neo. Artifact ứng dụng (RAG corpus, dataset fine-tune, capstone) neo domain Finance Banking, giữ generic. Chọn vùng nghiệp vụ bạn biết rõ nhất.
+CornAgents.AI là hướng xây trợ lý nghiên cứu kỹ thuật từ những cơ chế bạn đã học: hiểu câu hỏi, tìm nguồn, lập giả thuyết, chạy thí nghiệm trong phạm vi và đề nghị cải tiến có thể kiểm tra.
 
-Tiến trình kỹ thuật năm tầng:
+![Năm tầng engineering của hệ thống agent](docs/diagrams/07-five-layers.svg)
 
-<p align="center">
-  <img src="docs/diagrams/07-five-layers.svg" alt="Năm tầng engineering: Prompt đến Graph" width="580"/>
-</p>
+![CornLoop: ba vòng nhiệm vụ, học và kiểm soát; ba cửa G1, G2, G3](docs/diagrams/09-cornloop.svg)
 
-1. Prompt engineering  
-2. Context engineering  
-3. Harness engineering  
-4. Loop engineering  
-5. Graph engineering  
+[CornLoop](modules/research-contracts.md) nối ba vòng: nghiên cứu một nhiệm vụ, học từ trải nghiệm, và kiểm soát thay đổi. Agent được đề nghị lesson hoặc candidate; quyền thực thi, evaluator và quyết định phát hành cần được kiểm bên ngoài model.
 
-Sơ đồ gốc: [`docs/5-layers-multi-agent.jpg`](docs/5-layers-multi-agent.jpg). Playbook Graph Engineering trong [`docs/`](docs/).
+![Vòng đời bản cải tiến: candidate, quarantine, eval độc lập, duyệt G3, dùng có giới hạn và rollback hoặc revoke](docs/diagrams/10-candidate-lifecycle.svg)
 
----
+Bài nghiên cứu đầu tiên là [H1: lesson có điều kiện và phản ví dụ](research/hypotheses/H1.md), so với bộ nhớ trải nghiệm và bản tóm tắt cùng độ dài. Đây là giả thuyết để thử, chưa có kết quả chứng minh thắng. [CornBench-VI](benchmarks/cornbench_vi_rl/DESIGN.md) hiện là thiết kế benchmark; fixture nhỏ phục vụ phát triển, chưa đại diện tập đánh giá thực.
 
-## 10. Nguồn lõi (open-access)
+## 10. Nguồn lõi và phạm vi đối chiếu
 
-- Repo from-scratch mã nguồn mở: `karpathy/micrograd`, `karpathy/makemore`, `karpathy/nanoGPT`, `karpathy/nanochat`, `karpathy/llm.c`; `FareedKhan-dev/train-llm-from-scratch` (full alignment suite pure PyTorch). Kiểm file LICENSE của từng repo trước khi tái sử dụng code.
-- Paper truy cập mở: *Attention Is All You Need*, GPT-2, LoRA, QLoRA, DPO, InstructGPT và preprint liên quan trên arXiv / ACL Anthology; *The Annotated Transformer* (Harvard NLP).
-- Tài liệu chính thức công cụ: PyTorch, Hugging Face (PEFT/TRL, Ultra-Scale Playbook), LangChain, LlamaIndex, MLX, Ollama, NetworkX.
-- Anthropic (tài liệu/cookbook mở): Building Effective AI Agents, Claude Agent SDK, MCP, Knowledge Graph Construction Cookbook (claude-cookbooks).
-- Ghi chú Graph-Engineering (tổng hợp độc lập - xem cover page của từng PDF) và sơ đồ 5 tầng trong [docs/](docs/).
+Phần nền học cùng [micrograd](https://github.com/karpathy/micrograd), [makemore](https://github.com/karpathy/makemore), [nanoGPT](https://github.com/karpathy/nanoGPT), sách và paper được dẫn trong từng bài. Đọc code để hiểu, tự viết bản nhỏ để kiểm lại.
 
-Quy tắc nguồn đầy đủ: [CLAUDE.md](CLAUDE.md).
+Phần nghiên cứu đã được phân bố vào [tài liệu chương trình](docs/curriculum/README.md), [modules](modules/README.md), [đặc tả lab](labs/specifications.md), [protocol đánh giá](evaluation/protocols/confirmation.md) và [thiết kế benchmark](benchmarks/cornbench_vi_rl/DESIGN.md). [Catalog nguồn nghiên cứu](docs/papers/research_learning_sources.md) giữ URL sơ cấp và giới hạn sử dụng của từng nguồn.
 
----
+Nguồn tham khảo không tự xác nhận toàn bộ thiết kế CornAgents.AI. Catalog kế thừa chưa được kiểm lại toàn văn trong lần biên tập này; kiểm phiên bản và điều khoản khi dùng. Không lấy số của paper, ví dụ hoặc mô phỏng điền vào báo cáo chất lượng của dự án.
 
 ## 11. Kệ sách nền tảng
 
-Thư mục `books/` chứa 25 cuốn PDF do chủ repo tự tải từ trang tác giả, nhà xuất bản hoặc arXiv: giáo trình toán và lý thuyết học (MML, Vũ Hữu Tiệp, Durrett, Shalev-Shwartz, Tong Zhang, Shalizi, Mehlig, Murphy, Bishop, Boyd, MacKay), deep learning và NLP (Goodfellow, Prince, Fleuret, Nielsen, Jurafsky và Martin, Foundations of LLMs, Roberts và Yaida), IR, RL và đồ thị (IR-book, Sutton và Barto, Ma và Tang, Moitra). PDF chỉ giữ local và đã gitignore; repo chỉ chứa catalog [docs/books/README.md](docs/books/README.md) với link tải chính thức, điều khoản tại ngày tra cứu, và một bảng map chương sang tuần kèm số trang in. Ghi chú lý thuyết mỗi tuần có mục "Đọc thêm từ kệ sách".
+[Chọn sách và chương cần đọc](docs/books/README.md), rồi mở bài theo [roadmap](Week-00/plan_llm_from_scratch_vi.md). Không cần đọc hết một cuốn trước khi viết code: đọc đúng phần để giải thích công thức, kiểm lại bằng ví dụ và quay lại khi gặp câu hỏi mới.
 
----
-
-> *"The model is becoming a commodity. The system around it is where the real engineering lives now."*
+Số tuần trong catalog sách hiện theo fast-track. Đối chiếu bảng quy đổi khi học lịch chính; quyền đọc công khai không tự đồng nghĩa quyền tái phân phối hoặc đưa vào dữ liệu train.

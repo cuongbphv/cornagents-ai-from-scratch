@@ -1,0 +1,77 @@
+[
+  {
+    "name": "rank-one-update",
+    "input": {
+      "weights": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "left": [
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "right": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    "expected": {
+      "updated": [
+        [
+          4,
+          4
+        ],
+        [
+          6,
+          9
+        ]
+      ],
+      "base": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  {
+    "name": "wrong-dimensions",
+    "input": {
+      "weights": [
+        [
+          1,
+          0
+        ]
+      ],
+      "left": [
+        [
+          1,
+          2
+        ]
+      ],
+      "right": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    "raises": "ValueError"
+  }
+]

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CornAgents.AI — hành trình và CornLoop</title>
+<style>
+:root{color-scheme:light;--ink:#13263e;--muted:#52677f;--blue:#2563eb;--bg:#eaf0f8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif}main{max-width:1248px;padding:36px 24px 52px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:30px}.brand{font-size:20px;font-weight:700;color:#0d9488}h1{font-size:clamp(28px,4vw,44px);margin:10px 0 12px;letter-spacing:-1px}p{line-height:1.6;max-width:75ch;color:var(--muted)}a{color:var(--blue);text-underline-offset:4px}button{border:1px solid #b6c8e0;border-radius:12px;background:#fff;color:var(--ink);padding:12px 16px;white-space:nowrap;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #2563eb;outline-offset:4px}figure{margin:0 0 34px}img{display:block;width:100%;height:auto;border-radius:24px}figcaption{padding:14px 4px;display:flex;gap:18px;flex-wrap:wrap;font-size:16px;color:var(--muted)}footer{padding-top:12px;border-top:1px solid #c5d2e3;font-size:15px}@media(max-width:600px){main{padding:24px 12px}header{align-items:flex-start;flex-direction:column;gap:8px}button{width:100%}figure.wide{overflow:auto}figure.wide img{width:900px;max-width:none}figcaption{min-width:initial}h1{letter-spacing:-.4px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body><main>
+<header><div><div class="brand">CornAgents.AI</div><h1>Hiểu đường học. Nhìn rõ vòng kiểm.</h1><p>Từ code lõi đến nghiên cứu có bằng chứng. Các tuyến chuyển động chỉ minh họa luồng; chưa thể hiện kết quả học hoặc hiệu năng agent.</p><a href="../../README.md">Đọc README</a> · <a href="../../ENTRYPOINTS.md">Vào bài học</a></div><button type="button" id="motion-toggle" aria-pressed="true">Chuyển động: bật</button></header>
+<figure><picture><source media="(max-width: 600px)" data-art="08-learning-journey-mobile" srcset="08-learning-journey-mobile.svg"><img data-art="08-learning-journey" src="08-learning-journey.svg" width="1200" height="572" alt="Lịch chính 36 tuần gồm năm chặng, từ nền toán đến nghiên cứu và học có kiểm soát."></picture><figcaption>Hành trình 36 tuần <a href="08-learning-journey.svg">Mở hình</a><a href="08-learning-journey-static.svg">Bản đứng yên</a></figcaption></figure>
+<figure class="wide"><img data-art="09-cornloop" src="09-cornloop.svg" width="1200" height="790" alt="CornLoop có vòng nhiệm vụ, vòng học và vòng kiểm soát bên ngoài model. G1 kiểm người học, G2 kiểm hệ thống, G3 kiểm bản cải tiến."><figcaption>CornLoop: ba vòng và ba cửa <a href="09-cornloop.svg">Mở hình</a><a href="09-cornloop-static.svg">Bản đứng yên</a></figcaption></figure>
+<figure class="wide"><img data-art="10-candidate-lifecycle" src="10-candidate-lifecycle.svg" width="1200" height="480" alt="Candidate chờ trong quarantine, được đánh giá độc lập và duyệt đúng digest/scope trước khi dùng. Thiếu bằng chứng giữ riêng, sự cố cần rollback hoặc revoke."><figcaption>Vòng đời bản cải tiến <a href="10-candidate-lifecycle.svg">Mở hình</a><a href="10-candidate-lifecycle-static.svg">Bản đứng yên</a></figcaption></figure>
+<footer><p>Trên điện thoại, hình lộ trình dùng bố cục dọc; hai sơ đồ quy trình có thể cuộn ngang. Bộ <a href="PALETTE.md">diagram gốc 01–07</a> được giữ nguyên. Nội dung dựa trên <a href="../../curriculum.json">curriculum</a>, <a href="../../modules/research-contracts.md">CornLoop</a> và <a href="../../modules/promotion-and-revocation.md">promotion</a>.</p></footer>
+</main>
+<script>
+const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+const toggle = document.getElementById('motion-toggle');
+let moving = !preference.matches;
+function renderMotion(){document.querySelectorAll('[data-art]').forEach(el=>{const file=el.dataset.art+(moving?'':'-static')+'.svg';el.setAttribute(el.tagName==='SOURCE'?'srcset':'src',file);});toggle.setAttribute('aria-pressed',String(moving));toggle.textContent='Chuyển động: '+(moving?'bật':'tắt');}
+toggle.addEventListener('click',()=>{moving=!moving;renderMotion();});
+preference.addEventListener('change',event=>{moving=!event.matches;renderMotion();});
+renderMotion();
+</script>
+</body></html>

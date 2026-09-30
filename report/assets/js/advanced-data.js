@@ -105,12 +105,12 @@ window.ADVANCED_TOPICS = [
     id: "align", ix: "G", title: "Alignment & Reasoning đầy đủ", week: "Tuần 9-10",
     desc: "Base → aligned reasoning model.",
     body: `
-      <div class="formula mono">Pretrain → <b>Midtrain</b> → SFT → Reward Model → PPO/DPO → <b>GRPO/RLVR</b></div>
+      <div class="formula mono">Pretrain → SFT → {<b>DPO trực tiếp</b> | RM → PPO}; GRPO là nhánh theo reward</div>
       <ul>
         <li><b>Midtrain</b> (nanochat): bước <i>không có</i> trong pipeline GPT-2 kinh điển, dạy format hội thoại, special tokens, tool use.</li>
         <li><b>Reward Model</b>: chấm điểm ưu tiên cặp output (FareedKhan implement from scratch).</li>
         <li><b>DPO</b>: tối ưu trực tiếp từ cặp (chosen, rejected), bỏ RM/PPO.</li>
-        <li><b>GRPO/RLVR</b>: bỏ critic, chuẩn hoá reward theo nhóm sample; RLVR = reward <b>kiểm chứng được</b> (toán đúng/sai, test pass) → nền reasoning (o1/R1-style).</li>
+        <li><b>GRPO</b>: chuẩn hoá reward theo nhóm sample, không cần critic riêng; <b>RLVR</b> mô tả reward <b>kiểm chứng được</b> (toán đúng/sai, test pass) → nền reasoning (o1/R1-style).</li>
         <li><b>Tool-use RL</b> (nanochat): model học gọi Python để tính/đếm, reward khi đúng.</li>
       </ul>
       <div class="tagrow"><span class="kt">midtrain</span><span class="kt">RM</span><span class="kt">DPO</span><span class="kt">GRPO</span><span class="kt">RLVR</span><span class="kt">tool-use RL</span></div>

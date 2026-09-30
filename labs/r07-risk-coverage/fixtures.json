@@ -1,0 +1,77 @@
+[
+  {
+    "name": "no-data",
+    "input": {
+      "total": 0,
+      "accepted": 0,
+      "errors": 0,
+      "allowed_error": 0.01
+    },
+    "expected": {
+      "status": "INSUFFICIENT_EVIDENCE",
+      "coverage": null,
+      "accepted_risk": null,
+      "upper": 1.0
+    }
+  },
+  {
+    "name": "zero-accepted",
+    "input": {
+      "total": 10,
+      "accepted": 0,
+      "errors": 0,
+      "allowed_error": 0.01
+    },
+    "expected": {
+      "status": "INSUFFICIENT_EVIDENCE",
+      "coverage": 0.0,
+      "accepted_risk": null
+    }
+  },
+  {
+    "name": "100-clean",
+    "input": {
+      "total": 100,
+      "accepted": 100,
+      "errors": 0,
+      "allowed_error": 0.01
+    },
+    "expected": {
+      "status": "NOT_PASSED",
+      "upper": 0.029513049607039932
+    }
+  },
+  {
+    "name": "299-clean",
+    "input": {
+      "total": 299,
+      "accepted": 299,
+      "errors": 0,
+      "allowed_error": 0.01
+    },
+    "expected": {
+      "status": "PASS_STATISTICAL_GATE",
+      "upper": 0.009969146792899286
+    }
+  },
+  {
+    "name": "bad-counts",
+    "input": {
+      "total": 1,
+      "accepted": 2,
+      "errors": 0,
+      "allowed_error": 0.01
+    },
+    "raises": "ValueError"
+  },
+  {
+    "name": "boolean-count",
+    "input": {
+      "total": true,
+      "accepted": 1,
+      "errors": 0,
+      "allowed_error": 0.01
+    },
+    "raises": "TypeError"
+  }
+]

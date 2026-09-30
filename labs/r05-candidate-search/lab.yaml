@@ -1,0 +1,31 @@
+{
+  "lab_id": "R05",
+  "week": 29,
+  "title": "Tìm bản cải tiến prompt và kỹ năng",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    6,
+    9,
+    11
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/controlled-learning.md",
+    "labs/specifications.md"
+  ]
+}

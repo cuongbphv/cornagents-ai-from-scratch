@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "input",
+    "expected"
+  ],
+  "properties": {
+    "input": {
+      "type": "string"
+    },
+    "expected": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "OK",
+            "AMBIGUOUS"
+          ]
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unit": {
+          "const": "đồng"
+        },
+        "raw": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

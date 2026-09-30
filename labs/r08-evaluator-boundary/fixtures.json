@@ -1,0 +1,50 @@
+[
+  {
+    "name": "frozen",
+    "input": {
+      "artifact": {
+        "parser": "integer-only"
+      },
+      "frozen": {
+        "parser": "integer-only"
+      },
+      "cases": [
+        {
+          "input": "3 nghìn đồng",
+          "expected": {
+            "status": "OK",
+            "value": 3000,
+            "unit": "đồng"
+          }
+        }
+      ]
+    },
+    "expected": {
+      "outcomes": [
+        true
+      ]
+    }
+  },
+  {
+    "name": "changed-after-eval",
+    "input": {
+      "artifact": {
+        "parser": "new"
+      },
+      "frozen": {
+        "parser": "integer-only"
+      },
+      "cases": [
+        {
+          "input": "3 nghìn đồng",
+          "expected": {
+            "status": "OK",
+            "value": 3000,
+            "unit": "đồng"
+          }
+        }
+      ]
+    },
+    "raises": "PermissionError"
+  }
+]

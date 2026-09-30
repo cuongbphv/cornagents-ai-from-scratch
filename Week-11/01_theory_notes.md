@@ -14,7 +14,7 @@ Số học byte thuần (tự kiểm được): model 8B tham số ở fp16/bf16
 | Gradient | mọi tham số | chỉ adapter LoRA (~0.5-1%, bảng Tuần 9) |
 | Optimizer state | mọi tham số × 2 | chỉ adapter × 2 |
 
-Con số thực tế trong [README.md](README.md) (theo bảng requirements của Unsloth): 7B ≈ 5GB, 8B ≈ 6GB, khớp bậc độ lớn với số học trên cộng overhead activation/cache.
+Số học weights chỉ là ước lượng thành phần, không phải peak VRAM của training. Đo toàn workload và lưu model/config/runtime; không cam kết model vừa máy từ bảng requirements khác cấu hình.
 
 ## 2. Ba kỹ thuật trong paper QLoRA: biết để đọc log không hoang mang
 

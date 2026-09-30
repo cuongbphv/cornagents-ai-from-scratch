@@ -1,0 +1,60 @@
+[
+  {
+    "name": "synthetic-transfer-fixtures",
+    "input": {
+      "cases": [
+        {
+          "input": "2 tỷ đồng",
+          "expected": {
+            "status": "OK",
+            "value": 2000000000,
+            "unit": "đồng"
+          }
+        },
+        {
+          "input": "12",
+          "expected": {
+            "status": "AMBIGUOUS",
+            "raw": "12"
+          }
+        }
+      ]
+    },
+    "expected": {
+      "label": "SYNTHETIC_FIXTURE_REPLAY",
+      "tasks": 2,
+      "matched": 2,
+      "success_rate": 1.0
+    }
+  },
+  {
+    "name": "no-tasks",
+    "input": {
+      "cases": []
+    },
+    "expected": {
+      "tasks": 0,
+      "success_rate": null
+    }
+  },
+  {
+    "name": "incorrect-label-detected",
+    "input": {
+      "cases": [
+        {
+          "input": "2 đồng",
+          "expected": {
+            "status": "OK",
+            "value": 2000,
+            "unit": "đồng"
+          }
+        }
+      ]
+    },
+    "expected": {
+      "tasks": 1,
+      "matched": 0,
+      "success_rate": 0.0
+    }
+  }
+]

@@ -273,7 +273,7 @@ Về kế hoạch hands-on, chủ repo xác nhận 2026-08-16 sẵn sàng thuê 
 Pipeline từ base model tới model biết hội thoại và suy luận:
 
 ```
-Pretrain → SFT → Reward Model → PPO hoặc DPO → GRPO / RLVR
+Pretrain → (Midtrain tùy chọn) → SFT → {DPO trực tiếp | RM → PPO}; GRPO/RLVR là nhánh theo mục tiêu và reward
 ```
 
 Pretrain là dự đoán token kế (Tuần 8). SFT, hay instruction tuning, là supervised learning trên cặp instruction và response với cùng objective cross-entropy (SLP3 mục 8.1, trang 210; Tuần 9). Từ đây trở đi là học từ sở thích.

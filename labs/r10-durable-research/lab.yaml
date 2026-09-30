@@ -1,0 +1,31 @@
+{
+  "lab_id": "R10",
+  "week": 34,
+  "title": "Chạy dài với quota, hủy và recovery",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    4,
+    9,
+    10
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/runtime-boundaries.md",
+    "labs/specifications.md"
+  ]
+}

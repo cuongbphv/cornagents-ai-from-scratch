@@ -3,11 +3,12 @@
    Phụ thuộc: weeks-data.js (PHASES, WEEKS_DATA), quiz-data.js (QUIZ_DATA),
               advanced-data.js (ADVANCED_TOPICS), Chart.js, MathJax
    ============================================================ */
-const PHASES = window.PHASES;
-const WEEKS  = window.WEEKS_DATA;
-const QUIZ   = (window.QUIZ_DATA && window.QUIZ_DATA.weeks) || [];
+const TRACK = new URLSearchParams(location.search).get('track') === 'fast' ? 'fast' : 'main';
+const PHASES = TRACK === 'fast' ? window.PHASES : window.CORN_CURRICULUM.phases;
+const WEEKS = TRACK === 'fast' ? window.WEEKS_DATA : window.CORN_CURRICULUM.weeks;
+const QUIZ = (TRACK === 'fast' ? window.QUIZ_DATA : window.CORE_QUIZ_DATA).weeks;
 const ADV    = window.ADVANCED_TOPICS || [];
-const PHASE_VAR = {0:'var(--p0)',1:'var(--p1)',2:'var(--p2)',3:'var(--p3)'};
+const PHASE_VAR = {0:'var(--p0)',1:'var(--p1)',2:'var(--p2)',3:'var(--p3)',4:'var(--p4)'};
 function icon(name, cls=''){ return `<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`; }
 const LETTERS = ['A','B','C','D','E','F'];
 
@@ -16,7 +17,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function quizFor(n){const w=QUIZ.find(x=>x.week===n);return w?w.questions:[];}
 
 /* ---------------- progress state ---------------- */
-const LS_KEY = "llm_scratch_progress_v2";
+const LS_KEY = TRACK === "fast" ? "llm_scratch_progress_v2" : "cornagents_main_progress";
 const LS_KEY_V1 = "llm_scratch_progress_v1";
 let state = {};
 try { state = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch(e){ state = {}; }
@@ -24,7 +25,7 @@ try { state = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch(e){ stat
    Tiến độ đã tick theo khóa v1 được chuyển sang khóa v2 một lần, rồi bỏ khóa cũ. */
 try {
   const old = localStorage.getItem(LS_KEY_V1);
-  if (old && !localStorage.getItem(LS_KEY)) {
+  if (TRACK === "fast" && old && !localStorage.getItem(LS_KEY)) {
     const v1 = JSON.parse(old);
     for (const k in v1) { const m = /^w(\d+)_(\d+)$/.exec(k); if (m) state["w" + (+m[1] + 3) + "_" + m[2]] = v1[k]; }
     localStorage.setItem(LS_KEY, JSON.stringify(state));
@@ -49,7 +50,7 @@ function weekStatus(w){
 
 
 /* ---------------- theory notes (nhúng, render lazy) ---------------- */
-const THEORY = window.THEORY_DATA || {};
+const THEORY = (TRACK === "fast" ? window.THEORY_DATA : window.CORE_THEORY_DATA) || {};
 function renderTheoryBlock(n){
   const t = THEORY[n];
   if(!t) return '';
@@ -68,20 +69,35 @@ function renderTheoryBlock(n){
    giữ link tương đối như cũ. */
 const REPO_BLOB = 'https://github.com/cuongbphv/cornagents-ai-from-scratch/blob/main/';
 const HOSTED = location.protocol !== 'file:' && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-function rewriteRelativeLinks(root, n){
-  const weekDir = `../Week-${String(n).padStart(2,'0')}/`;
-  root.querySelectorAll('a[href]').forEach(a=>{
-    const h = a.getAttribute('href');
-    if(/^(https?:|mailto:|#)/.test(h)) { if(/^https?:/.test(h)) { a.target='_blank'; a.rel='noopener'; } return; }
-    const rel = h.startsWith('../') ? h : weekDir + h;           // đường dẫn tính từ report/
-    if(HOSTED){
-      a.setAttribute('href', REPO_BLOB + rel.replace(/^\.\.\//, ''));
-      a.target = '_blank'; a.rel = 'noopener';
-    } else {
-      a.setAttribute('href', rel);
-    }
+// Hosted Pages contains report/ only; use repository links for source documents.
+if (HOSTED) {
+  document.querySelectorAll('[data-curriculum-file]').forEach(a => {
+    a.href = REPO_BLOB + a.dataset.curriculumFile;
+    a.target = '_blank';
+    a.rel = 'noopener';
   });
 }
+function weekDirectory(n){
+  return (WEEKS.find(w=>w.n===n) || {}).directory || `Week-${String(n).padStart(2,'0')}`;
+}
+function rewriteRelativeLinks(root, n){
+  const base = HOSTED ? REPO_BLOB + weekDirectory(n) + '/' :
+    new URL('../' + weekDirectory(n) + '/', location.href).href;
+  root.querySelectorAll('a[href]').forEach(a=>{
+    const h = a.getAttribute('href');
+    if (/^(https?:|mailto:|#)/.test(h)) return;
+    a.href = new URL(h, base).href;
+    if(HOSTED){ a.target = '_blank'; a.rel = 'noopener'; }
+  });
+}
+function rewriteRepoLinks(root){
+  root.querySelectorAll('[data-repo-file]').forEach(a=>{
+    const path = a.dataset.repoFile;
+    a.href = HOSTED ? REPO_BLOB + path : new URL('../' + path, location.href).href;
+    if(HOSTED){ a.target='_blank'; a.rel='noopener'; }
+  });
+}
+
 function toggleTheory(head){
   const box = head.closest('.theory');
   const body = box.querySelector('.theory-body');
@@ -141,7 +157,7 @@ function renderQuizBlock(n){
   return `
     <div class="quiz">
       <h4>${icon('help','sm')}Quiz tự kiểm tra, ${qs.length} câu${nAdv?` (${nAdv} nâng cao)`:''}</h4>
-      <div class="quiz-meta">Bấm vào câu hỏi (hoặc nút) để lật đáp án. File gốc: <code>Week-${String(n).padStart(2,'0')}/quiz.md</code> &amp; <code>quiz_solution.md</code>.</div>
+      <div class="quiz-meta">Bấm vào câu hỏi (hoặc nút) để lật đáp án. File gốc: <code>${weekDirectory(n)}/quiz.md</code> &amp; <code>quiz_solution.md</code>.</div>
       <div class="quiz-actions">
         <button class="btn" type="button" onclick="flipAllQuiz(${n},true)">Hiện tất cả đáp án</button>
         <button class="btn" type="button" onclick="flipAllQuiz(${n},false)">Ẩn tất cả</button>
@@ -348,6 +364,13 @@ function renderRing(){
   const accent=cs.getPropertyValue('--accent').trim()||'#2563eb', track=cs.getPropertyValue('--surface-2').trim()||'#f1f4f8';
   const data={datasets:[{data:[t.pct,100-t.pct],backgroundColor:[accent,track],borderWidth:0,cutout:'80%',circumference:360}]};
   const reduced=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(typeof Chart === "undefined"){
+    document.getElementById("ringPct").textContent=t.pct+"%";
+    document.getElementById("navPct").textContent=t.pct+"%";
+    document.getElementById("doneItems").textContent=t.done;
+    document.getElementById("totalItems").textContent=t.total;
+    return;
+  }
   if(ringChart){ ringChart.data.datasets[0].data=[t.pct,100-t.pct]; ringChart.update(); }
   else{
     ringChart=new Chart(ctx,{type:'doughnut',data,options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{animateRotate:!reduced,duration:reduced?0:600}}});
@@ -413,19 +436,31 @@ if(filterEl) filterEl.addEventListener('click',e=>{
   const b=e.target.closest('.fbtn'); if(!b)return;
   filterEl.querySelectorAll('.fbtn').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false');});
   b.classList.add('active'); b.setAttribute('aria-pressed','true');
-  renderWeeks(b.dataset.f); refreshAll();
+  renderWeeks(b.dataset.f); rewriteRepoLinks(document); refreshAll();
 });
 const resetBtn = document.getElementById('resetBtn');
 if(resetBtn) resetBtn.addEventListener('click',()=>{
   if(confirm('Đặt lại toàn bộ tiến độ? Mọi mục đã tick sẽ bị xóa.')){
     state={}; save();
     const active=(filterEl && filterEl.querySelector('.fbtn.active').dataset.f) || 'all';
-    renderWeeks(active); refreshAll();
+    renderWeeks(active); rewriteRepoLinks(document); refreshAll();
   }
 });
 
 /* ---------------- init ---------------- */
+const fast = TRACK === 'fast';
+document.getElementById('h-dashboard').textContent = fast ? 'Tiến độ fast-track 18 tuần' : 'Tiến độ lịch học chính 36 tuần';
+document.getElementById('h-roadmap').textContent = fast ? 'Bốn phase của fast-track' : 'Năm phase của CornAgents.AI';
+document.getElementById('h-weeks').textContent = fast ? 'Bài học fast-track' : 'Bài học từng tuần — lịch chính';
+document.getElementById('track-note').textContent = fast ? 'Đang xem bài học và checklist cũ. Dùng bảng quy đổi để bổ sung năng lực còn thiếu.' : 'Đang xem 36 bài học có ghi chú, starter, protocol, báo cáo và quiz. Tick checklist chỉ ghi tiến độ, không thay chứng cứ qua môn.';
+document.getElementById('quiz-count').textContent = QUIZ.reduce((n,w)=>n+w.questions.length,0);
+document.getElementById('week-count').textContent = WEEKS.length;
+document.getElementById('available-weeks').textContent = WEEKS.length;
+const researchFilter = document.querySelector('.fbtn[data-f="4"]');
+if(researchFilter) researchFilter.hidden = fast;
+
 renderWeeks('all');
+rewriteRepoLinks(document);
 renderAdvanced();
 renderBooks('all');
 refreshAll();

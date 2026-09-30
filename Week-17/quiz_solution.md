@@ -19,9 +19,9 @@ Bốn stage của knowledge graph pipeline (Anthropic Playbook) theo đúng th�
 
 RAG và Knowledge Graph khác nhau thế nào, khi nào cần cái nào?
 
-**Trả lời mẫu:** RAG retrieve chunk theo tương đồng ngữ nghĩa với câu hỏi, tốt cho câu hỏi single-hop (đáp án nằm trong một đoạn). Nó thất bại với multi-hop: khi đáp án phải NỐI facts từ nhiều tài liệu không giống nhau về mặt lexical/semantic. Knowledge graph biến entity chung thành node tường minh có edge sang cả hai tài liệu, graph traversal tìm ra kết nối bất kể surface form. Hai cách bổ trợ: RAG rẻ cho direct retrieval, KG cho structural reasoning; thực tế dùng cùng nhau.
+**Trả lời mẫu:** RAG có thể retrieval lặp và tổng hợp nhiều nguồn để xử lý multi-hop. Graph giúp biểu diễn và truy vấn quan hệ tường minh, nhưng extraction/resolution có thể lỗi. Chọn bằng đối chứng retrieval không graph dưới cùng ngân sách.
 
-**Giải thích:** Quy tắc: cần CHAIN facts xuyên nguồn / SHARE structured state / GROUND phán xét → graph. Chỉ cần retrieve/classify → RAG hoặc đơn giản hơn là đủ.
+**Giải thích:** Theo tài liệu chương trình mục 1.1 và 6.5; không dùng quy tắc single-hop/multi-hop để bắt buộc graph.
 
 ## Câu 3 (Trắc nghiệm)
 
@@ -47,7 +47,7 @@ Vì sao với knowledge graph, PRECISION của extraction thường quan trọng
 
 **Đáp án: C**
 
-**Giải thích:** Kết quả trên Apollo corpus: precision 1.00, recall 0.38-0.55, extractor bảo thủ là trade-off ĐÚNG cho production; evaluation harness giúp bạn chỉnh trade-off này có chủ đích.
+**Giải thích:** Quan hệ sai có thể lan truyền; thực thể thiếu cũng có thể làm mất đáp án. Đo cả precision/recall theo task và corpus, không lấy một ngưỡng phổ quát cho production.
 
 ## Câu 5 (Tự luận)
 

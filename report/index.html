@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LLM From Scratch: lộ trình, quiz và checklist</title>
+<title>CornAgents.AI: lộ trình, quiz và checklist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Crimson+Pro:wght@500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -48,10 +48,10 @@ window.MathJax = {
 
 <nav class="nav" aria-label="Điều hướng chính">
   <div class="nav-inner">
-    <a class="brand" href="#top"><span class="mark"><svg class="ic sm" aria-hidden="true"><use href="#i-graph"/></svg></span>LLM From Scratch</a>
+    <a class="brand" href="#top"><span class="mark"><svg class="ic sm" aria-hidden="true"><use href="#i-graph"/></svg></span>CornAgents.AI</a>
     <div class="nav-links">
       <a href="#dashboard">Tổng quan</a>
-      <a href="#roadmap">Lộ trình</a>
+      <a href="#curriculum">Lộ trình</a>
       <a href="#weeks">Theo tuần</a>
       <a href="#advanced">Nâng cao</a>
       <a href="#books">Kệ sách</a>
@@ -61,14 +61,14 @@ window.MathJax = {
 </nav>
 
 <header class="hero wrap" id="top">
-  <div class="eyebrow">Lộ trình tự học <span class="sep">|</span> 18 tuần <span class="sep">|</span> khoảng 4 đến 4,5 tháng bán thời gian</div>
+  <div class="eyebrow">CornAgents.AI <span class="sep">|</span> core 24 + nghiên cứu 12 tuần <span class="sep">|</span> kế hoạch đề xuất</div>
   <h1>Học LLM từ toán nền tới hệ thống agent</h1>
-  <p class="sub">Ba tuần nền toán và lý thuyết học, rồi tự xây Transformer và pretrain một model cỡ GPT-2, sau đó RAG, fine-tuning QLoRA và MLX, knowledge graph làm bộ nhớ chung cho multi-agent, và kết thúc bằng <b>CornAgents.AI</b>, framework agentic-SDLC cá nhân neo vào domain Finance Banking. Mọi nguồn trong lộ trình là repo mở, paper truy cập mở, và sách có link chính thức.</p>
+  <p class="sub">Học từ toán và cơ chế Transformer đến hệ thống nghiên cứu có bằng chứng, bộ nhớ có phạm vi và cải tiến qua kiểm định. Roadmap điều chỉnh vẫn thuộc <b>CornAgents.AI</b>. Lịch chính có bài học riêng cho đủ 36 tuần. Các bài 18 tuần hiện có được giữ làm fast-track, với tiến độ riêng.</p>
   <div class="hero-meta">
-    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg><div><div class="v">4</div><div class="k">phase</div></div></div>
-    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><div><div class="v">18</div><div class="k">tuần</div></div></div>
-    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg><div><div class="v">304</div><div class="k">câu quiz</div></div></div>
-    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg><div><div class="v">25</div><div class="k">sách mở</div></div></div>
+    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg><div><div class="v">5</div><div class="k">phase đề xuất</div></div></div>
+    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><div><div class="v" id="week-count">36</div><div class="k">bài học của đường đang xem</div></div></div>
+    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg><div><div class="v" id="quiz-count"></div><div class="k">câu quiz của đường đang xem</div></div></div>
+    <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg><div><div class="v">25</div><div class="k">mục sách trong catalog</div></div></div>
     <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><div><div class="v">9</div><div class="k">chủ đề nâng cao</div></div></div>
     <div class="chip"><svg class="ic" aria-hidden="true"><use href="#i-cpu"/></svg><div><div class="v">3</div><div class="k">máy: RTX 3070 Ti, Mac 24GB, cloud</div></div></div>
   </div>
@@ -76,13 +76,39 @@ window.MathJax = {
 
 <main class="wrap" id="main">
 
+  <section id="curriculum" aria-labelledby="h-curriculum">
+    <div class="sec-head"><div>
+      <h2 class="sec-title" id="h-curriculum">Lộ trình CornAgents.AI</h2>
+      <p class="sec-desc">Đề xuất điều chỉnh ngày 30/09/2026: core 24 tuần và 12 tuần nghiên cứu, học có kiểm soát. Các bảng mô tả mục tiêu và vật chứng cần tạo; bài học, starter và fixture offline đã có; kết quả người học và live-model cần thực hiện riêng.</p>
+    </div></div>
+    <div class="card curriculum-note">
+      <p><b>Chọn đường học:</b> người mới AI đi core; người có nền ML/systems dùng fast-track 18 tuần và bổ sung năng lực còn thiếu. Nhịp 10–12 giờ/tuần là giả định trong bản kế hoạch, chưa phải thời lượng đã đo.</p>
+      <p><b>Ba cửa riêng:</b> G1 kiểm người học tự giải thích và làm phần lõi; G2 kiểm outcome hệ thống; G3 xét bằng chứng trước khi dùng candidate. Thí nghiệm không cải thiện vẫn cần báo cáo trung thực.</p>
+      <p><a data-curriculum-file="Week-00/plan_llm_from_scratch_vi.md" href="../Week-00/plan_llm_from_scratch_vi.md">Roadmap chi tiết và bảng quy đổi thư mục tuần</a> · <a data-curriculum-file="docs/curriculum/README.md" href="../docs/curriculum/README.md">Tài liệu chương trình và nguồn</a></p>
+    </div>
+<h3>Phase 0 · Phép đo và nền toán (1–4) <small>· Đề xuất</small></h3>
+<div class="curriculum-table" tabindex="0" role="region" aria-label="Bảng lộ trình có thể cuộn ngang"><table><thead><tr><th scope="col">Tuần nền tảng</th><th scope="col">Mục tiêu / việc thực hành</th><th scope="col">Sản phẩm cần nộp và tiêu chí qua môn</th><th scope="col">Tài liệu fast-track có thể tái sử dụng</th></tr></thead><tbody><tr><td>1–2</td><td>Dựng môi trường; định nghĩa task, dữ liệu và baseline không LLM</td><td>Mô tả phạm vi nhiệm vụ, manifest dữ liệu/cấu hình, đánh giá đầu tiên; giải thích nhãn đúng/sai</td><td>Prerequisites; bổ sung contract và baseline theo bản kế hoạch</td></tr><tr><td>3–4</td><td>Đại số tuyến tính, đạo hàm, xác suất qua NumPy</td><td>Logistic regression tự viết, gradient check; tách lỗi model và phép đo</td><td>Week-01–03</td></tr></tbody></table></div>
+<h3>Phase 1 · Hiểu nội tại (5–14) <small>· Đề xuất</small></h3>
+<div class="curriculum-table" tabindex="0" role="region" aria-label="Bảng lộ trình có thể cuộn ngang"><table><thead><tr><th scope="col">Tuần nền tảng</th><th scope="col">Mục tiêu / việc thực hành</th><th scope="col">Sản phẩm cần nộp và tiêu chí qua môn</th><th scope="col">Tài liệu fast-track có thể tái sử dụng</th></tr></thead><tbody><tr><td>5–6</td><td>Autograd, MLP, PyTorch và training loop</td><td>So gradient với bản tham chiếu, tạo overfit có chủ ý; giải thích loss và khả năng khái quát</td><td>Week-04–05</td></tr><tr><td>7–8</td><td>Tokenizer, BPE, causal attention</td><td>Unicode/round-trip, causal mask và label-shift tests</td><td>Week-06</td></tr><tr><td>9–10</td><td>Tiny Transformer; RoPE, normalization, KV cache</td><td>So đầu ra có/không dùng cache, đo bằng profiler; báo cáo tài nguyên thực tế</td><td>Week-07; advanced topics là tài liệu bổ sung</td></tr><tr><td>11–12</td><td>Curation, dedup, pretraining nhỏ và training dynamics</td><td>Hồ sơ dữ liệu, chia tập theo nguồn, thí nghiệm tách ảnh hưởng từng thành phần; checkpoint và loss log</td><td>Week-08; bổ sung chống contamination</td></tr><tr><td>13–14</td><td>SFT/LoRA và preference learning</td><td>Thí nghiệm model nhỏ/adapter, DPO loss trên ví dụ nhỏ; phân biệt L2 và L3</td><td>Week-09–12; không bắt chạy model lớn</td></tr></tbody></table></div>
+<h3>Phase 2 · Retrieval và tài liệu (15–18) <small>· Đề xuất</small></h3>
+<div class="curriculum-table" tabindex="0" role="region" aria-label="Bảng lộ trình có thể cuộn ngang"><table><thead><tr><th scope="col">Tuần nền tảng</th><th scope="col">Mục tiêu / việc thực hành</th><th scope="col">Sản phẩm cần nộp và tiêu chí qua môn</th><th scope="col">Tài liệu fast-track có thể tái sử dụng</th></tr></thead><tbody><tr><td>15–16</td><td>Hybrid retrieval, reranking, context có nguồn</td><td>Báo cáo truy xuất và đoạn nguồn; so bản đối chứng với bản cải tiến, giữ cả kết quả âm</td><td>Week-13–14</td></tr><tr><td>17–18</td><td>Document AI, số/đơn vị, serving</td><td>Dữ liệu trích có vùng nguồn; báo mơ hồ khi thiếu đơn vị; độ trễ và chi phí đo thực tế</td><td>Week-12–14 chỉ bao phủ một phần; Document AI cần bổ sung</td></tr></tbody></table></div>
+<h3>Phase 3 · Agent và capstone nền (19–24) <small>· Đề xuất</small></h3>
+<div class="curriculum-table" tabindex="0" role="region" aria-label="Bảng lộ trình có thể cuộn ngang"><table><thead><tr><th scope="col">Tuần nền tảng</th><th scope="col">Mục tiêu / việc thực hành</th><th scope="col">Sản phẩm cần nộp và tiêu chí qua môn</th><th scope="col">Tài liệu fast-track có thể tái sử dụng</th></tr></thead><tbody><tr><td>19–20</td><td>Bounded agent, typed tools, MCP khi cần</td><td>Hợp đồng công cụ, test từ chối thao tác ngoài quyền, sandbox; kiểm quyền và ngân sách ngoài model</td><td>Week-15; cần bổ sung executor/policy tests</td></tr><tr><td>21–22</td><td>Durable workflow, events, SDLC</td><td>Test crash/retry/thu hồi quyền; bộ đánh giá được bảo vệ; đối chiếu trạng thái thật khi chưa rõ kết quả</td><td>Week-16; checkpoint chưa đủ xác nhận side effect</td></tr><tr><td>23–24</td><td>Capstone nền và mini research</td><td>Các bản đối chứng, kết quả trên tập giữ riêng, nguồn/chi phí/giới hạn; bảo vệ bài làm không dùng AI</td><td>Week-18; Week-17 graph là nhánh tùy bài toán</td></tr></tbody></table></div>
+<h3>Phase 4 · Nghiên cứu và học có kiểm soát (25–36) <small>· Đề xuất</small></h3>
+<div class="curriculum-table" tabindex="0" role="region" aria-label="Bảng lộ trình có thể cuộn ngang"><table><thead><tr><th scope="col">Tuần</th><th scope="col">Module / lab theo bản kế hoạch</th><th scope="col">Sản phẩm cần tạo</th><th scope="col">Tiêu chí qua môn</th></tr></thead><tbody><tr><td>25</td><td>Phạm vi nghiên cứu · R01</td><td>Phân rã câu hỏi; bảng phát biểu–bằng chứng</td><td>Tách sự kiện từ nguồn, suy luận và giả thuyết; không đếm nguồn sao chép như độc lập</td></tr><tr><td>26</td><td>Nghiên cứu lặp và phản chứng · R02</td><td>Vòng nghiên cứu có điều kiện dừng và ghi nhận nguồn mâu thuẫn</td><td>Dừng đúng phạm vi/ngân sách; không đổi câu hỏi để báo thành công</td></tr><tr><td>27</td><td>Bộ nhớ có quản trị · R03</td><td>Vùng chờ kiểm chứng, thời gian hiệu lực, quyền đọc và chuỗi nguồn gốc</td><td>Kiểm dữ liệu hết hiệu lực, truy cập chéo tenant và thu hồi cả dữ liệu dẫn xuất</td></tr><tr><td>28</td><td>Học từ trải nghiệm · R04</td><td>Bản đối chứng cố định, đối chứng Reflexion; bài học có điều kiện và phản ví dụ</td><td>Kiểm tác vụ mới và khả năng giữ năng lực cũ; báo cả kết quả không cải thiện</td></tr><tr><td>29</td><td>Tối ưu prompt/skill · R05</td><td>Tìm bản cải tiến trên tập phát triển, lưu lịch sử tìm kiếm</td><td>Không đọc đáp án test, sửa bộ chấm hay tự thêm quyền</td></tr><tr><td>30</td><td>Chọn thí nghiệm · R06</td><td>Protocol, thí nghiệm tách ảnh hưởng và tìm kiếm ngẫu nhiên; BO trên ví dụ nhỏ là tùy chọn</td><td>So sánh dưới cùng tổng ngân sách; lưu mọi lượt chạy, chỉ rõ biến thay đổi</td></tr><tr><td>31</td><td>Calibration và risk–coverage · R07</td><td>Hiệu chỉnh và chọn ngưỡng trên tập riêng; cố định policy, báo số mẫu/lỗi/coverage và cận thống kê</td><td>Nêu giả định; retry cùng task không thành mẫu độc lập</td></tr><tr><td>32</td><td>Tính toàn vẹn của bộ đánh giá · R08</td><td>Bộ đánh giá cách ly, mã định danh nội dung của bản cải tiến; diễn tập rò rỉ dữ liệu test</td><td>Không đưa đáp án test kín vào workspace; bản bị đổi cần đánh giá lại</td></tr><tr><td>33</td><td>Học tham số offline · R09</td><td>Thí nghiệm adapter/model nhỏ hoặc ví dụ CPU; hồ sơ dữ liệu</td><td>So bản gốc với bản cải tiến, kiểm năng lực cũ/mới và rollback; ghi giới hạn mô phỏng</td></tr><tr><td>34</td><td>Nghiên cứu chạy dài có giới hạn · R10</td><td>Checkpoint, hạn mức chung, hủy tác vụ và đối chiếu trạng thái sau lỗi</td><td>Kiểm lại quyền khi chạy tiếp; kết quả chưa rõ thì không thử lại thiếu kiểm tra</td></tr><tr><td>35</td><td>Đưa bản cải tiến vào sử dụng có kiểm soát · R11</td><td>Hồ sơ bằng chứng, duyệt đúng mã nội dung, chạy shadow và diễn tập rollback</td><td>Tách quyền đề xuất và duyệt; bằng chứng cũ không áp cho bản mới</td></tr><tr><td>36</td><td>CornBench-VI R&amp;L · R12</td><td>Bản đối chứng cố định, nhiều vòng học, nhóm tác vụ mới và báo cáo tái lập</td><td>Chấm G1/G2/G3 riêng; thiếu bằng chứng thì không đưa bản cải tiến vào sử dụng</td></tr></tbody></table></div>
+    <p class="sec-desc">R01–R12 có bộ thực hành offline; CornBench-VI R&amp;L vẫn là thiết kế benchmark, chưa có đánh giá agent thật. Chưa có số liệu accuracy, learning gain hay retention của CornAgents.AI trong lần cập nhật này. Tuần 33 có thể dùng CPU toy/replay, cần ghi rõ chưa đo chất lượng live-model.</p>
+  </section>
+
+
+
   <section id="dashboard" aria-labelledby="h-dashboard">
     <div class="sec-head">
       <div>
-        <h2 class="sec-title" id="h-dashboard"><span class="ix">01</span> Tiến độ</h2>
-        <p class="sec-desc">Tick checklist trong từng tuần để cập nhật. Tiến độ lưu trong trình duyệt của bạn, không gửi đi đâu.</p>
+        <h2 class="sec-title" id="h-dashboard"><span class="ix">01</span> Tiến độ lịch chính 36 tuần</h2>
+        <p class="sec-desc">Chọn lịch chính hoặc fast-track. Tiến độ lưu riêng trong trình duyệt; checklist không xác nhận G1/G2/G3.</p>
       </div>
     </div>
+    <p id="track-note" class="sec-desc"></p><p><a href="?track=main#weeks">Lịch chính 36 tuần</a> · <a href="?track=fast#weeks">Fast-track 18 tuần</a></p>
     <div class="dash">
       <div class="card ring-card">
         <div class="ring-wrap">
@@ -96,7 +122,7 @@ window.MathJax = {
           <div class="stat"><div class="n good" id="stWeeksDone">0</div><div class="l">tuần hoàn thành</div></div>
           <div class="stat"><div class="n warn" id="stWeeksProg">0</div><div class="l">tuần đang học</div></div>
           <div class="stat"><div class="n muted" id="stWeeksIdle">18</div><div class="l">tuần chưa bắt đầu</div></div>
-          <div class="stat"><div class="n">~210</div><div class="l">giờ dự kiến</div></div>
+          <div class="stat"><div class="n" id="available-weeks">36</div><div class="l">tuần có bài học/checklist</div></div>
         </div>
         <div class="card">
           <h4>Tiến độ theo phase</h4>
@@ -109,14 +135,15 @@ window.MathJax = {
   <section id="roadmap" aria-labelledby="h-roadmap">
     <div class="sec-head">
       <div>
-        <h2 class="sec-title" id="h-roadmap"><span class="ix">02</span> Bốn phase</h2>
-        <p class="sec-desc">Phase 0 dựng nền toán và lý thuyết học từ kệ sách giáo trình. Ba phase sau đứng trên repo mở micrograd, makemore, nanoGPT, nanochat, bộ alignment của FareedKhan, và paper mở trên arXiv và ACL.</p>
+        <h2 class="sec-title" id="h-roadmap"><span class="ix">02</span> Bốn phase của fast-track</h2>
+        <p class="sec-desc">Nội dung theo tài liệu chương trình; các phần nền tái sử dụng bài from-scratch hiện có. Phần nghiên cứu bổ sung bộ lab offline có giới hạn rõ.</p>
       </div>
       <div class="phase-legend" aria-hidden="true">
         <span class="lg"><span class="tag-dot d0"></span>Nền tảng</span>
         <span class="lg"><span class="tag-dot d1"></span>Deep Internals</span>
         <span class="lg"><span class="tag-dot d2"></span>Applied</span>
-        <span class="lg"><span class="tag-dot d3"></span>Agentic SDLC</span>
+        <span class="lg"><span class="tag-dot d3"></span>Agent và capstone</span>
+        <span class="lg"><span class="tag-dot" style="background:var(--p4)"></span>Nghiên cứu và học</span>
       </div>
     </div>
     <div class="roadmap" id="roadmap-cards"></div>
@@ -125,8 +152,8 @@ window.MathJax = {
   <section id="weeks" aria-labelledby="h-weeks">
     <div class="sec-head">
       <div>
-        <h2 class="sec-title" id="h-weeks"><span class="ix">03</span> Từng tuần</h2>
-        <p class="sec-desc">Mỗi tuần có mục tiêu, nguồn học, deliverable, tóm tắt kiến thức, ghi chú lý thuyết đầy đủ (thu gọn, bấm để mở), quiz lật đáp án, và checklist.</p>
+        <h2 class="sec-title" id="h-weeks"><span class="ix">03</span> Từng tuần fast-track</h2>
+        <p class="sec-desc">Mỗi bài của lịch chính có mục tiêu, nguồn học, starter, protocol, mẫu báo cáo, tóm tắt kiến thức, ghi chú lý thuyết đầy đủ (thu gọn, bấm để mở), quiz lật đáp án, và checklist.</p>
       </div>
       <div class="filter" id="filter" role="group" aria-label="Lọc theo phase">
         <button class="fbtn active" data-f="all" aria-pressed="true">Tất cả</button>
@@ -134,6 +161,7 @@ window.MathJax = {
         <button class="fbtn" data-f="1" aria-pressed="false">Phase 1</button>
         <button class="fbtn" data-f="2" aria-pressed="false">Phase 2</button>
         <button class="fbtn" data-f="3" aria-pressed="false">Phase 3</button>
+        <button class="fbtn" data-f="4" aria-pressed="false">Phase 4</button>
       </div>
     </div>
     <div class="weeks" id="weeks-list"></div>
@@ -143,7 +171,7 @@ window.MathJax = {
     <div class="sec-head">
       <div>
         <h2 class="sec-title" id="h-advanced"><span class="ix">04</span> Kiến thức nâng cao</h2>
-        <p class="sec-desc">Khoảng cách giữa GPT-2 (2019) mà lộ trình xây và các LLM hiện đại (Llama 3, Qwen3, DeepSeek), cộng chiều sâu agentic và graph cho Phase 3. Mỗi thẻ ghi rõ học ở tuần nào; bảng neo đầy đủ trong <code>Week-00/advanced_topics_vi.md</code>.</p>
+        <p class="sec-desc">Số tuần trong các thẻ nâng cao và kệ sách bên dưới thuộc fast-track; quy đổi bằng roadmap. Khoảng cách giữa GPT-2 (2019) mà lộ trình xây và các LLM hiện đại (Llama 3, Qwen3, DeepSeek), cộng chiều sâu agentic và graph cho Phase 3. Mỗi thẻ ghi rõ học ở tuần nào; bảng neo đầy đủ trong <code>Week-00/advanced_topics_vi.md</code>.</p>
       </div>
     </div>
     <div class="adv-grid" id="adv-cards"></div>
@@ -153,7 +181,7 @@ window.MathJax = {
     <div class="sec-head">
       <div>
         <h2 class="sec-title" id="h-books"><span class="ix">05</span> Kệ sách</h2>
-        <p class="sec-desc">25 cuốn giáo trình mở về toán, xác suất, lý thuyết học máy, NLP, IR, RL và deep learning, được trích theo số trang in trong ghi chú các tuần. File PDF chỉ nằm trên máy bạn. Mỗi thẻ ghi link tải chính thức, điều khoản tại ngày tra cứu, và chương cần đọc. Catalog đầy đủ trong <code>docs/books/README.md</code>.</p>
+        <p class="sec-desc">25 mục giáo trình trong catalog về toán, xác suất, lý thuyết học máy, NLP, IR, RL và deep learning, được trích theo số trang in trong ghi chú các tuần. File PDF chỉ nằm trên máy bạn. Mỗi thẻ ghi link tải chính thức, điều khoản tại ngày tra cứu, và chương cần đọc. Catalog đầy đủ trong <code>docs/books/README.md</code>.</p>
       </div>
       <div class="filter" id="bookFilter" role="group" aria-label="Lọc sách theo tuần">
         <button class="fbtn active" data-w="all" aria-pressed="true">Tất cả</button>
@@ -170,13 +198,14 @@ window.MathJax = {
 
 <footer>
   <div class="foot-inner">
-    <div><b>LLM From Scratch</b>, portal lộ trình, quiz và checklist. Tiến độ lưu cục bộ trong trình duyệt của bạn.</div>
+    <div><b>CornAgents.AI</b>, portal lộ trình, quiz và checklist. Tiến độ lưu cục bộ trong trình duyệt của bạn.</div>
     <p class="note">Quiz sinh từ <code>scripts/quiz_bank.json</code> qua <code>scripts/generate_quiz.py</code>, cùng lúc tạo <code>Week-XX/quiz.md</code> và <code>quiz_solution.md</code>. Ghi chú lý thuyết nhúng từ <code>Week-XX/*_theory_notes.md</code> qua <code>scripts/build_theory_data.py</code>. Kiến thức nâng cao đồng bộ với <code>Week-00/advanced_topics_vi.md</code>; kệ sách đồng bộ với <code>docs/books/README.md</code>.</p>
     <div><button class="btn danger" id="resetBtn" type="button"><svg class="ic sm" aria-hidden="true"><use href="#i-undo"/></svg>Đặt lại toàn bộ tiến độ</button></div>
   </div>
 </footer>
 
 <script src="assets/js/weeks-data.js"></script>
+<script src="assets/js/curriculum-data.js"></script>
 <script src="assets/js/quiz-data.js"></script>
 <script src="assets/js/advanced-data.js"></script>
 <script src="assets/js/books-data.js"></script>

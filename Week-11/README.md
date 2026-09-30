@@ -36,7 +36,7 @@ r = 16, lora_alpha = 16
 target = tất cả attention + MLP projections
 ```
 
-VRAM: 7B QLoRA ≈ 5GB, 8B ≈ 6GB (fits). 11B (~7.5GB) ở rìa; 14B (~8.5GB) vượt 8GB.
+VRAM phải đo với model, batch, sequence length, dtype, optimizer và runtime thực tế. Không dùng bảng weights để cam kết toàn workload vừa máy.
 
 ## Deliverable
 

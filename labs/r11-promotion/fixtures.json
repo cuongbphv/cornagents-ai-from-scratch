@@ -1,0 +1,64 @@
+[
+  {
+    "name": "promote-rollback",
+    "input": {
+      "artifact": {
+        "version": "candidate"
+      },
+      "evaluated": {
+        "version": "candidate"
+      },
+      "approved": {
+        "version": "candidate"
+      },
+      "scope": [
+        "fixture"
+      ],
+      "rollback": true
+    },
+    "expected": {
+      "active": "baseline"
+    }
+  },
+  {
+    "name": "mismatched-digest",
+    "input": {
+      "artifact": {
+        "version": "changed"
+      },
+      "evaluated": {
+        "version": "candidate"
+      },
+      "approved": {
+        "version": "candidate"
+      },
+      "scope": [
+        "fixture"
+      ]
+    },
+    "raises": "PermissionError"
+  },
+  {
+    "name": "no-scope",
+    "input": {
+      "artifact": {},
+      "evaluated": {},
+      "approved": {},
+      "scope": []
+    },
+    "raises": "PermissionError"
+  },
+  {
+    "name": "policy-violation",
+    "input": {
+      "artifact": {},
+      "evaluated": {},
+      "approved": {},
+      "scope": [
+        "fixture"
+      ],
+      "violation": true
+    },
+    "raises": "PermissionError"
+  }
+]

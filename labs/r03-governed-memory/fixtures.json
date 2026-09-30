@@ -1,0 +1,66 @@
+[
+  {
+    "name": "quarantine",
+    "input": {
+      "reviewed": false,
+      "reader": "A",
+      "now": 1,
+      "revoke": false
+    },
+    "expected": {
+      "read": "DENIED"
+    }
+  },
+  {
+    "name": "cross-tenant",
+    "input": {
+      "reviewed": true,
+      "reader": "B",
+      "now": 1,
+      "revoke": false
+    },
+    "expected": {
+      "read": "DENIED"
+    }
+  },
+  {
+    "name": "expired",
+    "input": {
+      "reviewed": true,
+      "reader": "A",
+      "now": 10,
+      "revoke": false
+    },
+    "expected": {
+      "read": "DENIED"
+    }
+  },
+  {
+    "name": "source-revoked-transitively",
+    "input": {
+      "reviewed": true,
+      "reader": "A",
+      "now": 1,
+      "revoke": true
+    },
+    "expected": {
+      "read": "DENIED",
+      "states": [
+        "REVOKED",
+        "REVOKED"
+      ]
+    }
+  },
+  {
+    "name": "valid",
+    "input": {
+      "reviewed": true,
+      "reader": "A",
+      "now": 1,
+      "revoke": false
+    },
+    "expected": {
+      "read": "summary"
+    }
+  }
+]

@@ -165,6 +165,7 @@ def render_quiz_data_js(bank: dict) -> str:
         "/* Sinh tự động bởi scripts/generate_quiz.py, KHÔNG sửa tay.\n"
         "   Nguồn: scripts/quiz_bank.json */\n"
         f"window.QUIZ_DATA = {body};\n"
+        + "window.CORE_QUIZ_DATA = " + json.dumps({"weeks": bank.get("core_weeks", [])}, ensure_ascii=False, indent=2) + ";\n"
     )
 
 
@@ -173,7 +174,7 @@ def render_quiz_data_js(bank: dict) -> str:
 # --------------------------------------------------------------------------- #
 def write_week_files(week: dict) -> bool:
     n = week["week"]
-    d = week_dir(n)
+    d = ROOT / week.get("directory", f"Week-{n:02d}")
     if not d.exists():
         print(f"[BỎ QUA] Không thấy thư mục {d} (tuần {n}).")
         return False
@@ -253,6 +254,7 @@ def generate_ai_questions(week: dict, num: int, model: str):
 def main():
     ap = argparse.ArgumentParser(description="Sinh quiz + solution từ quiz_bank.json")
     ap.add_argument("--week", type=int, default=None, help="Chỉ xử lý 1 tuần (vd. 3). Mặc định: tất cả.")
+    ap.add_argument("--track", choices=["all", "main", "fast"], default="all", help="Lịch học chính, fast-track hoặc cả hai.")
     ap.add_argument("--ai", action="store_true", help="Dùng Claude API tạo câu hỏi mới (tùy chọn).")
     ap.add_argument("--num", type=int, default=3, help="Số câu hỏi AI tạo thêm mỗi tuần (mặc định 3).")
     ap.add_argument("--model", default="claude-sonnet-4-6", help="Model cho chế độ --ai.")
@@ -260,7 +262,8 @@ def main():
     args = ap.parse_args()
 
     bank = load_bank()
-    weeks = bank["weeks"]
+    weeks = ((bank["weeks"] if args.track in ("all", "fast") else [])
+             + (bank.get("core_weeks", []) if args.track in ("all", "main") else []))
     targets = [w for w in weeks if args.week is None or w["week"] == args.week]
     if not targets:
         sys.exit(f"[LỖI] Không thấy tuần {args.week} trong bank.")

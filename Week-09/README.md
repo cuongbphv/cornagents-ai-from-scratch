@@ -54,7 +54,7 @@
 Đọc [`../Week-00/advanced_topics_vi.md`](../Week-00/advanced_topics_vi.md) mục **G, chỉ phần sơ đồ pipeline** (đừng đọc hết, phần còn lại là của Tuần 10):
 
 ```
-Pretrain → Midtrain → SFT → Reward Model → PPO/DPO → GRPO/RLVR
+Pretrain → (Midtrain tùy chọn) → SFT → {DPO trực tiếp | RM → PPO}; GRPO/RLVR là nhánh theo mục tiêu và reward
                        ↑
               instruction fine-tuning bạn làm tuần này ≈ bước SFT
 ```
@@ -74,4 +74,4 @@ Số ở đầu tên file = thứ tự học.
 | 2 | `02_instruction_finetune.py` | Skeleton format dataset + fine-tune loop (TODO) |
 | 3 | `quiz.md` / `quiz_solution.md` | Quiz cuối tuần (sinh từ `scripts/quiz_bank.json`, không đánh số) |
 
-> Tiếp theo, **Tuần 10** đi sâu pipeline alignment, từ SFT qua RM và DPO/PPO đến GRPO.
+> Tiếp theo, **Tuần 10** phân biệt SFT, DPO trực tiếp, nhánh RM → PPO và GRPO theo mục tiêu/reward.

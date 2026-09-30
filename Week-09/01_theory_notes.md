@@ -39,7 +39,7 @@ Hai điểm bản chất:
 2. Phần prompt phải được mask: chỉ tính loss trên token phần Response (gán nhãn `-100` cho phần trước, `F.cross_entropy` có `ignore_index=-100` mặc định). Không mask thì model tốn dung lượng học "viết lại đề bài".
    - Nuance từ paper *Instruction Modelling* (arXiv [2405.14394](https://arxiv.org/abs/2405.14394), abstract tra 2026-08-12): mask response-only là mặc định tốt, nhưng nhóm tác giả báo cáo tính loss **cả trên phần instruction** lại có lợi ở hai điều kiện, "datasets with lengthy instructions paired with brief outputs" và khi có ít mẫu train; họ quy lợi ích cho "reduced overfitting". Bài tuần này cứ mask chuẩn; nhớ ngoại lệ này khi dataset của bạn rơi đúng hai điều kiện đó.
 
-Đây chính là bước **SFT** trong pipeline alignment mà Tuần 10 mở rộng: `Pretrain → SFT → RM → PPO/DPO`.
+Đây chính là bước **SFT** trong pipeline alignment mà Tuần 10 mở rộng: `Pretrain → (Midtrain tùy chọn) → SFT → {DPO trực tiếp | RM → PPO}; GRPO/RLVR là nhánh theo mục tiêu và reward`.
 
 ## 4. LoRA: fine-tune bằng 2% tham số
 

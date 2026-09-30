@@ -1,4 +1,4 @@
-# Tuần 10, Đáp án & Giải thích: Nhập môn alignment: SFT → Reward Model → DPO/PPO → GRPO
+# Tuần 10, Đáp án & Giải thích: Nhập môn alignment: SFT, DPO và các nhánh RL
 
 > Chỉ mở sau khi đã tự trả lời `quiz.md`.
 
@@ -8,7 +8,7 @@ Phân biệt SFT, DPO và GRPO.
 
 **Trả lời mẫu:** SFT (Supervised Fine-Tuning): học bắt chước các phản hồi tốt bằng cross-entropy trên cặp (prompt, response chuẩn). DPO (Direct Preference Optimization): tối ưu trực tiếp từ cặp (chosen, rejected) bằng một loss dạng logistic, BỎ QUA reward model và PPO → đơn giản, ổn định. GRPO (Group Relative Policy Optimization): RL bỏ critic, lấy nhiều sample cho cùng prompt và chuẩn hoá reward theo nhóm; hợp với reward kiểm chứng được (RLVR) → nền của reasoning models.
 
-**Giải thích:** Thứ tự thường gặp: SFT → (RM) → DPO hoặc PPO → GRPO. Xem mục G advanced_topics_vi.md.
+**Giải thích:** DPO không bắt buộc reward model riêng. RLHF dùng RM/PPO là nhánh khác; GRPO là thuật toán, RLVR mô tả loại reward. Theo tài liệu chương trình mục 6.3 và 11.
 
 ## Câu 2 (Trắc nghiệm)
 

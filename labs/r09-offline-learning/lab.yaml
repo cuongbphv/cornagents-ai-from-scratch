@@ -1,0 +1,32 @@
+{
+  "lab_id": "R09",
+  "week": 33,
+  "title": "Học tham số offline và giữ năng lực cũ",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    2,
+    9,
+    11
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/research-contracts.md",
+    "labs/specifications.md",
+    "modules/controlled-learning.md"
+  ]
+}

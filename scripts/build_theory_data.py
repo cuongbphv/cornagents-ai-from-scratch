@@ -44,13 +44,20 @@ def main() -> None:
         md = re.sub(r"^# [^\n]*\n+", "", md, count=1)
         data[n] = {"file": f"{d.name}/{p.name}", "words": len(md.split()), "markdown": md}
         print(f"[OK] Tuần {n:>2}: {d.name}/{p.name} ({data[n]['words']} từ)")
+    curriculum = json.loads((ROOT / "curriculum.json").read_text(encoding="utf-8"))
+    core = {}
+    for week in curriculum["weeks"]:
+        p = ROOT / week["directory"] / "01_theory_notes.md"
+        md = re.sub(r"^# [^\n]*\n+", "", p.read_text(encoding="utf-8"), count=1)
+        core[week["week"]] = {"file": str(p.relative_to(ROOT)), "words": len(md.split()), "markdown": md}
     body = json.dumps(data, ensure_ascii=False)
     OUT.write_text(
         "/* Sinh tự động bởi scripts/build_theory_data.py từ Week-XX/*_theory_notes.md. KHÔNG sửa tay. */\n"
-        f"window.THEORY_DATA = {body};\n",
+        f"window.THEORY_DATA = {body};\n"
+        + "window.CORE_THEORY_DATA = " + json.dumps(core, ensure_ascii=False) + ";\n",
         encoding="utf-8",
     )
-    print(f"[XONG] {len(data)} tuần -> {OUT.relative_to(ROOT)} ({OUT.stat().st_size // 1024} KB)")
+    print(f"[XONG] {len(data)} tuần fast-track + {len(core)} tuần lịch chính -> {OUT.relative_to(ROOT)} ({OUT.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":

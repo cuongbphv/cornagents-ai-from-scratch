@@ -1,0 +1,33 @@
+{
+  "lab_id": "R01",
+  "week": 25,
+  "title": "Từ câu hỏi rộng thành phạm vi nghiên cứu",
+  "material_status": "implemented",
+  "reference_scope": "offline_public_synthetic_fixtures",
+  "runtime_status": "designed",
+  "source_sections": [
+    2,
+    3,
+    5,
+    9
+  ],
+  "allowed_targets": [
+    "starter.py"
+  ],
+  "forbidden_targets": [
+    "reference.py",
+    "tests",
+    "fixtures.json"
+  ],
+  "requires": [
+    "protocol",
+    "output_log",
+    "report",
+    "ai_off_defense"
+  ],
+  "source_files": [
+    "modules/research-contracts.md",
+    "modules/evidence-and-memory.md",
+    "labs/specifications.md"
+  ]
+}

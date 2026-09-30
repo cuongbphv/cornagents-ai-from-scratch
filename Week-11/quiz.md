@@ -14,12 +14,12 @@ QLoRA = ?
 
 ## Câu 2 (Trắc nghiệm)
 
-Theo bảng VRAM của Unsloth, QLoRA một model 7B cần khoảng bao nhiêu VRAM?
+Muốn biết workload QLoRA vừa VRAM, cần làm gì?
 
-- **A.** ~5GB
-- **B.** ~2GB
-- **C.** ~24GB
-- **D.** ~12GB
+- **A.** Đo peak memory với model, batch, context, dtype, optimizer và runtime đang dùng
+- **B.** Chỉ lấy số weights nhân 4 bit
+- **C.** Dùng số của một máy khác làm cam kết
+- **D.** Chỉ nhìn dung lượng file tải xuống
 
 ## Câu 3 (Tự luận)
 
